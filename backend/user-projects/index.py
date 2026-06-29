@@ -30,7 +30,7 @@ def handler(event: dict, context) -> dict:
         return {'statusCode': 200, 'headers': cors_headers(), 'body': ''}
 
     method = event.get('httpMethod', 'GET')
-    headers = event.get('headers') or {}
+    headers = {k.lower(): v for k, v in (event.get('headers') or {}).items()}
     session_id = headers.get('x-session-id', '')
     body = json.loads(event.get('body') or '{}')
     schema = os.environ.get('MAIN_DB_SCHEMA', 'public')

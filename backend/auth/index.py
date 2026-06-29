@@ -43,7 +43,7 @@ def handler(event: dict, context) -> dict:
     method = event.get('httpMethod', 'GET')
     path = event.get('path', '/')
     body = json.loads(event.get('body') or '{}')
-    headers = event.get('headers') or {}
+    headers = {k.lower(): v for k, v in (event.get('headers') or {}).items()}
     schema = get_schema()
 
     # POST — роутим по полю action в теле (путь после ID функции не поддерживается платформой)
