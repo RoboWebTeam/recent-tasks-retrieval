@@ -1,5 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
+import { Link } from 'react-router-dom';
 import ParticlesBg from '@/components/ui/particles-bg';
+import { ARTICLES } from '@/data/blog';
 import Icon from '@/components/ui/icon';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -120,6 +122,7 @@ const getNAV = (lang: Lang) => [
   { label: L.nav.portfolio[lang],href: '#portfolio' },
   { label: L.nav.pricing[lang],  href: '#pricing' },
   { label: L.nav.faq[lang],      href: '#faq' },
+  { label: lang === 'ru' ? 'Блог' : 'Blog', href: '/blog' },
 ];
 
 const getCHAT_STEPS = (lang: Lang) => lang === 'ru' ? [
@@ -511,10 +514,9 @@ const Index = () => {
           </a>
           <div className="hidden md:flex items-center gap-6 lg:gap-7 text-sm font-medium text-muted-foreground">
             {NAV.map((n) => (
-              <a key={n.href} href={n.href} className="hover:text-foreground transition-colors relative group">
-                {n.label}
-                <span className="absolute -bottom-0.5 left-0 h-px w-0 bg-primary transition-all group-hover:w-full" />
-              </a>
+              n.href.startsWith('/') && !n.href.startsWith('/#')
+                ? <Link key={n.href} to={n.href} className="hover:text-foreground transition-colors relative group">{n.label}<span className="absolute -bottom-0.5 left-0 h-px w-0 bg-primary transition-all group-hover:w-full" /></Link>
+                : <a key={n.href} href={n.href} className="hover:text-foreground transition-colors relative group">{n.label}<span className="absolute -bottom-0.5 left-0 h-px w-0 bg-primary transition-all group-hover:w-full" /></a>
             ))}
           </div>
           <div className="flex items-center gap-2">
@@ -539,10 +541,9 @@ const Index = () => {
         {menuOpen && (
           <div className="md:hidden border-t border-border bg-background/95 backdrop-blur-xl px-4 pb-6 pt-4 space-y-1 animate-slide-up">
             {NAV.map((n) => (
-              <a key={n.href} href={n.href} onClick={() => setMenuOpen(false)}
-                className="flex items-center gap-2 py-3 px-4 rounded-xl font-medium hover:bg-secondary transition-colors">
-                {n.label}
-              </a>
+              n.href.startsWith('/') && !n.href.startsWith('/#')
+                ? <Link key={n.href} to={n.href} onClick={() => setMenuOpen(false)} className="flex items-center gap-2 py-3 px-4 rounded-xl font-medium hover:bg-secondary transition-colors">{n.label}</Link>
+                : <a key={n.href} href={n.href} onClick={() => setMenuOpen(false)} className="flex items-center gap-2 py-3 px-4 rounded-xl font-medium hover:bg-secondary transition-colors">{n.label}</a>
             ))}
             <a href="/register" className="block">
               <Button className="w-full rounded-full font-semibold mt-4">{L.nav.create[lang]}</Button>
@@ -1248,6 +1249,58 @@ const Index = () => {
         </div>
       </section>
 
+      {/* BLOG */}
+      <section className="py-16 md:py-24 bg-secondary/40">
+        <div className="container">
+          <Reveal>
+            <div className="flex items-end justify-between mb-10 md:mb-14 gap-4">
+              <div>
+                <span className="text-xs sm:text-sm font-semibold uppercase tracking-widest text-primary">Блог</span>
+                <h2 className="mt-3 font-display font-black text-3xl sm:text-4xl md:text-5xl tracking-tight">
+                  Всё об AI‑разработке
+                </h2>
+              </div>
+              <Link to="/blog" className="hidden sm:inline-flex items-center gap-2 text-sm font-semibold text-primary hover:underline shrink-0">
+                Все статьи <Icon name="ArrowRight" size={16} />
+              </Link>
+            </div>
+          </Reveal>
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+            {ARTICLES.slice(0, 3).map((article, i) => (
+              <Reveal key={article.slug} delay={i * 70}>
+                <Link
+                  to={`/blog/${article.slug}`}
+                  className="group flex flex-col h-full rounded-2xl md:rounded-3xl border border-border bg-card overflow-hidden hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
+                >
+                  <div className={`h-1.5 w-full ${i === 0 ? 'bg-gradient-to-r from-primary to-violet-500' : i === 1 ? 'bg-gradient-to-r from-emerald-400 to-teal-500' : 'bg-gradient-to-r from-amber-400 to-orange-500'}`} />
+                  <div className="flex flex-col flex-1 p-5 md:p-6">
+                    <div className="flex items-center justify-between mb-3">
+                      <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">{article.category}</span>
+                      <span className="text-xs text-muted-foreground">{article.readTime} чтения</span>
+                    </div>
+                    <h3 className="font-display font-bold text-lg leading-snug group-hover:text-primary transition-colors flex-1">
+                      {article.title}
+                    </h3>
+                    <p className="mt-2 text-sm text-muted-foreground line-clamp-2">{article.description}</p>
+                    <div className="mt-5 flex items-center justify-between">
+                      <span className="text-xs text-muted-foreground">{article.date}</span>
+                      <span className="inline-flex items-center gap-1 text-xs font-semibold text-primary group-hover:gap-2 transition-all">
+                        Читать <Icon name="ArrowRight" size={13} />
+                      </span>
+                    </div>
+                  </div>
+                </Link>
+              </Reveal>
+            ))}
+          </div>
+          <div className="mt-8 text-center sm:hidden">
+            <Link to="/blog" className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:underline">
+              Все статьи <Icon name="ArrowRight" size={16} />
+            </Link>
+          </div>
+        </div>
+      </section>
+
       {/* FOOTER */}
       <footer className="border-t border-border bg-background">
         <div className="container py-10 md:py-14 grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-10">
@@ -1267,9 +1320,9 @@ const Index = () => {
             <ul className="space-y-2 text-sm text-muted-foreground">
               {NAV.map((n) => (
                 <li key={n.href}>
-                  <a href={n.href} className="hover:text-foreground transition-colors">
-                    {n.label}
-                  </a>
+                  {n.href.startsWith('/') && !n.href.startsWith('/#')
+                    ? <Link to={n.href} className="hover:text-foreground transition-colors">{n.label}</Link>
+                    : <a href={n.href} className="hover:text-foreground transition-colors">{n.label}</a>}
                 </li>
               ))}
             </ul>
