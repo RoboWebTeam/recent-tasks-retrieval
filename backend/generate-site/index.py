@@ -102,10 +102,24 @@ def handler(event: dict, context) -> dict:
         method='POST'
     )
 
-    with urllib.request.urlopen(req, timeout=60) as response:
-        result = json.loads(response.read().decode('utf-8'))
+    try:
+        with urllib.request.urlopen(req, timeout=60) as response:
+            result = json.loads(response.read().decode('utf-8'))
+    except urllib.error.HTTPError as e:
+        body = e.read().decode('utf-8', errors='ignore')
+        return err(f'OpenAI API error {e.code}', 502)
+    except urllib.error.URLError:
+        return err('OpenAI API недоступен. Попробуйте позже.', 503)
+    except (json.JSONDecodeError, Exception):
+        return err('Неверный ответ от OpenAI.', 502)
 
-    html = result['choices'][0]['message']['content'].strip()
+    choices = result.get('choices') or []
+    if not choices:
+        return err('OpenAI вернул пустой ответ.', 502)
+
+    html = (choices[0].get('message') or {}).get('content', '').strip()
+    if not html:
+        return err('OpenAI вернул пустой HTML.', 502)
 
     # Убираем markdown-обёртку если есть
     if html.startswith('```'):

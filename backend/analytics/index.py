@@ -73,8 +73,11 @@ def handler(event: dict, context) -> dict:
     # GET — статистика (для дашборда пользователя или админа)
     if method == 'GET':
         query_params = event.get('queryStringParameters') or {}
-        days = int(query_params.get('days', 7))
-        site_url = query_params.get('site_url', '')
+        try:
+            days = max(1, min(int(query_params.get('days', 7)), 365))
+        except (ValueError, TypeError):
+            days = 7
+        site_url = query_params.get('site_url', '')[:500]  # ограничиваем длину
         admin_key = headers.get('x-admin-key', '')
         session_id = headers.get('x-session-id', '')
 

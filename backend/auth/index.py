@@ -52,16 +52,18 @@ def err(msg: str, code: int = 400) -> dict:
 def check_rate_limit(conn, schema: str, key: str, max_attempts: int = 5, window_minutes: int = 15) -> bool:
     """
     Проверяет rate limit. Возвращает True если разрешено, False если превышено.
-    Использует таблицу rate_limits в БД.
+    Fail-closed: при ошибке БД — блокируем (безопаснее).
     """
+    # Санитизация — только int, чтобы исключить SQL-инъекцию через f-string
+    window_minutes = int(window_minutes)
+    max_attempts = int(max_attempts)
     try:
         with conn.cursor() as cur:
-            # Удаляем устаревшие записи
+            # Параметризованный INTERVAL через make_interval
             cur.execute(
-                f"DELETE FROM {schema}.rate_limits WHERE key = %s AND created_at < NOW() - INTERVAL '{window_minutes} minutes'",
-                (key,)
+                f"DELETE FROM {schema}.rate_limits WHERE key = %s AND created_at < NOW() - make_interval(mins => %s)",
+                (key, window_minutes)
             )
-            # Считаем попытки за окно
             cur.execute(
                 f"SELECT COUNT(*) FROM {schema}.rate_limits WHERE key = %s",
                 (key,)
@@ -70,7 +72,6 @@ def check_rate_limit(conn, schema: str, key: str, max_attempts: int = 5, window_
             if count >= max_attempts:
                 conn.commit()
                 return False
-            # Записываем попытку
             cur.execute(
                 f"INSERT INTO {schema}.rate_limits (key) VALUES (%s)",
                 (key,)
@@ -78,12 +79,12 @@ def check_rate_limit(conn, schema: str, key: str, max_attempts: int = 5, window_
             conn.commit()
             return True
     except Exception:
-        # Если таблица не существует — не блокируем
+        # Fail-closed: при ошибке блокируем для безопасности
         try:
             conn.rollback()
         except Exception:
             pass
-        return True
+        return False
 
 def handler(event: dict, context) -> dict:
     """Регистрация, вход и получение профиля пользователя"""
