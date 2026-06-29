@@ -112,15 +112,40 @@ function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: nu
   );
 }
 
+const SEND_EMAIL_URL = 'https://functions.poehali.dev/4272fc80-99e8-4abe-8f09-7dce2b50bc57';
+
 const Index = () => {
   const [visibleChat, setVisibleChat] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [formEmail, setFormEmail] = useState('');
+  const [formStatus, setFormStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 
   useEffect(() => {
     if (visibleChat >= CHAT.length) return;
     const t = setTimeout(() => setVisibleChat((v) => v + 1), 1100);
     return () => clearTimeout(t);
   }, [visibleChat]);
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formEmail || formStatus === 'loading') return;
+    setFormStatus('loading');
+    try {
+      const res = await fetch(SEND_EMAIL_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: formEmail }),
+      });
+      if (res.ok) {
+        setFormStatus('success');
+        setFormEmail('');
+      } else {
+        setFormStatus('error');
+      }
+    } catch {
+      setFormStatus('error');
+    }
+  };
 
   useEffect(() => {
     if (menuOpen) document.body.style.overflow = 'hidden';
@@ -430,19 +455,39 @@ const Index = () => {
                 <p className="mt-4 text-background/70 text-base sm:text-lg max-w-xl mx-auto">
                   Оставьте e-mail — и Roboweb начнёт работу. Без карты, без рисков.
                 </p>
-                <form
-                  onSubmit={(e) => e.preventDefault()}
-                  className="mt-6 md:mt-8 flex flex-col sm:flex-row gap-3 max-w-md mx-auto"
-                >
-                  <Input
-                    type="email"
-                    placeholder="Ваш e-mail"
-                    className="h-12 rounded-full bg-white/10 border-white/20 text-background placeholder:text-background/50 px-5"
-                  />
-                  <Button type="submit" size="lg" className="h-12 rounded-full font-semibold px-8 whitespace-nowrap w-full sm:w-auto">
-                    Начать бесплатно
-                  </Button>
-                </form>
+                {formStatus === 'success' ? (
+                  <div className="mt-6 md:mt-8 inline-flex items-center gap-2 rounded-full bg-white/10 border border-white/20 px-6 py-3 text-background font-semibold">
+                    <Icon name="CheckCircle" size={20} className="text-accent" />
+                    Заявка принята! Мы свяжемся с вами.
+                  </div>
+                ) : (
+                  <form
+                    onSubmit={handleSubmit}
+                    className="mt-6 md:mt-8 flex flex-col sm:flex-row gap-3 max-w-md mx-auto"
+                  >
+                    <Input
+                      type="email"
+                      placeholder="Ваш e-mail"
+                      value={formEmail}
+                      onChange={(e) => setFormEmail(e.target.value)}
+                      required
+                      className="h-12 rounded-full bg-white/10 border-white/20 text-background placeholder:text-background/50 px-5"
+                    />
+                    <Button
+                      type="submit"
+                      size="lg"
+                      disabled={formStatus === 'loading'}
+                      className="h-12 rounded-full font-semibold px-8 whitespace-nowrap w-full sm:w-auto"
+                    >
+                      {formStatus === 'loading' ? (
+                        <><Icon name="Loader" size={16} className="mr-2 animate-spin" />Отправляем…</>
+                      ) : 'Начать бесплатно'}
+                    </Button>
+                  </form>
+                )}
+                {formStatus === 'error' && (
+                  <p className="mt-2 text-sm text-rose-300">Ошибка отправки. Попробуйте ещё раз.</p>
+                )}
                 <p className="mt-4 text-xs text-background/50">
                   Нажимая кнопку, вы соглашаетесь с политикой конфиденциальности.
                 </p>

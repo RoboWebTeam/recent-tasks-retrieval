@@ -1,0 +1,17 @@
+{
+  "tests": [
+    {
+      "name": "OPTIONS preflight",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Пустой email — ошибка",
+      "method": "POST",
+      "path": "/",
+      "body": {"email": ""},
+      "expectedStatus": 400
+    }
+  ]
+}
