@@ -28,7 +28,7 @@ const L = {
     badge:  { ru: 'AI-конструктор нового поколения', en: 'Next-gen AI website builder' },
     title:  { ru: 'Создай свой', en: 'Build your' },
     words:  { ru: ['Создай свой лендинг','Создай свой магазин','Создай своё портфолио','Создай свой стартап','Создай свою визитку'], en: ['Build your landing','Build your store','Build your portfolio','Build your startup','Build your card'] },
-    desc:   { ru: 'Roboweb заменяет фрилансеров и конструкторы. Опишите идею в диалоге — и получите готовый сайт за минуты, а не недели.', en: 'Roboweb replaces freelancers and builders. Describe your idea in chat — get a ready website in minutes, not weeks.' },
+    desc:   { ru: 'Roboweb заменяет фрилансеров и конструкторы сайтов. Опишите идею в диалоге — и получите готовый сайт за минуты, а не недели. И это реальность', en: 'Roboweb replaces freelancers and website builders. Describe your idea in chat — get a ready website in minutes, not weeks. And this is reality.' },
     cta:    { ru: 'Создать сайт бесплатно', en: 'Create site for free' },
     demo:   { ru: 'Смотреть демо', en: 'Watch demo' },
     stat1l: { ru: 'средняя сборка', en: 'avg build time' },
