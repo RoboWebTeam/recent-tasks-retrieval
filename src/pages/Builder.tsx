@@ -101,21 +101,29 @@ export default function Builder() {
         }),
       });
 
-      const data = await res.json();
+      const raw = await res.json();
 
-      if (!res.ok) {
+      // Платформа может обернуть ответ в { statusCode, body }
+      let data: Record<string, unknown> = raw;
+      if (raw.body !== undefined) {
+        data = typeof raw.body === 'string' ? JSON.parse(raw.body) : raw.body as Record<string, unknown>;
+      }
+      const statusCode = typeof raw.statusCode === 'number' ? raw.statusCode : res.status;
+      const ok = statusCode >= 200 && statusCode < 300;
+
+      if (!ok) {
         setMessages(prev => {
           const updated = [...prev];
           updated[updated.length - 1] = {
             role: 'assistant',
-            content: data.error || tr('builderError', lang),
+            content: (data as { error?: string }).error || tr('builderError', lang),
           };
           return updated;
         });
         return;
       }
 
-      const generatedHtml = data.html || '';
+      const generatedHtml = (data as { html?: string }).html || '';
       setHtml(generatedHtml);
       setRightTab('preview');
 
