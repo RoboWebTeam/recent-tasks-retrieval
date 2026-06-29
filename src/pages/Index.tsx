@@ -411,92 +411,13 @@ const Index = () => {
             <div className="absolute inset-0 -z-10 rounded-[2.5rem] bg-gradient-to-tr from-primary/10 to-accent/20 blur-2xl" />
 
             {/* Animated Robot SVG */}
-            <div className="mx-auto w-44 sm:w-52 md:w-60 flex items-center justify-center">
+            <div className="robo-bob-wrap mx-auto w-44 sm:w-52 md:w-60 flex items-center justify-center">
               <svg
                 viewBox="0 0 256 256"
                 fill="none"
                 xmlns="http://www.w3.org/2000/svg"
                 className="w-full h-full robo-bob drop-shadow-2xl"
               >
-                {/* Glow behind */}
-                <circle cx="128" cy="160" r="70" fill="hsl(232,90%,58%)" opacity="0.12" className="robo-bob" style={{animationDelay:'0.2s'}} />
-                <circle cx="128" cy="155" r="54" fill="hsl(232,90%,58%)" opacity="0.08" />
-
-                {/* Antenna */}
-                <g className="antenna-sway">
-                  <line x1="128" y1="72" x2="128" y2="52" stroke="hsl(232,90%,58%)" strokeWidth="3.5" strokeLinecap="round"/>
-                  <circle cx="128" cy="46" r="7" fill="hsl(232,90%,58%)" opacity="0.9"/>
-                  <circle cx="128" cy="46" r="4" fill="white"/>
-                  <circle cx="128" cy="46" r="4" fill="hsl(232,90%,58%)" opacity="0.6">
-                    <animate attributeName="r" values="4;6;4" dur="1.2s" repeatCount="indefinite"/>
-                    <animate attributeName="opacity" values="0.6;1;0.6" dur="1.2s" repeatCount="indefinite"/>
-                  </circle>
-                </g>
-
-                {/* Body */}
-                <rect x="72" y="72" width="112" height="120" rx="28" fill="white" stroke="hsl(220,18%,88%)" strokeWidth="1.5"/>
-                <rect x="72" y="72" width="112" height="120" rx="28" fill="url(#bodyGrad)" opacity="0.5"/>
-
-                {/* Scanline overlay */}
-                <clipPath id="bodyClip">
-                  <rect x="72" y="72" width="112" height="120" rx="28"/>
-                </clipPath>
-                <rect x="72" y="72" width="112" height="4" fill="hsl(232,90%,58%)" opacity="0.3" clipPath="url(#bodyClip)" className="robo-scan"/>
-
-                {/* Screen / face panel */}
-                <rect x="86" y="88" width="84" height="72" rx="16" fill="hsl(224,47%,9%)" opacity="0.94"/>
-                <rect x="86" y="88" width="84" height="72" rx="16" fill="url(#screenGrad)" opacity="0.3"/>
-
-                {/* Eyes */}
-                <g className="eye-l">
-                  <rect x="96" y="108" width="22" height="22" rx="7" fill="hsl(232,90%,58%)"/>
-                  <rect x="96" y="108" width="22" height="22" rx="7" fill="white" opacity="0.15"/>
-                  <circle cx="107" cy="119" r="6" fill="white"/>
-                  <circle cx="109" cy="117" r="2.5" fill="hsl(224,47%,9%)"/>
-                  <circle cx="111" cy="116" r="1.2" fill="white" opacity="0.9"/>
-                </g>
-                <g className="eye-r">
-                  <rect x="138" y="108" width="22" height="22" rx="7" fill="hsl(232,90%,58%)"/>
-                  <rect x="138" y="108" width="22" height="22" rx="7" fill="white" opacity="0.15"/>
-                  <circle cx="149" cy="119" r="6" fill="white"/>
-                  <circle cx="151" cy="117" r="2.5" fill="hsl(224,47%,9%)"/>
-                  <circle cx="153" cy="116" r="1.2" fill="white" opacity="0.9"/>
-                </g>
-
-                {/* Mouth — animated smile */}
-                <path d="M 108 140 Q 128 152 148 140" stroke="hsl(88,70%,50%)" strokeWidth="3" strokeLinecap="round" fill="none">
-                  <animate attributeName="d" values="M 108 140 Q 128 150 148 140;M 108 138 Q 128 155 148 138;M 108 140 Q 128 150 148 140" dur="3s" repeatCount="indefinite"/>
-                </path>
-
-                {/* Circuit lines on body */}
-                <g opacity="0.6">
-                  <path d="M 90 148 L 106 148 L 106 160 L 118 160" stroke="hsl(232,90%,58%)" strokeWidth="1.5" strokeLinecap="round" fill="none" className="circuit-1"/>
-                  <path d="M 166 148 L 150 148 L 150 160 L 138 160" stroke="hsl(88,70%,50%)" strokeWidth="1.5" strokeLinecap="round" fill="none" className="circuit-2"/>
-                  <path d="M 110 178 L 128 178 L 128 172 L 146 172" stroke="hsl(232,90%,58%)" strokeWidth="1.5" strokeLinecap="round" fill="none" className="circuit-3"/>
-                </g>
-
-                {/* Chest light */}
-                <circle cx="128" cy="178" r="6" fill="hsl(88,70%,50%)" opacity="0.9">
-                  <animate attributeName="opacity" values="0.5;1;0.5" dur="1.5s" repeatCount="indefinite"/>
-                  <animate attributeName="r" values="5;7;5" dur="1.5s" repeatCount="indefinite"/>
-                </circle>
-                <circle cx="128" cy="178" r="3" fill="white" opacity="0.8"/>
-
-                {/* Arms */}
-                <rect x="48" y="96" width="26" height="56" rx="13" fill="white" stroke="hsl(220,18%,88%)" strokeWidth="1.5"/>
-                <rect x="182" y="96" width="26" height="56" rx="13" fill="white" stroke="hsl(220,18%,88%)" strokeWidth="1.5"/>
-                <circle cx="61" cy="152" r="10" fill="hsl(232,90%,58%)" opacity="0.15"/>
-                <circle cx="195" cy="152" r="10" fill="hsl(232,90%,58%)" opacity="0.15"/>
-
-                {/* Legs */}
-                <rect x="94" y="188" width="26" height="36" rx="13" fill="white" stroke="hsl(220,18%,88%)" strokeWidth="1.5"/>
-                <rect x="136" y="188" width="26" height="36" rx="13" fill="white" stroke="hsl(220,18%,88%)" strokeWidth="1.5"/>
-
-                {/* Feet */}
-                <ellipse cx="107" cy="226" rx="16" ry="7" fill="hsl(232,90%,58%)" opacity="0.2"/>
-                <ellipse cx="149" cy="226" rx="16" ry="7" fill="hsl(232,90%,58%)" opacity="0.2"/>
-
-                {/* Gradients */}
                 <defs>
                   <linearGradient id="bodyGrad" x1="72" y1="72" x2="184" y2="192" gradientUnits="userSpaceOnUse">
                     <stop offset="0%" stopColor="hsl(232,90%,90%)"/>
@@ -506,7 +427,78 @@ const Index = () => {
                     <stop offset="0%" stopColor="hsl(232,90%,58%)"/>
                     <stop offset="100%" stopColor="hsl(88,70%,50%)"/>
                   </linearGradient>
+                  <clipPath id="bodyClip">
+                    <rect x="72" y="72" width="112" height="120" rx="28"/>
+                  </clipPath>
                 </defs>
+
+                {/* Glow behind — opacity only, no transform */}
+                <circle cx="128" cy="160" r="70" fill="hsl(232,90%,58%)" opacity="0.10"/>
+                <circle cx="128" cy="155" r="54" fill="hsl(232,90%,58%)" opacity="0.07"/>
+
+                {/* Antenna */}
+                <g className="antenna-sway">
+                  <line x1="128" y1="72" x2="128" y2="52" stroke="hsl(232,90%,58%)" strokeWidth="3.5" strokeLinecap="round"/>
+                  <circle cx="128" cy="46" r="7" fill="hsl(232,90%,58%)" opacity="0.9"/>
+                  <circle cx="128" cy="46" r="4" fill="white"/>
+                  {/* Pulse via opacity only — no r animate */}
+                  <circle cx="128" cy="46" r="5" fill="hsl(232,90%,58%)">
+                    <animate attributeName="opacity" values="0.4;1;0.4" dur="1.4s" repeatCount="indefinite"/>
+                  </circle>
+                </g>
+
+                {/* Body */}
+                <rect x="72" y="72" width="112" height="120" rx="28" fill="white" stroke="hsl(220,18%,88%)" strokeWidth="1.5"/>
+                <rect x="72" y="72" width="112" height="120" rx="28" fill="url(#bodyGrad)" opacity="0.5"/>
+
+                {/* Scanline — clipped to body, transform only */}
+                <rect x="72" y="72" width="112" height="4" fill="hsl(232,90%,58%)" opacity="0.25" clipPath="url(#bodyClip)" className="robo-scan"/>
+
+                {/* Screen */}
+                <rect x="86" y="88" width="84" height="72" rx="16" fill="hsl(224,47%,9%)" opacity="0.94"/>
+                <rect x="86" y="88" width="84" height="72" rx="16" fill="url(#screenGrad)" opacity="0.3"/>
+
+                {/* Eyes — scaleY blink */}
+                <g className="eye-l">
+                  <rect x="96" y="108" width="22" height="22" rx="7" fill="hsl(232,90%,58%)"/>
+                  <circle cx="107" cy="119" r="6" fill="white"/>
+                  <circle cx="109" cy="117" r="2.5" fill="hsl(224,47%,9%)"/>
+                  <circle cx="111" cy="116" r="1.2" fill="white" opacity="0.9"/>
+                </g>
+                <g className="eye-r">
+                  <rect x="138" y="108" width="22" height="22" rx="7" fill="hsl(232,90%,58%)"/>
+                  <circle cx="149" cy="119" r="6" fill="white"/>
+                  <circle cx="151" cy="117" r="2.5" fill="hsl(224,47%,9%)"/>
+                  <circle cx="153" cy="116" r="1.2" fill="white" opacity="0.9"/>
+                </g>
+
+                {/* Mouth — static smile */}
+                <path d="M 108 140 Q 128 152 148 140" stroke="hsl(88,70%,50%)" strokeWidth="3" strokeLinecap="round" fill="none"/>
+
+                {/* Circuit lines */}
+                <g opacity="0.6">
+                  <path d="M 90 148 L 106 148 L 106 160 L 118 160" stroke="hsl(232,90%,58%)" strokeWidth="1.5" strokeLinecap="round" fill="none" className="circuit-1"/>
+                  <path d="M 166 148 L 150 148 L 150 160 L 138 160" stroke="hsl(88,70%,50%)" strokeWidth="1.5" strokeLinecap="round" fill="none" className="circuit-2"/>
+                  <path d="M 110 178 L 128 178 L 128 172 L 146 172" stroke="hsl(232,90%,58%)" strokeWidth="1.5" strokeLinecap="round" fill="none" className="circuit-3"/>
+                </g>
+
+                {/* Chest light — opacity only */}
+                <circle cx="128" cy="178" r="6" fill="hsl(88,70%,50%)" opacity="0.9">
+                  <animate attributeName="opacity" values="0.4;1;0.4" dur="1.8s" repeatCount="indefinite"/>
+                </circle>
+                <circle cx="128" cy="178" r="3" fill="white" opacity="0.8"/>
+
+                {/* Arms */}
+                <rect x="48" y="96" width="26" height="56" rx="13" fill="white" stroke="hsl(220,18%,88%)" strokeWidth="1.5"/>
+                <rect x="182" y="96" width="26" height="56" rx="13" fill="white" stroke="hsl(220,18%,88%)" strokeWidth="1.5"/>
+
+                {/* Legs */}
+                <rect x="94" y="188" width="26" height="36" rx="13" fill="white" stroke="hsl(220,18%,88%)" strokeWidth="1.5"/>
+                <rect x="136" y="188" width="26" height="36" rx="13" fill="white" stroke="hsl(220,18%,88%)" strokeWidth="1.5"/>
+
+                {/* Feet */}
+                <ellipse cx="107" cy="226" rx="16" ry="7" fill="hsl(232,90%,58%)" opacity="0.15"/>
+                <ellipse cx="149" cy="226" rx="16" ry="7" fill="hsl(232,90%,58%)" opacity="0.15"/>
               </svg>
             </div>
             <div className="glass rounded-3xl p-4 sm:p-5 shadow-2xl mt-[-1.5rem] mx-2 sm:mx-0">
@@ -640,7 +632,7 @@ const Index = () => {
           <div className="mt-10 md:mt-14 grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {FEATURES.map((f, i) => (
               <Reveal key={f.title} delay={i * 70}>
-                <div className="group h-full rounded-2xl md:rounded-3xl border border-border bg-card p-5 md:p-7 transition-all duration-300 hover:-translate-y-2 hover:shadow-xl hover:shadow-primary/10 hover:border-primary/30 cursor-default">
+                <div className="group h-full rounded-2xl md:rounded-3xl border border-border bg-card p-5 md:p-7 transition-all duration-300 hover:shadow-xl hover:shadow-primary/10 hover:border-primary/30 cursor-default">
                   <span className="grid h-10 w-10 md:h-12 md:w-12 place-items-center rounded-xl md:rounded-2xl bg-primary/10 text-primary transition-all duration-300 group-hover:bg-primary group-hover:text-primary-foreground group-hover:scale-110">
                     <Icon name={f.icon} size={20} />
                   </span>
@@ -716,7 +708,7 @@ const Index = () => {
           <div className="mt-10 md:mt-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {PORTFOLIO.map((p, i) => (
               <Reveal key={p.title} delay={i * 70}>
-                <div className="group overflow-hidden rounded-2xl md:rounded-3xl border border-border bg-card transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl cursor-pointer">
+                <div className="group overflow-hidden rounded-2xl md:rounded-3xl border border-border bg-card transition-all duration-300 hover:shadow-2xl cursor-pointer">
                   <div className={`relative h-36 sm:h-44 bg-gradient-to-br ${p.grad} overflow-hidden`}>
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
                     <span className="absolute top-4 left-4 rounded-full bg-white/25 px-3 py-1 text-xs font-semibold text-white backdrop-blur">
@@ -783,7 +775,7 @@ const Index = () => {
           <div className="mt-10 md:mt-14 grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 max-w-5xl mx-auto">
             {PLANS.map((p, i) => (
               <Reveal key={p.name} delay={i * 100}>
-                <div className={`relative h-full rounded-2xl md:rounded-3xl border p-6 md:p-8 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${
+                <div className={`relative h-full rounded-2xl md:rounded-3xl border p-6 md:p-8 transition-all duration-300 hover:shadow-xl ${
                   p.hot
                     ? 'border-primary bg-card shadow-2xl shadow-primary/15 sm:col-span-2 lg:col-span-1'
                     : 'border-border bg-card'

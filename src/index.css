@@ -172,7 +172,7 @@
     transform: translateY(0px);
   }
   50% {
-    transform: translateY(-12px);
+    transform: translateY(-8px);
   }
 }
 
@@ -229,33 +229,46 @@
   }
 }
 
+/* Robot animations — GPU only, no layout reflow */
+.robo-bob-wrap {
+  will-change: transform;
+  contain: layout style;
+}
 .robo-bob {
-  animation: robo-bob 4s ease-in-out infinite;
+  animation: robo-bob 5s ease-in-out infinite;
+  will-change: transform;
 }
 .eye-l {
   animation: eye-blink 4s ease-in-out infinite;
   transform-origin: 108px 148px;
+  will-change: transform;
 }
 .eye-r {
   animation: eye-blink 4s ease-in-out infinite 0.12s;
   transform-origin: 148px 148px;
+  will-change: transform;
 }
 .antenna-sway {
-  animation: antenna-sway 2.2s ease-in-out infinite;
+  animation: antenna-sway 2.8s ease-in-out infinite;
   transform-origin: 128px 72px;
+  will-change: transform;
 }
 .robo-scan {
-  animation: scan-line 3.5s ease-in-out infinite 0.5s;
+  animation: scan-line 4s ease-in-out infinite 1s;
+  will-change: transform, opacity;
 }
 .circuit-1 {
   stroke-dasharray: 180;
-  animation: circuit-dash 2s linear infinite;
+  animation: circuit-dash 2.5s linear infinite;
+  will-change: stroke-dashoffset, opacity;
 }
 .circuit-2 {
   stroke-dasharray: 180;
-  animation: circuit-dash 2s linear infinite 0.65s;
+  animation: circuit-dash 2.5s linear infinite 0.8s;
+  will-change: stroke-dashoffset, opacity;
 }
 .circuit-3 {
   stroke-dasharray: 180;
-  animation: circuit-dash 2s linear infinite 1.3s;
+  animation: circuit-dash 2.5s linear infinite 1.6s;
+  will-change: stroke-dashoffset, opacity;
 }
