@@ -558,9 +558,11 @@ const Index = () => {
                 Создать сайт сейчас
                 <Icon name="ArrowRight" size={18} className="ml-1" />
               </Button>
-              <Button size="lg" variant="outline" className="rounded-full font-semibold px-8 border-white/30 text-white hover:bg-white/10 h-12 w-full sm:w-auto">
-                <Icon name="Phone" size={16} className="mr-2" />
-                8 (933) 177-00-86
+              <Button size="lg" variant="outline" className="rounded-full font-semibold px-8 border-white/30 text-white hover:bg-white/10 h-12 w-full sm:w-auto" asChild>
+                <a href="https://t.me/roboweb" target="_blank" rel="noopener noreferrer">
+                  <Icon name="Send" size={16} className="mr-2" />
+                  Написать в Telegram
+                </a>
               </Button>
             </div>
           </div>
@@ -689,9 +691,9 @@ const Index = () => {
                   </a>
                 </Button>
                 <Button variant="outline" className="rounded-full font-semibold px-6" asChild>
-                  <a href="tel:+79331770086">
-                    <Icon name="Phone" size={16} className="mr-2" />
-                    8 (933) 177-00-86
+                  <a href="https://t.me/roboweb" target="_blank" rel="noopener noreferrer">
+                    <Icon name="Send" size={16} className="mr-2" />
+                    Написать в Telegram
                   </a>
                 </Button>
               </div>
