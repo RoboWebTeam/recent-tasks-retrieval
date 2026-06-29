@@ -51,8 +51,8 @@ export const L = {
   },
   compare: {
     label: { ru: 'Сравнение', en: 'Comparison' },
-    title: { ru: 'Roboweb vs фрилансеры vs студии', en: 'Roboweb vs freelancers vs agencies' },
-    desc:  { ru: 'Посмотрите сами — разница очевидна.', en: 'See for yourself — the difference is clear.' },
+    title: { ru: 'Зачем платить больше, если результат хуже?', en: 'Why pay more and get less?' },
+    desc:  { ru: 'Roboweb делает то же самое — только в 30 раз быстрее и в 10 раз дешевле. Судите сами.', en: 'Roboweb does the same — 30× faster and 10× cheaper. Judge for yourself.' },
   },
   cta2: {
     badge: { ru: 'Только сегодня — первый сайт бесплатно', en: 'Today only — first site free' },
