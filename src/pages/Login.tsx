@@ -19,8 +19,9 @@ const Login = () => {
     setLoading(true);
     try {
       const data = await apiLogin(email.trim().toLowerCase(), password);
+      // Показываем сырой ответ для диагностики
       if (!data.session_id || !data.user) {
-        throw new Error('Неверный ответ сервера. Попробуйте ещё раз.');
+        throw new Error(`Ответ сервера: ${JSON.stringify(data)}`);
       }
       setSession(data.session_id as string);
       storeUser(data.user as Parameters<typeof storeUser>[0]);
