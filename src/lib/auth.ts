@@ -54,13 +54,30 @@ async function apiFetch(url: string, options: RequestInit = {}) {
         ...(options.headers || {}),
       },
     });
-    let data: Record<string, unknown> = {};
+
+    let raw: Record<string, unknown> = {};
     try {
-      data = await res.json();
+      raw = await res.json();
     } catch {
       if (!res.ok) throw new Error(`Ошибка сервера: ${res.status}`);
     }
-    return { res, data };
+
+    // Платформа может оборачивать ответ в { body: { ... } }
+    // Если body — объект, используем его, иначе парсим как строку
+    let data: Record<string, unknown> = raw;
+    if (raw.body !== undefined) {
+      if (typeof raw.body === 'string') {
+        try { data = JSON.parse(raw.body); } catch { data = raw; }
+      } else if (typeof raw.body === 'object' && raw.body !== null) {
+        data = raw.body as Record<string, unknown>;
+      }
+    }
+
+    // Определяем статус — из поля statusCode или из res.status
+    const statusCode = typeof raw.statusCode === 'number' ? raw.statusCode : res.status;
+    const ok = statusCode >= 200 && statusCode < 300;
+
+    return { res: { ...res, ok, status: statusCode }, data };
   } catch (e: unknown) {
     if (e instanceof TypeError && e.message.includes('fetch')) {
       throw new Error('Нет соединения с сервером. Проверьте интернет.');

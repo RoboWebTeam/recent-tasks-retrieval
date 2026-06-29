@@ -48,12 +48,28 @@ const Dashboard = () => {
     const session = getSession();
     if (!session) { navigate('/login'); return; }
 
+    // Если есть кешированный пользователь — показываем сразу
+    const cached = getStoredUser();
+    if (cached) setUser(cached);
+
     Promise.all([
-      apiGetMe(session).then(d => { setUser(d.user); storeUser(d.user); }),
-      apiGetProjects(session).then(setProjects),
-    ]).catch(() => {
-      clearSession();
-      navigate('/login');
+      apiGetMe(session).then(d => {
+        const u = (d as { user?: typeof cached }).user || d;
+        if (u && (u as { id?: number }).id) {
+          setUser(u as typeof cached);
+          storeUser(u as typeof cached);
+        }
+      }),
+      apiGetProjects(session).then(p => {
+        if (Array.isArray(p)) setProjects(p);
+      }),
+    ]).catch((err) => {
+      // Только при явной 401 — разлогиниваем
+      if (err?.message?.includes('401') || err?.message?.includes('истекла') || err?.message?.includes('авторизован')) {
+        clearSession();
+        navigate('/login');
+      }
+      // Иначе просто показываем пустой дашборд
     }).finally(() => setLoading(false));
   }, [navigate]);
 

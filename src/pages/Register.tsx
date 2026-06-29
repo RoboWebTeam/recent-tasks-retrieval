@@ -24,8 +24,11 @@ const Register = () => {
     setLoading(true);
     try {
       const data = await apiRegister(email.trim().toLowerCase(), password, name.trim());
-      setSession(data.session_id);
-      storeUser(data.user);
+      if (!data.session_id || !data.user) {
+        throw new Error('Неверный ответ сервера. Попробуйте ещё раз.');
+      }
+      setSession(data.session_id as string);
+      storeUser(data.user as Parameters<typeof storeUser>[0]);
       navigate('/dashboard');
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Ошибка регистрации');
