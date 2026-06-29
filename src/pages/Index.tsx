@@ -235,10 +235,9 @@ const Index = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [progress, setProgress] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [typedIdx, setTypedIdx] = useState(0);
   const typedWords = ['лендинг', 'магазин', 'портфолио', 'стартап', 'визитку'];
   const [wordIdx, setWordIdx] = useState(0);
-  const [deleting, setDeleting] = useState(false);
+  const [wordVisible, setWordVisible] = useState(true);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
@@ -276,24 +275,17 @@ const Index = () => {
     container.scrollTop = container.scrollHeight;
   }, [chatStep, isTyping]);
 
-  // Typewriter effect
+  // Blur fade word switcher
   useEffect(() => {
-    const word = typedWords[wordIdx];
-    const delay = deleting ? 60 : 110;
-    const t = setTimeout(() => {
-      if (!deleting && typedIdx < word.length) {
-        setTypedIdx(i => i + 1);
-      } else if (!deleting && typedIdx === word.length) {
-        setTimeout(() => setDeleting(true), 1200);
-      } else if (deleting && typedIdx > 0) {
-        setTypedIdx(i => i - 1);
-      } else {
-        setDeleting(false);
+    const t = setInterval(() => {
+      setWordVisible(false);
+      setTimeout(() => {
         setWordIdx(i => (i + 1) % typedWords.length);
-      }
-    }, delay);
-    return () => clearTimeout(t);
-  }, [typedIdx, deleting, wordIdx]);
+        setWordVisible(true);
+      }, 500);
+    }, 2600);
+    return () => clearInterval(t);
+  }, []);
 
   // Lock scroll on mobile menu
   useEffect(() => {
@@ -378,9 +370,17 @@ const Index = () => {
             </span>
             <h1 className="mt-5 font-display font-black leading-[1.05] text-4xl sm:text-5xl md:text-6xl xl:text-7xl tracking-tight">
               Создай свой{' '}
-              <span className="text-gradient">
-                {typedWords[wordIdx].slice(0, typedIdx)}
-                <span className="animate-blink">|</span>
+              <span
+                key={wordIdx}
+                className="text-gradient inline-block"
+                style={{
+                  transition: 'opacity 0.45s ease, filter 0.45s ease, transform 0.45s ease',
+                  opacity: wordVisible ? 1 : 0,
+                  filter: wordVisible ? 'blur(0px)' : 'blur(12px)',
+                  transform: wordVisible ? 'translateY(0)' : 'translateY(8px)',
+                }}
+              >
+                {typedWords[wordIdx]}
               </span>
             </h1>
             <p className="mt-5 text-base sm:text-lg text-muted-foreground max-w-xl mx-auto lg:mx-0">
