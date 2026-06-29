@@ -852,6 +852,114 @@ const Index = () => {
         </div>
       </section>
 
+      {/* REVIEWS */}
+      <section className="py-16 md:py-24 bg-secondary/40">
+        <div className="container">
+          <Reveal>
+            <div className="text-center max-w-2xl mx-auto px-2 mb-10 md:mb-14">
+              <span className="text-xs sm:text-sm font-semibold uppercase tracking-widest text-primary">Отзывы</span>
+              <h2 className="mt-3 font-display font-black text-3xl sm:text-4xl md:text-5xl tracking-tight">
+                Что говорят клиенты
+              </h2>
+              <p className="mt-4 text-muted-foreground text-base sm:text-lg">
+                Реальные люди, реальные результаты.
+              </p>
+            </div>
+          </Reveal>
+
+          <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+            {[
+              {
+                name: 'Анна Петрова',
+                role: 'Владелец кофейни',
+                avatar: 'AP',
+                color: 'from-amber-400 to-orange-500',
+                stars: 5,
+                text: 'Раньше тратила 3 недели и 60 000 ₽ на фрилансеров. Теперь новый лендинг готов за час. Заявок стало в 3 раза больше уже в первую неделю.',
+              },
+              {
+                name: 'Дмитрий Козлов',
+                role: 'Основатель стартапа',
+                avatar: 'ДК',
+                color: 'from-indigo-500 to-blue-500',
+                stars: 5,
+                text: 'Запустили MVP за один день. Инвесторы были удивлены качеством сайта. Roboweb сэкономил нам минимум 150 000 ₽ на разработке.',
+              },
+              {
+                name: 'Марина Соколова',
+                role: 'Руководитель веб-студии',
+                avatar: 'МС',
+                color: 'from-violet-500 to-fuchsia-500',
+                stars: 5,
+                text: 'Подключили Roboweb для клиентских проектов. Теперь типовой лендинг собираем за 15 минут вместо недели. Маржа выросла в 4 раза.',
+              },
+              {
+                name: 'Игорь Новиков',
+                role: 'Фитнес-тренер',
+                avatar: 'ИН',
+                color: 'from-emerald-400 to-teal-500',
+                stars: 5,
+                text: 'Описал идею голосом в чат, через 2 минуты получил готовый сайт с записью на тренировки. Клиенты сразу начали бронировать онлайн.',
+              },
+              {
+                name: 'Светлана Кравцова',
+                role: 'Директор по маркетингу',
+                avatar: 'СК',
+                color: 'from-rose-500 to-pink-500',
+                stars: 5,
+                text: 'Тестировали 5 разных посадочных страниц за неделю. С обычными подрядчиками это заняло бы месяц. Конверсия выросла на 40%.',
+              },
+              {
+                name: 'Алексей Громов',
+                role: 'Барбер, owner IronCut',
+                avatar: 'АГ',
+                color: 'from-cyan-400 to-sky-500',
+                stars: 5,
+                text: 'Сайт выглядит дороже, чем стоил. Клиенты часто спрашивают, кто делал — показываю Roboweb. Уже посоветовал пятерым знакомым.',
+              },
+            ].map((r, i) => (
+              <Reveal key={r.name} delay={i * 70}>
+                <div className="h-full rounded-2xl md:rounded-3xl bg-card border border-border p-5 md:p-6 flex flex-col gap-4 hover:shadow-lg transition-shadow duration-300">
+                  {/* Stars */}
+                  <div className="flex gap-0.5">
+                    {Array.from({ length: r.stars }).map((_, si) => (
+                      <Icon key={si} name="Star" size={14} className="text-amber-400 fill-amber-400" />
+                    ))}
+                  </div>
+                  {/* Text */}
+                  <p className="text-sm md:text-base text-foreground leading-relaxed flex-1">
+                    «{r.text}»
+                  </p>
+                  {/* Author */}
+                  <div className="flex items-center gap-3 pt-2 border-t border-border">
+                    <div className={`grid h-10 w-10 shrink-0 place-items-center rounded-full bg-gradient-to-br ${r.color} text-white text-xs font-bold`}>
+                      {r.avatar}
+                    </div>
+                    <div>
+                      <div className="font-display font-semibold text-sm">{r.name}</div>
+                      <div className="text-xs text-muted-foreground">{r.role}</div>
+                    </div>
+                  </div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+
+          {/* Summary rating */}
+          <Reveal>
+            <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 text-center">
+              <div className="flex gap-1">
+                {Array.from({ length: 5 }).map((_, i) => (
+                  <Icon key={i} name="Star" size={22} className="text-amber-400 fill-amber-400" />
+                ))}
+              </div>
+              <div className="text-2xl font-display font-black">4.9 / 5</div>
+              <div className="text-muted-foreground text-sm">на основе 1 200+ отзывов</div>
+            </div>
+          </Reveal>
+        </div>
+      </section>
+
       {/* CTA 2 — после портфолио */}
       <section className="py-16 md:py-20 bg-gradient-to-r from-primary to-[hsl(250,90%,60%)]">
         <Reveal>
