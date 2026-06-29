@@ -59,6 +59,22 @@ export default function Article() {
     }
   };
 
+  // Безопасный рендер inline-разметки без dangerouslySetInnerHTML
+  const renderInline = (text: string, key: number) => {
+    const parts: React.ReactNode[] = [];
+    const re = /\*\*(.+?)\*\*|\*(.+?)\*/g;
+    let last = 0;
+    let m: RegExpExecArray | null;
+    while ((m = re.exec(text)) !== null) {
+      if (m.index > last) parts.push(text.slice(last, m.index));
+      if (m[1] !== undefined) parts.push(<strong key={`b${m.index}`}>{m[1]}</strong>);
+      else if (m[2] !== undefined) parts.push(<em key={`i${m.index}`}>{m[2]}</em>);
+      last = m.index + m[0].length;
+    }
+    if (last < text.length) parts.push(text.slice(last));
+    return <p key={key} className="mt-4 text-muted-foreground leading-relaxed">{parts}</p>;
+  };
+
   const renderContent = (content: string) => {
     return content.split('\n').map((line, i) => {
       if (line.startsWith('## ')) return <h2 key={i} className="mt-10 mb-4 font-display font-black text-2xl sm:text-3xl tracking-tight">{line.replace('## ', '')}</h2>;
@@ -67,10 +83,7 @@ export default function Article() {
       if (line.startsWith('- ')) return <li key={i} className="ml-5 mt-1 list-disc text-muted-foreground">{line.replace('- ', '')}</li>;
       if (line.startsWith('| ') || line.startsWith('|---')) return null;
       if (line.trim() === '') return <div key={i} className="h-2" />;
-      const formatted = line
-        .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-        .replace(/\*(.+?)\*/g, '<em>$1</em>');
-      return <p key={i} className="mt-4 text-muted-foreground leading-relaxed" dangerouslySetInnerHTML={{ __html: formatted }} />;
+      return renderInline(line, i);
     });
   };
 
