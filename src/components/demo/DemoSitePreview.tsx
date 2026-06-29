@@ -27,7 +27,7 @@ export function DemoSitePreview({ progress, lang }: { progress: number; lang: 'r
       style={{ fontFamily: 'Georgia, serif' }}>
 
       {sec >= 0 && (
-        <nav className="sticky top-0 z-10 flex items-center justify-between px-6 py-3 bg-white/95 backdrop-blur border-b border-amber-100 shadow-sm animate-fade-in">
+        <nav className="sticky top-0 z-10 flex items-center justify-between px-3 sm:px-6 py-2 sm:py-3 bg-white/95 backdrop-blur border-b border-amber-100 shadow-sm animate-fade-in">
           <div className="flex items-center gap-2">
             <span className="text-xl">☕</span>
             <span className="font-bold text-lg text-amber-900">Brew & Co</span>
@@ -44,7 +44,7 @@ export function DemoSitePreview({ progress, lang }: { progress: number; lang: 'r
       )}
 
       {sec >= 1 && (
-        <div className="relative bg-gradient-to-br from-amber-50 via-orange-50 to-stone-100 px-6 pt-10 pb-12 overflow-hidden animate-fade-in">
+        <div className="relative bg-gradient-to-br from-amber-50 via-orange-50 to-stone-100 px-3 sm:px-6 pt-6 sm:pt-10 pb-8 sm:pb-12 overflow-hidden animate-fade-in">
           <div className="absolute -top-8 -right-8 h-40 w-40 rounded-full bg-amber-200/50 blur-2xl" />
           <div className="absolute -bottom-4 -left-4 h-32 w-32 rounded-full bg-orange-200/40 blur-xl" />
           <div className="relative flex flex-col sm:flex-row items-center gap-8">
@@ -73,7 +73,7 @@ export function DemoSitePreview({ progress, lang }: { progress: number; lang: 'r
               </div>
             </div>
             <div className="relative shrink-0">
-              <div className="h-36 w-36 sm:h-44 sm:w-44 rounded-3xl bg-gradient-to-br from-amber-300 to-orange-400 shadow-xl flex items-center justify-center text-6xl rotate-3">
+              <div className="h-24 w-24 sm:h-36 sm:w-36 md:h-44 md:w-44 rounded-3xl bg-gradient-to-br from-amber-300 to-orange-400 shadow-xl flex items-center justify-center text-4xl sm:text-6xl rotate-3">
                 ☕
               </div>
               <div className="absolute -bottom-2 -right-2 bg-white rounded-2xl px-3 py-1.5 shadow-lg text-xs font-semibold text-amber-800">
@@ -85,7 +85,7 @@ export function DemoSitePreview({ progress, lang }: { progress: number; lang: 'r
       )}
 
       {sec >= 2 && (
-        <div className="mx-4 my-4 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 p-4 text-white flex items-center justify-between shadow-lg animate-fade-in">
+        <div className="mx-3 my-3 rounded-2xl bg-gradient-to-r from-amber-500 to-orange-500 p-3 sm:p-4 text-white flex items-center justify-between gap-3 shadow-lg animate-fade-in">
           <div>
             <div className="text-xs font-semibold opacity-80 mb-0.5">🔥 {isRu ? 'Акция дня' : 'Deal of the day'}</div>
             <div className="font-bold text-lg">{isRu ? 'Кофе + десерт = 350 ₽' : 'Coffee + dessert = $4.5'}</div>
@@ -98,8 +98,8 @@ export function DemoSitePreview({ progress, lang }: { progress: number; lang: 'r
       )}
 
       {sec >= 3 && (
-        <div className="px-4 py-6 animate-fade-in">
-          <h2 className="text-xl font-bold text-amber-950 mb-1">{isRu ? 'Наше меню' : 'Our menu'}</h2>
+        <div className="px-3 sm:px-4 py-4 sm:py-6 animate-fade-in">
+          <h2 className="text-lg sm:text-xl font-bold text-amber-950 mb-1">{isRu ? 'Наше меню' : 'Our menu'}</h2>
           <p className="text-stone-400 text-sm mb-4">{isRu ? 'Свежее каждый день' : 'Fresh every day'}</p>
           <div className="flex gap-2 mb-4 overflow-x-auto pb-1">
             {(isRu ? ['☕ Кофе', '🍰 Выпечка', '🥗 Завтраки', '🧃 Напитки'] : ['☕ Coffee', '🍰 Pastry', '🥗 Breakfast', '🧃 Drinks']).map((cat, i) => (
@@ -108,7 +108,7 @@ export function DemoSitePreview({ progress, lang }: { progress: number; lang: 'r
               </button>
             ))}
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 xs:grid-cols-2 sm:grid-cols-2 gap-2 sm:gap-3">
             {(isRu ? [
               { emoji: '☕', name: 'Капучино', desc: 'двойной эспрессо', price: '180 ₽' },
               { emoji: '🍰', name: 'Тирамису', desc: 'домашний рецепт', price: '220 ₽' },
@@ -135,8 +135,8 @@ export function DemoSitePreview({ progress, lang }: { progress: number; lang: 'r
       )}
 
       {sec >= 4 && (
-        <div className="px-4 py-5 bg-amber-50/60 animate-fade-in">
-          <h2 className="text-xl font-bold text-amber-950 mb-1">{isRu ? '⭐ Отзывы' : '⭐ Reviews'}</h2>
+        <div className="px-3 sm:px-4 py-4 sm:py-5 bg-amber-50/60 animate-fade-in">
+          <h2 className="text-lg sm:text-xl font-bold text-amber-950 mb-1">{isRu ? '⭐ Отзывы' : '⭐ Reviews'}</h2>
           <p className="text-stone-400 text-sm mb-4">4.9 / 5 · {isRu ? '1 200+ отзывов' : '1,200+ reviews'}</p>
           <div className="space-y-3">
             {(isRu ? [
@@ -164,8 +164,8 @@ export function DemoSitePreview({ progress, lang }: { progress: number; lang: 'r
       )}
 
       {sec >= 5 && (
-        <div className="px-4 py-5 animate-fade-in">
-          <h2 className="text-xl font-bold text-amber-950 mb-4">{isRu ? '📍 Как нас найти' : '📍 Find us'}</h2>
+        <div className="px-3 sm:px-4 py-4 sm:py-5 animate-fade-in">
+          <h2 className="text-lg sm:text-xl font-bold text-amber-950 mb-4">{isRu ? '📍 Как нас найти' : '📍 Find us'}</h2>
           <div className="bg-gradient-to-br from-amber-100 to-orange-100 rounded-2xl p-4 mb-3">
             <div className="text-sm font-semibold text-amber-900 mb-1">📍 {isRu ? 'ул. Кофейная, 12' : '12 Coffee Street'}</div>
             <div className="text-xs text-stone-500">{isRu ? 'Пн–Вс · 8:00–22:00' : 'Mon–Sun · 8am–10pm'}</div>

@@ -10,7 +10,7 @@ export function DemoPreviewPanel({ lang, progress }: Props) {
   return (
     <div className="flex-1 flex flex-col overflow-hidden min-h-0">
       {/* Browser bar */}
-      <div className="flex items-center gap-2 px-4 py-2 bg-slate-50 border-b border-slate-100 shrink-0">
+      <div className="flex items-center gap-2 px-2 sm:px-4 py-2 bg-slate-50 border-b border-slate-100 shrink-0">
         <div className="flex items-center gap-1.5 flex-1 bg-white border border-slate-200 rounded-lg px-3 py-1.5">
           {progress >= 100 ? (
             <Icon name="Lock" size={11} className="text-emerald-500 shrink-0" />

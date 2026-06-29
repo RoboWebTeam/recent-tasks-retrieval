@@ -25,7 +25,7 @@ export function DemoChatPanel({ lang, running, progress, progressLabel, visibleS
   }, [visibleSteps]);
 
   return (
-    <div className="flex flex-col w-[300px] lg:w-[340px] shrink-0 border-r border-slate-100 bg-white">
+    <div className="flex flex-col w-full md:w-[300px] lg:w-[340px] md:shrink-0 border-b md:border-b-0 md:border-r border-slate-100 bg-white max-h-[45vh] md:max-h-none">
 
       {/* Chat header */}
       <div className="flex items-center gap-2.5 px-4 py-3 border-b border-slate-100 shrink-0 bg-gradient-to-r from-primary/5 to-blue-50">
