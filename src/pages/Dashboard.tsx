@@ -70,6 +70,7 @@ const Dashboard = () => {
       setNewTitle('');
       setNewDesc('');
       setDialogOpen(false);
+      navigate(`/builder?project=${project.id}`);
     } catch { /* silent */ }
     setCreating(false);
   };
@@ -178,8 +179,8 @@ const Dashboard = () => {
                         className="h-10 rounded-xl"
                       />
                     </div>
-                    <Button type="submit" className="w-full rounded-xl font-semibold" disabled={creating}>
-                      {creating ? <><Icon name="Loader" size={15} className="mr-2 animate-spin" />Создаём…</> : 'Создать'}
+                                    <Button type="submit" className="w-full rounded-xl font-semibold" disabled={creating}>
+                      {creating ? <><Icon name="Loader" size={15} className="mr-2 animate-spin" />Создаём…</> : <><Icon name="Sparkles" size={15} className="mr-1.5" />Создать и открыть редактор</>}
                     </Button>
                   </form>
                 </DialogContent>
@@ -189,15 +190,22 @@ const Dashboard = () => {
             {projects.length === 0 ? (
               <div className="rounded-2xl border border-dashed border-border p-12 text-center">
                 <div className="grid h-14 w-14 place-items-center rounded-2xl bg-primary/10 text-primary mx-auto mb-4">
-                  <Icon name="Globe" size={28} />
+                  <Icon name="Sparkles" size={28} />
                 </div>
                 <h3 className="font-display font-bold text-lg mb-2">Ещё нет проектов</h3>
-                <p className="text-muted-foreground text-sm mb-5 max-w-xs mx-auto">
-                  Создайте первый проект — опишите идею, и Roboweb соберёт сайт за минуты.
+                <p className="text-muted-foreground text-sm mb-6 max-w-xs mx-auto">
+                  Создайте первый проект — опишите идею в диалоге с AI, и Roboweb соберёт сайт за секунды.
                 </p>
-                <Button className="rounded-xl font-semibold gap-2" onClick={() => setDialogOpen(true)}>
-                  <Icon name="Plus" size={16} /> Создать первый проект
-                </Button>
+                <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                  <Button className="rounded-xl font-semibold gap-2 shadow-lg shadow-primary/20" onClick={() => setDialogOpen(true)}>
+                    <Icon name="Sparkles" size={16} /> Создать сайт с AI
+                  </Button>
+                  <Link to="/builder">
+                    <Button variant="outline" className="rounded-xl font-semibold gap-2 w-full sm:w-auto">
+                      <Icon name="MessageSquare" size={16} /> Открыть конструктор
+                    </Button>
+                  </Link>
+                </div>
               </div>
             ) : (
               <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -222,9 +230,12 @@ const Dashboard = () => {
                         <span className="text-xs text-muted-foreground">
                           {new Date(p.created_at).toLocaleDateString('ru-RU')}
                         </span>
-                        <button className="text-xs text-primary font-semibold hover:underline inline-flex items-center gap-1">
-                          Открыть <Icon name="ArrowRight" size={12} />
-                        </button>
+                        <Link
+                          to={`/builder?project=${p.id}`}
+                          className="text-xs text-primary font-semibold hover:underline inline-flex items-center gap-1"
+                        >
+                          <Icon name="Sparkles" size={12} /> Открыть в редакторе
+                        </Link>
                       </div>
                     </div>
                   );
