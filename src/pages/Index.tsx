@@ -536,10 +536,10 @@ const Index = () => {
             <h4 className="font-display font-bold mb-4">Контакты</h4>
             <ul className="space-y-3 text-sm text-muted-foreground">
               <li className="flex items-center gap-2">
-                <Icon name="Mail" size={16} className="text-primary" /> hello@roboweb.ru
+                <Icon name="Mail" size={16} className="text-primary" /> roboweb.site@yandex.ru
               </li>
               <li className="flex items-center gap-2">
-                <Icon name="Phone" size={16} className="text-primary" /> 8 800 555-35-35
+                <Icon name="Phone" size={16} className="text-primary" /> 8 (933) 177-00-86
               </li>
               <li className="flex items-center gap-2">
                 <Icon name="MessageCircle" size={16} className="text-primary" /> Telegram-поддержка
