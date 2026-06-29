@@ -1,11 +1,23 @@
+import { useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { ARTICLES } from '@/data/blog';
 import Icon from '@/components/ui/icon';
 import { Button } from '@/components/ui/button';
+import { setSeo, setBlogJsonLd } from '@/lib/seo';
 
 const CATEGORIES = ['Все', ...Array.from(new Set(ARTICLES.map(a => a.category)))];
 
 export default function Blog() {
+  useEffect(() => {
+    setSeo({
+      title: 'Блог о AI-разработке сайтов — Roboweb',
+      description: 'Статьи, инструкции и кейсы о том, как создавать сайты быстро и без лишних затрат с помощью Roboweb. Советы для малого бизнеса.',
+      url: '/blog',
+      keywords: 'блог о сайтах, AI разработка, создать сайт быстро, конструктор сайтов, лендинг AI',
+    });
+    setBlogJsonLd();
+  }, []);
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}

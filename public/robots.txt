@@ -1,8 +1,27 @@
+User-agent: *
+Allow: /
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /builder
+Disallow: /auth/
+
 User-agent: Googlebot
 Allow: /
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /builder
+Disallow: /auth/
 
 User-agent: Bingbot
 Allow: /
+
+User-agent: Yandex
+Allow: /
+Disallow: /admin
+Disallow: /dashboard
+Disallow: /builder
+Disallow: /auth/
+Clean-param: utm_source&utm_medium&utm_campaign&utm_content&utm_term /
 
 User-agent: Twitterbot
 Allow: /
@@ -10,5 +29,7 @@ Allow: /
 User-agent: facebookexternalhit
 Allow: /
 
-User-agent: *
+User-agent: vk.com
 Allow: /
+
+Sitemap: https://roboweb.poehali.app/sitemap.xml

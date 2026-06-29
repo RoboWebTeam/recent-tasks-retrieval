@@ -3,6 +3,7 @@ import { useEffect } from 'react';
 import { getArticle, ARTICLES } from '@/data/blog';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
+import { setSeo, setArticleJsonLd } from '@/lib/seo';
 
 export default function Article() {
   const { slug } = useParams<{ slug: string }>();
@@ -10,9 +11,19 @@ export default function Article() {
   const article = slug ? getArticle(slug) : null;
 
   useEffect(() => {
-    if (!article) navigate('/blog');
+    if (!article) { navigate('/blog'); return; }
     window.scrollTo(0, 0);
-  }, [slug]);
+    setSeo({
+      title: article.title,
+      description: article.description,
+      image: article.cover,
+      url: `/blog/${article.slug}`,
+      type: 'article',
+      publishedTime: article.date,
+      keywords: `${article.category}, AI сайты, Roboweb, ${article.title.toLowerCase()}`,
+    });
+    setArticleJsonLd(article);
+  }, [slug, article]);
 
   if (!article) return null;
 
