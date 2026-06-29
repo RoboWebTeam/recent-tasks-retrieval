@@ -342,14 +342,29 @@ const Index = () => {
     return () => clearInterval(t);
   }, []);
 
-  // Lock scroll on mobile menu
+  // Lock scroll on mobile menu — используем position:fixed чтобы не дёргать overflow
   useEffect(() => {
-    document.body.style.overflow = menuOpen ? 'hidden' : '';
-    return () => { document.body.style.overflow = ''; };
+    if (menuOpen) {
+      const scrollY = window.scrollY;
+      document.body.style.position = 'fixed';
+      document.body.style.top = `-${scrollY}px`;
+      document.body.style.width = '100%';
+    } else {
+      const scrollY = document.body.style.top;
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+      if (scrollY) window.scrollTo(0, parseInt(scrollY || '0') * -1);
+    }
+    return () => {
+      document.body.style.position = '';
+      document.body.style.top = '';
+      document.body.style.width = '';
+    };
   }, [menuOpen]);
 
   return (
-    <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
+    <div className="min-h-screen bg-background text-foreground">
 
       {/* NAV */}
       <header className="fixed top-0 inset-x-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50">
@@ -401,7 +416,7 @@ const Index = () => {
       </header>
 
       {/* HERO */}
-      <section className="relative pt-28 sm:pt-32 lg:pt-36 pb-16 md:pb-24 grid-bg overflow-hidden">
+      <section className="relative pt-28 sm:pt-32 lg:pt-36 pb-16 md:pb-24 grid-bg" style={{clipPath: 'inset(0)'}}>
         <div className="absolute inset-0 -z-10 bg-gradient-to-b from-transparent via-background/60 to-background" />
         {/* Floating orbs */}
         <div className="absolute top-20 -left-24 h-56 w-56 md:h-80 md:w-80 rounded-full bg-primary/20 blur-3xl animate-glow" />
