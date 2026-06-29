@@ -26,7 +26,7 @@ const L = {
   hero: {
     badge:  { ru: 'AI-конструктор нового поколения', en: 'Next-gen AI website builder' },
     title:  { ru: 'Создай свой', en: 'Build your' },
-    words:  { ru: ['лендинг','магазин','портфолио','стартап','визитку'], en: ['landing','store','portfolio','startup','card'] },
+    words:  { ru: ['Создай свой лендинг','Создай свой магазин','Создай своё портфолио','Создай свой стартап','Создай свою визитку'], en: ['Build your landing','Build your store','Build your portfolio','Build your startup','Build your card'] },
     desc:   { ru: 'Roboweb заменяет фрилансеров и конструкторы. Опишите идею в диалоге — и получите готовый сайт за минуты, а не недели.', en: 'Roboweb replaces freelancers and builders. Describe your idea in chat — get a ready website in minutes, not weeks.' },
     cta:    { ru: 'Создать сайт бесплатно', en: 'Create site for free' },
     demo:   { ru: 'Смотреть демо', en: 'Watch demo' },
@@ -562,7 +562,6 @@ const Index = () => {
               {L.hero.badge[lang]}
             </span>
             <h1 className="mt-5 font-display font-black leading-[1.05] text-4xl sm:text-5xl md:text-6xl xl:text-7xl tracking-tight">
-              {L.hero.title[lang]}{' '}
               <span
                 key={`${wordIdx}-${lang}`}
                 className="text-gradient inline-block"
