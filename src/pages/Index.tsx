@@ -974,9 +974,6 @@ const Index = () => {
                   <div className="relative h-44 sm:h-52 overflow-hidden bg-muted">
                     <img src={p.img} alt={p.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
-                    <span className="absolute top-3 left-3 rounded-full bg-black/50 px-3 py-1 text-xs font-semibold text-white backdrop-blur">
-                      {p.tag}
-                    </span>
                     <span className="absolute bottom-3 right-3 flex items-center gap-1 rounded-full bg-black/50 px-3 py-1 text-xs font-medium text-white backdrop-blur opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                       <Icon name="ExternalLink" size={12} /> Открыть сайт
                     </span>
