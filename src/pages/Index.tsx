@@ -22,10 +22,12 @@ const NAV = [
   { label: 'Вопросы', href: '#faq' },
 ];
 
-const CHAT = [
+const CHAT_STEPS = [
   { who: 'user', text: 'Сделай лендинг для кофейни с меню и доставкой' },
-  { who: 'bot', text: 'Принял! Собираю структуру, подбираю стиль и пишу тексты…' },
-  { who: 'bot', text: 'Готово ✦ Ваш сайт собран за 47 секунд. Запускаем?' },
+  { who: 'bot', text: 'Принял! Анализирую нишу и подбираю стиль…', typing: true },
+  { who: 'bot', text: '☕ Структура готова: Герой → Меню → Доставка → Контакты', progress: 40 },
+  { who: 'bot', text: '🎨 Применяю дизайн: тёплые тона, красивые шрифты…', progress: 70 },
+  { who: 'bot', text: '✦ Сайт готов за 47 секунд! Запускаем?', done: true },
 ];
 
 const FEATURES = [
@@ -229,12 +231,47 @@ function EmailForm({ dark = false, placeholder = 'Ваш e-mail', btnText = 'Н�
 // --- Page ---
 
 const Index = () => {
-  const [visibleChat, setVisibleChat] = useState(0);
+  const [chatStep, setChatStep] = useState(0);
+  const [isTyping, setIsTyping] = useState(false);
+  const [progress, setProgress] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
   const [typedIdx, setTypedIdx] = useState(0);
   const typedWords = ['лендинг', 'магазин', 'портфолио', 'стартап', 'визитку'];
   const [wordIdx, setWordIdx] = useState(0);
   const [deleting, setDeleting] = useState(false);
+  const chatEndRef = useRef<HTMLDivElement>(null);
+
+  // Chat animation loop
+  useEffect(() => {
+    if (chatStep >= CHAT_STEPS.length) {
+      // Reset after pause
+      const t = setTimeout(() => {
+        setChatStep(0);
+        setProgress(0);
+        setIsTyping(false);
+      }, 3000);
+      return () => clearTimeout(t);
+    }
+    const step = CHAT_STEPS[chatStep];
+    setIsTyping(step.who === 'bot');
+    const delay = chatStep === 0 ? 600 : 1500;
+    const t = setTimeout(() => {
+      setIsTyping(false);
+      if (step.progress !== undefined) {
+        setProgress(step.progress);
+      }
+      if ((step as { done?: boolean }).done) {
+        setProgress(100);
+      }
+      setChatStep(s => s + 1);
+    }, chatStep === 0 ? delay : delay + 800);
+    return () => clearTimeout(t);
+  }, [chatStep]);
+
+  // Scroll chat to bottom
+  useEffect(() => {
+    chatEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+  }, [chatStep, isTyping]);
 
   // Typewriter effect
   useEffect(() => {
@@ -254,13 +291,6 @@ const Index = () => {
     }, delay);
     return () => clearTimeout(t);
   }, [typedIdx, deleting, wordIdx]);
-
-  // Chat animation
-  useEffect(() => {
-    if (visibleChat >= CHAT.length) return;
-    const t = setTimeout(() => setVisibleChat((v) => v + 1), 1100);
-    return () => clearTimeout(t);
-  }, [visibleChat]);
 
   // Lock scroll on mobile menu
   useEffect(() => {
@@ -382,29 +412,98 @@ const Index = () => {
               className="mx-auto w-44 sm:w-56 md:w-64 drop-shadow-2xl animate-float rounded-3xl"
             />
             <div className="glass rounded-3xl p-4 sm:p-5 shadow-2xl mt-[-1.5rem] mx-2 sm:mx-0">
+
+              {/* Header */}
               <div className="flex items-center gap-2 pb-3 border-b border-border/60">
                 <span className="relative grid h-6 w-6 sm:h-7 sm:w-7 place-items-center rounded-lg bg-primary text-primary-foreground shrink-0">
                   <Icon name="Bot" size={14} />
                   <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-[hsl(88,70%,45%)] border-2 border-background" />
                 </span>
                 <span className="font-display font-bold text-xs sm:text-sm">Roboweb онлайн</span>
-                <span className="ml-auto flex items-center gap-1 text-xs text-muted-foreground whitespace-nowrap">
-                  <span className="h-2 w-2 rounded-full bg-[hsl(88,70%,45%)] animate-glow shrink-0" /> печатает…
+                <span className="ml-auto flex items-center gap-1.5 text-xs text-muted-foreground whitespace-nowrap">
+                  {isTyping ? (
+                    <>
+                      <span className="flex gap-1 text-primary">
+                        <span className="typing-dot" />
+                        <span className="typing-dot" />
+                        <span className="typing-dot" />
+                      </span>
+                      <span>пишет…</span>
+                    </>
+                  ) : (
+                    <><span className="h-2 w-2 rounded-full bg-[hsl(88,70%,45%)] animate-glow shrink-0" /> онлайн</>
+                  )}
                 </span>
               </div>
-              <div className="space-y-2 sm:space-y-3 pt-3 sm:pt-4 min-h-[140px] sm:min-h-[180px]">
-                {CHAT.slice(0, visibleChat).map((m, i) => (
-                  <div key={i} className={`flex animate-fade-in ${m.who === 'user' ? 'justify-end' : 'justify-start'}`}>
-                    <div className={`max-w-[85%] rounded-2xl px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm ${
+
+              {/* Progress bar */}
+              {progress > 0 && (
+                <div className="mt-3 mb-1">
+                  <div className="flex items-center justify-between mb-1">
+                    <span className="text-xs text-muted-foreground font-medium">Создание сайта</span>
+                    <span className="text-xs font-bold text-primary">{progress}%</span>
+                  </div>
+                  <div className="h-1.5 w-full rounded-full bg-secondary overflow-hidden">
+                    <div
+                      className="h-full rounded-full bg-gradient-to-r from-primary to-[hsl(88,70%,45%)] transition-all duration-700 ease-out"
+                      style={{ width: `${progress}%` }}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {/* Messages */}
+              <div className="space-y-2 sm:space-y-2.5 pt-3 min-h-[160px] sm:min-h-[190px] overflow-hidden">
+                {CHAT_STEPS.slice(0, chatStep).map((m, i) => (
+                  <div
+                    key={i}
+                    className={`flex ${m.who === 'user' ? 'justify-end' : 'justify-start'}`}
+                    style={{ animation: 'fade-in 0.4s ease-out forwards' }}
+                  >
+                    {m.who === 'bot' && (
+                      <span className="grid h-5 w-5 place-items-center rounded-full bg-primary text-primary-foreground shrink-0 mr-1.5 mt-0.5">
+                        <Icon name="Bot" size={11} />
+                      </span>
+                    )}
+                    <div className={`max-w-[80%] rounded-2xl px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm ${
                       m.who === 'user'
                         ? 'bg-primary text-primary-foreground rounded-br-sm'
-                        : 'bg-secondary text-secondary-foreground rounded-bl-sm'
+                        : (m as { done?: boolean }).done
+                          ? 'bg-gradient-to-r from-primary/20 to-[hsl(88,60%,50%)]/20 border border-primary/30 text-foreground font-semibold rounded-bl-sm'
+                          : 'bg-secondary text-secondary-foreground rounded-bl-sm'
                     }`}>
                       {m.text}
+                      {(m as { done?: boolean }).done && (
+                        <div className="flex gap-2 mt-2">
+                          <span className="inline-flex items-center gap-1 rounded-full bg-primary px-2.5 py-1 text-xs font-bold text-primary-foreground cursor-pointer hover:bg-primary/90 transition-colors">
+                            <Icon name="Rocket" size={11} /> Запустить
+                          </span>
+                          <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-2.5 py-1 text-xs font-semibold cursor-pointer hover:bg-secondary/80 transition-colors">
+                            <Icon name="Eye" size={11} /> Смотреть
+                          </span>
+                        </div>
+                      )}
                     </div>
                   </div>
                 ))}
+
+                {/* Typing indicator */}
+                {isTyping && (
+                  <div className="flex justify-start" style={{ animation: 'fade-in 0.3s ease-out forwards' }}>
+                    <span className="grid h-5 w-5 place-items-center rounded-full bg-primary text-primary-foreground shrink-0 mr-1.5 mt-0.5">
+                      <Icon name="Bot" size={11} />
+                    </span>
+                    <div className="bg-secondary rounded-2xl rounded-bl-sm px-4 py-2.5 flex items-center gap-1">
+                      <span className="typing-dot text-muted-foreground" />
+                      <span className="typing-dot text-muted-foreground" />
+                      <span className="typing-dot text-muted-foreground" />
+                    </div>
+                  </div>
+                )}
+                <div ref={chatEndRef} />
               </div>
+
+              {/* Input */}
               <div className="mt-3 flex items-center gap-2 rounded-full border border-border bg-background px-3 sm:px-4 py-2 sm:py-2.5">
                 <Icon name="MessageSquare" size={15} className="text-muted-foreground shrink-0" />
                 <span className="text-xs sm:text-sm text-muted-foreground truncate">Опишите ваш сайт…</span>
