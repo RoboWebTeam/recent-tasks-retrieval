@@ -975,7 +975,8 @@ const Index = () => {
               <Reveal key={p.title} delay={i * 70}>
                 <a href={p.url} target="_blank" rel="noopener noreferrer" className="group block overflow-hidden rounded-2xl md:rounded-3xl border border-border bg-card transition-all duration-300 hover:shadow-2xl hover:-translate-y-1">
                   <div className="relative h-44 sm:h-52 overflow-hidden bg-muted">
-                    <img src={p.img} alt={p.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                    <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-muted via-muted-foreground/10 to-muted" />
+                    <img src={p.img} alt={p.title} className="relative w-full h-full object-cover transition-all duration-500 group-hover:scale-105 opacity-0 [&.loaded]:opacity-100" onLoad={e => e.currentTarget.classList.add('loaded')} />
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
                     <span className="absolute bottom-3 right-3 flex items-center gap-1 rounded-full bg-black/50 px-3 py-1 text-xs font-medium text-white backdrop-blur opacity-0 group-hover:opacity-100 transition-opacity duration-300">
                       <Icon name="ExternalLink" size={12} /> Открыть сайт
