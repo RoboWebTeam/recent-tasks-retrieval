@@ -204,15 +204,18 @@ const getSTEPS = (lang: Lang) => lang === 'ru' ? [
   { n: '04', title: 'Publish online', text: 'One click — site is live, with domain, SSL and hosting.' },
 ];
 
+const makeScreenshot = (domain: string) =>
+  `https://s0.wordpress.com/mshots/v1/${encodeURIComponent('https://' + domain)}?w=1280&h=800`;
+
 const PORTFOLIO_ITEMS = [
-  { tag: 'Строительство', title: 'asg-ts.ru',        url: 'https://asg-ts.ru/',        img: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/466c9b8f-dd55-48c8-9fb7-d8a016540dc0.jpg' },
-  { tag: 'Транспорт',     title: 'tc-atlas.ru',       url: 'https://tc-atlas.ru/',      img: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/bb5a4eb9-7ed6-4c98-8e68-77b215c2436f.jpg' },
-  { tag: 'Торговля',      title: 'westeast.biz',      url: 'https://westeast.biz/',     img: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/1b82b392-3694-49c3-8016-8df9a0a824bd.jpg' },
-  { tag: 'Строительство', title: 'weststroy.com',     url: 'https://weststroy.com/',    img: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/5c30e3f6-1612-472c-95ea-3d77af1deaaa.jpg' },
-  { tag: 'AI-агентство',  title: 'roboweb.team',      url: 'https://roboweb.team/',     img: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/fd5a45b5-b204-4a03-912f-7916bc29cfe5.jpg' },
-  { tag: 'Снабжение',     title: 'neurosnab.ru',      url: 'https://neurosnab.ru/',     img: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/5308f193-617e-43c0-b0cd-e8deeb32a20d.jpg' },
-  { tag: 'SaaS',          title: 'zaplan.io',         url: 'https://zaplan.io/',        img: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/575f5b02-71f6-4759-9c82-3ae697c30347.jpg' },
-  { tag: 'Недвижимость',  title: 'bunker-hously.ru',  url: 'https://bunker-hously.ru/', img: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/c306854c-6390-4c86-a8ba-748686b9571e.jpg' },
+  { tag: 'Строительство', title: 'asg-ts.ru',        url: 'https://asg-ts.ru/',        img: makeScreenshot('asg-ts.ru') },
+  { tag: 'Транспорт',     title: 'tc-atlas.ru',       url: 'https://tc-atlas.ru/',      img: makeScreenshot('tc-atlas.ru') },
+  { tag: 'Торговля',      title: 'westeast.biz',      url: 'https://westeast.biz/',     img: makeScreenshot('westeast.biz') },
+  { tag: 'Строительство', title: 'weststroy.com',     url: 'https://weststroy.com/',    img: makeScreenshot('weststroy.com') },
+  { tag: 'AI-агентство',  title: 'roboweb.team',      url: 'https://roboweb.team/',     img: makeScreenshot('roboweb.team') },
+  { tag: 'Снабжение',     title: 'neurosnab.ru',      url: 'https://neurosnab.ru/',     img: makeScreenshot('neurosnab.ru') },
+  { tag: 'SaaS',          title: 'zaplan.io',         url: 'https://zaplan.io/',        img: makeScreenshot('zaplan.io') },
+  { tag: 'Недвижимость',  title: 'bunker-hously.ru',  url: 'https://bunker-hously.ru/', img: makeScreenshot('bunker-hously.ru') },
 ];
 
 const getPORTFOLIO = (_lang: Lang) => PORTFOLIO_ITEMS;
