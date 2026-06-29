@@ -43,68 +43,72 @@ def handler(event: dict, context) -> dict:
     headers = event.get('headers') or {}
     schema = get_schema()
 
-    # POST /register
-    if method == 'POST' and '/register' in path:
-        email = body.get('email', '').strip().lower()
-        password = body.get('password', '')
-        name = body.get('name', '').strip()
-        if not email or '@' not in email:
-            return err('Укажите корректный e-mail')
-        if len(password) < 6:
-            return err('Пароль должен быть не менее 6 символов')
-        if not name:
-            return err('Укажите ваше имя')
+    # POST — роутим по полю action в теле (путь после ID функции не поддерживается платформой)
+    if method == 'POST':
+        action = body.get('action', '')
 
-        conn = get_conn()
-        try:
-            with conn.cursor() as cur:
-                cur.execute(f"SELECT id FROM {schema}.users WHERE email = %s", (email,))
-                if cur.fetchone():
-                    return err('Пользователь с таким e-mail уже существует')
-                cur.execute(
-                    f"INSERT INTO {schema}.users (email, password_hash, name) VALUES (%s, %s, %s) RETURNING id",
-                    (email, hash_password(password), name)
-                )
-                user_id = cur.fetchone()[0]
-                session_id = str(uuid.uuid4())
-                cur.execute(
-                    f"INSERT INTO {schema}.sessions (id, user_id) VALUES (%s, %s)",
-                    (session_id, user_id)
-                )
-            conn.commit()
-        finally:
-            conn.close()
+        # REGISTER
+        if action == 'register':
+            email = body.get('email', '').strip().lower()
+            password = body.get('password', '')
+            name = body.get('name', '').strip()
+            if not email or '@' not in email:
+                return err('Укажите корректный e-mail')
+            if len(password) < 6:
+                return err('Пароль должен быть не менее 6 символов')
+            if not name:
+                return err('Укажите ваше имя')
 
-        return ok({'session_id': session_id, 'user': {'id': user_id, 'email': email, 'name': name, 'plan': 'free'}})
+            conn = get_conn()
+            try:
+                with conn.cursor() as cur:
+                    cur.execute(f"SELECT id FROM {schema}.users WHERE email = %s", (email,))
+                    if cur.fetchone():
+                        return err('Пользователь с таким e-mail уже существует')
+                    cur.execute(
+                        f"INSERT INTO {schema}.users (email, password_hash, name) VALUES (%s, %s, %s) RETURNING id",
+                        (email, hash_password(password), name)
+                    )
+                    user_id = cur.fetchone()[0]
+                    session_id = str(uuid.uuid4())
+                    cur.execute(
+                        f"INSERT INTO {schema}.sessions (id, user_id) VALUES (%s, %s)",
+                        (session_id, user_id)
+                    )
+                conn.commit()
+            finally:
+                conn.close()
+            return ok({'session_id': session_id, 'user': {'id': user_id, 'email': email, 'name': name, 'plan': 'free'}})
 
-    # POST /login
-    if method == 'POST' and '/login' in path:
-        email = body.get('email', '').strip().lower()
-        password = body.get('password', '')
-        if not email or not password:
-            return err('Введите e-mail и пароль')
+        # LOGIN
+        if action == 'login':
+            email = body.get('email', '').strip().lower()
+            password = body.get('password', '')
+            if not email or not password:
+                return err('Введите e-mail и пароль')
 
-        conn = get_conn()
-        try:
-            with conn.cursor() as cur:
-                cur.execute(
-                    f"SELECT id, name, plan FROM {schema}.users WHERE email = %s AND password_hash = %s",
-                    (email, hash_password(password))
-                )
-                row = cur.fetchone()
-                if not row:
-                    return err('Неверный e-mail или пароль')
-                user_id, name, plan = row
-                session_id = str(uuid.uuid4())
-                cur.execute(
-                    f"INSERT INTO {schema}.sessions (id, user_id) VALUES (%s, %s)",
-                    (session_id, user_id)
-                )
-            conn.commit()
-        finally:
-            conn.close()
+            conn = get_conn()
+            try:
+                with conn.cursor() as cur:
+                    cur.execute(
+                        f"SELECT id, name, plan FROM {schema}.users WHERE email = %s AND password_hash = %s",
+                        (email, hash_password(password))
+                    )
+                    row = cur.fetchone()
+                    if not row:
+                        return err('Неверный e-mail или пароль')
+                    user_id, name, plan = row
+                    session_id = str(uuid.uuid4())
+                    cur.execute(
+                        f"INSERT INTO {schema}.sessions (id, user_id) VALUES (%s, %s)",
+                        (session_id, user_id)
+                    )
+                conn.commit()
+            finally:
+                conn.close()
+            return ok({'session_id': session_id, 'user': {'id': user_id, 'email': email, 'name': name, 'plan': plan}})
 
-        return ok({'session_id': session_id, 'user': {'id': user_id, 'email': email, 'name': name, 'plan': plan}})
+        return err('Неизвестное действие')
 
     # GET /me — получить профиль по сессии
     if method == 'GET':

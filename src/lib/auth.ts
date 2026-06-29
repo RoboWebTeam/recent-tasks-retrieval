@@ -46,10 +46,10 @@ export function storeUser(user: User) {
 }
 
 export async function apiRegister(email: string, password: string, name: string) {
-  const res = await fetch(`${AUTH_URL}/register`, {
+  const res = await fetch(AUTH_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password, name }),
+    body: JSON.stringify({ action: 'register', email, password, name }),
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || 'Ошибка регистрации');
@@ -57,10 +57,10 @@ export async function apiRegister(email: string, password: string, name: string)
 }
 
 export async function apiLogin(email: string, password: string) {
-  const res = await fetch(`${AUTH_URL}/login`, {
+  const res = await fetch(AUTH_URL, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({ email, password }),
+    body: JSON.stringify({ action: 'login', email, password }),
   });
   const data = await res.json();
   if (!res.ok) throw new Error(data.error || 'Ошибка входа');
