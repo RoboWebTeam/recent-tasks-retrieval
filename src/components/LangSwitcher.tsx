@@ -3,15 +3,27 @@ import { type Lang, setLang } from '@/lib/i18n';
 interface Props {
   lang: Lang;
   dark?: boolean;
+  onSwitch?: (l: Lang) => void; // без перезагрузки страницы
 }
 
-export default function LangSwitcher({ lang, dark = false }: Props) {
+export default function LangSwitcher({ lang, dark = false, onSwitch }: Props) {
+  const handleClick = (l: Lang) => {
+    if (l === lang) return;
+    if (onSwitch) {
+      // Мгновенное переключение без reload
+      setLang(l);
+      onSwitch(l);
+    } else {
+      setLang(l); // с reload (для других страниц)
+    }
+  };
+
   return (
     <div className={`flex items-center gap-0.5 rounded-lg p-0.5 ${dark ? 'bg-white/10' : 'bg-secondary'}`}>
       {(['ru', 'en'] as Lang[]).map(l => (
         <button
           key={l}
-          onClick={() => l !== lang && setLang(l)}
+          onClick={() => handleClick(l)}
           className={`px-2.5 py-1 rounded-md text-xs font-bold uppercase tracking-wide transition-all ${
             lang === l
               ? dark
