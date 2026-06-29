@@ -68,6 +68,26 @@ const Admin = () => {
     navigator.clipboard.writeText(list.join('\n'));
   };
 
+  const exportCSV = () => {
+    let csv = '';
+    if (tab === 'leads') {
+      csv = 'ID,Email,Дата\n' + filteredLeads.map(l =>
+        `${l.id},"${l.email}","${new Date(l.created_at).toLocaleString('ru')}"`
+      ).join('\n');
+    } else {
+      csv = 'ID,Email,Имя,Тариф,Проектов,Дата\n' + filteredUsers.map(u =>
+        `${u.id},"${u.email}","${u.name}","${u.plan}",${u.projects_count},"${new Date(u.created_at).toLocaleString('ru')}"`
+      ).join('\n');
+    }
+    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `roboweb-${tab}-${new Date().toISOString().slice(0,10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   // LOGIN
   if (!authed) {
     return (
@@ -188,6 +208,10 @@ const Admin = () => {
           <Button variant="outline" onClick={copyAll} className="rounded-xl gap-2 shrink-0" disabled={activeList.length === 0}>
             <Icon name="Copy" size={15} />
             Скопировать e-mail
+          </Button>
+          <Button variant="outline" onClick={exportCSV} className="rounded-xl gap-2 shrink-0" disabled={activeList.length === 0}>
+            <Icon name="Download" size={15} />
+            Скачать CSV
           </Button>
         </div>
 
