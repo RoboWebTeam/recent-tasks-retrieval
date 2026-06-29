@@ -2,84 +2,13 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
-
-const GET_LEADS_URL      = 'https://functions.poehali.dev/30e5ede9-3024-46d5-ad27-eae4b46b0056';
-const MANAGE_USER_URL    = 'https://functions.poehali.dev/f00990ba-30f7-4fe5-9cb2-974518f45564';
-const ANALYTICS_URL      = 'https://functions.poehali.dev/ee6777e6-59d0-4d5f-acb2-d292c72253d3';
-const SITE_LEADS_URL     = 'https://functions.poehali.dev/96a428e9-25c5-47d2-83b1-bdc68f9f8010';
-const ACTIVITY_LOG_URL   = 'https://functions.poehali.dev/fa0bbc9f-ff34-4d08-877f-41fdf35d0dee';
-
-function unwrap(raw: Record<string, unknown>): Record<string, unknown> {
-  if (raw.body !== undefined) {
-    return typeof raw.body === 'string' ? JSON.parse(raw.body) : raw.body as Record<string, unknown>;
-  }
-  return raw;
-}
-
-interface Lead { id: number; email: string; created_at: string; }
-
-interface User {
-  id: number; email: string; name: string; plan: string;
-  created_at: string; projects_count: number; blocked: boolean;
-}
-
-interface SiteLead {
-  id: number; name: string; phone: string; email: string;
-  message: string; site: string; date: string; status: 'new' | 'processed' | 'rejected';
-}
-
-const PLAN_LABELS: Record<string, { label: string; color: string }> = {
-  free:    { label: 'Пробный',  color: 'bg-secondary text-muted-foreground' },
-  premium: { label: 'Премиум',  color: 'bg-primary/15 text-primary' },
-  pro:     { label: 'Профи',    color: 'bg-foreground/10 text-foreground' },
-};
-
-
-
-const SITE_LEAD_STATUS = {
-  new:       { label: 'Новая',       color: 'bg-primary/10 text-primary', dot: 'bg-primary' },
-  processed: { label: 'Обработана',  color: 'bg-emerald-100 text-emerald-700', dot: 'bg-emerald-500' },
-  rejected:  { label: 'Отклонена',   color: 'bg-secondary text-muted-foreground', dot: 'bg-muted-foreground' },
-};
-
-interface AnalyticsData {
-  total_views: number; total_visitors: number; views_change: number;
-  chart: { day: string; views: number; visitors: number }[];
-  devices: { name: string; value: number }[];
-  top_pages: { path: string; views: number }[];
-  top_sites: { url: string; views: number; visitors: number; leads: number }[];
-  sources: { name: string; value: number }[];
-}
-
-interface LogEntry {
-  id: number; user_id: number | null; user_name: string; user_email: string;
-  action: string; entity: string; entity_id: number | null;
-  meta: Record<string, unknown>; ip: string; created_at: string;
-}
-
-interface Notification {
-  id: number; type: string; title: string; body: string;
-  link: string; is_read: boolean; created_at: string;
-}
-
-const SOURCE_COLORS = ['bg-primary', 'bg-violet-500', 'bg-emerald-500', 'bg-amber-500'];
-
-const ACTION_LABELS: Record<string, { label: string; color: string; icon: string }> = {
-  register:       { label: 'Регистрация',      color: 'text-emerald-600 bg-emerald-100', icon: 'UserPlus' },
-  login:          { label: 'Вход',             color: 'text-blue-600 bg-blue-100',       icon: 'LogIn' },
-  generate_site:  { label: 'Генерация сайта',  color: 'text-primary bg-primary/10',     icon: 'Sparkles' },
-  create_project: { label: 'Новый проект',     color: 'text-violet-600 bg-violet-100',  icon: 'Layers' },
-  change_plan:    { label: 'Смена тарифа',     color: 'text-amber-600 bg-amber-100',    icon: 'CreditCard' },
-  block_user:     { label: 'Блокировка',       color: 'text-rose-600 bg-rose-100',      icon: 'Ban' },
-  unblock_user:   { label: 'Разблокировка',    color: 'text-emerald-600 bg-emerald-100',icon: 'Unlock' },
-  delete_user:    { label: 'Удаление',         color: 'text-red-600 bg-red-100',        icon: 'Trash2' },
-  submit_lead:    { label: 'Заявка с сайта',   color: 'text-teal-600 bg-teal-100',      icon: 'Inbox' },
-};
-
-const NOTIF_ICONS: Record<string, string> = {
-  change_plan: 'CreditCard', block_user: 'Ban', unblock_user: 'Unlock',
-  delete_user: 'Trash2', register: 'UserPlus', submit_lead: 'Inbox',
-};
+import {
+  GET_LEADS_URL, MANAGE_USER_URL, ANALYTICS_URL, SITE_LEADS_URL, ACTIVITY_LOG_URL,
+  unwrap,
+  type Lead, type User, type SiteLead, type AnalyticsData, type LogEntry, type Notification,
+} from './admin/adminTypes';
+import { AdminAnalytics } from './admin/AdminAnalytics';
+import { SiteLeadsTab, LeadsTab, UsersTab, LogTab, NotificationsTab } from './admin/AdminTables';
 
 const Admin = () => {
   const [key, setKey] = useState('');
@@ -187,9 +116,7 @@ const Admin = () => {
   };
 
   useEffect(() => {
-    if (authed && key) {
-      fetchAnalytics(key, analyticsPeriod === '7d' ? 7 : 30);
-    }
+    if (authed && key) fetchAnalytics(key, analyticsPeriod === '7d' ? 7 : 30);
   }, [authed, analyticsPeriod]);
 
   useEffect(() => {
@@ -229,7 +156,6 @@ const Admin = () => {
   const changeSiteLeadStatus = async (id: number, status: SiteLead['status']) => {
     setSiteLeads(prev => prev.map(l => l.id === id ? { ...l, status } : l));
     if (selectedLead?.id === id) setSelectedLead(prev => prev ? { ...prev, status } : null);
-    // Сохраняем в БД
     await fetch(SITE_LEADS_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'x-admin-key': key },
@@ -254,10 +180,6 @@ const Admin = () => {
     a.download = `roboweb-${tab}-${new Date().toISOString().slice(0,10)}.csv`;
     a.click(); URL.revokeObjectURL(url);
   };
-
-  const maxViews = analyticsData?.chart.length
-    ? Math.max(...analyticsData.chart.map(d => d.views), 1)
-    : 1;
 
   // LOGIN
   if (!authed) {
@@ -318,14 +240,13 @@ const Admin = () => {
       </header>
 
       <div className="container py-6 md:py-8">
-
         {/* Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
           {[
-            { icon: 'Eye', label: 'Просмотров', value: analyticsData ? analyticsData.total_views.toLocaleString() : '…', color: 'text-primary' },
-            { icon: 'Users', label: 'Пользователей', value: users?.length ?? 0, color: 'text-violet-500' },
-            { icon: 'Inbox', label: 'Заявок с сайтов', value: Object.values(siteLeadCounts).reduce((s, v) => s + v, 0), color: 'text-emerald-500' },
-            { icon: 'Layers', label: 'Проектов', value: users?.reduce((s, u) => s + u.projects_count, 0) ?? 0, color: 'text-amber-500' },
+            { icon: 'Eye',    label: 'Просмотров',     value: analyticsData ? analyticsData.total_views.toLocaleString() : '…', color: 'text-primary' },
+            { icon: 'Users',  label: 'Пользователей',  value: users?.length ?? 0,                                               color: 'text-violet-500' },
+            { icon: 'Inbox',  label: 'Заявок с сайтов',value: Object.values(siteLeadCounts).reduce((s, v) => s + v, 0),        color: 'text-emerald-500' },
+            { icon: 'Layers', label: 'Проектов',       value: users?.reduce((s, u) => s + u.projects_count, 0) ?? 0,           color: 'text-amber-500' },
           ].map(s => (
             <div key={s.label} className="rounded-2xl border border-border bg-card p-4 md:p-5">
               <div className={`flex items-center gap-2 mb-1 ${s.color}`}>
@@ -340,12 +261,12 @@ const Admin = () => {
         {/* Tabs */}
         <div className="flex gap-2 mb-5 overflow-x-auto pb-1">
           {([
-            ['analytics',     'Аналитика',       'BarChart2',   null],
-            ['site-leads',    'Заявки',           'Inbox',       newSiteLeads],
-            ['leads',         'Email-лиды',       'Mail',        leads?.length ?? null],
-            ['users',         'Пользователи',     'Users',       users?.length ?? null],
-            ['log',           'Лог действий',     'Activity',    null],
-            ['notifications', 'Уведомления',      'Bell',        unreadCount],
+            ['analytics',     'Аналитика',    'BarChart2',  null],
+            ['site-leads',    'Заявки',        'Inbox',      newSiteLeads],
+            ['leads',         'Email-лиды',    'Mail',       leads?.length ?? null],
+            ['users',         'Пользователи', 'Users',      users?.length ?? null],
+            ['log',           'Лог действий', 'Activity',   null],
+            ['notifications', 'Уведомления',  'Bell',       unreadCount],
           ] as const).map(([id, label, icon, count]) => (
             <button key={id} onClick={() => { setTab(id); setSearch(''); }}
               className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition-colors ${tab === id ? 'bg-primary text-primary-foreground' : 'bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-secondary'}`}>
@@ -358,623 +279,72 @@ const Admin = () => {
           ))}
         </div>
 
-        {/* ── ANALYTICS TAB ── */}
+        {/* Tab content */}
         {tab === 'analytics' && (
-          <div className="space-y-5">
-            {/* Period */}
-            <div className="flex items-center gap-2">
-              {(['7d', '30d'] as const).map(p => (
-                <button key={p} onClick={() => setAnalyticsPeriod(p)}
-                  className={`px-4 py-1.5 rounded-xl text-sm font-semibold transition-all ${analyticsPeriod === p ? 'bg-primary text-primary-foreground' : 'bg-card border border-border text-muted-foreground hover:text-foreground'}`}>
-                  {p === '7d' ? '7 дней' : '30 дней'}
-                </button>
-              ))}
-            </div>
-
-            {analyticsLoading ? (
-              <div className="flex items-center justify-center py-16 gap-3 text-muted-foreground">
-                <Icon name="Loader" size={20} className="animate-spin" /> Загружаем аналитику…
-              </div>
-            ) : !analyticsData || analyticsData.total_views === 0 ? (
-              <div className="flex flex-col items-center justify-center py-16 text-center">
-                <Icon name="BarChart2" size={36} className="mb-3 text-muted-foreground/30" />
-                <p className="font-medium text-muted-foreground">Данных пока нет — просмотры появятся когда посетители зайдут на сайты</p>
-              </div>
-            ) : (
-              <>
-                {/* Stats row */}
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
-                  {[
-                    { label: 'Просмотров', value: analyticsData.total_views.toLocaleString(), color: 'text-primary' },
-                    { label: 'Посетителей', value: analyticsData.total_visitors.toLocaleString(), color: 'text-violet-500' },
-                    { label: 'Изменение', value: `${analyticsData.views_change >= 0 ? '+' : ''}${analyticsData.views_change}%`, color: analyticsData.views_change >= 0 ? 'text-emerald-500' : 'text-destructive' },
-                    { label: 'Заявок с сайтов', value: (siteLeadCounts.new || 0) + (siteLeadCounts.processed || 0) + (siteLeadCounts.rejected || 0), color: 'text-amber-500' },
-                  ].map(s => (
-                    <div key={s.label} className="rounded-2xl border border-border bg-card p-4">
-                      <p className={`text-xs font-semibold uppercase tracking-wide mb-1 ${s.color}`}>{s.label}</p>
-                      <p className="font-display font-black text-2xl">{s.value}</p>
-                    </div>
-                  ))}
-                </div>
-
-                {/* Chart + Sources */}
-                <div className="grid lg:grid-cols-3 gap-5">
-                  <div className="lg:col-span-2 bg-card border border-border rounded-2xl p-5">
-                    <div className="flex items-center justify-between mb-5">
-                      <h2 className="font-display font-bold text-base">Посещаемость</h2>
-                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                        <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-primary inline-block" /> Просмотры</span>
-                        <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-violet-400 inline-block" /> Посетители</span>
-                      </div>
-                    </div>
-                    {analyticsData.chart.length === 0 ? (
-                      <div className="flex items-center justify-center h-40 text-muted-foreground text-sm">Нет данных за период</div>
-                    ) : (
-                      <div className="flex items-end gap-2 h-44">
-                        {analyticsData.chart.map((d, i) => (
-                          <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                            <div className="w-full flex items-end gap-0.5" style={{ height: '120px' }}>
-                              <div className="flex-1 bg-primary/20 hover:bg-primary/40 rounded-t transition-colors relative group"
-                                style={{ height: `${(d.views / maxViews) * 100}%` }}>
-                                <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-foreground text-background text-[10px] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
-                                  {d.views.toLocaleString()}
-                                </div>
-                              </div>
-                              <div className="flex-1 bg-violet-400/30 hover:bg-violet-400/50 rounded-t transition-colors"
-                                style={{ height: `${(d.visitors / maxViews) * 100}%` }} />
-                            </div>
-                            <span className="text-[10px] text-muted-foreground">{d.day}</span>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="bg-card border border-border rounded-2xl p-5">
-                    <h2 className="font-display font-bold text-base mb-5">Источники трафика</h2>
-                    {analyticsData.sources.length === 0 ? (
-                      <p className="text-sm text-muted-foreground">Нет данных</p>
-                    ) : (
-                      <div className="space-y-3">
-                        {analyticsData.sources.map((s, i) => (
-                          <div key={s.name}>
-                            <div className="flex items-center justify-between text-sm mb-1.5">
-                              <span className="text-foreground font-medium">{s.name}</span>
-                              <span className="font-bold">{s.value}%</span>
-                            </div>
-                            <div className="h-2 w-full bg-secondary rounded-full overflow-hidden">
-                              <div className={`h-full rounded-full ${SOURCE_COLORS[i % SOURCE_COLORS.length]}`} style={{ width: `${s.value}%` }} />
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                {/* Top sites table */}
-                {analyticsData.top_sites.length > 0 && (
-                  <div className="bg-card border border-border rounded-2xl overflow-hidden">
-                    <div className="px-5 py-3.5 border-b border-border bg-secondary/30">
-                      <h2 className="font-display font-bold text-sm">Топ сайтов</h2>
-                    </div>
-                    <div className="overflow-x-auto">
-                      <table className="w-full text-sm">
-                        <thead className="border-b border-border">
-                          <tr>
-                            <th className="text-left px-5 py-3 font-semibold text-muted-foreground">#</th>
-                            <th className="text-left px-5 py-3 font-semibold text-muted-foreground">Сайт</th>
-                            <th className="text-right px-5 py-3 font-semibold text-muted-foreground">Просмотры</th>
-                            <th className="text-right px-5 py-3 font-semibold text-muted-foreground hidden sm:table-cell">Посетители</th>
-                            <th className="text-right px-5 py-3 font-semibold text-muted-foreground hidden md:table-cell">Заявки</th>
-                          </tr>
-                        </thead>
-                        <tbody>
-                          {analyticsData.top_sites.map((site, i) => (
-                            <tr key={site.url} className="border-b border-border last:border-0 hover:bg-secondary/30 transition-colors">
-                              <td className="px-5 py-3 text-muted-foreground font-mono text-xs">{i + 1}</td>
-                              <td className="px-5 py-3">
-                                <div className="flex items-center gap-2">
-                                  <div className="grid h-7 w-7 place-items-center rounded-lg bg-primary/10 text-primary shrink-0">
-                                    <Icon name="Globe" size={13} />
-                                  </div>
-                                  <span className="font-medium text-foreground">{site.url}</span>
-                                </div>
-                              </td>
-                              <td className="px-5 py-3 text-right font-semibold">{site.views.toLocaleString()}</td>
-                              <td className="px-5 py-3 text-right text-muted-foreground hidden sm:table-cell">{site.visitors.toLocaleString()}</td>
-                              <td className="px-5 py-3 text-right hidden md:table-cell">
-                                <span className="inline-flex items-center gap-1 text-emerald-600 font-semibold">
-                                  <Icon name="TrendingUp" size={11} /> {site.leads}
-                                </span>
-                              </td>
-                            </tr>
-                          ))}
-                        </tbody>
-                      </table>
-                    </div>
-                  </div>
-                )}
-              </>
-            )}
-          </div>
+          <AdminAnalytics
+            analyticsData={analyticsData}
+            analyticsLoading={analyticsLoading}
+            analyticsPeriod={analyticsPeriod}
+            setAnalyticsPeriod={setAnalyticsPeriod}
+            siteLeadCounts={siteLeadCounts}
+          />
         )}
-
-        {/* ── SITE LEADS TAB ── */}
         {tab === 'site-leads' && (
-          <div>
-            {siteLeadsLoading && (
-              <div className="flex items-center justify-center py-10 gap-3 text-muted-foreground">
-                <Icon name="Loader" size={18} className="animate-spin" /> Загружаем заявки…
-              </div>
-            )}
-            {/* Filters + toolbar */}
-            <div className="flex flex-col sm:flex-row gap-3 mb-4">
-              <div className="flex gap-2 overflow-x-auto pb-1">
-                {([
-                  ['all', 'Все', Object.values(siteLeadCounts).reduce((s, v) => s + v, 0)],
-                  ['new', 'Новые', siteLeadCounts['new'] || 0],
-                  ['processed', 'Обработанные', siteLeadCounts['processed'] || 0],
-                  ['rejected', 'Отклонённые', siteLeadCounts['rejected'] || 0],
-                ] as const).map(([id, label, count]) => (
-                  <button key={id} onClick={() => setSiteLeadFilter(id)}
-                    className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${siteLeadFilter === id ? 'bg-primary text-primary-foreground' : 'bg-card border border-border text-muted-foreground hover:text-foreground'}`}>
-                    {label}
-                    <span className={`px-1.5 py-0.5 rounded-full text-[10px] font-bold ${siteLeadFilter === id ? 'bg-white/20' : 'bg-secondary'}`}>{count}</span>
-                  </button>
-                ))}
-              </div>
-              <div className="flex gap-2 ml-auto">
-                <div className="relative">
-                  <Icon name="Search" size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                  <Input placeholder="Поиск…" value={search} onChange={e => setSearch(e.target.value)} className="pl-8 h-9 rounded-xl text-sm w-48" />
-                </div>
-                <Button variant="outline" onClick={exportCSV} className="rounded-xl gap-1.5 h-9 text-sm shrink-0" disabled={filteredSiteLeads.length === 0}>
-                  <Icon name="Download" size={13} /> CSV
-                </Button>
-              </div>
-            </div>
-
-            <div className="flex gap-5">
-              {/* List */}
-              <div className="flex-1 min-w-0 space-y-2">
-                {filteredSiteLeads.length === 0 ? (
-                  <div className="flex flex-col items-center justify-center py-20 text-center">
-                    <Icon name="Inbox" size={36} className="mb-3 text-muted-foreground/30" />
-                    <p className="font-medium text-muted-foreground">Заявок не найдено</p>
-                  </div>
-                ) : filteredSiteLeads.map(lead => {
-                  const s = SITE_LEAD_STATUS[lead.status];
-                  const isSelected = selectedLead?.id === lead.id;
-                  return (
-                    <button key={lead.id} onClick={() => setSelectedLead(isSelected ? null : lead)}
-                      className={`w-full text-left bg-card border rounded-2xl p-4 transition-all hover:shadow-sm ${isSelected ? 'border-primary shadow-md' : 'border-border'}`}>
-                      <div className="flex items-start gap-3">
-                        <div className="grid h-9 w-9 place-items-center rounded-xl bg-primary/10 text-primary font-bold text-sm shrink-0">
-                          {lead.name[0]}
-                        </div>
-                        <div className="flex-1 min-w-0">
-                          <div className="flex items-center gap-2 mb-1 flex-wrap">
-                            <span className="font-semibold text-sm text-foreground">{lead.name}</span>
-                            <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full ${s.color}`}>
-                              <span className={`h-1.5 w-1.5 rounded-full ${s.dot}`} />
-                              {s.label}
-                            </span>
-                          </div>
-                          <p className="text-xs text-muted-foreground line-clamp-1 mb-1.5">{lead.message}</p>
-                          <div className="flex items-center gap-3">
-                            <span className="text-[10px] text-muted-foreground flex items-center gap-1">
-                              <Icon name="Globe" size={10} /> {lead.site}
-                            </span>
-                            <span className="text-[10px] text-muted-foreground">
-                              {new Date(lead.date).toLocaleString('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
-                            </span>
-                          </div>
-                        </div>
-                      </div>
-                    </button>
-                  );
-                })}
-              </div>
-
-              {/* Detail panel */}
-              {selectedLead && (
-                <div className="w-72 shrink-0 hidden lg:block">
-                  <div className="sticky top-24 bg-card border border-border rounded-2xl p-5 space-y-4">
-                    <div className="flex items-center justify-between">
-                      <h3 className="font-display font-bold text-base">Детали заявки</h3>
-                      <button onClick={() => setSelectedLead(null)} className="text-muted-foreground hover:text-foreground">
-                        <Icon name="X" size={15} />
-                      </button>
-                    </div>
-                    <div className="grid h-14 w-14 place-items-center rounded-2xl bg-primary/10 text-primary font-black text-xl mx-auto">
-                      {selectedLead.name[0]}
-                    </div>
-                    <div className="text-center">
-                      <p className="font-bold">{selectedLead.name}</p>
-                      <p className="text-xs text-muted-foreground">{selectedLead.site}</p>
-                    </div>
-                    <div className="space-y-3 border-t border-border pt-4">
-                      {selectedLead.phone && (
-                        <div className="flex items-center gap-2.5">
-                          <div className="grid h-8 w-8 place-items-center rounded-xl bg-secondary shrink-0"><Icon name="Phone" size={13} className="text-muted-foreground" /></div>
-                          <div><p className="text-[10px] text-muted-foreground">Телефон</p><a href={`tel:${selectedLead.phone}`} className="text-sm font-semibold text-primary hover:underline">{selectedLead.phone}</a></div>
-                        </div>
-                      )}
-                      {selectedLead.email && (
-                        <div className="flex items-center gap-2.5">
-                          <div className="grid h-8 w-8 place-items-center rounded-xl bg-secondary shrink-0"><Icon name="Mail" size={13} className="text-muted-foreground" /></div>
-                          <div><p className="text-[10px] text-muted-foreground">Email</p><a href={`mailto:${selectedLead.email}`} className="text-sm font-semibold text-primary hover:underline truncate block max-w-[180px]">{selectedLead.email}</a></div>
-                        </div>
-                      )}
-                      <div className="flex items-start gap-2.5">
-                        <div className="grid h-8 w-8 place-items-center rounded-xl bg-secondary shrink-0 mt-0.5"><Icon name="MessageSquare" size={13} className="text-muted-foreground" /></div>
-                        <div><p className="text-[10px] text-muted-foreground mb-1">Сообщение</p><p className="text-sm leading-relaxed">{selectedLead.message}</p></div>
-                      </div>
-                    </div>
-                    <div className="border-t border-border pt-4 space-y-1.5">
-                      <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Статус</p>
-                      {([['new', 'Новая', 'Bell'], ['processed', 'Обработана', 'CheckCircle'], ['rejected', 'Отклонить', 'X']] as const).map(([id, label, icon]) => (
-                        <button key={id} onClick={() => changeSiteLeadStatus(selectedLead.id, id)}
-                          className={`w-full flex items-center gap-2 px-3 py-2 rounded-xl text-sm transition-all ${selectedLead.status === id ? 'bg-primary text-primary-foreground font-semibold' : 'bg-secondary hover:bg-background text-muted-foreground hover:text-foreground border border-border'}`}>
-                          <Icon name={icon} size={13} /> {label}
-                        </button>
-                      ))}
-                    </div>
-                    <div className="flex gap-2 pt-1">
-                      {selectedLead.phone && (
-                        <Button size="sm" className="flex-1 rounded-xl h-9 text-xs gap-1.5" asChild>
-                          <a href={`tel:${selectedLead.phone}`}><Icon name="Phone" size={12} />Позвонить</a>
-                        </Button>
-                      )}
-                      {selectedLead.email && (
-                        <Button size="sm" variant="outline" className="flex-1 rounded-xl h-9 text-xs gap-1.5" asChild>
-                          <a href={`mailto:${selectedLead.email}`}><Icon name="Mail" size={12} />Email</a>
-                        </Button>
-                      )}
-                    </div>
-                  </div>
-                </div>
-              )}
-            </div>
-          </div>
+          <SiteLeadsTab
+            siteLeadsLoading={siteLeadsLoading}
+            siteLeadFilter={siteLeadFilter}
+            setSiteLeadFilter={setSiteLeadFilter}
+            siteLeadCounts={siteLeadCounts}
+            filteredSiteLeads={filteredSiteLeads}
+            search={search}
+            setSearch={setSearch}
+            selectedLead={selectedLead}
+            setSelectedLead={setSelectedLead}
+            changeSiteLeadStatus={changeSiteLeadStatus}
+            exportCSV={exportCSV}
+          />
         )}
-
-        {/* ── EMAIL LEADS TAB ── */}
         {tab === 'leads' && (
-          <div>
-            <div className="flex flex-col sm:flex-row gap-3 mb-4">
-              <div className="relative flex-1">
-                <Icon name="Search" size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                <Input placeholder="Поиск по e-mail…" value={search} onChange={e => setSearch(e.target.value)} className="pl-9 h-10 rounded-xl" />
-              </div>
-              <Button variant="outline" onClick={() => navigator.clipboard.writeText(filteredLeads.map(l => l.email).join('\n'))} className="rounded-xl gap-2 shrink-0" disabled={filteredLeads.length === 0}>
-                <Icon name="Copy" size={15} /> Скопировать e-mail
-              </Button>
-              <Button variant="outline" onClick={exportCSV} className="rounded-xl gap-2 shrink-0" disabled={filteredLeads.length === 0}>
-                <Icon name="Download" size={15} /> CSV
-              </Button>
-            </div>
-            <div className="rounded-2xl border border-border overflow-hidden">
-              {filteredLeads.length === 0 ? (
-                <div className="p-12 text-center text-muted-foreground">
-                  <Icon name="Inbox" size={36} className="mx-auto mb-3 opacity-30" />
-                  <p className="font-medium">{search ? 'Ничего не найдено' : 'Заявок пока нет'}</p>
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead className="bg-secondary/50 border-b border-border">
-                      <tr>
-                        <th className="text-left px-4 py-3 font-semibold text-muted-foreground w-12">#</th>
-                        <th className="text-left px-4 py-3 font-semibold text-muted-foreground">E-mail</th>
-                        <th className="text-left px-4 py-3 font-semibold text-muted-foreground hidden sm:table-cell">Дата</th>
-                        <th className="w-10 px-4 py-3" />
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredLeads.map((lead, i) => {
-                        const d = new Date(lead.created_at);
-                        return (
-                          <tr key={lead.id} className="border-b border-border last:border-0 hover:bg-secondary/30 transition-colors">
-                            <td className="px-4 py-3 text-muted-foreground font-mono text-xs">{i + 1}</td>
-                            <td className="px-4 py-3"><a href={`mailto:${lead.email}`} className="font-medium hover:text-primary transition-colors">{lead.email}</a></td>
-                            <td className="px-4 py-3 text-muted-foreground hidden sm:table-cell">{d.toLocaleDateString('ru-RU')} {d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}</td>
-                            <td className="px-4 py-3">
-                              <button onClick={() => navigator.clipboard.writeText(lead.email)} className="grid h-7 w-7 place-items-center rounded-lg hover:bg-secondary transition-colors text-muted-foreground">
-                                <Icon name="Copy" size={13} />
-                              </button>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-            </div>
-            {filteredLeads.length > 0 && (
-              <p className="mt-3 text-xs text-muted-foreground text-right">Показано: {filteredLeads.length}</p>
-            )}
-          </div>
+          <LeadsTab
+            filteredLeads={filteredLeads}
+            search={search}
+            setSearch={setSearch}
+            exportCSV={exportCSV}
+          />
         )}
-
-        {/* ── USERS TAB ── */}
         {tab === 'users' && (
-          <div>
-            <div className="flex flex-col sm:flex-row gap-3 mb-4">
-              <div className="relative flex-1">
-                <Icon name="Search" size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-                <Input placeholder="Поиск по имени или e-mail…" value={search} onChange={e => setSearch(e.target.value)} className="pl-9 h-10 rounded-xl" />
-              </div>
-              <Button variant="outline" onClick={() => navigator.clipboard.writeText(filteredUsers.map(u => u.email).join('\n'))} className="rounded-xl gap-2 shrink-0" disabled={filteredUsers.length === 0}>
-                <Icon name="Copy" size={15} /> Скопировать e-mail
-              </Button>
-              <Button variant="outline" onClick={exportCSV} className="rounded-xl gap-2 shrink-0" disabled={filteredUsers.length === 0}>
-                <Icon name="Download" size={15} /> CSV
-              </Button>
-            </div>
-            <div className="rounded-2xl border border-border overflow-hidden">
-              {filteredUsers.length === 0 ? (
-                <div className="p-12 text-center text-muted-foreground">
-                  <Icon name="Users" size={36} className="mx-auto mb-3 opacity-30" />
-                  <p className="font-medium">{search ? 'Ничего не найдено' : 'Пользователей пока нет'}</p>
-                </div>
-              ) : (
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead className="bg-secondary/50 border-b border-border">
-                      <tr>
-                        <th className="text-left px-4 py-3 font-semibold text-muted-foreground w-12">#</th>
-                        <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Пользователь</th>
-                        <th className="text-left px-4 py-3 font-semibold text-muted-foreground hidden sm:table-cell">Тариф</th>
-                        <th className="text-left px-4 py-3 font-semibold text-muted-foreground hidden md:table-cell">Проекты</th>
-                        <th className="text-left px-4 py-3 font-semibold text-muted-foreground hidden lg:table-cell">Дата</th>
-                        <th className="text-left px-4 py-3 font-semibold text-muted-foreground hidden sm:table-cell">Статус</th>
-                        <th className="px-4 py-3 text-right font-semibold text-muted-foreground">Действия</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {filteredUsers.map((user, i) => {
-                        const plan = PLAN_LABELS[user.plan] ?? PLAN_LABELS.free;
-                        const initials = user.name.split(' ').map((w: string) => w[0]).join('').toUpperCase().slice(0, 2);
-                        const isLoad = actionLoading === user.id;
-                        const isConf = confirmDelete === user.id;
-                        return (
-                          <tr key={user.id} className={`border-b border-border last:border-0 transition-colors ${user.blocked ? 'bg-rose-50/50' : 'hover:bg-secondary/30'}`}>
-                            <td className="px-4 py-3 text-muted-foreground font-mono text-xs">{i + 1}</td>
-                            <td className="px-4 py-3">
-                              <div className="flex items-center gap-3">
-                                <div className={`grid h-8 w-8 place-items-center rounded-xl font-bold text-xs shrink-0 ${user.blocked ? 'bg-rose-200 text-rose-700' : 'bg-primary text-primary-foreground'}`}>
-                                  {user.blocked ? <Icon name="Ban" size={14} /> : (initials || '?')}
-                                </div>
-                                <div>
-                                  <div className="font-medium leading-tight">{user.name || '—'}</div>
-                                  <a href={`mailto:${user.email}`} className="text-xs text-muted-foreground hover:text-primary">{user.email}</a>
-                                </div>
-                              </div>
-                            </td>
-                            <td className="px-4 py-3 hidden sm:table-cell">
-                              <div className="flex items-center gap-1.5">
-                                <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${plan.color}`}>{plan.label}</span>
-                                <div className="relative group">
-                                  <button className="grid h-5 w-5 place-items-center rounded text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors" title="Изменить тариф">
-                                    <Icon name={planChanging === user.id ? 'Loader' : 'ChevronDown'} size={11} className={planChanging === user.id ? 'animate-spin' : ''} />
-                                  </button>
-                                  <div className="absolute left-0 top-6 z-20 hidden group-hover:flex flex-col bg-card border border-border rounded-xl shadow-xl overflow-hidden min-w-[100px]">
-                                    {(['free', 'premium', 'pro'] as const).map(p => (
-                                      <button key={p} onClick={() => manageUser(user.id, 'change_plan', p)}
-                                        className={`px-3 py-2 text-xs font-semibold text-left hover:bg-secondary transition-colors ${user.plan === p ? 'text-primary' : 'text-foreground'}`}>
-                                        {p === 'free' ? 'Пробный' : p === 'premium' ? 'Премиум' : 'Профи'}
-                                      </button>
-                                    ))}
-                                  </div>
-                                </div>
-                              </div>
-                            </td>
-                            <td className="px-4 py-3 hidden md:table-cell">
-                              <span className="inline-flex items-center gap-1 text-muted-foreground"><Icon name="Layers" size={13} /> {user.projects_count}</span>
-                            </td>
-                            <td className="px-4 py-3 text-muted-foreground hidden lg:table-cell">{new Date(user.created_at).toLocaleDateString('ru-RU')}</td>
-                            <td className="px-4 py-3 hidden sm:table-cell">
-                              {user.blocked
-                                ? <span className="inline-flex items-center gap-1 text-xs font-semibold text-rose-500 bg-rose-100 rounded-full px-2.5 py-1"><Icon name="Ban" size={11} /> Заблокирован</span>
-                                : <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 bg-emerald-50 rounded-full px-2.5 py-1"><Icon name="CheckCircle" size={11} /> Активен</span>}
-                            </td>
-                            <td className="px-4 py-3">
-                              <div className="flex items-center gap-1 justify-end">
-                                <button onClick={() => navigator.clipboard.writeText(user.email)}
-                                  className="grid h-7 w-7 place-items-center rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors" title="Скопировать e-mail">
-                                  <Icon name="Copy" size={13} />
-                                </button>
-                                <button onClick={() => manageUser(user.id, user.blocked ? 'unblock' : 'block')} disabled={isLoad}
-                                  className={`grid h-7 w-7 place-items-center rounded-lg hover:bg-secondary transition-colors ${user.blocked ? 'text-emerald-600 hover:text-emerald-700' : 'text-amber-500 hover:text-amber-600'}`}
-                                  title={user.blocked ? 'Разблокировать' : 'Заблокировать'}>
-                                  <Icon name={isLoad ? 'Loader' : user.blocked ? 'Unlock' : 'Lock'} size={13} className={isLoad ? 'animate-spin' : ''} />
-                                </button>
-                                {isConf ? (
-                                  <div className="flex items-center gap-1">
-                                    <button onClick={() => manageUser(user.id, 'delete')} disabled={isLoad}
-                                      className="h-7 px-2 rounded-lg bg-destructive text-destructive-foreground text-xs font-semibold hover:bg-destructive/90 transition-colors">
-                                      {isLoad ? '…' : 'Да'}
-                                    </button>
-                                    <button onClick={() => setConfirmDelete(null)}
-                                      className="grid h-7 w-7 place-items-center rounded-lg hover:bg-secondary text-muted-foreground transition-colors">
-                                      <Icon name="X" size={13} />
-                                    </button>
-                                  </div>
-                                ) : (
-                                  <button onClick={() => setConfirmDelete(user.id)}
-                                    className="grid h-7 w-7 place-items-center rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors" title="Удалить">
-                                    <Icon name="Trash2" size={13} />
-                                  </button>
-                                )}
-                              </div>
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-              )}
-              {filteredUsers.length > 0 && (
-                <p className="px-4 py-3 text-xs text-muted-foreground text-right border-t border-border">Показано: {filteredUsers.length}</p>
-              )}
-            </div>
-          </div>
+          <UsersTab
+            filteredUsers={filteredUsers}
+            search={search}
+            setSearch={setSearch}
+            actionLoading={actionLoading}
+            confirmDelete={confirmDelete}
+            setConfirmDelete={setConfirmDelete}
+            planChanging={planChanging}
+            manageUser={manageUser}
+            exportCSV={exportCSV}
+          />
         )}
-        {/* ── LOG TAB ── */}
         {tab === 'log' && (
-          <div>
-            <div className="flex flex-wrap items-center gap-2 mb-4">
-              <div className="flex gap-1.5 overflow-x-auto pb-1">
-                {[['', 'Все'], ['register', 'Регистрации'], ['generate_site', 'Генерации'], ['create_project', 'Проекты'], ['change_plan', 'Тарифы'], ['block_user', 'Блокировки']].map(([val, label]) => (
-                  <button key={val} onClick={() => { setLogActionFilter(val); fetchLog(key, val); }}
-                    className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${logActionFilter === val ? 'bg-primary text-primary-foreground' : 'bg-card border border-border text-muted-foreground hover:text-foreground'}`}>
-                    {label}
-                  </button>
-                ))}
-              </div>
-              <button onClick={() => fetchLog(key, logActionFilter)} disabled={activityLoading}
-                className="ml-auto flex items-center gap-1.5 h-8 px-3 rounded-xl border border-border bg-secondary text-xs text-muted-foreground hover:text-foreground transition-colors">
-                <Icon name={activityLoading ? 'Loader' : 'RefreshCw'} size={13} className={activityLoading ? 'animate-spin' : ''} />
-                Обновить
-              </button>
-            </div>
-
-            {activityLoading ? (
-              <div className="flex items-center justify-center py-16 gap-3 text-muted-foreground">
-                <Icon name="Loader" size={18} className="animate-spin" /> Загружаем лог…
-              </div>
-            ) : activityLogs.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-16 text-center">
-                <Icon name="Activity" size={36} className="mb-3 text-muted-foreground/30" />
-                <p className="font-medium text-muted-foreground">Действий пока нет</p>
-              </div>
-            ) : (
-              <div className="rounded-2xl border border-border overflow-hidden">
-                <div className="overflow-x-auto">
-                  <table className="w-full text-sm">
-                    <thead className="bg-secondary/50 border-b border-border">
-                      <tr>
-                        <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Действие</th>
-                        <th className="text-left px-4 py-3 font-semibold text-muted-foreground hidden sm:table-cell">Пользователь</th>
-                        <th className="text-left px-4 py-3 font-semibold text-muted-foreground hidden md:table-cell">Детали</th>
-                        <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Дата</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      {activityLogs.map(log => {
-                        const cfg = ACTION_LABELS[log.action] ?? { label: log.action, color: 'text-muted-foreground bg-secondary', icon: 'Activity' };
-                        return (
-                          <tr key={log.id} className="border-b border-border last:border-0 hover:bg-secondary/30 transition-colors">
-                            <td className="px-4 py-3">
-                              <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${cfg.color}`}>
-                                <Icon name={cfg.icon} size={11} />
-                                {cfg.label}
-                              </span>
-                            </td>
-                            <td className="px-4 py-3 hidden sm:table-cell">
-                              {log.user_id ? (
-                                <div>
-                                  <p className="font-medium text-foreground text-xs">{log.user_name}</p>
-                                  <p className="text-muted-foreground text-[10px]">{log.user_email}</p>
-                                </div>
-                              ) : <span className="text-muted-foreground text-xs">—</span>}
-                            </td>
-                            <td className="px-4 py-3 hidden md:table-cell">
-                              <span className="text-xs text-muted-foreground font-mono">
-                                {log.meta && Object.keys(log.meta).length > 0
-                                  ? Object.entries(log.meta).filter(([k]) => k !== 'user_id').slice(0, 2).map(([k, v]) => `${k}: ${v}`).join(' · ')
-                                  : '—'}
-                              </span>
-                            </td>
-                            <td className="px-4 py-3 text-xs text-muted-foreground whitespace-nowrap">
-                              {new Date(log.created_at).toLocaleString('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
-                            </td>
-                          </tr>
-                        );
-                      })}
-                    </tbody>
-                  </table>
-                </div>
-                <p className="px-4 py-3 text-xs text-muted-foreground text-right border-t border-border">
-                  Показано: {activityLogs.length}
-                </p>
-              </div>
-            )}
-          </div>
+          <LogTab
+            activityLogs={activityLogs}
+            activityLoading={activityLoading}
+            logActionFilter={logActionFilter}
+            setLogActionFilter={setLogActionFilter}
+            fetchLog={fetchLog}
+            adminKey={key}
+          />
         )}
-
-        {/* ── NOTIFICATIONS TAB ── */}
         {tab === 'notifications' && (
-          <div>
-            <div className="flex items-center justify-between mb-4">
-              <p className="text-sm text-muted-foreground">
-                {unreadCount > 0 ? `${unreadCount} непрочитанных` : 'Все прочитаны'}
-              </p>
-              <div className="flex gap-2">
-                {unreadCount > 0 && (
-                  <button onClick={markAllRead}
-                    className="flex items-center gap-1.5 h-8 px-3 rounded-xl border border-border bg-secondary text-xs text-muted-foreground hover:text-foreground transition-colors">
-                    <Icon name="CheckCheck" size={13} /> Прочитать все
-                  </button>
-                )}
-                <button onClick={() => fetchNotifications(key)} disabled={notifsLoading}
-                  className="flex items-center gap-1.5 h-8 px-3 rounded-xl border border-border bg-secondary text-xs text-muted-foreground hover:text-foreground transition-colors">
-                  <Icon name={notifsLoading ? 'Loader' : 'RefreshCw'} size={13} className={notifsLoading ? 'animate-spin' : ''} />
-                  Обновить
-                </button>
-              </div>
-            </div>
-
-            {notifsLoading ? (
-              <div className="flex items-center justify-center py-16 gap-3 text-muted-foreground">
-                <Icon name="Loader" size={18} className="animate-spin" /> Загружаем…
-              </div>
-            ) : notifications.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-16 text-center">
-                <div className="grid h-16 w-16 place-items-center rounded-3xl bg-secondary border border-border mb-4">
-                  <Icon name="Bell" size={28} className="text-muted-foreground/30" />
-                </div>
-                <p className="font-semibold text-foreground mb-1">Уведомлений нет</p>
-                <p className="text-sm text-muted-foreground">Они появятся при важных событиях: регистрации, блокировках, сменах тарифа</p>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {notifications.map(n => {
-                  const icon = NOTIF_ICONS[n.type] || 'Bell';
-                  const isNew = !n.is_read;
-                  let meta: Record<string, unknown> = {};
-                  try { meta = JSON.parse(n.body); } catch { /* ok */ }
-                  return (
-                    <div key={n.id} className={`flex items-start gap-4 rounded-2xl border p-4 transition-all ${isNew ? 'border-primary/30 bg-primary/5' : 'border-border bg-card'}`}>
-                      <div className={`grid h-10 w-10 place-items-center rounded-xl shrink-0 ${isNew ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground'}`}>
-                        <Icon name={icon} size={17} />
-                      </div>
-                      <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-2">
-                          <p className={`text-sm font-semibold ${isNew ? 'text-foreground' : 'text-muted-foreground'}`}>{n.title}</p>
-                          {isNew && <span className="h-2 w-2 rounded-full bg-primary shrink-0 mt-1.5" />}
-                        </div>
-                        {meta && Object.keys(meta).length > 0 && (
-                          <p className="text-xs text-muted-foreground mt-1 font-mono">
-                            {Object.entries(meta).filter(([k]) => k !== 'user_id').slice(0, 3).map(([k, v]) => `${k}: ${v}`).join(' · ')}
-                          </p>
-                        )}
-                        <p className="text-[10px] text-muted-foreground mt-1.5">
-                          {new Date(n.created_at).toLocaleString('ru-RU', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' })}
-                        </p>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </div>
+          <NotificationsTab
+            notifications={notifications}
+            notifsLoading={notifsLoading}
+            unreadCount={unreadCount}
+            markAllRead={markAllRead}
+            fetchNotifications={fetchNotifications}
+            adminKey={key}
+          />
         )}
-
       </div>
     </div>
   );
