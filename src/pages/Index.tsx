@@ -526,7 +526,9 @@ const Index = () => {
                 {n.label}
               </a>
             ))}
-            <Button className="w-full rounded-full font-semibold mt-4">{L.nav.create[lang]}</Button>
+            <a href="/register" className="block">
+              <Button className="w-full rounded-full font-semibold mt-4">{L.nav.create[lang]}</Button>
+            </a>
           </div>
         )}
       </header>
@@ -578,9 +580,11 @@ const Index = () => {
               {L.hero.desc[lang]}
             </p>
             <div className="mt-7 flex flex-col sm:flex-row flex-wrap gap-3 justify-center lg:justify-start">
-              <Button size="lg" className="rounded-full text-base font-semibold px-8 shadow-xl shadow-primary/25 w-full sm:w-auto group">
-                {L.hero.cta[lang]}
-                <Icon name="ArrowRight" size={18} className="ml-1 transition-transform group-hover:translate-x-1" />
+              <Button size="lg" className="rounded-full text-base font-semibold px-8 shadow-xl shadow-primary/25 w-full sm:w-auto group" asChild>
+                <a href="/register">
+                  {L.hero.cta[lang]}
+                  <Icon name="ArrowRight" size={18} className="ml-1 transition-transform group-hover:translate-x-1" />
+                </a>
               </Button>
               <Button size="lg" variant="outline" className="rounded-full text-base font-semibold px-8 w-full sm:w-auto group"
                 onClick={() => setDemoOpen(true)}>
@@ -1076,9 +1080,11 @@ const Index = () => {
               {L.cta2.desc[lang]}
             </p>
             <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Button size="lg" className="rounded-full font-semibold px-8 bg-white text-primary hover:bg-white/90 h-12 shadow-xl w-full sm:w-auto">
-                {L.cta2.btn[lang]}
-                <Icon name="ArrowRight" size={18} className="ml-1" />
+              <Button size="lg" className="rounded-full font-semibold px-8 bg-white text-primary hover:bg-white/90 h-12 shadow-xl w-full sm:w-auto" asChild>
+                <a href="/register">
+                  {L.cta2.btn[lang]}
+                  <Icon name="ArrowRight" size={18} className="ml-1" />
+                </a>
               </Button>
               <Button size="lg" variant="outline" className="rounded-full font-semibold px-8 border-white/30 text-white hover:bg-white/10 h-12 w-full sm:w-auto" asChild>
                 <a href="https://t.me/roboweb" target="_blank" rel="noopener noreferrer">
