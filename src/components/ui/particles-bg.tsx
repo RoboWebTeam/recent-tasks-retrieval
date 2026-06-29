@@ -38,8 +38,8 @@ export default function ParticlesBg() {
           y: Math.random() * H,
           vx: (Math.random() - 0.5) * 0.4,
           vy: (Math.random() - 0.5) * 0.4,
-          r: Math.random() * 1.5 + 0.5,
-          opacity: Math.random() * 0.5 + 0.2,
+          r: Math.random() * 2.5 + 1,
+          opacity: Math.random() * 0.5 + 0.5,
         });
       }
     };
@@ -58,7 +58,7 @@ export default function ParticlesBg() {
 
         ctx.beginPath();
         ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-        ctx.fillStyle = `hsla(232, 80%, 70%, ${p.opacity})`;
+        ctx.fillStyle = `hsla(232, 90%, 70%, ${p.opacity})`;
         ctx.fill();
 
         for (let j = i + 1; j < particles.length; j++) {
@@ -70,8 +70,8 @@ export default function ParticlesBg() {
             ctx.beginPath();
             ctx.moveTo(p.x, p.y);
             ctx.lineTo(q.x, q.y);
-            ctx.strokeStyle = `hsla(232, 80%, 70%, ${0.18 * (1 - dist / MAX_DIST)})`;
-            ctx.lineWidth = 0.7;
+            ctx.strokeStyle = `hsla(232, 90%, 70%, ${0.35 * (1 - dist / MAX_DIST)})`;
+            ctx.lineWidth = 1;
             ctx.stroke();
           }
         }
