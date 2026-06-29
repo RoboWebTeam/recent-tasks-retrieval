@@ -57,27 +57,60 @@ const PORTFOLIO = [
 
 const PLANS = [
   {
-    name: 'Старт',
-    price: '0 ₽',
-    note: 'для первого сайта',
-    features: ['1 сайт', 'AI-генерация', 'Базовые блоки', 'Поддомен poehali'],
-    cta: 'Попробовать',
+    name: 'Пробный',
+    badge: 'сейчас',
+    price: 'Бесплатно',
+    note: '',
+    tag: '10 запросов разово',
+    features: [
+      'Без подключения домена',
+      'Без скачивания кода',
+      'Облачный хостинг',
+      'До 3 проектов',
+      'База данных 128 МБ',
+      'Хранилище 512 МБ',
+      '5 функций',
+      '8 ч вычислений',
+    ],
+    cta: 'Начать бесплатно',
     hot: false,
   },
   {
-    name: 'Бизнес',
-    price: '1 990 ₽',
+    name: 'Премиум',
+    badge: 'популярный',
+    price: '999 ₽',
     note: 'в месяц',
-    features: ['До 10 сайтов', 'Свой домен + SSL', 'Формы и база данных', 'Приоритетный AI', 'Поддержка 24/7'],
-    cta: 'Выбрать Бизнес',
+    tag: '40 запросов ежемесячно',
+    features: [
+      'Подключение домена',
+      'Бесплатные расширения',
+      'Облачный хостинг',
+      'До 3 проектов',
+      'База данных 128 МБ',
+      'Хранилище 512 МБ',
+      '5 функций',
+      '8 ч вычислений',
+    ],
+    cta: 'Выбрать Премиум',
     hot: true,
   },
   {
-    name: 'Агентство',
-    price: 'Договорная',
-    note: 'для веб-студий',
-    features: ['Безлимит сайтов', 'White-label', 'Командный доступ', 'API и интеграции', 'Личный менеджер'],
-    cta: 'Обсудить',
+    name: 'Профи',
+    badge: '',
+    price: 'Выберите тариф',
+    note: '',
+    tag: '60 запросов ежемесячно',
+    features: [
+      'Приоритетная поддержка',
+      'Все возможности Премиум',
+      'Облачный хостинг',
+      'До 5 проектов',
+      'База данных 1 ГБ',
+      'Хранилище 5 ГБ',
+      '25 функций',
+      '250 ч вычислений',
+    ],
+    cta: 'Обсудить тариф',
     hot: false,
   },
 ];
@@ -775,30 +808,39 @@ const Index = () => {
           <div className="mt-10 md:mt-14 grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 max-w-5xl mx-auto">
             {PLANS.map((p, i) => (
               <Reveal key={p.name} delay={i * 100}>
-                <div className={`relative h-full rounded-2xl md:rounded-3xl border p-6 md:p-8 transition-all duration-300 hover:shadow-xl ${
+                <div className={`relative h-full rounded-2xl md:rounded-3xl border p-6 md:p-8 transition-all duration-300 hover:shadow-xl flex flex-col ${
                   p.hot
-                    ? 'border-primary bg-card shadow-2xl shadow-primary/15 sm:col-span-2 lg:col-span-1'
+                    ? 'border-primary bg-card shadow-2xl shadow-primary/15'
                     : 'border-border bg-card'
                 }`}>
-                  {p.hot && (
-                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-4 py-1 text-xs font-bold text-primary-foreground whitespace-nowrap animate-glow">
-                      ✦ Популярный
+                  {p.badge && (
+                    <span className={`absolute -top-3 left-1/2 -translate-x-1/2 rounded-full px-4 py-1 text-xs font-bold whitespace-nowrap ${
+                      p.hot
+                        ? 'bg-primary text-primary-foreground animate-glow'
+                        : 'bg-secondary text-muted-foreground border border-border'
+                    }`}>
+                      {p.hot ? '✦ ' : ''}{p.badge}
                     </span>
                   )}
-                  <h3 className="font-display font-bold text-xl md:text-2xl">{p.name}</h3>
-                  <div className="mt-3 flex items-end gap-1 flex-wrap">
-                    <span className="font-display font-black text-3xl md:text-4xl">{p.price}</span>
-                    <span className="mb-1 text-sm text-muted-foreground">{p.note}</span>
+                  <div>
+                    <h3 className="font-display font-bold text-xl md:text-2xl">{p.name}</h3>
+                    <div className="mt-2 flex items-end gap-1 flex-wrap">
+                      <span className="font-display font-black text-2xl md:text-3xl">{p.price}</span>
+                      {p.note && <span className="mb-0.5 text-sm text-muted-foreground">{p.note}</span>}
+                    </div>
+                    <span className="inline-block mt-2 rounded-full bg-primary/10 text-primary text-xs font-semibold px-3 py-1">
+                      {p.tag}
+                    </span>
                   </div>
-                  <ul className="mt-5 space-y-2.5">
+                  <ul className="mt-5 space-y-2 flex-1">
                     {p.features.map((f) => (
                       <li key={f} className="flex items-center gap-2.5 text-sm">
-                        <Icon name="Check" size={15} className="text-[hsl(88,60%,40%)] shrink-0" />
+                        <Icon name="Check" size={14} className="text-[hsl(88,60%,40%)] shrink-0" />
                         {f}
                       </li>
                     ))}
                   </ul>
-                  <Button className={`mt-6 md:mt-8 w-full rounded-full font-semibold transition-all hover:scale-105 ${p.hot ? 'shadow-lg shadow-primary/20' : 'bg-foreground hover:bg-foreground/90'}`}>
+                  <Button className={`mt-6 w-full rounded-full font-semibold transition-all hover:scale-105 ${p.hot ? 'shadow-lg shadow-primary/20' : 'bg-foreground hover:bg-foreground/90'}`}>
                     {p.cta}
                   </Button>
                 </div>
