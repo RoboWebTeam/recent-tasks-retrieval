@@ -18,8 +18,19 @@ def handler(event: dict, context) -> dict:
             'body': ''
         }
 
-    admin_key = event.get('headers', {}).get('x-admin-key', '')
-    if admin_key != os.environ.get('ADMIN_KEY', ''):
+    headers = event.get('headers', {})
+    # Ищем заголовок в разных регистрах
+    admin_key = (
+        headers.get('x-admin-key') or
+        headers.get('X-Admin-Key') or
+        headers.get('X-ADMIN-KEY') or
+        ''
+    )
+    env_key = os.environ.get('ADMIN_KEY', '')
+    print(f"[AUTH] received key length={len(admin_key)}, env key length={len(env_key)}, match={admin_key == env_key}")
+    if not env_key:
+        print("[AUTH] WARNING: ADMIN_KEY secret is empty!")
+    if admin_key != env_key:
         return {
             'statusCode': 401,
             'headers': {'Access-Control-Allow-Origin': '*'},
