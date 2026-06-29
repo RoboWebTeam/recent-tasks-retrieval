@@ -135,6 +135,13 @@ const Dashboard = () => {
                 <Icon name={icon} size={15} />{label}
               </button>
             ))}
+            <Link to="/analytics" className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors">
+              <Icon name="BarChart2" size={15} />{lang === 'ru' ? 'Аналитика' : 'Analytics'}
+            </Link>
+            <Link to="/leads" className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors relative">
+              <Icon name="Inbox" size={15} />{lang === 'ru' ? 'Заявки' : 'Leads'}
+              <span className="absolute -top-0.5 -right-0.5 h-4 w-4 bg-primary text-primary-foreground text-[9px] font-bold rounded-full flex items-center justify-center">2</span>
+            </Link>
           </nav>
 
           <div className="flex items-center gap-2">
@@ -147,18 +154,26 @@ const Dashboard = () => {
         </div>
 
         {/* Mobile nav */}
-        <div className="sm:hidden flex border-t border-border">
+        <div className="sm:hidden flex border-t border-border overflow-x-auto">
           {([['projects', tr('myProjects', lang), 'Layers'], ['plan', tr('plan', lang), 'CreditCard'], ['profile', tr('profile', lang), 'User']] as const).map(([id, label, icon]) => (
             <button
               key={id}
               onClick={() => setTab(id)}
-              className={`flex-1 flex flex-col items-center gap-1 py-2.5 text-xs font-medium transition-colors ${
+              className={`flex-1 flex flex-col items-center gap-1 py-2.5 text-xs font-medium transition-colors shrink-0 ${
                 tab === id ? 'text-primary' : 'text-muted-foreground'
               }`}
             >
               <Icon name={icon} size={18} />{label}
             </button>
           ))}
+          <Link to="/analytics" className="flex-1 flex flex-col items-center gap-1 py-2.5 text-xs font-medium text-muted-foreground shrink-0">
+            <Icon name="BarChart2" size={18} />{lang === 'ru' ? 'Аналитика' : 'Stats'}
+          </Link>
+          <Link to="/leads" className="flex-1 flex flex-col items-center gap-1 py-2.5 text-xs font-medium text-muted-foreground shrink-0 relative">
+            <Icon name="Inbox" size={18} />
+            <span className="absolute top-1.5 left-1/2 translate-x-1 -translate-y-0.5 h-3.5 w-3.5 bg-primary text-primary-foreground text-[8px] font-bold rounded-full flex items-center justify-center">2</span>
+            {lang === 'ru' ? 'Заявки' : 'Leads'}
+          </Link>
         </div>
       </header>
 
@@ -305,8 +320,8 @@ const Dashboard = () => {
                 <h3 className="font-display font-bold text-xl">{lang === 'ru' ? 'Ваш план' : 'Your plan'}: {plan.label}</h3>
                 <p className="text-muted-foreground text-sm mt-1">{plan.requests} {lang === 'ru' ? 'запросов к AI в месяц' : 'AI requests per month'}</p>
               </div>
-              <Button className="rounded-xl font-semibold shrink-0">
-                {tr('upgradePlan', lang)}
+              <Button className="rounded-xl font-semibold shrink-0" asChild>
+                <Link to="/pricing">{tr('upgradePlan', lang)}</Link>
               </Button>
             </div>
 
@@ -328,12 +343,15 @@ const Dashboard = () => {
                       </li>
                     ))}
                   </ul>
-                  <Button
-                    className={`w-full rounded-xl text-sm font-semibold ${p.current ? 'bg-secondary text-secondary-foreground hover:bg-secondary' : ''}`}
-                    disabled={p.current}
-                  >
-                    {p.current ? tr('currentPlanBtn', lang) : tr('selectPlan', lang)}
-                  </Button>
+                  {p.current ? (
+                    <Button className="w-full rounded-xl text-sm font-semibold bg-secondary text-secondary-foreground hover:bg-secondary" disabled>
+                      {tr('currentPlanBtn', lang)}
+                    </Button>
+                  ) : (
+                    <Button className="w-full rounded-xl text-sm font-semibold" asChild>
+                      <Link to="/pricing">{tr('selectPlan', lang)}</Link>
+                    </Button>
+                  )}
                 </div>
               ))}
             </div>

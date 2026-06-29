@@ -123,6 +123,7 @@ const getNAV = (lang: Lang) => [
   { label: L.nav.pricing[lang],  href: '#pricing' },
   { label: L.nav.faq[lang],      href: '#faq' },
   { label: lang === 'ru' ? 'Блог' : 'Blog', href: '/blog' },
+  { label: lang === 'ru' ? 'Тарифы' : 'Pricing', href: '/pricing' },
 ];
 
 const getCHAT_STEPS = (lang: Lang) => lang === 'ru' ? [
