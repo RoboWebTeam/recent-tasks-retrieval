@@ -10,6 +10,7 @@ import {
 } from '@/components/ui/accordion';
 import { getLang, type Lang } from '@/lib/i18n';
 import LangSwitcher from '@/components/LangSwitcher';
+import DemoModal from '@/components/DemoModal';
 
 // Переводы для лендинга
 const L = {
@@ -379,6 +380,7 @@ function EmailForm({ dark = false, placeholder = 'Ваш e-mail', btnText = 'Н�
 
 const Index = () => {
   const [lang, setLangState] = useState<Lang>(getLang());
+  const [demoOpen, setDemoOpen] = useState(false);
   const [chatStep, setChatStep] = useState(0);
   const [isTyping, setIsTyping] = useState(false);
   const [progress, setProgress] = useState(0);
@@ -580,7 +582,8 @@ const Index = () => {
                 {L.hero.cta[lang]}
                 <Icon name="ArrowRight" size={18} className="ml-1 transition-transform group-hover:translate-x-1" />
               </Button>
-              <Button size="lg" variant="outline" className="rounded-full text-base font-semibold px-8 w-full sm:w-auto group">
+              <Button size="lg" variant="outline" className="rounded-full text-base font-semibold px-8 w-full sm:w-auto group"
+                onClick={() => setDemoOpen(true)}>
                 <Icon name="Play" size={16} className="mr-1" /> {L.hero.demo[lang]}
               </Button>
             </div>
@@ -1292,6 +1295,8 @@ const Index = () => {
           © 2026 Roboweb. {L.footer.copy[lang]}
         </div>
       </footer>
+
+      <DemoModal open={demoOpen} onClose={() => setDemoOpen(false)} lang={lang} />
     </div>
   );
 };
