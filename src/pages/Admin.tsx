@@ -1,10 +1,19 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 
-const GET_LEADS_URL = 'https://functions.poehali.dev/30e5ede9-3024-46d5-ad27-eae4b46b0056';
-const MANAGE_USER_URL = 'https://functions.poehali.dev/f00990ba-30f7-4fe5-9cb2-974518f45564';
+const GET_LEADS_URL    = 'https://functions.poehali.dev/30e5ede9-3024-46d5-ad27-eae4b46b0056';
+const MANAGE_USER_URL  = 'https://functions.poehali.dev/f00990ba-30f7-4fe5-9cb2-974518f45564';
+const ANALYTICS_URL    = 'https://functions.poehali.dev/ee6777e6-59d0-4d5f-acb2-d292c72253d3';
+const SITE_LEADS_URL   = 'https://functions.poehali.dev/96a428e9-25c5-47d2-83b1-bdc68f9f8010';
+
+function unwrap(raw: Record<string, unknown>): Record<string, unknown> {
+  if (raw.body !== undefined) {
+    return typeof raw.body === 'string' ? JSON.parse(raw.body) : raw.body as Record<string, unknown>;
+  }
+  return raw;
+}
 
 interface Lead { id: number; email: string; created_at: string; }
 
@@ -24,36 +33,7 @@ const PLAN_LABELS: Record<string, { label: string; color: string }> = {
   pro:     { label: 'Профи',    color: 'bg-foreground/10 text-foreground' },
 };
 
-const SITE_LEADS_DEMO: SiteLead[] = [
-  { id: 1, name: 'Александр Петров', phone: '+7 999 123-45-67', email: 'alex@mail.ru', message: 'Хочу заказать кофе на вынос, есть ли акции?', site: 'brewco.roboweb.site', date: '2026-06-29T10:23:00', status: 'new' },
-  { id: 2, name: 'Мария Иванова', phone: '+7 926 555-12-34', email: 'masha@gmail.com', message: 'Интересует доставка, какой минимальный заказ?', site: 'brewco.roboweb.site', date: '2026-06-29T09:15:00', status: 'new' },
-  { id: 3, name: 'Дмитрий Козлов', phone: '+7 916 777-88-99', email: 'd.kozlov@mail.ru', message: 'Можно ли забронировать столик на 4 человека?', site: 'brewco.roboweb.site', date: '2026-06-28T18:45:00', status: 'processed' },
-  { id: 4, name: 'Ольга Смирнова', phone: '+7 903 444-22-11', email: 'olga@yandex.ru', message: 'Вы работаете в выходные?', site: 'barber.roboweb.site', date: '2026-06-28T14:30:00', status: 'processed' },
-  { id: 5, name: 'Иван Новиков', phone: '+7 985 321-65-43', email: 'ivan@mail.ru', message: 'Хочу записаться на стрижку в субботу', site: 'barber.roboweb.site', date: '2026-06-27T11:10:00', status: 'rejected' },
-];
 
-const ANALYTICS_DEMO = {
-  totalViews: 12470, totalVisitors: 8340, totalLeads: 156, totalSites: 8,
-  chart: [
-    { day: 'Пн', views: 1200, visitors: 800 }, { day: 'Вт', views: 950, visitors: 600 },
-    { day: 'Ср', views: 1800, visitors: 1200 }, { day: 'Чт', views: 1450, visitors: 950 },
-    { day: 'Пт', views: 2100, visitors: 1400 }, { day: 'Сб', views: 1900, visitors: 1300 },
-    { day: 'Вс', views: 1600, visitors: 1100 },
-  ],
-  topSites: [
-    { url: 'brewco.roboweb.site', views: 4210, visitors: 2840, leads: 42 },
-    { url: 'barber.roboweb.site', views: 3100, visitors: 2100, leads: 35 },
-    { url: 'fitclub.roboweb.site', views: 2340, visitors: 1560, leads: 28 },
-    { url: 'photo-studio.roboweb.site', views: 1890, visitors: 1200, leads: 19 },
-    { url: 'law-firm.roboweb.site', views: 930, visitors: 640, leads: 12 },
-  ],
-  sources: [
-    { name: 'Прямые', value: 42, color: 'bg-primary' },
-    { name: 'Поиск', value: 31, color: 'bg-violet-500' },
-    { name: 'Соцсети', value: 18, color: 'bg-emerald-500' },
-    { name: 'Реклама', value: 9, color: 'bg-amber-500' },
-  ],
-};
 
 const SITE_LEAD_STATUS = {
   new:       { label: 'Новая',       color: 'bg-primary/10 text-primary', dot: 'bg-primary' },
@@ -61,11 +41,26 @@ const SITE_LEAD_STATUS = {
   rejected:  { label: 'Отклонена',   color: 'bg-secondary text-muted-foreground', dot: 'bg-muted-foreground' },
 };
 
+interface AnalyticsData {
+  total_views: number; total_visitors: number; views_change: number;
+  chart: { day: string; views: number; visitors: number }[];
+  devices: { name: string; value: number }[];
+  top_pages: { path: string; views: number }[];
+  top_sites: { url: string; views: number; visitors: number; leads: number }[];
+  sources: { name: string; value: number }[];
+}
+
+const SOURCE_COLORS = ['bg-primary', 'bg-violet-500', 'bg-emerald-500', 'bg-amber-500'];
+
 const Admin = () => {
   const [key, setKey] = useState('');
   const [leads, setLeads] = useState<Lead[] | null>(null);
   const [users, setUsers] = useState<User[] | null>(null);
-  const [siteLeads, setSiteLeads] = useState<SiteLead[]>(SITE_LEADS_DEMO);
+  const [siteLeads, setSiteLeads] = useState<SiteLead[]>([]);
+  const [siteLeadCounts, setSiteLeadCounts] = useState<Record<string, number>>({});
+  const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
+  const [analyticsLoading, setAnalyticsLoading] = useState(false);
+  const [siteLeadsLoading, setSiteLeadsLoading] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
@@ -93,6 +88,38 @@ const Admin = () => {
     } finally { setActionLoading(null); setConfirmDelete(null); }
   };
 
+  const fetchAnalytics = (adminKey: string, days: number) => {
+    setAnalyticsLoading(true);
+    fetch(`${ANALYTICS_URL}?days=${days}`, { headers: { 'x-admin-key': adminKey } })
+      .then(r => r.json()).then(raw => { const d = unwrap(raw); if (!d.error) setAnalyticsData(d as unknown as AnalyticsData); })
+      .finally(() => setAnalyticsLoading(false));
+  };
+
+  const fetchSiteLeads = (adminKey: string) => {
+    setSiteLeadsLoading(true);
+    fetch(SITE_LEADS_URL, { headers: { 'x-admin-key': adminKey } })
+      .then(r => r.json()).then(raw => {
+        const d = unwrap(raw);
+        if (!d.error) {
+          setSiteLeads((d.leads as SiteLead[]) || []);
+          setSiteLeadCounts((d.counts as Record<string, number>) || {});
+        }
+      })
+      .finally(() => setSiteLeadsLoading(false));
+  };
+
+  useEffect(() => {
+    if (authed && key) {
+      fetchAnalytics(key, analyticsPeriod === '7d' ? 7 : 30);
+    }
+  }, [authed, analyticsPeriod]);
+
+  useEffect(() => {
+    if (authed && key && tab === 'site-leads') {
+      fetchSiteLeads(key);
+    }
+  }, [authed, tab]);
+
   const fetchData = async (adminKey: string) => {
     setLoading(true); setError('');
     try {
@@ -102,6 +129,8 @@ const Admin = () => {
       setLeads(data.leads || []);
       setUsers(data.users || []);
       setAuthed(true);
+      fetchAnalytics(adminKey, 7);
+      fetchSiteLeads(adminKey);
     } catch { setError('Ошибка соединения. Попробуйте ещё раз.'); }
     setLoading(false);
   };
@@ -118,9 +147,15 @@ const Admin = () => {
     (l.name.toLowerCase().includes(search.toLowerCase()) || l.site.toLowerCase().includes(search.toLowerCase()) || l.message.toLowerCase().includes(search.toLowerCase()))
   );
 
-  const changeSiteLeadStatus = (id: number, status: SiteLead['status']) => {
+  const changeSiteLeadStatus = async (id: number, status: SiteLead['status']) => {
     setSiteLeads(prev => prev.map(l => l.id === id ? { ...l, status } : l));
     if (selectedLead?.id === id) setSelectedLead(prev => prev ? { ...prev, status } : null);
+    // Сохраняем в БД
+    await fetch(SITE_LEADS_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'x-admin-key': key },
+      body: JSON.stringify({ action: 'update_status', id, status }),
+    });
   };
 
   const exportCSV = () => {
@@ -141,7 +176,9 @@ const Admin = () => {
     a.click(); URL.revokeObjectURL(url);
   };
 
-  const maxViews = Math.max(...ANALYTICS_DEMO.chart.map(d => d.views));
+  const maxViews = analyticsData?.chart.length
+    ? Math.max(...analyticsData.chart.map(d => d.views), 1)
+    : 1;
 
   // LOGIN
   if (!authed) {
@@ -173,7 +210,7 @@ const Admin = () => {
     );
   }
 
-  const newSiteLeads = siteLeads.filter(l => l.status === 'new').length;
+  const newSiteLeads = siteLeadCounts['new'] || 0;
 
   return (
     <div className="min-h-screen bg-background">
@@ -206,9 +243,9 @@ const Admin = () => {
         {/* Stats */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
           {[
-            { icon: 'Eye', label: 'Просмотров', value: ANALYTICS_DEMO.totalViews.toLocaleString(), color: 'text-primary' },
+            { icon: 'Eye', label: 'Просмотров', value: analyticsData ? analyticsData.total_views.toLocaleString() : '…', color: 'text-primary' },
             { icon: 'Users', label: 'Пользователей', value: users?.length ?? 0, color: 'text-violet-500' },
-            { icon: 'Inbox', label: 'Заявок с сайтов', value: siteLeads.length, color: 'text-emerald-500' },
+            { icon: 'Inbox', label: 'Заявок с сайтов', value: Object.values(siteLeadCounts).reduce((s, v) => s + v, 0), color: 'text-emerald-500' },
             { icon: 'Layers', label: 'Проектов', value: users?.reduce((s, u) => s + u.projects_count, 0) ?? 0, color: 'text-amber-500' },
           ].map(s => (
             <div key={s.label} className="rounded-2xl border border-border bg-card p-4 md:p-5">
@@ -253,108 +290,151 @@ const Admin = () => {
               ))}
             </div>
 
-            {/* Chart + Sources */}
-            <div className="grid lg:grid-cols-3 gap-5">
-              <div className="lg:col-span-2 bg-card border border-border rounded-2xl p-5">
-                <div className="flex items-center justify-between mb-5">
-                  <h2 className="font-display font-bold text-base">Посещаемость</h2>
-                  <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-primary inline-block" /> Просмотры</span>
-                    <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-violet-400 inline-block" /> Посетители</span>
+            {analyticsLoading ? (
+              <div className="flex items-center justify-center py-16 gap-3 text-muted-foreground">
+                <Icon name="Loader" size={20} className="animate-spin" /> Загружаем аналитику…
+              </div>
+            ) : !analyticsData || analyticsData.total_views === 0 ? (
+              <div className="flex flex-col items-center justify-center py-16 text-center">
+                <Icon name="BarChart2" size={36} className="mb-3 text-muted-foreground/30" />
+                <p className="font-medium text-muted-foreground">Данных пока нет — просмотры появятся когда посетители зайдут на сайты</p>
+              </div>
+            ) : (
+              <>
+                {/* Stats row */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  {[
+                    { label: 'Просмотров', value: analyticsData.total_views.toLocaleString(), color: 'text-primary' },
+                    { label: 'Посетителей', value: analyticsData.total_visitors.toLocaleString(), color: 'text-violet-500' },
+                    { label: 'Изменение', value: `${analyticsData.views_change >= 0 ? '+' : ''}${analyticsData.views_change}%`, color: analyticsData.views_change >= 0 ? 'text-emerald-500' : 'text-destructive' },
+                    { label: 'Заявок с сайтов', value: (siteLeadCounts.new || 0) + (siteLeadCounts.processed || 0) + (siteLeadCounts.rejected || 0), color: 'text-amber-500' },
+                  ].map(s => (
+                    <div key={s.label} className="rounded-2xl border border-border bg-card p-4">
+                      <p className={`text-xs font-semibold uppercase tracking-wide mb-1 ${s.color}`}>{s.label}</p>
+                      <p className="font-display font-black text-2xl">{s.value}</p>
+                    </div>
+                  ))}
+                </div>
+
+                {/* Chart + Sources */}
+                <div className="grid lg:grid-cols-3 gap-5">
+                  <div className="lg:col-span-2 bg-card border border-border rounded-2xl p-5">
+                    <div className="flex items-center justify-between mb-5">
+                      <h2 className="font-display font-bold text-base">Посещаемость</h2>
+                      <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                        <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-primary inline-block" /> Просмотры</span>
+                        <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-violet-400 inline-block" /> Посетители</span>
+                      </div>
+                    </div>
+                    {analyticsData.chart.length === 0 ? (
+                      <div className="flex items-center justify-center h-40 text-muted-foreground text-sm">Нет данных за период</div>
+                    ) : (
+                      <div className="flex items-end gap-2 h-44">
+                        {analyticsData.chart.map((d, i) => (
+                          <div key={i} className="flex-1 flex flex-col items-center gap-1">
+                            <div className="w-full flex items-end gap-0.5" style={{ height: '120px' }}>
+                              <div className="flex-1 bg-primary/20 hover:bg-primary/40 rounded-t transition-colors relative group"
+                                style={{ height: `${(d.views / maxViews) * 100}%` }}>
+                                <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-foreground text-background text-[10px] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                                  {d.views.toLocaleString()}
+                                </div>
+                              </div>
+                              <div className="flex-1 bg-violet-400/30 hover:bg-violet-400/50 rounded-t transition-colors"
+                                style={{ height: `${(d.visitors / maxViews) * 100}%` }} />
+                            </div>
+                            <span className="text-[10px] text-muted-foreground">{d.day}</span>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="bg-card border border-border rounded-2xl p-5">
+                    <h2 className="font-display font-bold text-base mb-5">Источники трафика</h2>
+                    {analyticsData.sources.length === 0 ? (
+                      <p className="text-sm text-muted-foreground">Нет данных</p>
+                    ) : (
+                      <div className="space-y-3">
+                        {analyticsData.sources.map((s, i) => (
+                          <div key={s.name}>
+                            <div className="flex items-center justify-between text-sm mb-1.5">
+                              <span className="text-foreground font-medium">{s.name}</span>
+                              <span className="font-bold">{s.value}%</span>
+                            </div>
+                            <div className="h-2 w-full bg-secondary rounded-full overflow-hidden">
+                              <div className={`h-full rounded-full ${SOURCE_COLORS[i % SOURCE_COLORS.length]}`} style={{ width: `${s.value}%` }} />
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                 </div>
-                <div className="flex items-end gap-2 h-44">
-                  {ANALYTICS_DEMO.chart.map(d => (
-                    <div key={d.day} className="flex-1 flex flex-col items-center gap-1">
-                      <div className="w-full flex items-end gap-0.5" style={{ height: '120px' }}>
-                        <div className="flex-1 bg-primary/20 hover:bg-primary/40 rounded-t transition-colors relative group"
-                          style={{ height: `${(d.views / maxViews) * 100}%` }}>
-                          <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-foreground text-background text-[10px] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
-                            {d.views.toLocaleString()}
-                          </div>
-                        </div>
-                        <div className="flex-1 bg-violet-400/30 hover:bg-violet-400/50 rounded-t transition-colors"
-                          style={{ height: `${(d.visitors / maxViews) * 100}%` }} />
-                      </div>
-                      <span className="text-[10px] text-muted-foreground">{d.day}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
 
-              <div className="bg-card border border-border rounded-2xl p-5">
-                <h2 className="font-display font-bold text-base mb-5">Источники трафика</h2>
-                <div className="space-y-3">
-                  {ANALYTICS_DEMO.sources.map(s => (
-                    <div key={s.name}>
-                      <div className="flex items-center justify-between text-sm mb-1.5">
-                        <span className="text-foreground font-medium">{s.name}</span>
-                        <span className="font-bold">{s.value}%</span>
-                      </div>
-                      <div className="h-2 w-full bg-secondary rounded-full overflow-hidden">
-                        <div className={`h-full rounded-full ${s.color}`} style={{ width: `${s.value}%` }} />
-                      </div>
+                {/* Top sites table */}
+                {analyticsData.top_sites.length > 0 && (
+                  <div className="bg-card border border-border rounded-2xl overflow-hidden">
+                    <div className="px-5 py-3.5 border-b border-border bg-secondary/30">
+                      <h2 className="font-display font-bold text-sm">Топ сайтов</h2>
                     </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-
-            {/* Top sites table */}
-            <div className="bg-card border border-border rounded-2xl overflow-hidden">
-              <div className="px-5 py-3.5 border-b border-border bg-secondary/30">
-                <h2 className="font-display font-bold text-sm">Топ сайтов</h2>
-              </div>
-              <div className="overflow-x-auto">
-                <table className="w-full text-sm">
-                  <thead className="border-b border-border">
-                    <tr>
-                      <th className="text-left px-5 py-3 font-semibold text-muted-foreground">#</th>
-                      <th className="text-left px-5 py-3 font-semibold text-muted-foreground">Сайт</th>
-                      <th className="text-right px-5 py-3 font-semibold text-muted-foreground">Просмотры</th>
-                      <th className="text-right px-5 py-3 font-semibold text-muted-foreground hidden sm:table-cell">Посетители</th>
-                      <th className="text-right px-5 py-3 font-semibold text-muted-foreground hidden md:table-cell">Заявки</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    {ANALYTICS_DEMO.topSites.map((site, i) => (
-                      <tr key={site.url} className="border-b border-border last:border-0 hover:bg-secondary/30 transition-colors">
-                        <td className="px-5 py-3 text-muted-foreground font-mono text-xs">{i + 1}</td>
-                        <td className="px-5 py-3">
-                          <div className="flex items-center gap-2">
-                            <div className="grid h-7 w-7 place-items-center rounded-lg bg-primary/10 text-primary shrink-0">
-                              <Icon name="Globe" size={13} />
-                            </div>
-                            <span className="font-medium text-foreground">{site.url}</span>
-                          </div>
-                        </td>
-                        <td className="px-5 py-3 text-right font-semibold">{site.views.toLocaleString()}</td>
-                        <td className="px-5 py-3 text-right text-muted-foreground hidden sm:table-cell">{site.visitors.toLocaleString()}</td>
-                        <td className="px-5 py-3 text-right hidden md:table-cell">
-                          <span className="inline-flex items-center gap-1 text-emerald-600 font-semibold">
-                            <Icon name="TrendingUp" size={11} /> {site.leads}
-                          </span>
-                        </td>
-                      </tr>
-                    ))}
-                  </tbody>
-                </table>
-              </div>
-            </div>
+                    <div className="overflow-x-auto">
+                      <table className="w-full text-sm">
+                        <thead className="border-b border-border">
+                          <tr>
+                            <th className="text-left px-5 py-3 font-semibold text-muted-foreground">#</th>
+                            <th className="text-left px-5 py-3 font-semibold text-muted-foreground">Сайт</th>
+                            <th className="text-right px-5 py-3 font-semibold text-muted-foreground">Просмотры</th>
+                            <th className="text-right px-5 py-3 font-semibold text-muted-foreground hidden sm:table-cell">Посетители</th>
+                            <th className="text-right px-5 py-3 font-semibold text-muted-foreground hidden md:table-cell">Заявки</th>
+                          </tr>
+                        </thead>
+                        <tbody>
+                          {analyticsData.top_sites.map((site, i) => (
+                            <tr key={site.url} className="border-b border-border last:border-0 hover:bg-secondary/30 transition-colors">
+                              <td className="px-5 py-3 text-muted-foreground font-mono text-xs">{i + 1}</td>
+                              <td className="px-5 py-3">
+                                <div className="flex items-center gap-2">
+                                  <div className="grid h-7 w-7 place-items-center rounded-lg bg-primary/10 text-primary shrink-0">
+                                    <Icon name="Globe" size={13} />
+                                  </div>
+                                  <span className="font-medium text-foreground">{site.url}</span>
+                                </div>
+                              </td>
+                              <td className="px-5 py-3 text-right font-semibold">{site.views.toLocaleString()}</td>
+                              <td className="px-5 py-3 text-right text-muted-foreground hidden sm:table-cell">{site.visitors.toLocaleString()}</td>
+                              <td className="px-5 py-3 text-right hidden md:table-cell">
+                                <span className="inline-flex items-center gap-1 text-emerald-600 font-semibold">
+                                  <Icon name="TrendingUp" size={11} /> {site.leads}
+                                </span>
+                              </td>
+                            </tr>
+                          ))}
+                        </tbody>
+                      </table>
+                    </div>
+                  </div>
+                )}
+              </>
+            )}
           </div>
         )}
 
         {/* ── SITE LEADS TAB ── */}
         {tab === 'site-leads' && (
           <div>
+            {siteLeadsLoading && (
+              <div className="flex items-center justify-center py-10 gap-3 text-muted-foreground">
+                <Icon name="Loader" size={18} className="animate-spin" /> Загружаем заявки…
+              </div>
+            )}
             {/* Filters + toolbar */}
             <div className="flex flex-col sm:flex-row gap-3 mb-4">
               <div className="flex gap-2 overflow-x-auto pb-1">
                 {([
-                  ['all', 'Все', siteLeads.length],
-                  ['new', 'Новые', siteLeads.filter(l => l.status === 'new').length],
-                  ['processed', 'Обработанные', siteLeads.filter(l => l.status === 'processed').length],
-                  ['rejected', 'Отклонённые', siteLeads.filter(l => l.status === 'rejected').length],
+                  ['all', 'Все', Object.values(siteLeadCounts).reduce((s, v) => s + v, 0)],
+                  ['new', 'Новые', siteLeadCounts['new'] || 0],
+                  ['processed', 'Обработанные', siteLeadCounts['processed'] || 0],
+                  ['rejected', 'Отклонённые', siteLeadCounts['rejected'] || 0],
                 ] as const).map(([id, label, count]) => (
                   <button key={id} onClick={() => setSiteLeadFilter(id)}
                     className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${siteLeadFilter === id ? 'bg-primary text-primary-foreground' : 'bg-card border border-border text-muted-foreground hover:text-foreground'}`}>
