@@ -370,9 +370,14 @@ const Index = () => {
             ))}
           </div>
           <div className="flex items-center gap-2">
-            <Button className="hidden sm:flex rounded-full font-semibold shadow-lg shadow-primary/20 text-sm px-5 h-9">
-              Создать сайт
-            </Button>
+            <a href="/login" className="hidden sm:inline-flex items-center justify-center rounded-full border border-border bg-card text-sm font-semibold px-4 h-9 hover:bg-secondary transition-colors">
+              Войти
+            </a>
+            <a href="/register">
+              <Button className="hidden sm:flex rounded-full font-semibold shadow-lg shadow-primary/20 text-sm px-5 h-9">
+                Создать сайт
+              </Button>
+            </a>
             <button
               onClick={() => setMenuOpen((v) => !v)}
               className="md:hidden grid h-9 w-9 place-items-center rounded-xl border border-border bg-card transition-colors hover:bg-secondary"
