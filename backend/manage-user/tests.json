@@ -1,0 +1,25 @@
+{
+  "tests": [
+    {
+      "name": "OPTIONS preflight",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Без ключа — 401",
+      "method": "POST",
+      "path": "/",
+      "body": {"action": "block", "user_id": 999},
+      "expectedStatus": 401
+    },
+    {
+      "name": "Без action — 400",
+      "method": "POST",
+      "path": "/",
+      "headers": {"X-Admin-Key": "wrong-key"},
+      "body": {},
+      "expectedStatus": 401
+    }
+  ]
+}

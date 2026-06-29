@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 
 const GET_LEADS_URL = 'https://functions.poehali.dev/30e5ede9-3024-46d5-ad27-eae4b46b0056';
+const MANAGE_USER_URL = 'https://functions.poehali.dev/f00990ba-30f7-4fe5-9cb2-974518f45564';
 
 interface Lead {
   id: number;
@@ -18,6 +19,7 @@ interface User {
   plan: string;
   created_at: string;
   projects_count: number;
+  blocked: boolean;
 }
 
 const PLAN_LABELS: Record<string, { label: string; color: string }> = {
@@ -35,6 +37,30 @@ const Admin = () => {
   const [search, setSearch] = useState('');
   const [authed, setAuthed] = useState(false);
   const [tab, setTab] = useState<'leads' | 'users'>('leads');
+  const [actionLoading, setActionLoading] = useState<number | null>(null);
+  const [confirmDelete, setConfirmDelete] = useState<number | null>(null);
+
+  const manageUser = async (userId: number, action: 'block' | 'unblock' | 'delete') => {
+    setActionLoading(userId);
+    try {
+      const res = await fetch(MANAGE_USER_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-admin-key': key },
+        body: JSON.stringify({ action, user_id: userId }),
+      });
+      const data = await res.json();
+      if (res.ok && data.ok) {
+        if (action === 'delete') {
+          setUsers(prev => prev?.filter(u => u.id !== userId) ?? null);
+        } else {
+          setUsers(prev => prev?.map(u => u.id === userId ? { ...u, blocked: action === 'block' } : u) ?? null);
+        }
+      }
+    } finally {
+      setActionLoading(null);
+      setConfirmDelete(null);
+    }
+  };
 
   const fetchData = async (adminKey: string) => {
     setLoading(true);
@@ -268,20 +294,23 @@ const Admin = () => {
                     <th className="text-left px-4 py-3 font-semibold text-muted-foreground hidden sm:table-cell">Тариф</th>
                     <th className="text-left px-4 py-3 font-semibold text-muted-foreground hidden md:table-cell">Проекты</th>
                     <th className="text-left px-4 py-3 font-semibold text-muted-foreground hidden lg:table-cell">Дата</th>
-                    <th className="w-10 px-4 py-3"></th>
+                    <th className="text-left px-4 py-3 font-semibold text-muted-foreground hidden sm:table-cell">Статус</th>
+                    <th className="px-4 py-3 text-right font-semibold text-muted-foreground">Действия</th>
                   </tr>
                 </thead>
                 <tbody>
                   {filteredUsers.map((user, i) => {
                     const plan = PLAN_LABELS[user.plan] ?? PLAN_LABELS.free;
                     const initials = user.name.split(' ').map((w: string) => w[0]).join('').toUpperCase().slice(0, 2);
+                    const isLoading = actionLoading === user.id;
+                    const isConfirming = confirmDelete === user.id;
                     return (
-                      <tr key={user.id} className="border-b border-border last:border-0 hover:bg-secondary/30 transition-colors">
+                      <tr key={user.id} className={`border-b border-border last:border-0 transition-colors ${user.blocked ? 'bg-rose-50/50 dark:bg-rose-950/10' : 'hover:bg-secondary/30'}`}>
                         <td className="px-4 py-3 text-muted-foreground font-mono text-xs">{i + 1}</td>
                         <td className="px-4 py-3">
                           <div className="flex items-center gap-3">
-                            <div className="grid h-8 w-8 place-items-center rounded-xl bg-primary text-primary-foreground font-bold text-xs shrink-0">
-                              {initials || '?'}
+                            <div className={`grid h-8 w-8 place-items-center rounded-xl font-bold text-xs shrink-0 ${user.blocked ? 'bg-rose-200 text-rose-700' : 'bg-primary text-primary-foreground'}`}>
+                              {user.blocked ? <Icon name="Ban" size={14} /> : (initials || '?')}
                             </div>
                             <div>
                               <div className="font-medium leading-tight">{user.name || '—'}</div>
@@ -302,10 +331,46 @@ const Admin = () => {
                         <td className="px-4 py-3 text-muted-foreground hidden lg:table-cell">
                           {new Date(user.created_at).toLocaleDateString('ru-RU')}
                         </td>
+                        <td className="px-4 py-3 hidden sm:table-cell">
+                          {user.blocked
+                            ? <span className="inline-flex items-center gap-1 text-xs font-semibold text-rose-500 bg-rose-100 dark:bg-rose-950/30 rounded-full px-2.5 py-1"><Icon name="Ban" size={11} /> Заблокирован</span>
+                            : <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 bg-emerald-50 dark:bg-emerald-950/30 rounded-full px-2.5 py-1"><Icon name="CheckCircle" size={11} /> Активен</span>
+                          }
+                        </td>
                         <td className="px-4 py-3">
-                          <button onClick={() => navigator.clipboard.writeText(user.email)} className="grid h-7 w-7 place-items-center rounded-lg hover:bg-secondary transition-colors text-muted-foreground hover:text-foreground" title="Скопировать e-mail">
-                            <Icon name="Copy" size={13} />
-                          </button>
+                          <div className="flex items-center gap-1 justify-end">
+                            {/* Копировать */}
+                            <button onClick={() => navigator.clipboard.writeText(user.email)}
+                              className="grid h-7 w-7 place-items-center rounded-lg hover:bg-secondary transition-colors text-muted-foreground hover:text-foreground" title="Скопировать e-mail">
+                              <Icon name="Copy" size={13} />
+                            </button>
+                            {/* Блокировка */}
+                            <button
+                              onClick={() => manageUser(user.id, user.blocked ? 'unblock' : 'block')}
+                              disabled={isLoading}
+                              title={user.blocked ? 'Разблокировать' : 'Заблокировать'}
+                              className={`grid h-7 w-7 place-items-center rounded-lg transition-colors disabled:opacity-50 ${user.blocked ? 'bg-emerald-100 text-emerald-600 hover:bg-emerald-200' : 'hover:bg-amber-100 text-muted-foreground hover:text-amber-600'}`}>
+                              <Icon name={isLoading ? 'Loader' : user.blocked ? 'Unlock' : 'Lock'} size={13} className={isLoading ? 'animate-spin' : ''} />
+                            </button>
+                            {/* Удаление */}
+                            {isConfirming ? (
+                              <div className="flex items-center gap-1">
+                                <button onClick={() => manageUser(user.id, 'delete')} disabled={isLoading}
+                                  className="h-7 px-2 rounded-lg bg-rose-500 text-white text-xs font-semibold hover:bg-rose-600 transition-colors disabled:opacity-50">
+                                  {isLoading ? '…' : 'Да'}
+                                </button>
+                                <button onClick={() => setConfirmDelete(null)}
+                                  className="h-7 px-2 rounded-lg bg-secondary text-xs font-semibold hover:bg-border transition-colors">
+                                  Нет
+                                </button>
+                              </div>
+                            ) : (
+                              <button onClick={() => setConfirmDelete(user.id)}
+                                className="grid h-7 w-7 place-items-center rounded-lg hover:bg-rose-100 transition-colors text-muted-foreground hover:text-rose-500" title="Удалить пользователя">
+                                <Icon name="Trash2" size={13} />
+                              </button>
+                            )}
+                          </div>
                         </td>
                       </tr>
                     );

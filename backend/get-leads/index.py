@@ -42,7 +42,7 @@ def handler(event: dict, context) -> dict:
             lead_rows = cur.fetchall()
 
             cur.execute(
-                f"SELECT id, email, name, plan, created_at FROM {schema}.users ORDER BY created_at DESC"
+                f"SELECT id, email, name, plan, created_at, blocked FROM {schema}.users ORDER BY created_at DESC"
             )
             user_rows = cur.fetchall()
 
@@ -61,7 +61,8 @@ def handler(event: dict, context) -> dict:
         {
             'id': r[0], 'email': r[1], 'name': r[2], 'plan': r[3],
             'created_at': r[4].isoformat(),
-            'projects_count': project_counts.get(r[0], 0)
+            'projects_count': project_counts.get(r[0], 0),
+            'blocked': r[5]
         }
         for r in user_rows
     ]
