@@ -983,6 +983,7 @@ const Index = () => {
                   </div>
                   <div className="p-4 md:p-5">
                     <h3 className="font-display font-bold text-base md:text-lg text-primary">{p.title}</h3>
+                    <span className="mt-1.5 inline-block rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">{p.tag}</span>
                   </div>
                 </a>
               </Reveal>
