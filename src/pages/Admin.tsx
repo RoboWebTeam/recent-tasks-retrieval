@@ -11,36 +11,42 @@ interface Lead {
   created_at: string;
 }
 
-function formatDate(iso: string) {
-  const d = new Date(iso);
-  return d.toLocaleString('ru-RU', {
-    day: '2-digit', month: '2-digit', year: 'numeric',
-    hour: '2-digit', minute: '2-digit',
-  });
+interface User {
+  id: number;
+  email: string;
+  name: string;
+  plan: string;
+  created_at: string;
+  projects_count: number;
 }
+
+const PLAN_LABELS: Record<string, { label: string; color: string }> = {
+  free:    { label: 'Пробный',  color: 'bg-secondary text-muted-foreground' },
+  premium: { label: 'Премиум',  color: 'bg-primary/15 text-primary' },
+  pro:     { label: 'Профи',    color: 'bg-foreground/10 text-foreground' },
+};
 
 const Admin = () => {
   const [key, setKey] = useState('');
   const [leads, setLeads] = useState<Lead[] | null>(null);
+  const [users, setUsers] = useState<User[] | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
   const [authed, setAuthed] = useState(false);
+  const [tab, setTab] = useState<'leads' | 'users'>('leads');
 
-  const fetchLeads = async (adminKey: string) => {
+  const fetchData = async (adminKey: string) => {
     setLoading(true);
     setError('');
     try {
       const res = await fetch(GET_LEADS_URL, {
         headers: { 'x-admin-key': adminKey },
       });
-      if (res.status === 401) {
-        setError('Неверный пароль');
-        setLoading(false);
-        return;
-      }
+      if (res.status === 401) { setError('Неверный пароль'); setLoading(false); return; }
       const data = await res.json();
       setLeads(data.leads || []);
+      setUsers(data.users || []);
       setAuthed(true);
     } catch {
       setError('Ошибка соединения. Попробуйте ещё раз.');
@@ -48,24 +54,21 @@ const Admin = () => {
     setLoading(false);
   };
 
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!key.trim()) return;
-    fetchLeads(key.trim());
-  };
+  const handleLogin = (e: React.FormEvent) => { e.preventDefault(); if (key.trim()) fetchData(key.trim()); };
+  const handleRefresh = () => fetchData(key);
 
-  const handleRefresh = () => fetchLeads(key);
-
-  const filtered = leads?.filter(l =>
-    l.email.toLowerCase().includes(search.toLowerCase())
+  const filteredLeads = leads?.filter(l => l.email.toLowerCase().includes(search.toLowerCase())) ?? [];
+  const filteredUsers = users?.filter(u =>
+    u.email.toLowerCase().includes(search.toLowerCase()) ||
+    u.name.toLowerCase().includes(search.toLowerCase())
   ) ?? [];
 
   const copyAll = () => {
-    const text = filtered.map(l => l.email).join('\n');
-    navigator.clipboard.writeText(text);
+    const list = tab === 'leads' ? filteredLeads.map(l => l.email) : filteredUsers.map(u => u.email);
+    navigator.clipboard.writeText(list.join('\n'));
   };
 
-  // LOGIN SCREEN
+  // LOGIN
   if (!authed) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center px-4">
@@ -105,7 +108,8 @@ const Admin = () => {
     );
   }
 
-  // ADMIN PANEL
+  const activeList = tab === 'leads' ? filteredLeads : filteredUsers;
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -117,7 +121,7 @@ const Admin = () => {
             </span>
             <div>
               <div className="font-display font-bold text-lg leading-tight">Roboweb Admin</div>
-              <div className="text-xs text-muted-foreground">Управление заявками</div>
+              <div className="text-xs text-muted-foreground">Панель управления</div>
             </div>
           </div>
           <div className="flex items-center gap-2">
@@ -134,25 +138,39 @@ const Admin = () => {
 
       <div className="container py-6 md:py-8">
         {/* Stats */}
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-4 mb-6">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-6">
           {[
-            { icon: 'Users', label: 'Всего заявок', value: leads?.length ?? 0, color: 'text-primary' },
-            { icon: 'TrendingUp', label: 'За последние 7 дней', value: leads?.filter(l => {
-                const d = new Date(l.created_at);
-                return Date.now() - d.getTime() < 7 * 86400000;
-              }).length ?? 0, color: 'text-[hsl(88,60%,40%)]' },
-            { icon: 'Calendar', label: 'Сегодня', value: leads?.filter(l => {
-                const d = new Date(l.created_at);
-                return new Date().toDateString() === d.toDateString();
-              }).length ?? 0, color: 'text-amber-500' },
+            { icon: 'Mail',      label: 'Заявок',       value: leads?.length ?? 0,  color: 'text-primary' },
+            { icon: 'Users',     label: 'Пользователей', value: users?.length ?? 0,  color: 'text-violet-500' },
+            { icon: 'TrendingUp', label: 'Новых за 7 дней', value: (leads?.filter(l => Date.now() - new Date(l.created_at).getTime() < 7*86400000).length ?? 0) + (users?.filter(u => Date.now() - new Date(u.created_at).getTime() < 7*86400000).length ?? 0), color: 'text-emerald-500' },
+            { icon: 'Layers',    label: 'Проектов',     value: users?.reduce((s, u) => s + u.projects_count, 0) ?? 0, color: 'text-amber-500' },
           ].map(s => (
             <div key={s.label} className="rounded-2xl border border-border bg-card p-4 md:p-5">
               <div className={`flex items-center gap-2 mb-1 ${s.color}`}>
-                <Icon name={s.icon} size={16} />
+                <Icon name={s.icon} size={15} />
                 <span className="text-xs font-semibold uppercase tracking-wide">{s.label}</span>
               </div>
               <div className="font-display font-black text-3xl">{s.value}</div>
             </div>
+          ))}
+        </div>
+
+        {/* Tabs */}
+        <div className="flex gap-2 mb-4">
+          {([['leads', 'Заявки', 'Mail'], ['users', 'Пользователи', 'Users']] as const).map(([id, label, icon]) => (
+            <button
+              key={id}
+              onClick={() => { setTab(id); setSearch(''); }}
+              className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-colors ${
+                tab === id ? 'bg-primary text-primary-foreground' : 'bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-secondary'
+              }`}
+            >
+              <Icon name={icon} size={15} />
+              {label}
+              <span className={`rounded-full px-1.5 py-0.5 text-xs font-bold ${tab === id ? 'bg-white/20' : 'bg-secondary'}`}>
+                {id === 'leads' ? leads?.length : users?.length}
+              </span>
+            </button>
           ))}
         </div>
 
@@ -161,27 +179,27 @@ const Admin = () => {
           <div className="relative flex-1">
             <Icon name="Search" size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <Input
-              placeholder="Поиск по e-mail…"
+              placeholder={tab === 'leads' ? 'Поиск по e-mail…' : 'Поиск по имени или e-mail…'}
               value={search}
               onChange={e => setSearch(e.target.value)}
               className="pl-9 h-10 rounded-xl"
             />
           </div>
-          <Button variant="outline" onClick={copyAll} className="rounded-xl gap-2 shrink-0" disabled={filtered.length === 0}>
+          <Button variant="outline" onClick={copyAll} className="rounded-xl gap-2 shrink-0" disabled={activeList.length === 0}>
             <Icon name="Copy" size={15} />
-            Скопировать все e-mail
+            Скопировать e-mail
           </Button>
         </div>
 
         {/* Table */}
         <div className="rounded-2xl border border-border overflow-hidden">
-          {filtered.length === 0 ? (
+          {activeList.length === 0 ? (
             <div className="p-12 text-center text-muted-foreground">
               <Icon name="Inbox" size={36} className="mx-auto mb-3 opacity-30" />
-              <p className="font-medium">{search ? 'Ничего не найдено' : 'Заявок пока нет'}</p>
-              <p className="text-sm mt-1">{search ? 'Попробуйте изменить запрос' : 'Заявки появятся здесь после заполнения формы'}</p>
+              <p className="font-medium">{search ? 'Ничего не найдено' : tab === 'leads' ? 'Заявок пока нет' : 'Пользователей пока нет'}</p>
             </div>
-          ) : (
+          ) : tab === 'leads' ? (
+            /* LEADS TABLE */
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead className="bg-secondary/50 border-b border-border">
@@ -194,28 +212,74 @@ const Admin = () => {
                   </tr>
                 </thead>
                 <tbody>
-                  {filtered.map((lead, i) => {
+                  {filteredLeads.map((lead, i) => {
                     const d = new Date(lead.created_at);
                     return (
                       <tr key={lead.id} className="border-b border-border last:border-0 hover:bg-secondary/30 transition-colors">
                         <td className="px-4 py-3 text-muted-foreground font-mono text-xs">{i + 1}</td>
                         <td className="px-4 py-3">
-                          <a href={`mailto:${lead.email}`} className="font-medium hover:text-primary transition-colors">
-                            {lead.email}
-                          </a>
+                          <a href={`mailto:${lead.email}`} className="font-medium hover:text-primary transition-colors">{lead.email}</a>
                         </td>
-                        <td className="px-4 py-3 text-muted-foreground hidden sm:table-cell">
-                          {d.toLocaleDateString('ru-RU')}
+                        <td className="px-4 py-3 text-muted-foreground hidden sm:table-cell">{d.toLocaleDateString('ru-RU')}</td>
+                        <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">{d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}</td>
+                        <td className="px-4 py-3">
+                          <button onClick={() => navigator.clipboard.writeText(lead.email)} className="grid h-7 w-7 place-items-center rounded-lg hover:bg-secondary transition-colors text-muted-foreground hover:text-foreground" title="Скопировать">
+                            <Icon name="Copy" size={13} />
+                          </button>
                         </td>
-                        <td className="px-4 py-3 text-muted-foreground hidden md:table-cell">
-                          {d.toLocaleTimeString('ru-RU', { hour: '2-digit', minute: '2-digit' })}
+                      </tr>
+                    );
+                  })}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            /* USERS TABLE */
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead className="bg-secondary/50 border-b border-border">
+                  <tr>
+                    <th className="text-left px-4 py-3 font-semibold text-muted-foreground w-12">#</th>
+                    <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Пользователь</th>
+                    <th className="text-left px-4 py-3 font-semibold text-muted-foreground hidden sm:table-cell">Тариф</th>
+                    <th className="text-left px-4 py-3 font-semibold text-muted-foreground hidden md:table-cell">Проекты</th>
+                    <th className="text-left px-4 py-3 font-semibold text-muted-foreground hidden lg:table-cell">Дата</th>
+                    <th className="w-10 px-4 py-3"></th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {filteredUsers.map((user, i) => {
+                    const plan = PLAN_LABELS[user.plan] ?? PLAN_LABELS.free;
+                    const initials = user.name.split(' ').map((w: string) => w[0]).join('').toUpperCase().slice(0, 2);
+                    return (
+                      <tr key={user.id} className="border-b border-border last:border-0 hover:bg-secondary/30 transition-colors">
+                        <td className="px-4 py-3 text-muted-foreground font-mono text-xs">{i + 1}</td>
+                        <td className="px-4 py-3">
+                          <div className="flex items-center gap-3">
+                            <div className="grid h-8 w-8 place-items-center rounded-xl bg-primary text-primary-foreground font-bold text-xs shrink-0">
+                              {initials || '?'}
+                            </div>
+                            <div>
+                              <div className="font-medium leading-tight">{user.name || '—'}</div>
+                              <a href={`mailto:${user.email}`} className="text-xs text-muted-foreground hover:text-primary transition-colors">{user.email}</a>
+                            </div>
+                          </div>
+                        </td>
+                        <td className="px-4 py-3 hidden sm:table-cell">
+                          <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${plan.color}`}>
+                            {plan.label}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 hidden md:table-cell">
+                          <span className="inline-flex items-center gap-1 text-muted-foreground">
+                            <Icon name="Layers" size={13} /> {user.projects_count}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3 text-muted-foreground hidden lg:table-cell">
+                          {new Date(user.created_at).toLocaleDateString('ru-RU')}
                         </td>
                         <td className="px-4 py-3">
-                          <button
-                            onClick={() => navigator.clipboard.writeText(lead.email)}
-                            className="grid h-7 w-7 place-items-center rounded-lg hover:bg-secondary transition-colors text-muted-foreground hover:text-foreground"
-                            title="Скопировать"
-                          >
+                          <button onClick={() => navigator.clipboard.writeText(user.email)} className="grid h-7 w-7 place-items-center rounded-lg hover:bg-secondary transition-colors text-muted-foreground hover:text-foreground" title="Скопировать e-mail">
                             <Icon name="Copy" size={13} />
                           </button>
                         </td>
@@ -228,9 +292,9 @@ const Admin = () => {
           )}
         </div>
 
-        {filtered.length > 0 && (
+        {activeList.length > 0 && (
           <p className="mt-3 text-xs text-muted-foreground text-right">
-            Показано: {filtered.length} из {leads?.length}
+            Показано: {activeList.length} из {tab === 'leads' ? leads?.length : users?.length}
           </p>
         )}
       </div>

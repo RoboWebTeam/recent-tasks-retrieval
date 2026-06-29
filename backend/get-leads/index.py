@@ -33,17 +33,35 @@ def handler(event: dict, context) -> dict:
             cur.execute(
                 f"SELECT id, email, created_at FROM {schema}.leads ORDER BY created_at DESC"
             )
-            rows = cur.fetchall()
+            lead_rows = cur.fetchall()
+
+            cur.execute(
+                f"SELECT id, email, name, plan, created_at FROM {schema}.users ORDER BY created_at DESC"
+            )
+            user_rows = cur.fetchall()
+
+            cur.execute(f"SELECT user_id, COUNT(*) FROM {schema}.projects GROUP BY user_id")
+            project_counts = {r[0]: r[1] for r in cur.fetchall()}
+
     finally:
         conn.close()
 
     leads = [
         {'id': r[0], 'email': r[1], 'created_at': r[2].isoformat()}
-        for r in rows
+        for r in lead_rows
+    ]
+
+    users = [
+        {
+            'id': r[0], 'email': r[1], 'name': r[2], 'plan': r[3],
+            'created_at': r[4].isoformat(),
+            'projects_count': project_counts.get(r[0], 0)
+        }
+        for r in user_rows
     ]
 
     return {
         'statusCode': 200,
         'headers': {'Access-Control-Allow-Origin': '*'},
-        'body': {'leads': leads, 'total': len(leads)}
+        'body': {'leads': leads, 'total': len(leads), 'users': users, 'users_total': len(users)}
     }
