@@ -388,6 +388,8 @@ const Index = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [wordIdx, setWordIdx] = useState(0);
   const [wordVisible, setWordVisible] = useState(true);
+  const [typedText, setTypedText] = useState('');
+  const [isDeleting, setIsDeleting] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
@@ -448,15 +450,30 @@ const Index = () => {
 
   // Blur fade word switcher
   useEffect(() => {
-    const t = setInterval(() => {
-      setWordVisible(false);
-      setTimeout(() => {
-        setWordIdx(i => (i + 1) % typedWords.length);
-        setWordVisible(true);
-      }, 500);
-    }, 2600);
-    return () => clearInterval(t);
-  }, []);
+    const words = typedWords;
+    const full = words[wordIdx];
+    const typeSpeed = isDeleting ? 40 : 70;
+    const pauseDelay = 1800;
+
+    const t = setTimeout(() => {
+      if (!isDeleting) {
+        const next = full.slice(0, typedText.length + 1);
+        setTypedText(next);
+        if (next === full) {
+          setTimeout(() => setIsDeleting(true), pauseDelay);
+        }
+      } else {
+        const next = typedText.slice(0, -1);
+        setTypedText(next);
+        if (next === '') {
+          setIsDeleting(false);
+          setWordIdx(i => (i + 1) % words.length);
+        }
+      }
+    }, typeSpeed);
+
+    return () => clearTimeout(t);
+  }, [typedText, isDeleting, wordIdx]);
 
   // Lock scroll on mobile menu — используем position:fixed чтобы не дёргать overflow
   useEffect(() => {
@@ -564,17 +581,9 @@ const Index = () => {
               {L.hero.badge[lang]}
             </span>
             <h1 className="mt-5 font-display font-black leading-[1.05] text-4xl sm:text-5xl md:text-6xl xl:text-7xl tracking-tight">
-              <span
-                key={`${wordIdx}-${lang}`}
-                className="text-gradient inline-block"
-                style={{
-                  transition: 'opacity 0.45s ease, filter 0.45s ease, transform 0.45s ease',
-                  opacity: wordVisible ? 1 : 0,
-                  filter: wordVisible ? 'blur(0px)' : 'blur(12px)',
-                  transform: wordVisible ? 'translateY(0)' : 'translateY(8px)',
-                }}
-              >
-                {typedWords[wordIdx]}
+              <span className="text-gradient inline-block">
+                {typedText}
+                <span className="animate-pulse">|</span>
               </span>
             </h1>
             <p className="mt-5 text-base sm:text-lg text-muted-foreground max-w-xl mx-auto lg:mx-0">
