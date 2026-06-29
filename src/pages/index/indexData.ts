@@ -256,6 +256,69 @@ const DEMO_ITEMS_RU = [
     img: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/51100d73-958a-4d7c-af38-a148befee5ff.jpg',
     color: 'from-emerald-500 to-teal-400',
   },
+  {
+    tag: '🍕 Доставка еды',
+    title: 'Сервис доставки еды',
+    prompt: 'Создай сайт доставки еды с каталогом блюд, корзиной и отслеживанием заказа',
+    img: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/6f3be26f-b4b9-4216-a21b-f7d6a94b617c.jpg',
+    color: 'from-red-500 to-orange-400',
+  },
+  {
+    tag: '💆 Салон красоты',
+    title: 'Салон красоты и SPA',
+    prompt: 'Сделай сайт для салона красоты с услугами, мастерами, ценами и онлайн-записью',
+    img: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/e22098d6-0537-4baa-9062-aa60b82c6d59.jpg',
+    color: 'from-pink-400 to-rose-300',
+  },
+  {
+    tag: '🚀 IT-стартап',
+    title: 'Лендинг SaaS-продукта',
+    prompt: 'Создай лендинг для IT-стартапа с описанием продукта, тарифами и формой регистрации',
+    img: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/eae8cdf1-1992-4789-8561-5ddc889be53c.jpg',
+    color: 'from-blue-700 to-violet-600',
+  },
+  {
+    tag: '✈️ Туризм',
+    title: 'Туристическое агентство',
+    prompt: 'Сделай сайт туристического агентства с турами, направлениями и формой бронирования',
+    img: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/dfcde93a-e603-4c9d-a5ab-a959ff161d99.jpg',
+    color: 'from-cyan-500 to-sky-400',
+  },
+  {
+    tag: '🚗 Автосалон',
+    title: 'Автосалон и автосервис',
+    prompt: 'Создай сайт автосалона с каталогом авто, калькулятором кредита и записью на тест-драйв',
+    img: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/5e504f75-6525-48c7-87f4-b209120ae573.jpg',
+    color: 'from-gray-800 to-gray-600',
+  },
+  {
+    tag: '👶 Детский центр',
+    title: 'Детский развивающий центр',
+    prompt: 'Сделай сайт детского центра с программами, расписанием, педагогами и записью',
+    img: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/095d5e48-e227-42ba-9d86-39032ab86121.jpg',
+    color: 'from-yellow-400 to-green-400',
+  },
+  {
+    tag: '💍 Свадьба',
+    title: 'Свадебное агентство',
+    prompt: 'Создай сайт свадебного агентства с портфолио, пакетами услуг и формой заявки',
+    img: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/f419a17b-8ed1-45a5-ac7b-e9054e70d419.jpg',
+    color: 'from-amber-200 to-yellow-400',
+  },
+  {
+    tag: '📊 Бухгалтерия',
+    title: 'Бухгалтерские услуги',
+    prompt: 'Сделай сайт бухгалтерской компании с услугами, ценами и формой консультации',
+    img: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/d3be1a1d-ab40-4b53-b9c9-55cfaa28b125.jpg',
+    color: 'from-blue-600 to-indigo-500',
+  },
+  {
+    tag: '🐾 Ветеринария',
+    title: 'Ветеринарная клиника',
+    prompt: 'Создай сайт ветеринарной клиники с услугами, врачами, ценами и записью животного',
+    img: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/51a9cdb6-da81-4f7f-8bf8-7bf866d7cfd4.jpg',
+    color: 'from-green-500 to-emerald-400',
+  },
 ];
 
 const DEMO_ITEMS_EN = [
@@ -268,6 +331,15 @@ const DEMO_ITEMS_EN = [
   { tag: '🎓 Education', title: 'Online courses platform', prompt: 'Build a landing for online marketing courses with program, reviews and payment', img: DEMO_ITEMS_RU[6].img, color: DEMO_ITEMS_RU[6].color },
   { tag: '⚖️ Legal', title: 'Law firm website', prompt: 'Create a law firm site with services, attorney team and free consultation', img: DEMO_ITEMS_RU[7].img, color: DEMO_ITEMS_RU[7].color },
   { tag: '🏥 Medical', title: 'Medical clinic', prompt: 'Build a medical clinic site with services, doctors, pricing and appointment booking', img: DEMO_ITEMS_RU[8].img, color: DEMO_ITEMS_RU[8].color },
+  { tag: '🍕 Food delivery', title: 'Food delivery service', prompt: 'Create a food delivery site with dish catalog, cart and order tracking', img: DEMO_ITEMS_RU[9].img, color: DEMO_ITEMS_RU[9].color },
+  { tag: '💆 Beauty salon', title: 'Beauty salon & SPA', prompt: 'Build a beauty salon site with services, masters, pricing and online booking', img: DEMO_ITEMS_RU[10].img, color: DEMO_ITEMS_RU[10].color },
+  { tag: '🚀 IT startup', title: 'SaaS product landing', prompt: 'Create an IT startup landing with product description, pricing and sign-up form', img: DEMO_ITEMS_RU[11].img, color: DEMO_ITEMS_RU[11].color },
+  { tag: '✈️ Travel', title: 'Travel agency', prompt: 'Build a travel agency site with tours, destinations and booking form', img: DEMO_ITEMS_RU[12].img, color: DEMO_ITEMS_RU[12].color },
+  { tag: '🚗 Car dealer', title: 'Car dealership', prompt: 'Create a car dealership site with catalog, credit calculator and test drive booking', img: DEMO_ITEMS_RU[13].img, color: DEMO_ITEMS_RU[13].color },
+  { tag: '👶 Kids center', title: 'Children\'s center', prompt: 'Build a children\'s development center site with programs, schedule and enrollment', img: DEMO_ITEMS_RU[14].img, color: DEMO_ITEMS_RU[14].color },
+  { tag: '💍 Wedding', title: 'Wedding agency', prompt: 'Create a wedding agency site with portfolio, service packages and lead form', img: DEMO_ITEMS_RU[15].img, color: DEMO_ITEMS_RU[15].color },
+  { tag: '📊 Accounting', title: 'Accounting services', prompt: 'Build an accounting company site with services, pricing and consultation form', img: DEMO_ITEMS_RU[16].img, color: DEMO_ITEMS_RU[16].color },
+  { tag: '🐾 Vet clinic', title: 'Veterinary clinic', prompt: 'Create a vet clinic site with services, doctors, pricing and pet appointment booking', img: DEMO_ITEMS_RU[17].img, color: DEMO_ITEMS_RU[17].color },
 ];
 
 export const getPORTFOLIO = (lang: Lang) => lang === 'ru' ? DEMO_ITEMS_RU : DEMO_ITEMS_EN;
