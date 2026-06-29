@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef } from 'react';
+import ParticlesBg from '@/components/ui/particles-bg';
 import Icon from '@/components/ui/icon';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -534,8 +535,9 @@ const Index = () => {
       </header>
 
       {/* HERO */}
-      <section className="relative pt-28 sm:pt-32 lg:pt-36 pb-16 md:pb-24 grid-bg" style={{clipPath: 'inset(0)'}}>
-        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-transparent via-background/60 to-background" />
+      <section className="relative pt-28 sm:pt-32 lg:pt-36 pb-16 md:pb-24" style={{clipPath: 'inset(0)'}}>
+        <ParticlesBg />
+        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-background/40 via-background/60 to-background" />
         {/* Floating orbs */}
         <div className="absolute top-20 -left-24 h-56 w-56 md:h-80 md:w-80 rounded-full bg-primary/20 blur-3xl animate-glow" />
         <div className="absolute top-40 -right-24 h-56 w-56 md:h-80 md:w-80 rounded-full bg-accent/25 blur-3xl animate-glow" style={{animationDelay:'1.5s'}} />
