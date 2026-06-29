@@ -12,6 +12,8 @@ import {
 const ROBO_IMG =
   'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/2704f2a7-0e24-4881-a393-b234ab436538.jpg';
 
+const SEND_EMAIL_URL = 'https://functions.poehali.dev/4272fc80-99e8-4abe-8f09-7dce2b50bc57';
+
 const NAV = [
   { label: 'Преимущества', href: '#features' },
   { label: 'Как работает', href: '#process' },
@@ -86,6 +88,15 @@ const FAQ = [
   { q: 'Можно ли подключить свой домен?', a: 'Конечно. На платных тарифах вы подключаете собственный домен — SSL и хостинг настраиваются автоматически.' },
 ];
 
+const MARQUEE_ITEMS = [
+  '✦ Лендинги', '✦ Интернет-магазины', '✦ Корпоративные сайты', '✦ Портфолио',
+  '✦ Блоги', '✦ Сайты услуг', '✦ Визитки', '✦ Стартап-страницы',
+  '✦ Лендинги', '✦ Интернет-магазины', '✦ Корпоративные сайты', '✦ Портфолио',
+  '✦ Блоги', '✦ Сайты услуг', '✦ Визитки', '✦ Стартап-страницы',
+];
+
+// --- Hooks ---
+
 function useReveal() {
   const ref = useRef<HTMLDivElement>(null);
   const [shown, setShown] = useState(false);
@@ -99,57 +110,161 @@ function useReveal() {
   return { ref, shown };
 }
 
-function Reveal({ children, delay = 0 }: { children: React.ReactNode; delay?: number }) {
+function useCounter(target: number, duration = 1800, active = false) {
+  const [val, setVal] = useState(0);
+  useEffect(() => {
+    if (!active) return;
+    let start = 0;
+    const step = target / (duration / 16);
+    const t = setInterval(() => {
+      start += step;
+      if (start >= target) { setVal(target); clearInterval(t); }
+      else setVal(Math.floor(start));
+    }, 16);
+    return () => clearInterval(t);
+  }, [active, target, duration]);
+  return val;
+}
+
+// --- Components ---
+
+function Reveal({ children, delay = 0, className = '' }: { children: React.ReactNode; delay?: number; className?: string }) {
   const { ref, shown } = useReveal();
   return (
     <div
       ref={ref}
       style={{ transitionDelay: `${delay}ms` }}
-      className={`transition-all duration-700 ${shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}
+      className={`transition-all duration-700 ${shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'} ${className}`}
     >
       {children}
     </div>
   );
 }
 
-const SEND_EMAIL_URL = 'https://functions.poehali.dev/4272fc80-99e8-4abe-8f09-7dce2b50bc57';
+function CounterStat({ value, suffix, label }: { value: number; suffix: string; label: string }) {
+  const { ref, shown } = useReveal();
+  const count = useCounter(value, 1600, shown);
+  return (
+    <div ref={ref} className="text-center">
+      <div className="font-display font-extrabold text-xl sm:text-2xl text-foreground">
+        {count}{suffix}
+      </div>
+      <div className="text-sm text-muted-foreground">{label}</div>
+    </div>
+  );
+}
+
+function EmailForm({ dark = false, placeholder = 'Ваш e-mail', btnText = 'Начать бесплатно' }: {
+  dark?: boolean;
+  placeholder?: string;
+  btnText?: string;
+}) {
+  const [email, setEmail] = useState('');
+  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!email || status === 'loading') return;
+    setStatus('loading');
+    try {
+      const res = await fetch(SEND_EMAIL_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email }),
+      });
+      if (res.ok) { setStatus('success'); setEmail(''); }
+      else setStatus('error');
+    } catch { setStatus('error'); }
+  };
+
+  if (status === 'success') {
+    return (
+      <div className={`inline-flex items-center gap-2 rounded-full px-6 py-3 font-semibold animate-slide-up ${
+        dark ? 'bg-white/10 border border-white/20 text-background' : 'bg-primary/10 border border-primary/20 text-primary'
+      }`}>
+        <Icon name="CheckCircle" size={20} />
+        Заявка принята! Мы свяжемся с вами.
+      </div>
+    );
+  }
+
+  return (
+    <div>
+      <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
+        <Input
+          type="email"
+          placeholder={placeholder}
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+          className={`h-12 rounded-full px-5 ${
+            dark
+              ? 'bg-white/10 border-white/20 text-background placeholder:text-background/50'
+              : 'bg-background border-border'
+          }`}
+        />
+        <Button
+          type="submit"
+          size="lg"
+          disabled={status === 'loading'}
+          className={`h-12 rounded-full font-semibold px-8 whitespace-nowrap w-full sm:w-auto transition-all ${
+            dark ? '' : 'shadow-xl shadow-primary/25'
+          }`}
+        >
+          {status === 'loading'
+            ? <><Icon name="Loader" size={16} className="mr-2 animate-spin" />Отправляем…</>
+            : <>{btnText} <Icon name="ArrowRight" size={16} className="ml-1 animate-bounce-x" /></>
+          }
+        </Button>
+      </form>
+      {status === 'error' && (
+        <p className={`mt-2 text-sm text-center ${dark ? 'text-rose-300' : 'text-rose-500'}`}>
+          Ошибка отправки. Попробуйте ещё раз.
+        </p>
+      )}
+    </div>
+  );
+}
+
+// --- Page ---
 
 const Index = () => {
   const [visibleChat, setVisibleChat] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [formEmail, setFormEmail] = useState('');
-  const [formStatus, setFormStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+  const [typedIdx, setTypedIdx] = useState(0);
+  const typedWords = ['лендинг', 'магазин', 'портфолио', 'стартап', 'визитку'];
+  const [wordIdx, setWordIdx] = useState(0);
+  const [deleting, setDeleting] = useState(false);
 
+  // Typewriter effect
+  useEffect(() => {
+    const word = typedWords[wordIdx];
+    const delay = deleting ? 60 : 110;
+    const t = setTimeout(() => {
+      if (!deleting && typedIdx < word.length) {
+        setTypedIdx(i => i + 1);
+      } else if (!deleting && typedIdx === word.length) {
+        setTimeout(() => setDeleting(true), 1200);
+      } else if (deleting && typedIdx > 0) {
+        setTypedIdx(i => i - 1);
+      } else {
+        setDeleting(false);
+        setWordIdx(i => (i + 1) % typedWords.length);
+      }
+    }, delay);
+    return () => clearTimeout(t);
+  }, [typedIdx, deleting, wordIdx]);
+
+  // Chat animation
   useEffect(() => {
     if (visibleChat >= CHAT.length) return;
     const t = setTimeout(() => setVisibleChat((v) => v + 1), 1100);
     return () => clearTimeout(t);
   }, [visibleChat]);
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!formEmail || formStatus === 'loading') return;
-    setFormStatus('loading');
-    try {
-      const res = await fetch(SEND_EMAIL_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email: formEmail }),
-      });
-      if (res.ok) {
-        setFormStatus('success');
-        setFormEmail('');
-      } else {
-        setFormStatus('error');
-      }
-    } catch {
-      setFormStatus('error');
-    }
-  };
-
+  // Lock scroll on mobile menu
   useEffect(() => {
-    if (menuOpen) document.body.style.overflow = 'hidden';
-    else document.body.style.overflow = '';
+    document.body.style.overflow = menuOpen ? 'hidden' : '';
     return () => { document.body.style.overflow = ''; };
   }, [menuOpen]);
 
@@ -160,46 +275,38 @@ const Index = () => {
       <header className="fixed top-0 inset-x-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50">
         <nav className="container flex items-center justify-between py-3 md:py-4">
           <a href="#" className="flex items-center gap-2 font-display font-extrabold text-lg md:text-xl">
-            <span className="grid h-8 w-8 md:h-9 md:w-9 place-items-center rounded-xl bg-primary text-primary-foreground shrink-0">
+            <span className="relative grid h-8 w-8 md:h-9 md:w-9 place-items-center rounded-xl bg-primary text-primary-foreground shrink-0">
               <Icon name="Bot" size={18} />
+              <span className="absolute inset-0 rounded-xl animate-pulse-ring bg-primary/40" />
             </span>
             Roboweb
           </a>
-
-          {/* Desktop nav */}
           <div className="hidden md:flex items-center gap-6 lg:gap-7 text-sm font-medium text-muted-foreground">
             {NAV.map((n) => (
-              <a key={n.href} href={n.href} className="hover:text-foreground transition-colors">
+              <a key={n.href} href={n.href} className="hover:text-foreground transition-colors relative group">
                 {n.label}
+                <span className="absolute -bottom-0.5 left-0 h-px w-0 bg-primary transition-all group-hover:w-full" />
               </a>
             ))}
           </div>
-
           <div className="flex items-center gap-2">
             <Button className="hidden sm:flex rounded-full font-semibold shadow-lg shadow-primary/20 text-sm px-5 h-9">
               Создать сайт
             </Button>
-            {/* Burger */}
             <button
               onClick={() => setMenuOpen((v) => !v)}
-              className="md:hidden grid h-9 w-9 place-items-center rounded-xl border border-border bg-card"
+              className="md:hidden grid h-9 w-9 place-items-center rounded-xl border border-border bg-card transition-colors hover:bg-secondary"
               aria-label="Меню"
             >
               <Icon name={menuOpen ? 'X' : 'Menu'} size={20} />
             </button>
           </div>
         </nav>
-
-        {/* Mobile menu */}
         {menuOpen && (
-          <div className="md:hidden border-t border-border bg-background/95 backdrop-blur-xl px-4 pb-6 pt-4 space-y-1">
+          <div className="md:hidden border-t border-border bg-background/95 backdrop-blur-xl px-4 pb-6 pt-4 space-y-1 animate-slide-up">
             {NAV.map((n) => (
-              <a
-                key={n.href}
-                href={n.href}
-                onClick={() => setMenuOpen(false)}
-                className="block py-3 px-4 rounded-xl font-medium hover:bg-secondary transition-colors"
-              >
+              <a key={n.href} href={n.href} onClick={() => setMenuOpen(false)}
+                className="flex items-center gap-2 py-3 px-4 rounded-xl font-medium hover:bg-secondary transition-colors">
                 {n.label}
               </a>
             ))}
@@ -209,53 +316,64 @@ const Index = () => {
       </header>
 
       {/* HERO */}
-      <section className="relative pt-28 sm:pt-32 lg:pt-36 pb-16 md:pb-24 grid-bg">
+      <section className="relative pt-28 sm:pt-32 lg:pt-36 pb-16 md:pb-24 grid-bg overflow-hidden">
         <div className="absolute inset-0 -z-10 bg-gradient-to-b from-transparent via-background/60 to-background" />
-        <div className="absolute top-20 -left-24 h-56 w-56 md:h-72 md:w-72 rounded-full bg-primary/20 blur-3xl animate-glow" />
-        <div className="absolute top-40 -right-24 h-56 w-56 md:h-72 md:w-72 rounded-full bg-accent/30 blur-3xl animate-glow" />
+        {/* Floating orbs */}
+        <div className="absolute top-20 -left-24 h-56 w-56 md:h-80 md:w-80 rounded-full bg-primary/20 blur-3xl animate-glow" />
+        <div className="absolute top-40 -right-24 h-56 w-56 md:h-80 md:w-80 rounded-full bg-accent/25 blur-3xl animate-glow" style={{animationDelay:'1.5s'}} />
+        <div className="absolute bottom-10 left-1/3 h-40 w-40 rounded-full bg-primary/10 blur-2xl animate-glow" style={{animationDelay:'0.8s'}} />
+
+        {/* Floating badges */}
+        <div className="absolute top-36 left-8 hidden xl:flex items-center gap-2 rounded-2xl glass px-4 py-2.5 shadow-lg animate-float" style={{animationDelay:'0.3s'}}>
+          <Icon name="Zap" size={16} className="text-primary" />
+          <span className="text-xs font-semibold">47 секунд</span>
+        </div>
+        <div className="absolute top-56 right-8 hidden xl:flex items-center gap-2 rounded-2xl glass px-4 py-2.5 shadow-lg animate-float" style={{animationDelay:'1s'}}>
+          <Icon name="TrendingUp" size={16} className="text-[hsl(88,70%,40%)]" />
+          <span className="text-xs font-semibold">+212% конверсия</span>
+        </div>
+        <div className="absolute bottom-32 left-12 hidden xl:flex items-center gap-2 rounded-2xl glass px-4 py-2.5 shadow-lg animate-float" style={{animationDelay:'1.8s'}}>
+          <Icon name="Shield" size={16} className="text-primary" />
+          <span className="text-xs font-semibold">SSL + хостинг</span>
+        </div>
 
         <div className="container grid lg:grid-cols-2 gap-10 lg:gap-12 items-center">
-          {/* Left */}
           <div className="animate-fade-in text-center lg:text-left">
             <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-xs sm:text-sm font-medium text-primary">
-              <Icon name="Sparkles" size={14} /> AI-конструктор нового поколения
+              <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
+              AI-конструктор нового поколения
             </span>
             <h1 className="mt-5 font-display font-black leading-[1.05] text-4xl sm:text-5xl md:text-6xl xl:text-7xl tracking-tight">
-              Сайты создаёт <span className="text-gradient">искусственный интеллект</span>
+              Создай свой{' '}
+              <span className="text-gradient">
+                {typedWords[wordIdx].slice(0, typedIdx)}
+                <span className="animate-blink">|</span>
+              </span>
             </h1>
             <p className="mt-5 text-base sm:text-lg text-muted-foreground max-w-xl mx-auto lg:mx-0">
               Roboweb заменяет фрилансеров и конструкторы. Опишите идею в диалоге — и получите готовый сайт за минуты, а не недели.
             </p>
             <div className="mt-7 flex flex-col sm:flex-row flex-wrap gap-3 justify-center lg:justify-start">
-              <Button size="lg" className="rounded-full text-base font-semibold px-8 shadow-xl shadow-primary/25 hover-scale w-full sm:w-auto">
+              <Button size="lg" className="rounded-full text-base font-semibold px-8 shadow-xl shadow-primary/25 w-full sm:w-auto group">
                 Создать сайт бесплатно
-                <Icon name="ArrowRight" size={18} className="ml-1" />
+                <Icon name="ArrowRight" size={18} className="ml-1 transition-transform group-hover:translate-x-1" />
               </Button>
-              <Button size="lg" variant="outline" className="rounded-full text-base font-semibold px-8 w-full sm:w-auto">
+              <Button size="lg" variant="outline" className="rounded-full text-base font-semibold px-8 w-full sm:w-auto group">
                 <Icon name="Play" size={16} className="mr-1" /> Смотреть демо
               </Button>
             </div>
 
-            {/* Stats */}
-            <div className="mt-8 flex items-center justify-center lg:justify-start gap-5 sm:gap-8 text-sm text-muted-foreground flex-wrap">
-              <div className="text-center">
-                <div className="font-display font-extrabold text-xl sm:text-2xl text-foreground">47 сек</div>
-                средняя сборка
-              </div>
+            {/* Stats with counter */}
+            <div className="mt-8 flex items-center justify-center lg:justify-start gap-5 sm:gap-8 flex-wrap">
+              <CounterStat value={47} suffix=" сек" label="средняя сборка" />
               <div className="h-8 w-px bg-border hidden sm:block" />
-              <div className="text-center">
-                <div className="font-display font-extrabold text-xl sm:text-2xl text-foreground">12 000+</div>
-                созданных сайтов
-              </div>
+              <CounterStat value={12000} suffix="+" label="созданных сайтов" />
               <div className="h-8 w-px bg-border hidden sm:block" />
-              <div className="text-center">
-                <div className="font-display font-extrabold text-xl sm:text-2xl text-foreground">−80%</div>
-                к расходам
-              </div>
+              <CounterStat value={80} suffix="%" label="экономия бюджета" />
             </div>
           </div>
 
-          {/* Right: robot + chat */}
+          {/* Robot + chat */}
           <div className="relative animate-scale-in max-w-md mx-auto w-full">
             <div className="absolute inset-0 -z-10 rounded-[2.5rem] bg-gradient-to-tr from-primary/10 to-accent/20 blur-2xl" />
             <img
@@ -265,8 +383,9 @@ const Index = () => {
             />
             <div className="glass rounded-3xl p-4 sm:p-5 shadow-2xl mt-[-1.5rem] mx-2 sm:mx-0">
               <div className="flex items-center gap-2 pb-3 border-b border-border/60">
-                <span className="grid h-6 w-6 sm:h-7 sm:w-7 place-items-center rounded-lg bg-primary text-primary-foreground shrink-0">
+                <span className="relative grid h-6 w-6 sm:h-7 sm:w-7 place-items-center rounded-lg bg-primary text-primary-foreground shrink-0">
                   <Icon name="Bot" size={14} />
+                  <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-[hsl(88,70%,45%)] border-2 border-background" />
                 </span>
                 <span className="font-display font-bold text-xs sm:text-sm">Roboweb онлайн</span>
                 <span className="ml-auto flex items-center gap-1 text-xs text-muted-foreground whitespace-nowrap">
@@ -289,7 +408,7 @@ const Index = () => {
               <div className="mt-3 flex items-center gap-2 rounded-full border border-border bg-background px-3 sm:px-4 py-2 sm:py-2.5">
                 <Icon name="MessageSquare" size={15} className="text-muted-foreground shrink-0" />
                 <span className="text-xs sm:text-sm text-muted-foreground truncate">Опишите ваш сайт…</span>
-                <span className="ml-auto grid h-7 w-7 sm:h-8 sm:w-8 place-items-center rounded-full bg-primary text-primary-foreground shrink-0">
+                <span className="ml-auto grid h-7 w-7 sm:h-8 sm:w-8 place-items-center rounded-full bg-primary text-primary-foreground shrink-0 hover:bg-primary/90 transition-colors cursor-pointer">
                   <Icon name="Send" size={13} />
                 </span>
               </div>
@@ -297,6 +416,15 @@ const Index = () => {
           </div>
         </div>
       </section>
+
+      {/* MARQUEE */}
+      <div className="overflow-hidden border-y border-border bg-secondary/40 py-3.5">
+        <div className="flex animate-marquee whitespace-nowrap gap-8">
+          {MARQUEE_ITEMS.map((item, i) => (
+            <span key={i} className="text-sm font-semibold text-muted-foreground">{item}</span>
+          ))}
+        </div>
+      </div>
 
       {/* FEATURES */}
       <section id="features" className="py-16 md:py-24">
@@ -308,15 +436,15 @@ const Index = () => {
                 Почему AI и диалог — это будущее
               </h2>
               <p className="mt-4 text-muted-foreground text-base sm:text-lg">
-                Всё лучшее от веб-студии без её недостатков: скорость, цена и качество в одном инструменте.
+                Всё лучшее от веб-студии без её недостатков: скорость, цена и качество в одном.
               </p>
             </div>
           </Reveal>
           <div className="mt-10 md:mt-14 grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {FEATURES.map((f, i) => (
               <Reveal key={f.title} delay={i * 70}>
-                <div className="group h-full rounded-2xl md:rounded-3xl border border-border bg-card p-5 md:p-7 transition-all hover:-translate-y-1.5 hover:shadow-xl hover:border-primary/30">
-                  <span className="grid h-10 w-10 md:h-12 md:w-12 place-items-center rounded-xl md:rounded-2xl bg-primary/10 text-primary transition-colors group-hover:bg-primary group-hover:text-primary-foreground">
+                <div className="group h-full rounded-2xl md:rounded-3xl border border-border bg-card p-5 md:p-7 transition-all duration-300 hover:-translate-y-2 hover:shadow-xl hover:shadow-primary/10 hover:border-primary/30 cursor-default">
+                  <span className="grid h-10 w-10 md:h-12 md:w-12 place-items-center rounded-xl md:rounded-2xl bg-primary/10 text-primary transition-all duration-300 group-hover:bg-primary group-hover:text-primary-foreground group-hover:scale-110">
                     <Icon name={f.icon} size={20} />
                   </span>
                   <h3 className="mt-4 font-display font-bold text-lg md:text-xl">{f.title}</h3>
@@ -328,9 +456,24 @@ const Index = () => {
         </div>
       </section>
 
+      {/* CTA 1 — между преимуществами и процессом */}
+      <section className="py-12 bg-primary/5 border-y border-primary/10">
+        <Reveal>
+          <div className="container text-center">
+            <p className="text-sm font-semibold uppercase tracking-widest text-primary mb-3">Готовы начать?</p>
+            <h3 className="font-display font-black text-2xl sm:text-3xl md:text-4xl tracking-tight mb-2">
+              Получите первый сайт <span className="text-gradient">бесплатно</span>
+            </h3>
+            <p className="text-muted-foreground mb-6 max-w-md mx-auto">Без регистрации карты. Просто опишите свой проект.</p>
+            <EmailForm placeholder="Ваш e-mail для доступа" btnText="Получить доступ" />
+          </div>
+        </Reveal>
+      </section>
+
       {/* PROCESS */}
       <section id="process" className="py-16 md:py-24 bg-foreground text-background relative overflow-hidden">
         <div className="absolute -top-20 left-1/2 -translate-x-1/2 h-80 w-[40rem] rounded-full bg-primary/30 blur-3xl" />
+        <div className="absolute bottom-0 right-0 h-64 w-64 rounded-full bg-accent/20 blur-3xl" />
         <div className="container relative">
           <Reveal>
             <div className="text-center max-w-2xl mx-auto px-2">
@@ -342,11 +485,16 @@ const Index = () => {
           </Reveal>
           <div className="mt-10 md:mt-14 grid sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
             {STEPS.map((s, i) => (
-              <Reveal key={s.n} delay={i * 100}>
-                <div className="relative rounded-2xl md:rounded-3xl border border-white/10 bg-white/5 p-5 md:p-7 h-full backdrop-blur">
-                  <div className="font-display font-black text-4xl md:text-5xl text-accent/90">{s.n}</div>
+              <Reveal key={s.n} delay={i * 120}>
+                <div className="relative rounded-2xl md:rounded-3xl border border-white/10 bg-white/5 p-5 md:p-7 h-full backdrop-blur group hover:bg-white/10 hover:border-white/20 transition-all duration-300">
+                  <div className="font-display font-black text-4xl md:text-5xl text-accent/90 group-hover:text-accent transition-colors">{s.n}</div>
                   <h3 className="mt-3 md:mt-4 font-display font-bold text-lg md:text-xl">{s.title}</h3>
                   <p className="mt-2 text-background/70 text-sm md:text-base">{s.text}</p>
+                  {i < STEPS.length - 1 && (
+                    <div className="hidden md:block absolute -right-3 top-1/2 -translate-y-1/2 z-10">
+                      <Icon name="ChevronRight" size={20} className="text-white/30" />
+                    </div>
+                  )}
                 </div>
               </Reveal>
             ))}
@@ -371,12 +519,13 @@ const Index = () => {
           <div className="mt-10 md:mt-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {PORTFOLIO.map((p, i) => (
               <Reveal key={p.title} delay={i * 70}>
-                <div className="group overflow-hidden rounded-2xl md:rounded-3xl border border-border bg-card hover-scale">
-                  <div className={`relative h-36 sm:h-44 bg-gradient-to-br ${p.grad}`}>
+                <div className="group overflow-hidden rounded-2xl md:rounded-3xl border border-border bg-card transition-all duration-300 hover:-translate-y-2 hover:shadow-2xl cursor-pointer">
+                  <div className={`relative h-36 sm:h-44 bg-gradient-to-br ${p.grad} overflow-hidden`}>
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
                     <span className="absolute top-4 left-4 rounded-full bg-white/25 px-3 py-1 text-xs font-semibold text-white backdrop-blur">
                       {p.tag}
                     </span>
-                    <Icon name="Globe" size={56} className="absolute right-4 bottom-4 text-white/30 transition-transform group-hover:scale-110" />
+                    <Icon name="Globe" size={56} className="absolute right-4 bottom-4 text-white/30 transition-all duration-300 group-hover:scale-125 group-hover:text-white/50" />
                   </div>
                   <div className="p-4 md:p-6">
                     <h3 className="font-display font-bold text-lg md:text-xl">{p.title}</h3>
@@ -389,6 +538,33 @@ const Index = () => {
             ))}
           </div>
         </div>
+      </section>
+
+      {/* CTA 2 — после портфолио */}
+      <section className="py-16 md:py-20 bg-gradient-to-r from-primary to-[hsl(250,90%,60%)]">
+        <Reveal>
+          <div className="container text-center text-white">
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-1.5 text-sm font-medium mb-5">
+              <Icon name="Clock" size={15} /> Только сегодня — первый сайт бесплатно
+            </div>
+            <h2 className="font-display font-black text-3xl sm:text-4xl md:text-5xl tracking-tight mb-4">
+              Хватит платить фрилансерам
+            </h2>
+            <p className="text-white/80 text-base sm:text-lg max-w-xl mx-auto mb-8">
+              Ваш конкурент уже использует AI. Не отставайте — запустите сайт сегодня и начните получать клиентов.
+            </p>
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Button size="lg" className="rounded-full font-semibold px-8 bg-white text-primary hover:bg-white/90 h-12 shadow-xl w-full sm:w-auto">
+                Создать сайт сейчас
+                <Icon name="ArrowRight" size={18} className="ml-1" />
+              </Button>
+              <Button size="lg" variant="outline" className="rounded-full font-semibold px-8 border-white/30 text-white hover:bg-white/10 h-12 w-full sm:w-auto">
+                <Icon name="Phone" size={16} className="mr-2" />
+                8 (933) 177-00-86
+              </Button>
+            </div>
+          </div>
+        </Reveal>
       </section>
 
       {/* PRICING */}
@@ -408,14 +584,14 @@ const Index = () => {
           <div className="mt-10 md:mt-14 grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 max-w-5xl mx-auto">
             {PLANS.map((p, i) => (
               <Reveal key={p.name} delay={i * 100}>
-                <div className={`relative h-full rounded-2xl md:rounded-3xl border p-6 md:p-8 ${
+                <div className={`relative h-full rounded-2xl md:rounded-3xl border p-6 md:p-8 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${
                   p.hot
                     ? 'border-primary bg-card shadow-2xl shadow-primary/15 sm:col-span-2 lg:col-span-1'
                     : 'border-border bg-card'
                 }`}>
                   {p.hot && (
-                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-4 py-1 text-xs font-bold text-primary-foreground whitespace-nowrap">
-                      Популярный
+                    <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-primary px-4 py-1 text-xs font-bold text-primary-foreground whitespace-nowrap animate-glow">
+                      ✦ Популярный
                     </span>
                   )}
                   <h3 className="font-display font-bold text-xl md:text-2xl">{p.name}</h3>
@@ -431,7 +607,7 @@ const Index = () => {
                       </li>
                     ))}
                   </ul>
-                  <Button className={`mt-6 md:mt-8 w-full rounded-full font-semibold ${p.hot ? '' : 'bg-foreground hover:bg-foreground/90'}`}>
+                  <Button className={`mt-6 md:mt-8 w-full rounded-full font-semibold transition-all hover:scale-105 ${p.hot ? 'shadow-lg shadow-primary/20' : 'bg-foreground hover:bg-foreground/90'}`}>
                     {p.cta}
                   </Button>
                 </div>
@@ -441,54 +617,28 @@ const Index = () => {
         </div>
       </section>
 
-      {/* CTA + REGISTER */}
+      {/* CTA 3 — основная форма */}
       <section id="register" className="py-16 md:py-24">
         <div className="container px-4 sm:px-6">
           <Reveal>
             <div className="relative overflow-hidden rounded-2xl md:rounded-[2.5rem] bg-foreground text-background p-8 sm:p-10 md:p-16 text-center">
-              <div className="absolute -top-16 -left-16 h-64 w-64 rounded-full bg-primary/40 blur-3xl" />
-              <div className="absolute -bottom-16 -right-16 h-64 w-64 rounded-full bg-accent/40 blur-3xl" />
+              <div className="absolute -top-16 -left-16 h-64 w-64 rounded-full bg-primary/40 blur-3xl animate-glow" />
+              <div className="absolute -bottom-16 -right-16 h-64 w-64 rounded-full bg-accent/40 blur-3xl animate-glow" style={{animationDelay:'1s'}} />
+              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-96 w-96 rounded-full bg-primary/10 blur-3xl" />
               <div className="relative">
+                <div className="inline-flex items-center gap-2 rounded-full bg-white/10 border border-white/15 px-4 py-1.5 text-sm font-medium mb-5">
+                  <Icon name="Gift" size={15} /> Бесплатно для первых 100 клиентов
+                </div>
                 <h2 className="font-display font-black text-3xl sm:text-4xl md:text-5xl tracking-tight">
                   Создайте первый сайт уже сегодня
                 </h2>
                 <p className="mt-4 text-background/70 text-base sm:text-lg max-w-xl mx-auto">
                   Оставьте e-mail — и Roboweb начнёт работу. Без карты, без рисков.
                 </p>
-                {formStatus === 'success' ? (
-                  <div className="mt-6 md:mt-8 inline-flex items-center gap-2 rounded-full bg-white/10 border border-white/20 px-6 py-3 text-background font-semibold">
-                    <Icon name="CheckCircle" size={20} className="text-accent" />
-                    Заявка принята! Мы свяжемся с вами.
-                  </div>
-                ) : (
-                  <form
-                    onSubmit={handleSubmit}
-                    className="mt-6 md:mt-8 flex flex-col sm:flex-row gap-3 max-w-md mx-auto"
-                  >
-                    <Input
-                      type="email"
-                      placeholder="Ваш e-mail"
-                      value={formEmail}
-                      onChange={(e) => setFormEmail(e.target.value)}
-                      required
-                      className="h-12 rounded-full bg-white/10 border-white/20 text-background placeholder:text-background/50 px-5"
-                    />
-                    <Button
-                      type="submit"
-                      size="lg"
-                      disabled={formStatus === 'loading'}
-                      className="h-12 rounded-full font-semibold px-8 whitespace-nowrap w-full sm:w-auto"
-                    >
-                      {formStatus === 'loading' ? (
-                        <><Icon name="Loader" size={16} className="mr-2 animate-spin" />Отправляем…</>
-                      ) : 'Начать бесплатно'}
-                    </Button>
-                  </form>
-                )}
-                {formStatus === 'error' && (
-                  <p className="mt-2 text-sm text-rose-300">Ошибка отправки. Попробуйте ещё раз.</p>
-                )}
-                <p className="mt-4 text-xs text-background/50">
+                <div className="mt-6 md:mt-8">
+                  <EmailForm dark placeholder="Ваш e-mail" btnText="Начать бесплатно" />
+                </div>
+                <p className="mt-4 text-xs text-background/40">
                   Нажимая кнопку, вы соглашаетесь с политикой конфиденциальности.
                 </p>
               </div>
@@ -521,6 +671,31 @@ const Index = () => {
                 </AccordionItem>
               ))}
             </Accordion>
+          </Reveal>
+
+          {/* CTA 4 — под FAQ */}
+          <Reveal>
+            <div className="mt-12 rounded-2xl md:rounded-3xl border border-primary/20 bg-primary/5 p-6 sm:p-8 text-center">
+              <Icon name="MessageCircle" size={32} className="text-primary mx-auto mb-3" />
+              <h3 className="font-display font-bold text-xl sm:text-2xl mb-2">Остались вопросы?</h3>
+              <p className="text-muted-foreground text-sm sm:text-base mb-5">
+                Напишите нам — ответим в течение 15 минут и поможем с запуском вашего первого сайта.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center">
+                <Button className="rounded-full font-semibold px-6" asChild>
+                  <a href="mailto:roboweb.site@yandex.ru">
+                    <Icon name="Mail" size={16} className="mr-2" />
+                    Написать на почту
+                  </a>
+                </Button>
+                <Button variant="outline" className="rounded-full font-semibold px-6" asChild>
+                  <a href="tel:+79331770086">
+                    <Icon name="Phone" size={16} className="mr-2" />
+                    8 (933) 177-00-86
+                  </a>
+                </Button>
+              </div>
+            </div>
           </Reveal>
         </div>
       </section>
@@ -575,11 +750,8 @@ const Index = () => {
             <h4 className="font-display font-bold mb-3 md:mb-4 text-sm md:text-base">Мы в сети</h4>
             <div className="flex gap-2 md:gap-3">
               {['Send', 'Youtube', 'Instagram'].map((s) => (
-                <a
-                  key={s}
-                  href="#"
-                  className="grid h-9 w-9 md:h-10 md:w-10 place-items-center rounded-xl border border-border text-muted-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary transition-colors"
-                >
+                <a key={s} href="#"
+                  className="grid h-9 w-9 md:h-10 md:w-10 place-items-center rounded-xl border border-border text-muted-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all hover:scale-110">
                   <Icon name={s} size={16} />
                 </a>
               ))}
