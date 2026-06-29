@@ -240,6 +240,7 @@ const Index = () => {
   const [wordIdx, setWordIdx] = useState(0);
   const [deleting, setDeleting] = useState(false);
   const chatEndRef = useRef<HTMLDivElement>(null);
+  const chatContainerRef = useRef<HTMLDivElement>(null);
 
   // Chat animation loop
   useEffect(() => {
@@ -268,9 +269,11 @@ const Index = () => {
     return () => clearTimeout(t);
   }, [chatStep]);
 
-  // Scroll chat to bottom
+  // Scroll chat container (not page) to bottom
   useEffect(() => {
-    chatEndRef.current?.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    const container = chatContainerRef.current;
+    if (!container) return;
+    container.scrollTop = container.scrollHeight;
   }, [chatStep, isTyping]);
 
   // Typewriter effect
@@ -548,7 +551,7 @@ const Index = () => {
               )}
 
               {/* Messages */}
-              <div className="space-y-2 sm:space-y-2.5 pt-3 min-h-[160px] sm:min-h-[190px] overflow-hidden">
+              <div ref={chatContainerRef} className="space-y-2 sm:space-y-2.5 pt-3 min-h-[160px] sm:min-h-[190px] overflow-y-auto max-h-[220px]">
                 {CHAT_STEPS.slice(0, chatStep).map((m, i) => (
                   <div
                     key={i}
