@@ -204,21 +204,18 @@ const getSTEPS = (lang: Lang) => lang === 'ru' ? [
   { n: '04', title: 'Publish online', text: 'One click — site is live, with domain, SSL and hosting.' },
 ];
 
-const getPORTFOLIO = (lang: Lang) => lang === 'ru' ? [
-  { tag: 'Кофейня',   title: 'Brew & Co',  metric: '+212% заявок',        grad: 'from-amber-400 to-orange-500' },
-  { tag: 'Фитнес',    title: 'PulseGym',   metric: '3 дня → 4 минуты',    grad: 'from-indigo-500 to-blue-500' },
-  { tag: 'Магазин',   title: 'NordShop',   metric: '−180 000 ₽ на студии', grad: 'from-emerald-400 to-teal-500' },
-  { tag: 'Барбершоп', title: 'IronCut',    metric: '98% довольных',        grad: 'from-rose-500 to-pink-500' },
-  { tag: 'Курсы',     title: 'SkillUp',    metric: '×5 конверсия',         grad: 'from-violet-500 to-fuchsia-500' },
-  { tag: 'Стартап',   title: 'FlowAI',     metric: 'запуск за день',       grad: 'from-cyan-400 to-sky-500' },
-] : [
-  { tag: 'Coffee shop', title: 'Brew & Co', metric: '+212% leads',        grad: 'from-amber-400 to-orange-500' },
-  { tag: 'Fitness',     title: 'PulseGym',  metric: '3 days → 4 minutes', grad: 'from-indigo-500 to-blue-500' },
-  { tag: 'Store',       title: 'NordShop',  metric: '$2k saved on agency', grad: 'from-emerald-400 to-teal-500' },
-  { tag: 'Barbershop',  title: 'IronCut',   metric: '98% satisfaction',   grad: 'from-rose-500 to-pink-500' },
-  { tag: 'Courses',     title: 'SkillUp',   metric: '×5 conversion',      grad: 'from-violet-500 to-fuchsia-500' },
-  { tag: 'Startup',     title: 'FlowAI',    metric: 'launched in a day',  grad: 'from-cyan-400 to-sky-500' },
+const PORTFOLIO_ITEMS = [
+  { tag: 'Строительство', title: 'asg-ts.ru',        url: 'https://asg-ts.ru/',        img: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/466c9b8f-dd55-48c8-9fb7-d8a016540dc0.jpg' },
+  { tag: 'Транспорт',     title: 'tc-atlas.ru',       url: 'https://tc-atlas.ru/',      img: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/bb5a4eb9-7ed6-4c98-8e68-77b215c2436f.jpg' },
+  { tag: 'Торговля',      title: 'westeast.biz',      url: 'https://westeast.biz/',     img: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/1b82b392-3694-49c3-8016-8df9a0a824bd.jpg' },
+  { tag: 'Строительство', title: 'weststroy.com',     url: 'https://weststroy.com/',    img: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/5c30e3f6-1612-472c-95ea-3d77af1deaaa.jpg' },
+  { tag: 'AI-агентство',  title: 'roboweb.team',      url: 'https://roboweb.team/',     img: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/fd5a45b5-b204-4a03-912f-7916bc29cfe5.jpg' },
+  { tag: 'Снабжение',     title: 'neurosnab.ru',      url: 'https://neurosnab.ru/',     img: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/5308f193-617e-43c0-b0cd-e8deeb32a20d.jpg' },
+  { tag: 'SaaS',          title: 'zaplan.io',         url: 'https://zaplan.io/',        img: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/575f5b02-71f6-4759-9c82-3ae697c30347.jpg' },
+  { tag: 'Недвижимость',  title: 'bunker-hously.ru',  url: 'https://bunker-hously.ru/', img: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/c306854c-6390-4c86-a8ba-748686b9571e.jpg' },
 ];
+
+const getPORTFOLIO = (_lang: Lang) => PORTFOLIO_ITEMS;
 
 const getPLANS = (lang: Lang) => lang === 'ru' ? [
   { name: 'Пробный', badge: 'сейчас', price: 'Бесплатно', note: '', tag: '10 запросов разово', features: ['Без подключения домена','Без скачивания кода','Облачный хостинг','До 3 проектов','База данных 128 МБ','Хранилище 512 МБ','5 функций','8 ч вычислений'], cta: 'Начать бесплатно', hot: false },
@@ -973,21 +970,21 @@ const Index = () => {
           <div className="mt-10 md:mt-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {PORTFOLIO.map((p, i) => (
               <Reveal key={p.title} delay={i * 70}>
-                <div className="group overflow-hidden rounded-2xl md:rounded-3xl border border-border bg-card transition-all duration-300 hover:shadow-2xl cursor-pointer">
-                  <div className={`relative h-36 sm:h-44 bg-gradient-to-br ${p.grad} overflow-hidden`}>
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
-                    <span className="absolute top-4 left-4 rounded-full bg-white/25 px-3 py-1 text-xs font-semibold text-white backdrop-blur">
+                <a href={p.url} target="_blank" rel="noopener noreferrer" className="group block overflow-hidden rounded-2xl md:rounded-3xl border border-border bg-card transition-all duration-300 hover:shadow-2xl hover:-translate-y-1">
+                  <div className="relative h-44 sm:h-52 overflow-hidden bg-muted">
+                    <img src={p.img} alt={p.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
+                    <span className="absolute top-3 left-3 rounded-full bg-black/50 px-3 py-1 text-xs font-semibold text-white backdrop-blur">
                       {p.tag}
                     </span>
-                    <Icon name="Globe" size={56} className="absolute right-4 bottom-4 text-white/30 transition-all duration-300 group-hover:scale-125 group-hover:text-white/50" />
+                    <span className="absolute bottom-3 right-3 flex items-center gap-1 rounded-full bg-black/50 px-3 py-1 text-xs font-medium text-white backdrop-blur opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                      <Icon name="ExternalLink" size={12} /> Открыть сайт
+                    </span>
                   </div>
-                  <div className="p-4 md:p-6">
-                    <h3 className="font-display font-bold text-lg md:text-xl">{p.title}</h3>
-                    <p className="mt-1 inline-flex items-center gap-1.5 text-sm font-semibold text-primary">
-                      <Icon name="TrendingUp" size={14} /> {p.metric}
-                    </p>
+                  <div className="p-4 md:p-5">
+                    <h3 className="font-display font-bold text-base md:text-lg text-primary">{p.title}</h3>
                   </div>
-                </div>
+                </a>
               </Reveal>
             ))}
           </div>
