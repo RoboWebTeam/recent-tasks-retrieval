@@ -37,6 +37,28 @@ const FEATURES = [
   { icon: 'Sparkles', title: 'Дизайн как у топов', text: 'Чистая типографика, продуманные сетки и анимации — на уровне дорогих агентств.' },
   { icon: 'Layers', title: 'Любая сложность', text: 'Лендинги, магазины, личные кабинеты, формы и базы данных — всё в одном месте.' },
   { icon: 'RefreshCw', title: 'Правки мгновенно', text: 'Хотите изменить цвет или текст? Скажите об этом — и увидите результат сразу.' },
+  { icon: 'Globe', title: 'Публикация в 1 клик', text: 'Хостинг, SSL-сертификат и домен — всё настраивается автоматически. Сайт сразу в сети.' },
+  { icon: 'Search', title: 'SEO из коробки', text: 'Мета-теги, структура заголовков и скорость загрузки настроены для высоких позиций в Google и Яндексе.' },
+  { icon: 'ShieldCheck', title: 'Безопасность', text: 'Ваши данные и код защищены. Регулярные бэкапы и изолированное окружение для каждого проекта.' },
+  { icon: 'BarChart2', title: 'Аналитика и заявки', text: 'Встроенные формы сбора лидов, интеграция с CRM и Яндекс Метрикой — без лишних настроек.' },
+  { icon: 'Smartphone', title: 'Адаптивность', text: 'Каждый сайт выглядит идеально на телефоне, планшете и компьютере — автоматически.' },
+  { icon: 'HeadphonesIcon', title: 'Поддержка 24/7', text: 'Живая команда в Telegram готова помочь в любое время. Среднее время ответа — 15 минут.' },
+];
+
+const COMPARE = [
+  { label: 'Стоимость', roboweb: 'от 0 ₽', agency: 'от 80 000 ₽', freelancer: 'от 15 000 ₽' },
+  { label: 'Срок', roboweb: '47 секунд', agency: '3–6 недель', freelancer: '1–3 недели' },
+  { label: 'Правки', roboweb: 'Мгновенно', agency: 'Долго и дорого', freelancer: 'По договору' },
+  { label: 'Поддержка', roboweb: '24/7', agency: 'В рабочее время', freelancer: 'Не гарантировано' },
+  { label: 'SEO', roboweb: 'Из коробки', agency: 'Дополнительно', freelancer: 'Редко' },
+  { label: 'Хостинг', roboweb: 'Включён', agency: 'Отдельно', freelancer: 'Отдельно' },
+];
+
+const TRUST = [
+  { icon: 'Star', value: '4.9', label: 'Средняя оценка' },
+  { icon: 'Users', value: '3 200+', label: 'Активных клиентов' },
+  { icon: 'Globe', value: '12 000+', label: 'Созданных сайтов' },
+  { icon: 'Clock', value: '47 сек', label: 'Среднее время сборки' },
 ];
 
 const STEPS = [
@@ -675,6 +697,74 @@ const Index = () => {
               </Reveal>
             ))}
           </div>
+        </div>
+      </section>
+
+      {/* TRUST STATS */}
+      <section className="py-12 md:py-16 bg-foreground text-background">
+        <div className="container">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
+            {TRUST.map((t, i) => (
+              <Reveal key={t.label} delay={i * 80}>
+                <div className="text-center">
+                  <div className="inline-flex items-center justify-center h-12 w-12 rounded-2xl bg-white/10 mb-3 mx-auto">
+                    <Icon name={t.icon} size={22} className="text-accent" />
+                  </div>
+                  <div className="font-display font-black text-2xl sm:text-3xl text-white">{t.value}</div>
+                  <div className="text-sm text-background/60 mt-1">{t.label}</div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* COMPARE TABLE */}
+      <section className="py-16 md:py-24">
+        <div className="container">
+          <Reveal>
+            <div className="text-center max-w-2xl mx-auto px-2 mb-10 md:mb-14">
+              <span className="text-xs sm:text-sm font-semibold uppercase tracking-widest text-primary">Сравнение</span>
+              <h2 className="mt-3 font-display font-black text-3xl sm:text-4xl md:text-5xl tracking-tight">
+                Roboweb vs фрилансеры vs студии
+              </h2>
+              <p className="mt-4 text-muted-foreground text-base sm:text-lg">
+                Посмотрите сами — разница очевидна.
+              </p>
+            </div>
+          </Reveal>
+          <Reveal>
+            <div className="overflow-x-auto rounded-2xl md:rounded-3xl border border-border">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-border bg-secondary/50">
+                    <th className="text-left p-4 md:p-5 font-display font-bold text-base">Критерий</th>
+                    <th className="p-4 md:p-5 font-display font-bold text-base">
+                      <span className="inline-flex items-center gap-1.5 text-primary">
+                        <Icon name="Bot" size={15} /> Roboweb
+                      </span>
+                    </th>
+                    <th className="p-4 md:p-5 font-display font-bold text-base text-muted-foreground">Агентство</th>
+                    <th className="p-4 md:p-5 font-display font-bold text-base text-muted-foreground">Фрилансер</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {COMPARE.map((row, i) => (
+                    <tr key={row.label} className={`border-b border-border last:border-0 ${i % 2 === 0 ? 'bg-card' : 'bg-secondary/20'}`}>
+                      <td className="p-4 md:p-5 font-medium text-muted-foreground">{row.label}</td>
+                      <td className="p-4 md:p-5 text-center">
+                        <span className="inline-flex items-center gap-1.5 font-semibold text-primary bg-primary/10 rounded-full px-3 py-1 text-xs">
+                          <Icon name="CheckCircle" size={13} />{row.roboweb}
+                        </span>
+                      </td>
+                      <td className="p-4 md:p-5 text-center text-muted-foreground">{row.agency}</td>
+                      <td className="p-4 md:p-5 text-center text-muted-foreground">{row.freelancer}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </Reveal>
         </div>
       </section>
 
