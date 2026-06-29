@@ -177,11 +177,11 @@ export function IndexSections({ lang }: Props) {
         </div>
       </section>
 
-      {/* PORTFOLIO */}
-      <section id="portfolio" className="py-16 md:py-24">
+      {/* PORTFOLIO — Что может ИИ */}
+      <section id="portfolio" className="py-16 md:py-24 bg-secondary/30">
         <div className="container">
           <Reveal>
-            <div className="text-center max-w-2xl mx-auto px-2">
+            <div className="text-center max-w-2xl mx-auto px-2 mb-10 md:mb-14">
               <span className="text-xs sm:text-sm font-semibold uppercase tracking-widest text-primary">{L.portfolio.label[lang]}</span>
               <h2 className="mt-3 font-display font-black text-3xl sm:text-4xl md:text-5xl tracking-tight">
                 {L.portfolio.title[lang]}
@@ -191,26 +191,65 @@ export function IndexSections({ lang }: Props) {
               </p>
             </div>
           </Reveal>
-          <div className="mt-10 md:mt-14 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-5">
             {PORTFOLIO.map((p, i) => (
-              <Reveal key={p.title} delay={i * 70}>
-                <a href={p.url} target="_blank" rel="noopener noreferrer" className="group block overflow-hidden rounded-2xl md:rounded-3xl border border-border bg-card transition-all duration-300 hover:shadow-2xl hover:-translate-y-1">
-                  <div className="relative h-44 sm:h-52 overflow-hidden bg-muted">
-                    <div className="absolute inset-0 animate-pulse bg-gradient-to-r from-muted via-muted-foreground/10 to-muted" />
-                    <img src={p.img} alt={p.title} className="relative w-full h-full object-cover transition-all duration-500 group-hover:scale-105 opacity-0 [&.loaded]:opacity-100" onLoad={e => e.currentTarget.classList.add('loaded')} />
-                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-colors duration-300" />
-                    <span className="absolute bottom-3 right-3 flex items-center gap-1 rounded-full bg-black/50 px-3 py-1 text-xs font-medium text-white backdrop-blur opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                      <Icon name="ExternalLink" size={12} /> Открыть сайт
+              <Reveal key={p.title} delay={i * 60}>
+                <a
+                  href="/register"
+                  className="group flex flex-col overflow-hidden rounded-2xl md:rounded-3xl border border-border bg-card transition-all duration-300 hover:shadow-2xl hover:-translate-y-1 cursor-pointer"
+                >
+                  {/* Image */}
+                  <div className="relative h-44 sm:h-48 overflow-hidden bg-muted">
+                    <img
+                      src={p.img}
+                      alt={p.title}
+                      className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                    />
+                    {/* Overlay with prompt preview */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-4">
+                      <p className="text-white text-xs leading-relaxed line-clamp-2 italic">
+                        «{p.prompt}»
+                      </p>
+                    </div>
+                    {/* AI badge */}
+                    <span className="absolute top-3 left-3 flex items-center gap-1.5 rounded-full bg-black/60 backdrop-blur px-2.5 py-1 text-[10px] font-semibold text-white">
+                      <Icon name="Sparkles" size={10} className="text-primary" />
+                      {lang === 'ru' ? 'ИИ создаст за минуты' : 'AI builds in minutes'}
                     </span>
                   </div>
-                  <div className="p-4 md:p-5">
-                    <h3 className="font-display font-bold text-base md:text-lg text-primary">{p.title}</h3>
-                    <span className="mt-1.5 inline-block rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">{p.tag}</span>
+
+                  {/* Content */}
+                  <div className="flex items-center justify-between p-4 md:p-5">
+                    <div>
+                      <h3 className="font-display font-bold text-sm md:text-base text-foreground group-hover:text-primary transition-colors">
+                        {p.title}
+                      </h3>
+                      <span className="mt-1 inline-block rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary">
+                        {p.tag}
+                      </span>
+                    </div>
+                    <div className="grid h-8 w-8 place-items-center rounded-xl bg-secondary border border-border group-hover:bg-primary group-hover:border-primary group-hover:text-primary-foreground transition-all duration-300 shrink-0 ml-3">
+                      <Icon name="ArrowRight" size={14} className="text-muted-foreground group-hover:text-primary-foreground transition-colors" />
+                    </div>
                   </div>
                 </a>
               </Reveal>
             ))}
           </div>
+
+          {/* CTA под сеткой */}
+          <Reveal>
+            <div className="mt-10 text-center">
+              <p className="text-muted-foreground mb-4 text-sm">
+                {lang === 'ru' ? 'Это лишь малая часть — ИИ сделает любой сайт' : 'This is just a fraction — AI can build any site'}
+              </p>
+              <a href="/register" className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground font-semibold px-8 py-3 hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20">
+                <Icon name="Sparkles" size={16} />
+                {lang === 'ru' ? 'Создать свой сайт бесплатно' : 'Create your site for free'}
+                <Icon name="ArrowRight" size={16} />
+              </a>
+            </div>
+          </Reveal>
         </div>
       </section>
 

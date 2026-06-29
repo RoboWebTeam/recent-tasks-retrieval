@@ -45,9 +45,9 @@ export const L = {
     title: { ru: '4 шага до готового сайта', en: '4 steps to a ready website' },
   },
   portfolio: {
-    label: { ru: 'Портфолио', en: 'Portfolio' },
-    title: { ru: 'Сайты, созданные Roboweb', en: 'Sites built with Roboweb' },
-    desc:  { ru: 'Реальные проекты и результаты бизнеса, которые отказались от фрилансеров.', en: 'Real projects and business results from those who dropped freelancers.' },
+    label: { ru: 'Возможности ИИ', en: 'AI Capabilities' },
+    title: { ru: 'Что может сделать ИИ', en: 'What AI can build' },
+    desc:  { ru: 'Любой тип сайта — от лендинга до интернет-магазина. Просто опишите идею.', en: 'Any type of website — from landing to online store. Just describe your idea.' },
   },
   compare: {
     label: { ru: 'Сравнение', en: 'Comparison' },
@@ -192,21 +192,85 @@ export const getSTEPS = (lang: Lang) => lang === 'ru' ? [
   { n: '04', title: 'Publish online', text: 'One click — site is live, with domain, SSL and hosting.' },
 ];
 
-const makeScreenshot = (domain: string) =>
-  `https://s0.wordpress.com/mshots/v1/${encodeURIComponent('https://' + domain)}?w=1280&h=800`;
-
-const PORTFOLIO_ITEMS = [
-  { tag: 'Строительство', title: 'asg-ts.ru',        url: 'https://asg-ts.ru/',        img: makeScreenshot('asg-ts.ru') },
-  { tag: 'Транспорт',     title: 'tc-atlas.ru',       url: 'https://tc-atlas.ru/',      img: makeScreenshot('tc-atlas.ru') },
-  { tag: 'Торговля',      title: 'westeast.biz',      url: 'https://westeast.biz/',     img: makeScreenshot('westeast.biz') },
-  { tag: 'Строительство', title: 'weststroy.com',     url: 'https://weststroy.com/',    img: makeScreenshot('weststroy.com') },
-  { tag: 'AI-агентство',  title: 'roboweb.team',      url: 'https://roboweb.team/',     img: makeScreenshot('roboweb.team') },
-  { tag: 'Снабжение',     title: 'neurosnab.ru',      url: 'https://neurosnab.ru/',     img: makeScreenshot('neurosnab.ru') },
-  { tag: 'SaaS',          title: 'zaplan.io',         url: 'https://zaplan.io/',        img: makeScreenshot('zaplan.io') },
-  { tag: 'Недвижимость',  title: 'bunker-hously.ru',  url: 'https://bunker-hously.ru/', img: makeScreenshot('bunker-hously.ru') },
+const DEMO_ITEMS_RU = [
+  {
+    tag: '☕ Кофейня',
+    title: 'Лендинг для кофейни',
+    prompt: 'Сделай лендинг для кофейни «Brew & Co» с меню, доставкой и онлайн-заказом',
+    img: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/b63329a1-4787-4390-9517-4c44d58cbd30.jpg',
+    color: 'from-amber-500 to-orange-500',
+  },
+  {
+    tag: '💪 Фитнес',
+    title: 'Сайт тренера',
+    prompt: 'Создай сайт для персонального тренера с расписанием, ценами и записью на тренировки',
+    img: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/c60524f9-2093-4c3f-8244-e4d438fea9e6.jpg',
+    color: 'from-slate-700 to-slate-900',
+  },
+  {
+    tag: '👗 Магазин',
+    title: 'Интернет-магазин одежды',
+    prompt: 'Сделай интернет-магазин женской одежды с каталогом, фильтрами и корзиной',
+    img: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/c5508776-143f-474f-a178-41c68eef598e.jpg',
+    color: 'from-rose-400 to-pink-500',
+  },
+  {
+    tag: '✂️ Барбершоп',
+    title: 'Сайт барбершопа с записью',
+    prompt: 'Создай сайт для барбершопа IronCut с онлайн-записью, ценами и командой мастеров',
+    img: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/071ec557-3a4c-4dd0-ae9a-45e76a727d04.jpg',
+    color: 'from-zinc-800 to-yellow-600',
+  },
+  {
+    tag: '📷 Фотограф',
+    title: 'Портфолио фотографа',
+    prompt: 'Сделай сайт-портфолио для фотографа с галереей, услугами и формой заявки',
+    img: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/bae125f8-53ae-46c3-a581-22431e0ae59c.jpg',
+    color: 'from-neutral-800 to-neutral-600',
+  },
+  {
+    tag: '🏠 Недвижимость',
+    title: 'Агентство недвижимости',
+    prompt: 'Создай сайт агентства недвижимости с каталогом объектов, поиском и формой звонка',
+    img: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/82da60de-0297-440f-9be5-1b5237dd9b82.jpg',
+    color: 'from-blue-600 to-sky-400',
+  },
+  {
+    tag: '🎓 Обучение',
+    title: 'Платформа онлайн-курсов',
+    prompt: 'Сделай лендинг для онлайн-курсов по маркетингу с программой, отзывами и оплатой',
+    img: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/fcf7cba0-ef75-48a1-90cc-67bea38a7a42.jpg',
+    color: 'from-violet-600 to-purple-500',
+  },
+  {
+    tag: '⚖️ Юристы',
+    title: 'Юридическая компания',
+    prompt: 'Создай сайт юридической фирмы с услугами, командой адвокатов и бесплатной консультацией',
+    img: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/1198e598-58e1-47a8-b077-8e5dbe9ea6f3.jpg',
+    color: 'from-navy-800 to-blue-900',
+  },
+  {
+    tag: '🏥 Медицина',
+    title: 'Медицинская клиника',
+    prompt: 'Сделай сайт медицинской клиники с услугами, врачами, ценами и записью на приём',
+    img: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/51100d73-958a-4d7c-af38-a148befee5ff.jpg',
+    color: 'from-emerald-500 to-teal-400',
+  },
 ];
 
-export const getPORTFOLIO = (_lang: Lang) => PORTFOLIO_ITEMS;
+const DEMO_ITEMS_EN = [
+  { tag: '☕ Coffee', title: 'Coffee shop landing', prompt: 'Build a landing for coffee shop Brew & Co with menu, delivery and online orders', img: DEMO_ITEMS_RU[0].img, color: DEMO_ITEMS_RU[0].color },
+  { tag: '💪 Fitness', title: 'Personal trainer site', prompt: 'Create a site for a personal trainer with schedule, pricing and booking', img: DEMO_ITEMS_RU[1].img, color: DEMO_ITEMS_RU[1].color },
+  { tag: '👗 Store', title: 'Online clothing store', prompt: 'Build a women\'s clothing online store with catalog, filters and cart', img: DEMO_ITEMS_RU[2].img, color: DEMO_ITEMS_RU[2].color },
+  { tag: '✂️ Barbershop', title: 'Barbershop with booking', prompt: 'Create a barbershop site with online booking, pricing and team', img: DEMO_ITEMS_RU[3].img, color: DEMO_ITEMS_RU[3].color },
+  { tag: '📷 Portfolio', title: 'Photographer portfolio', prompt: 'Build a portfolio site for a photographer with gallery, services and lead form', img: DEMO_ITEMS_RU[4].img, color: DEMO_ITEMS_RU[4].color },
+  { tag: '🏠 Real estate', title: 'Real estate agency', prompt: 'Create a real estate agency site with property listings, search and callback form', img: DEMO_ITEMS_RU[5].img, color: DEMO_ITEMS_RU[5].color },
+  { tag: '🎓 Education', title: 'Online courses platform', prompt: 'Build a landing for online marketing courses with program, reviews and payment', img: DEMO_ITEMS_RU[6].img, color: DEMO_ITEMS_RU[6].color },
+  { tag: '⚖️ Legal', title: 'Law firm website', prompt: 'Create a law firm site with services, attorney team and free consultation', img: DEMO_ITEMS_RU[7].img, color: DEMO_ITEMS_RU[7].color },
+  { tag: '🏥 Medical', title: 'Medical clinic', prompt: 'Build a medical clinic site with services, doctors, pricing and appointment booking', img: DEMO_ITEMS_RU[8].img, color: DEMO_ITEMS_RU[8].color },
+];
+
+export const getPORTFOLIO = (lang: Lang) => lang === 'ru' ? DEMO_ITEMS_RU : DEMO_ITEMS_EN;
 
 export const getPLANS = (lang: Lang) => lang === 'ru' ? [
   { name: 'Пробный', badge: 'сейчас', price: 'Бесплатно', note: '', tag: '10 запросов разово', features: ['Без подключения домена','Без скачивания кода','Облачный хостинг','До 3 проектов','База данных 128 МБ','Хранилище 512 МБ','5 функций','8 ч вычислений'], cta: 'Начать бесплатно', hot: false },
