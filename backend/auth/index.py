@@ -3,6 +3,8 @@ import json
 import uuid
 import hashlib
 import psycopg2
+import urllib.request
+import urllib.parse
 
 SCHEMA = None
 
@@ -108,6 +110,85 @@ def handler(event: dict, context) -> dict:
             finally:
                 conn.close()
             return ok({'session_id': session_id, 'user': {'id': user_id, 'email': email, 'name': name, 'plan': plan}})
+
+        # GITHUB OAUTH — обмен code на токен и получение профиля
+        if action == 'github_oauth':
+            code = body.get('code', '')
+            if not code:
+                return err('Нет кода авторизации')
+
+            client_id = os.environ.get('GITHUB_CLIENT_ID', '')
+            client_secret = os.environ.get('GITHUB_CLIENT_SECRET', '')
+
+            # Обмен code на access_token
+            token_data = urllib.parse.urlencode({
+                'client_id': client_id,
+                'client_secret': client_secret,
+                'code': code,
+            }).encode()
+            req = urllib.request.Request(
+                'https://github.com/login/oauth/access_token',
+                data=token_data,
+                headers={'Accept': 'application/json'},
+            )
+            with urllib.request.urlopen(req) as resp:
+                token_resp = json.loads(resp.read())
+
+            access_token = token_resp.get('access_token', '')
+            if not access_token:
+                return err('Не удалось получить токен GitHub')
+
+            # Получение профиля пользователя
+            user_req = urllib.request.Request(
+                'https://api.github.com/user',
+                headers={'Authorization': f'Bearer {access_token}', 'Accept': 'application/json', 'User-Agent': 'Roboweb'},
+            )
+            with urllib.request.urlopen(user_req) as resp:
+                gh_user = json.loads(resp.read())
+
+            # Получение email если не публичный
+            gh_email = gh_user.get('email') or ''
+            if not gh_email:
+                email_req = urllib.request.Request(
+                    'https://api.github.com/user/emails',
+                    headers={'Authorization': f'Bearer {access_token}', 'Accept': 'application/json', 'User-Agent': 'Roboweb'},
+                )
+                with urllib.request.urlopen(email_req) as resp:
+                    emails = json.loads(resp.read())
+                primary = next((e for e in emails if e.get('primary')), None)
+                gh_email = primary['email'] if primary else f"github_{gh_user['id']}@roboweb.user"
+
+            gh_name = gh_user.get('name') or gh_user.get('login') or 'GitHub User'
+            gh_email = gh_email.strip().lower()
+
+            schema = get_schema()
+            conn = get_conn()
+            try:
+                with conn.cursor() as cur:
+                    # Ищем существующего пользователя
+                    cur.execute(f"SELECT id, name, plan FROM {schema}.users WHERE email = %s", (gh_email,))
+                    row = cur.fetchone()
+                    if row:
+                        user_id, name, plan = row
+                    else:
+                        # Создаём нового пользователя
+                        cur.execute(
+                            f"INSERT INTO {schema}.users (email, password_hash, name) VALUES (%s, %s, %s) RETURNING id",
+                            (gh_email, hash_password(str(uuid.uuid4())), gh_name)
+                        )
+                        user_id = cur.fetchone()[0]
+                        name, plan = gh_name, 'free'
+
+                    session_id = str(uuid.uuid4())
+                    cur.execute(
+                        f"INSERT INTO {schema}.sessions (id, user_id) VALUES (%s, %s)",
+                        (session_id, user_id)
+                    )
+                conn.commit()
+            finally:
+                conn.close()
+
+            return ok({'session_id': session_id, 'user': {'id': user_id, 'email': gh_email, 'name': name, 'plan': plan}})
 
         return err('Неизвестное действие')
 

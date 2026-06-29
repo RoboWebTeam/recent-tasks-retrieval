@@ -214,7 +214,7 @@ const Register = () => {
               {/* GitHub */}
               <button
                 type="button"
-                onClick={() => window.open('https://github.com/login/oauth/authorize', '_blank')}
+                onClick={() => window.location.href = `https://github.com/login/oauth/authorize?client_id=Ov23linVfsQ0G4M2cWrd&scope=user:email&redirect_uri=${encodeURIComponent(window.location.origin + '/auth/github/callback')}`}
                 className="flex items-center justify-center gap-2 h-11 rounded-xl border border-border bg-card hover:bg-secondary transition-colors text-sm font-medium group"
                 title="GitHub"
               >
