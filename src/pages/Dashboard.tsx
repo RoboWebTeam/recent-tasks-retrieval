@@ -11,18 +11,20 @@ import {
   apiGetMe, apiGetProjects, apiCreateProject,
   type User, type Project,
 } from '@/lib/auth';
+import { getLang, tr } from '@/lib/i18n';
+import LangSwitcher from '@/components/LangSwitcher';
 
-const PLAN_LABELS: Record<string, { label: string; color: string; requests: string }> = {
-  free:    { label: 'Пробный',  color: 'bg-secondary text-secondary-foreground', requests: '10' },
-  premium: { label: 'Премиум',  color: 'bg-primary text-primary-foreground',     requests: '40' },
-  pro:     { label: 'Профи',    color: 'bg-foreground text-background',           requests: '60' },
-};
+const getPlanLabels = (lang: ReturnType<typeof getLang>) => ({
+  free:    { label: tr('planFree', lang),    color: 'bg-secondary text-secondary-foreground', requests: '10' },
+  premium: { label: tr('planPremium', lang), color: 'bg-primary text-primary-foreground',     requests: '40' },
+  pro:     { label: tr('planPro', lang),     color: 'bg-foreground text-background',           requests: '60' },
+});
 
-const STATUS_CONFIG: Record<string, { label: string; color: string; icon: string }> = {
-  draft:     { label: 'Черновик',   color: 'text-muted-foreground bg-secondary',                icon: 'FileText' },
-  building:  { label: 'Собирается', color: 'text-amber-700 bg-amber-100',                       icon: 'Loader' },
-  published: { label: 'Опубликован', color: 'text-emerald-700 bg-emerald-100',                  icon: 'Globe' },
-};
+const getStatusConfig = (lang: ReturnType<typeof getLang>) => ({
+  draft:     { label: tr('draft', lang),     color: 'text-muted-foreground bg-secondary',   icon: 'FileText' },
+  building:  { label: tr('building', lang),  color: 'text-amber-700 bg-amber-100',          icon: 'Loader' },
+  published: { label: tr('published', lang), color: 'text-emerald-700 bg-emerald-100',      icon: 'Globe' },
+});
 
 function Avatar({ user }: { user: User }) {
   const initials = user.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
@@ -34,7 +36,10 @@ function Avatar({ user }: { user: User }) {
 }
 
 const Dashboard = () => {
+  const lang = getLang();
   const navigate = useNavigate();
+  const PLAN_LABELS = getPlanLabels(lang);
+  const STATUS_CONFIG = getStatusConfig(lang);
   const [user, setUser] = useState<User | null>(getStoredUser());
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
@@ -91,12 +96,12 @@ const Dashboard = () => {
 
   const plan = PLAN_LABELS[user?.plan ?? 'free'] ?? PLAN_LABELS.free;
 
-  if (loading) {
+  if (loading && !user) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center space-y-3">
           <Icon name="Loader" size={32} className="animate-spin text-primary mx-auto" />
-          <p className="text-muted-foreground text-sm">Загружаем ваш кабинет…</p>
+          <p className="text-muted-foreground text-sm">{lang === 'ru' ? 'Загружаем ваш кабинет…' : 'Loading your dashboard…'}</p>
         </div>
       </div>
     );
@@ -115,7 +120,7 @@ const Dashboard = () => {
           </Link>
 
           <nav className="hidden sm:flex items-center gap-1">
-            {([['projects', 'Проекты', 'Layers'], ['plan', 'Тариф', 'CreditCard'], ['profile', 'Профиль', 'User']] as const).map(([id, label, icon]) => (
+            {([['projects', tr('myProjects', lang), 'Layers'], ['plan', tr('plan', lang), 'CreditCard'], ['profile', tr('profile', lang), 'User']] as const).map(([id, label, icon]) => (
               <button
                 key={id}
                 onClick={() => setTab(id)}
@@ -129,6 +134,7 @@ const Dashboard = () => {
           </nav>
 
           <div className="flex items-center gap-2">
+            <LangSwitcher lang={lang} />
             {user && <Avatar user={user} />}
             <Button variant="ghost" size="sm" onClick={handleLogout} className="rounded-xl text-muted-foreground hover:text-foreground hidden sm:flex">
               <Icon name="LogOut" size={16} />
@@ -138,7 +144,7 @@ const Dashboard = () => {
 
         {/* Mobile nav */}
         <div className="sm:hidden flex border-t border-border">
-          {([['projects', 'Проекты', 'Layers'], ['plan', 'Тариф', 'CreditCard'], ['profile', 'Профиль', 'User']] as const).map(([id, label, icon]) => (
+          {([['projects', tr('myProjects', lang), 'Layers'], ['plan', tr('plan', lang), 'CreditCard'], ['profile', tr('profile', lang), 'User']] as const).map(([id, label, icon]) => (
             <button
               key={id}
               onClick={() => setTab(id)}
@@ -159,24 +165,24 @@ const Dashboard = () => {
           <div>
             <div className="flex items-center justify-between mb-6 gap-3 flex-wrap">
               <div>
-                <h1 className="font-display font-black text-2xl">Мои проекты</h1>
-                <p className="text-muted-foreground text-sm mt-0.5">{projects.length} проект{projects.length === 1 ? '' : projects.length < 5 ? 'а' : 'ов'}</p>
+                <h1 className="font-display font-black text-2xl">{tr('myProjects', lang)}</h1>
+                <p className="text-muted-foreground text-sm mt-0.5">{projects.length} {lang === 'ru' ? `проект${projects.length === 1 ? '' : projects.length < 5 ? 'а' : 'ов'}` : `project${projects.length === 1 ? '' : 's'}`}</p>
               </div>
               <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                 <DialogTrigger asChild>
                   <Button className="rounded-xl font-semibold gap-2">
-                    <Icon name="Plus" size={16} /> Новый проект
+                    <Icon name="Plus" size={16} /> {tr('newProject', lang)}
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="rounded-2xl max-w-sm">
                   <DialogHeader>
-                    <DialogTitle className="font-display font-bold">Новый проект</DialogTitle>
+                    <DialogTitle className="font-display font-bold">{tr('newProject', lang)}</DialogTitle>
                   </DialogHeader>
                   <form onSubmit={handleCreateProject} className="space-y-4 mt-2">
                     <div>
-                      <label className="text-sm font-medium mb-1.5 block">Название сайта</label>
+                      <label className="text-sm font-medium mb-1.5 block">{tr('projectName', lang)}</label>
                       <Input
-                        placeholder="Например: Лендинг кофейни"
+                        placeholder={tr('projectNamePlaceholder', lang)}
                         value={newTitle}
                         onChange={e => setNewTitle(e.target.value)}
                         required
@@ -185,16 +191,16 @@ const Dashboard = () => {
                       />
                     </div>
                     <div>
-                      <label className="text-sm font-medium mb-1.5 block">Описание <span className="text-muted-foreground font-normal">(необязательно)</span></label>
+                      <label className="text-sm font-medium mb-1.5 block">{tr('description', lang)} <span className="text-muted-foreground font-normal">({tr('optional', lang)})</span></label>
                       <Input
-                        placeholder="Кратко о проекте…"
+                        placeholder={tr('descriptionPlaceholder', lang)}
                         value={newDesc}
                         onChange={e => setNewDesc(e.target.value)}
                         className="h-10 rounded-xl"
                       />
                     </div>
-                                    <Button type="submit" className="w-full rounded-xl font-semibold" disabled={creating}>
-                      {creating ? <><Icon name="Loader" size={15} className="mr-2 animate-spin" />Создаём…</> : <><Icon name="Sparkles" size={15} className="mr-1.5" />Создать и открыть редактор</>}
+                    <Button type="submit" className="w-full rounded-xl font-semibold" disabled={creating}>
+                      {creating ? <><Icon name="Loader" size={15} className="mr-2 animate-spin" />{tr('creating', lang)}</> : <><Icon name="Sparkles" size={15} className="mr-1.5" />{tr('createAndOpen', lang)}</>}
                     </Button>
                   </form>
                 </DialogContent>
@@ -206,17 +212,17 @@ const Dashboard = () => {
                 <div className="grid h-14 w-14 place-items-center rounded-2xl bg-primary/10 text-primary mx-auto mb-4">
                   <Icon name="Sparkles" size={28} />
                 </div>
-                <h3 className="font-display font-bold text-lg mb-2">Ещё нет проектов</h3>
+                <h3 className="font-display font-bold text-lg mb-2">{tr('noProjects', lang)}</h3>
                 <p className="text-muted-foreground text-sm mb-6 max-w-xs mx-auto">
-                  Создайте первый проект — опишите идею в диалоге с AI, и Roboweb соберёт сайт за секунды.
+                  {tr('noProjectsDesc', lang)}
                 </p>
                 <div className="flex flex-col sm:flex-row gap-3 justify-center">
                   <Button className="rounded-xl font-semibold gap-2 shadow-lg shadow-primary/20" onClick={() => setDialogOpen(true)}>
-                    <Icon name="Sparkles" size={16} /> Создать сайт с AI
+                    <Icon name="Sparkles" size={16} /> {tr('createWithAI', lang)}
                   </Button>
                   <Link to="/builder">
                     <Button variant="outline" className="rounded-xl font-semibold gap-2 w-full sm:w-auto">
-                      <Icon name="MessageSquare" size={16} /> Открыть конструктор
+                      <Icon name="MessageSquare" size={16} /> {tr('openBuilder', lang)}
                     </Button>
                   </Link>
                 </div>
@@ -242,13 +248,13 @@ const Dashboard = () => {
                       )}
                       <div className="flex items-center justify-between mt-auto pt-3 border-t border-border">
                         <span className="text-xs text-muted-foreground">
-                          {new Date(p.created_at).toLocaleDateString('ru-RU')}
+                          {new Date(p.created_at).toLocaleDateString(lang === 'ru' ? 'ru-RU' : 'en-US')}
                         </span>
                         <Link
                           to={`/builder?project=${p.id}`}
                           className="text-xs text-primary font-semibold hover:underline inline-flex items-center gap-1"
                         >
-                          <Icon name="Sparkles" size={12} /> Открыть в редакторе
+                          <Icon name="Sparkles" size={12} /> {tr('openInEditor', lang)}
                         </Link>
                       </div>
                     </div>
@@ -261,7 +267,7 @@ const Dashboard = () => {
                   className="rounded-2xl border border-dashed border-border p-5 flex flex-col items-center justify-center gap-2 text-muted-foreground hover:border-primary hover:text-primary hover:bg-primary/5 transition-all min-h-[160px]"
                 >
                   <Icon name="Plus" size={24} />
-                  <span className="text-sm font-medium">Новый проект</span>
+                  <span className="text-sm font-medium">{tr('newProject', lang)}</span>
                 </button>
               </div>
             )}
@@ -271,29 +277,29 @@ const Dashboard = () => {
         {/* PLAN TAB */}
         {tab === 'plan' && (
           <div>
-            <h1 className="font-display font-black text-2xl mb-6">Тарифный план</h1>
+            <h1 className="font-display font-black text-2xl mb-6">{lang === 'ru' ? 'Тарифный план' : 'Pricing Plan'}</h1>
             <div className="rounded-2xl border border-primary bg-card p-6 mb-6 flex flex-col sm:flex-row sm:items-center gap-4">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
                   <span className={`rounded-full px-3 py-0.5 text-xs font-bold ${plan.color}`}>{plan.label}</span>
-                  <span className="text-xs text-muted-foreground">текущий тариф</span>
+                  <span className="text-xs text-muted-foreground">{tr('currentPlan', lang)}</span>
                 </div>
-                <h3 className="font-display font-bold text-xl">Ваш план: {plan.label}</h3>
-                <p className="text-muted-foreground text-sm mt-1">{plan.requests} запросов к AI в месяц</p>
+                <h3 className="font-display font-bold text-xl">{lang === 'ru' ? 'Ваш план' : 'Your plan'}: {plan.label}</h3>
+                <p className="text-muted-foreground text-sm mt-1">{plan.requests} {lang === 'ru' ? 'запросов к AI в месяц' : 'AI requests per month'}</p>
               </div>
               <Button className="rounded-xl font-semibold shrink-0">
-                Улучшить тариф
+                {tr('upgradePlan', lang)}
               </Button>
             </div>
 
             <div className="grid sm:grid-cols-3 gap-4">
               {[
-                { name: 'Пробный', price: 'Бесплатно', requests: '10 запросов разово', features: ['До 3 проектов', '512 МБ хранилища', 'Облачный хостинг'], current: user?.plan === 'free' },
-                { name: 'Премиум', price: '999 ₽/мес', requests: '40 запросов в месяц', features: ['До 3 проектов', '512 МБ хранилища', 'Подключение домена', 'Расширения'], current: user?.plan === 'premium', hot: true },
-                { name: 'Профи',   price: 'По запросу', requests: '60 запросов в месяц', features: ['До 5 проектов', '5 ГБ хранилища', 'Приоритетная поддержка', '25 функций'], current: user?.plan === 'pro' },
+                { name: tr('planFree', lang), price: lang === 'ru' ? 'Бесплатно' : 'Free', requests: `10 ${tr('requestsOnce', lang)}`, features: lang === 'ru' ? ['До 3 проектов', '512 МБ хранилища', 'Облачный хостинг'] : ['Up to 3 projects', '512 MB storage', 'Cloud hosting'], current: user?.plan === 'free' },
+                { name: tr('planPremium', lang), price: '999 ₽/мес', requests: `40 ${tr('requestsMonthly', lang)}`, features: lang === 'ru' ? ['До 3 проектов', '512 МБ хранилища', 'Подключение домена', 'Расширения'] : ['Up to 3 projects', '512 MB storage', 'Custom domain', 'Extensions'], current: user?.plan === 'premium', hot: true },
+                { name: tr('planPro', lang), price: lang === 'ru' ? 'По запросу' : 'On request', requests: `60 ${tr('requestsMonthly', lang)}`, features: lang === 'ru' ? ['До 5 проектов', '5 ГБ хранилища', 'Приоритетная поддержка', '25 функций'] : ['Up to 5 projects', '5 GB storage', 'Priority support', '25 functions'], current: user?.plan === 'pro' },
               ].map(p => (
                 <div key={p.name} className={`rounded-2xl border p-5 ${p.current ? 'border-primary bg-primary/5' : 'border-border bg-card'}`}>
-                  {p.hot && <span className="inline-block bg-primary text-primary-foreground text-xs font-bold rounded-full px-2.5 py-0.5 mb-2">Популярный</span>}
+                  {p.hot && <span className="inline-block bg-primary text-primary-foreground text-xs font-bold rounded-full px-2.5 py-0.5 mb-2">{lang === 'ru' ? 'Популярный' : 'Popular'}</span>}
                   <h3 className="font-display font-bold text-lg">{p.name}</h3>
                   <div className="font-display font-black text-2xl my-2">{p.price}</div>
                   <p className="text-xs text-primary font-semibold mb-3">{p.requests}</p>
@@ -308,7 +314,7 @@ const Dashboard = () => {
                     className={`w-full rounded-xl text-sm font-semibold ${p.current ? 'bg-secondary text-secondary-foreground hover:bg-secondary' : ''}`}
                     disabled={p.current}
                   >
-                    {p.current ? 'Текущий тариф' : 'Выбрать'}
+                    {p.current ? tr('currentPlanBtn', lang) : tr('selectPlan', lang)}
                   </Button>
                 </div>
               ))}
@@ -319,7 +325,7 @@ const Dashboard = () => {
         {/* PROFILE TAB */}
         {tab === 'profile' && user && (
           <div className="max-w-lg">
-            <h1 className="font-display font-black text-2xl mb-6">Профиль</h1>
+            <h1 className="font-display font-black text-2xl mb-6">{tr('profile', lang)}</h1>
 
             <div className="rounded-2xl border border-border bg-card p-6 mb-4">
               <div className="flex items-center gap-4 mb-6">
@@ -337,7 +343,7 @@ const Dashboard = () => {
 
               <div className="space-y-3">
                 <div className="rounded-xl bg-secondary/50 px-4 py-3">
-                  <div className="text-xs text-muted-foreground mb-0.5">Имя</div>
+                  <div className="text-xs text-muted-foreground mb-0.5">{lang === 'ru' ? 'Имя' : 'Name'}</div>
                   <div className="font-medium">{user.name}</div>
                 </div>
                 <div className="rounded-xl bg-secondary/50 px-4 py-3">
@@ -346,8 +352,8 @@ const Dashboard = () => {
                 </div>
                 {user.created_at && (
                   <div className="rounded-xl bg-secondary/50 px-4 py-3">
-                    <div className="text-xs text-muted-foreground mb-0.5">Дата регистрации</div>
-                    <div className="font-medium">{new Date(user.created_at).toLocaleDateString('ru-RU', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
+                    <div className="text-xs text-muted-foreground mb-0.5">{tr('registeredAt', lang)}</div>
+                    <div className="font-medium">{new Date(user.created_at).toLocaleDateString(lang === 'ru' ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric' })}</div>
                   </div>
                 )}
               </div>
@@ -355,16 +361,16 @@ const Dashboard = () => {
 
             <div className="rounded-2xl border border-border bg-card p-5 flex items-center justify-between">
               <div>
-                <div className="font-semibold text-sm">Проекты</div>
-                <div className="text-muted-foreground text-xs">{projects.length} создано</div>
+                <div className="font-semibold text-sm">{tr('projects', lang)}</div>
+                <div className="text-muted-foreground text-xs">{projects.length} {tr('created', lang)}</div>
               </div>
               <Button variant="outline" size="sm" className="rounded-xl" onClick={() => setTab('projects')}>
-                Перейти
+                {tr('goTo', lang)}
               </Button>
             </div>
 
             <Button variant="outline" className="w-full mt-4 rounded-xl text-destructive hover:text-destructive border-destructive/20 hover:bg-destructive/5" onClick={handleLogout}>
-              <Icon name="LogOut" size={15} className="mr-2" /> Выйти из аккаунта
+              <Icon name="LogOut" size={15} className="mr-2" /> {tr('logout', lang)}
             </Button>
           </div>
         )}

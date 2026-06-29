@@ -3,6 +3,8 @@ import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { getSession, getStoredUser } from '@/lib/auth';
+import { getLang, tr } from '@/lib/i18n';
+import LangSwitcher from '@/components/LangSwitcher';
 
 const GENERATE_URL = 'https://functions.poehali.dev/64b3e52e-6bb5-4d4e-b7ee-e3840af35990';
 
@@ -21,7 +23,7 @@ const DEVICE_WIDTHS: Record<DeviceMode, string> = {
   mobile: '375px',
 };
 
-const SUGGESTIONS = [
+const SUGGESTIONS_RU = [
   'Лендинг для кофейни с меню и формой заказа',
   'Сайт-визитка для фотографа',
   'Лендинг для фитнес-тренера',
@@ -30,7 +32,18 @@ const SUGGESTIONS = [
   'Лендинг для онлайн-курсов',
 ];
 
+const SUGGESTIONS_EN = [
+  'Coffee shop landing with menu and order form',
+  'Portfolio website for a photographer',
+  'Landing page for a fitness trainer',
+  'Online clothing store',
+  'Barbershop website with booking',
+  'Landing page for online courses',
+];
+
 export default function Builder() {
+  const lang = getLang();
+  const SUGGESTIONS = lang === 'ru' ? SUGGESTIONS_RU : SUGGESTIONS_EN;
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const projectId = searchParams.get('project');
@@ -95,7 +108,7 @@ export default function Builder() {
           const updated = [...prev];
           updated[updated.length - 1] = {
             role: 'assistant',
-            content: data.error || 'Произошла ошибка. Попробуйте ещё раз.',
+            content: data.error || tr('builderError', lang),
           };
           return updated;
         });
@@ -121,7 +134,7 @@ export default function Builder() {
         const updated = [...prev];
         updated[updated.length - 1] = {
           role: 'assistant',
-          content: 'Ошибка соединения. Проверьте интернет.',
+          content: tr('builderNoConnection', lang),
         };
         return updated;
       });
@@ -163,7 +176,7 @@ export default function Builder() {
           <button
             onClick={() => setSidebarOpen(v => !v)}
             className="grid h-7 w-7 place-items-center rounded-lg hover:bg-white/10 transition-colors"
-            title="Свернуть чат"
+            title={lang === 'ru' ? 'Свернуть чат' : 'Collapse chat'}
           >
             <Icon name="PanelLeft" size={16} className="text-white/60" />
           </button>
@@ -174,7 +187,7 @@ export default function Builder() {
             <span className="text-white/90">Roboweb</span>
           </Link>
           {projectId && (
-            <span className="text-xs text-white/40 hidden sm:block">/ Проект #{projectId}</span>
+            <span className="text-xs text-white/40 hidden sm:block">/ {tr('builderProject', lang)} #{projectId}</span>
           )}
         </div>
 
@@ -195,7 +208,7 @@ export default function Builder() {
 
           {/* Right tabs */}
           <div className="flex items-center gap-0.5 bg-white/5 rounded-lg p-1">
-            {([['preview', 'Eye', 'Превью'], ['code', 'Code', 'Код']] as const).map(([tab, icon, label]) => (
+            {([['preview', 'Eye', tr('builderPreview', lang)], ['code', 'Code', tr('builderCode', lang)]] as const).map(([tab, icon, label]) => (
               <button
                 key={tab}
                 onClick={() => setRightTab(tab)}
@@ -217,7 +230,7 @@ export default function Builder() {
             className="h-7 rounded-lg text-xs border-white/20 bg-white/5 text-white/80 hover:bg-white/10 hover:text-white px-3 gap-1.5"
           >
             <Icon name="Download" size={13} />
-            <span className="hidden sm:inline">Скачать</span>
+            <span className="hidden sm:inline">{tr('builderDownload', lang)}</span>
           </Button>
 
           <Button
@@ -226,8 +239,10 @@ export default function Builder() {
             className="h-7 rounded-lg text-xs px-3 gap-1.5 bg-primary hover:bg-primary/90"
           >
             <Icon name="Globe" size={13} />
-            <span className="hidden sm:inline">Опубликовать</span>
+            <span className="hidden sm:inline">{tr('builderPublish', lang)}</span>
           </Button>
+
+          <LangSwitcher lang={lang} dark />
 
           <div className="grid h-7 w-7 place-items-center rounded-lg bg-primary text-white text-xs font-bold shrink-0">
             {initials}
@@ -250,11 +265,11 @@ export default function Builder() {
                     <div className="grid h-12 w-12 place-items-center rounded-2xl bg-primary/20 text-primary mx-auto mb-3">
                       <Icon name="Sparkles" size={22} />
                     </div>
-                    <h2 className="font-display font-bold text-base text-white">Привет{user?.name ? `, ${user.name.split(' ')[0]}` : ''}!</h2>
-                    <p className="text-xs text-white/50 mt-1">Опишите сайт — и я создам его за секунды</p>
+                    <h2 className="font-display font-bold text-base text-white">{tr('builderHello', lang)}{user?.name ? `, ${user.name.split(' ')[0]}` : ''}!</h2>
+                    <p className="text-xs text-white/50 mt-1">{tr('builderWelcome', lang)}</p>
                   </div>
                   <div className="space-y-2">
-                    <p className="text-xs text-white/30 uppercase tracking-wider px-1">Попробуйте</p>
+                    <p className="text-xs text-white/30 uppercase tracking-wider px-1">{tr('builderTryTitle', lang)}</p>
                     {SUGGESTIONS.map(s => (
                       <button
                         key={s}
@@ -281,7 +296,7 @@ export default function Builder() {
                     }`}>
                       {m.role === 'assistant' && m.content === '' ? (
                         <div className="flex items-center gap-1.5 py-0.5">
-                          <span className="text-white/50 text-xs">Генерирую сайт</span>
+                          <span className="text-white/50 text-xs">{tr('builderGenerating', lang)}</span>
                           <span className="flex gap-1">
                             {[0,1,2].map(i => (
                               <span key={i} className="h-1.5 w-1.5 rounded-full bg-primary/70 animate-bounce" style={{animationDelay: `${i * 0.15}s`}} />
@@ -291,15 +306,15 @@ export default function Builder() {
                       ) : m.isHtml ? (
                         <div className="space-y-2">
                           <div className="flex items-center gap-2 text-emerald-400 text-xs font-semibold">
-                            <Icon name="CheckCircle" size={13} /> Сайт готов!
+                            <Icon name="CheckCircle" size={13} /> {tr('builderReady', lang)}
                           </div>
-                          <p className="text-white/60 text-xs">Превью обновлено справа. Можете скачать или продолжить диалог.</p>
+                          <p className="text-white/60 text-xs">{tr('builderReadyDesc', lang)}</p>
                           <div className="flex gap-2 mt-2">
                             <button onClick={() => setRightTab('preview')} className="flex items-center gap-1 text-xs text-primary hover:underline">
-                              <Icon name="Eye" size={11} /> Превью
+                              <Icon name="Eye" size={11} /> {tr('builderPreview', lang)}
                             </button>
                             <button onClick={() => setRightTab('code')} className="flex items-center gap-1 text-xs text-white/50 hover:text-white/80 hover:underline">
-                              <Icon name="Code" size={11} /> Код
+                              <Icon name="Code" size={11} /> {tr('builderCode', lang)}
                             </button>
                           </div>
                         </div>
@@ -326,7 +341,7 @@ export default function Builder() {
                   value={input}
                   onChange={e => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder="Опишите ваш сайт…"
+                  placeholder={tr('builderInputPlaceholder', lang)}
                   rows={1}
                   className="flex-1 bg-transparent text-sm text-white placeholder:text-white/30 resize-none outline-none min-h-[20px] max-h-[160px]"
                 />
@@ -338,7 +353,7 @@ export default function Builder() {
                   <Icon name={loading ? 'Loader' : 'Send'} size={13} className={loading ? 'animate-spin' : ''} />
                 </button>
               </div>
-              <p className="text-[11px] text-white/25 text-center mt-2">Enter — отправить · Shift+Enter — новая строка</p>
+              <p className="text-[11px] text-white/25 text-center mt-2">{tr('builderInputHint', lang)}</p>
             </div>
           </div>
         )}
@@ -354,7 +369,7 @@ export default function Builder() {
                 >
                   <iframe
                     srcDoc={html}
-                    title="Превью сайта"
+                    title={tr('builderPreview', lang)}
                     className="w-full h-full border-0"
                     sandbox="allow-scripts allow-same-origin"
                   />
@@ -369,8 +384,8 @@ export default function Builder() {
                       <Icon name="Sparkles" size={10} className="text-primary" />
                     </div>
                   </div>
-                  <h3 className="text-white/40 font-medium text-sm mb-2">Превью появится здесь</h3>
-                  <p className="text-white/20 text-xs max-w-xs">Опишите сайт в чате слева — и я сгенерирую его за несколько секунд</p>
+                  <h3 className="text-white/40 font-medium text-sm mb-2">{tr('builderPreviewEmpty', lang)}</h3>
+                  <p className="text-white/20 text-xs max-w-xs">{tr('builderPreviewEmptyDesc', lang)}</p>
                 </div>
               )}
             </div>
@@ -381,14 +396,14 @@ export default function Builder() {
                 <div className="flex items-center gap-2 text-xs text-white/40">
                   <Icon name="FileCode" size={13} />
                   <span>index.html</span>
-                  {html && <span className="text-white/20">· {html.length.toLocaleString()} символов</span>}
+                  {html && <span className="text-white/20">· {html.length.toLocaleString()} {lang === 'ru' ? 'символов' : 'chars'}</span>}
                 </div>
                 {html && (
                   <button
                     onClick={handleCopyCode}
                     className="flex items-center gap-1.5 text-xs text-white/40 hover:text-white/80 transition-colors"
                   >
-                    <Icon name="Copy" size={13} /> Скопировать
+                    <Icon name="Copy" size={13} /> {tr('builderCopy', lang)}
                   </button>
                 )}
               </div>
@@ -399,7 +414,7 @@ export default function Builder() {
                   </pre>
                 ) : (
                   <div className="flex items-center justify-center h-full text-white/20 text-sm">
-                    Код появится после генерации сайта
+                    {tr('builderCodeEmpty', lang)}
                   </div>
                 )}
               </div>
