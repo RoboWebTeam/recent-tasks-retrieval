@@ -71,9 +71,14 @@ export default function Article() {
           {article.title}
         </h1>
 
-        <p className="text-lg text-muted-foreground mb-10 border-l-4 border-primary/40 pl-4">
+        <p className="text-lg text-muted-foreground mb-8 border-l-4 border-primary/40 pl-4">
           {article.description}
         </p>
+
+        {/* Cover */}
+        <div className="rounded-2xl overflow-hidden mb-10 aspect-video bg-muted">
+          <img src={article.cover} alt={article.title} className="w-full h-full object-cover" />
+        </div>
 
         {/* Content */}
         <article className="prose-custom">

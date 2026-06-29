@@ -41,8 +41,11 @@ export default function Blog() {
               to={`/blog/${article.slug}`}
               className="group flex flex-col rounded-3xl border border-border bg-card overflow-hidden hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
             >
-              {/* Card top color bar */}
-              <div className={`h-2 w-full ${i % 5 === 0 ? 'bg-gradient-to-r from-primary to-violet-500' : i % 5 === 1 ? 'bg-gradient-to-r from-emerald-400 to-teal-500' : i % 5 === 2 ? 'bg-gradient-to-r from-rose-500 to-pink-500' : i % 5 === 3 ? 'bg-gradient-to-r from-amber-400 to-orange-500' : 'bg-gradient-to-r from-cyan-400 to-sky-500'}`} />
+              {/* Cover image */}
+              <div className="relative h-44 overflow-hidden bg-muted">
+                <img src={article.cover} alt={article.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
+              </div>
               <div className="flex flex-col flex-1 p-6">
                 <div className="flex items-center justify-between mb-4">
                   <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">{article.category}</span>

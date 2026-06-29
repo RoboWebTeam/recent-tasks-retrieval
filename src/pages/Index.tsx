@@ -1272,7 +1272,9 @@ const Index = () => {
                   to={`/blog/${article.slug}`}
                   className="group flex flex-col h-full rounded-2xl md:rounded-3xl border border-border bg-card overflow-hidden hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
                 >
-                  <div className={`h-1.5 w-full ${i === 0 ? 'bg-gradient-to-r from-primary to-violet-500' : i === 1 ? 'bg-gradient-to-r from-emerald-400 to-teal-500' : 'bg-gradient-to-r from-amber-400 to-orange-500'}`} />
+                  <div className="relative h-40 overflow-hidden bg-muted">
+                    <img src={article.cover} alt={article.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                  </div>
                   <div className="flex flex-col flex-1 p-5 md:p-6">
                     <div className="flex items-center justify-between mb-3">
                       <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">{article.category}</span>

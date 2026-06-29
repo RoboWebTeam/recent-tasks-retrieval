@@ -5,6 +5,7 @@ export interface Article {
   date: string;
   readTime: string;
   category: string;
+  cover: string;
   content: string;
 }
 
@@ -16,6 +17,7 @@ export const ARTICLES: Article[] = [
     date: '10 июня 2026',
     readTime: '5 мин',
     category: 'AI и бизнес',
+    cover: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/119fb9a0-189b-42d4-b25a-50d014970fd6.jpg',
     content: `
 ## Почему AI заменяет фрилансеров при создании сайтов
 
@@ -49,6 +51,7 @@ export const ARTICLES: Article[] = [
     date: '12 июня 2026',
     readTime: '4 мин',
     category: 'Инструкции',
+    cover: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/08ca2384-7d8f-4aec-826e-e0d57ef5fc9e.jpg',
     content: `
 ## Как создать сайт за 5 минут с помощью Roboweb
 
@@ -84,6 +87,7 @@ Roboweb обучен на тысячах реальных сайтов и зна
     date: '14 июня 2026',
     readTime: '6 мин',
     category: 'AI и бизнес',
+    cover: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/9cc14c55-085e-48e2-9ae1-6623505e8aa2.jpg',
     content: `
 ## 7 преимуществ сайтов, созданных с помощью AI
 
@@ -125,6 +129,7 @@ Roboweb создаёт сайты на уровне профессиональн
     date: '15 июня 2026',
     readTime: '5 мин',
     category: 'Малый бизнес',
+    cover: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/5ac55f01-7429-4b4e-acdb-0e5f0ce36cac.jpg',
     content: `
 ## AI-сайт для малого бизнеса: зачем и как
 
@@ -165,6 +170,7 @@ Roboweb создаёт сайты на уровне профессиональн
     date: '16 июня 2026',
     readTime: '7 мин',
     category: 'Технологии',
+    cover: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/46139957-ab81-4334-9839-4ab615f4099d.jpg',
     content: `
 ## Сайт за минуты — это не миф: как работает Roboweb
 
@@ -199,6 +205,7 @@ Roboweb использует большую языковую модель (LLM),
     date: '17 июня 2026',
     readTime: '6 мин',
     category: 'SEO',
+    cover: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/6bdecfb6-b342-474b-be2b-8ff8584df360.jpg',
     content: `
 ## SEO AI-сайтов: как Roboweb помогает попасть в топ поиска
 
@@ -241,6 +248,7 @@ Roboweb создаёт технически грамотную основу дл
     date: '18 июня 2026',
     readTime: '8 мин',
     category: 'Сравнения',
+    cover: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/d1d14788-7bde-4ecd-840d-3da0b64fe4a3.jpg',
     content: `
 ## Roboweb vs конструкторы сайтов: Tilda, Wix, Тинькофф
 
@@ -285,6 +293,7 @@ Tilda, Wix, Тинькофф Сайты — все они работают по 
     date: '19 июня 2026',
     readTime: '7 мин',
     category: 'Инструкции',
+    cover: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/e825a615-cfdb-4506-845c-1cd2c0648d8f.jpg',
     content: `
 ## Как создать продающий лендинг с помощью AI
 
@@ -332,6 +341,7 @@ Tilda, Wix, Тинькофф Сайты — все они работают по 
     date: '21 июня 2026',
     readTime: '6 мин',
     category: 'Кейсы',
+    cover: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/c5f4a8e0-9102-436b-b88f-adf01134cadf.jpg',
     content: `
 ## Истории успеха: реальные бизнесы, запущенные через Roboweb
 
@@ -367,6 +377,7 @@ Tilda, Wix, Тинькофф Сайты — все они работают по 
     date: '23 июня 2026',
     readTime: '8 мин',
     category: 'Технологии',
+    cover: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/9f942d58-5f05-460c-a15a-8839c5dbdecd.jpg',
     content: `
 ## Будущее создания сайтов: как AI меняет индустрию
 
