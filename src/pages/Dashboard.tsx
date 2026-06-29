@@ -260,12 +260,20 @@ const Dashboard = () => {
                         <span className="text-xs text-muted-foreground">
                           {new Date(p.created_at).toLocaleDateString(lang === 'ru' ? 'ru-RU' : 'en-US')}
                         </span>
-                        <Link
-                          to={`/builder?project=${p.id}`}
-                          className="text-xs text-primary font-semibold hover:underline inline-flex items-center gap-1"
-                        >
-                          <Icon name="Sparkles" size={12} /> {tr('openInEditor', lang)}
-                        </Link>
+                        <div className="flex items-center gap-2">
+                          <Link
+                            to="/settings/domain"
+                            className="text-xs text-muted-foreground hover:text-foreground inline-flex items-center gap-1 hover:underline"
+                          >
+                            <Icon name="Link" size={11} /> {lang === 'ru' ? 'Домен' : 'Domain'}
+                          </Link>
+                          <Link
+                            to={`/builder?project=${p.id}`}
+                            className="text-xs text-primary font-semibold hover:underline inline-flex items-center gap-1"
+                          >
+                            <Icon name="Sparkles" size={12} /> {tr('openInEditor', lang)}
+                          </Link>
+                        </div>
                       </div>
                     </div>
                   );

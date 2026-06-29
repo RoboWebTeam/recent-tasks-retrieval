@@ -13,6 +13,7 @@ import Builder from "./pages/Builder";
 import Blog from "./pages/Blog";
 import Article from "./pages/Article";
 import GithubCallback from "./pages/GithubCallback";
+import DomainSettings from "./pages/DomainSettings";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -33,6 +34,7 @@ const App = () => (
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<Article />} />
           <Route path="/auth/github/callback" element={<GithubCallback />} />
+          <Route path="/settings/domain" element={<DomainSettings />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>

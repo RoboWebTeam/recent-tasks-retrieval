@@ -348,6 +348,12 @@ export default function Builder() {
             <span className="hidden md:inline">{tr('builderPublish', lang)}</span>
           </Button>
 
+          <Link to="/settings/domain"
+            className="flex items-center gap-1.5 h-8 px-2.5 rounded-xl text-xs font-medium border border-border bg-secondary hover:bg-background text-muted-foreground hover:text-foreground transition-colors shrink-0">
+            <Icon name="Link" size={13} />
+            <span className="hidden lg:inline">{lang === 'ru' ? 'Домен' : 'Domain'}</span>
+          </Link>
+
           <LangSwitcher lang={lang} />
 
           <div className="grid h-8 w-8 place-items-center rounded-xl bg-primary text-primary-foreground text-xs font-bold shrink-0">
