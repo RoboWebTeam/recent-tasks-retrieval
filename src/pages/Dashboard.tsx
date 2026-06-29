@@ -46,32 +46,30 @@ const Dashboard = () => {
 
   useEffect(() => {
     const session = getSession();
-    if (!session) { navigate('/login'); return; }
+    if (!session) {
+      window.location.href = '/login';
+      return;
+    }
 
-    // Если есть кешированный пользователь — показываем сразу
+    // Показываем кешированного пользователя сразу
     const cached = getStoredUser();
-    if (cached) setUser(cached);
+    if (cached) { setUser(cached); setLoading(false); }
 
-    Promise.all([
-      apiGetMe(session).then(d => {
+    apiGetMe(session)
+      .then(d => {
         const u = (d as { user?: typeof cached }).user || d;
         if (u && (u as { id?: number }).id) {
           setUser(u as typeof cached);
           storeUser(u as typeof cached);
         }
-      }),
-      apiGetProjects(session).then(p => {
-        if (Array.isArray(p)) setProjects(p);
-      }),
-    ]).catch((err) => {
-      // Только при явной 401 — разлогиниваем
-      if (err?.message?.includes('401') || err?.message?.includes('истекла') || err?.message?.includes('авторизован')) {
-        clearSession();
-        navigate('/login');
-      }
-      // Иначе просто показываем пустой дашборд
-    }).finally(() => setLoading(false));
-  }, [navigate]);
+      })
+      .catch(() => {/* показываем кешированного */})
+      .finally(() => setLoading(false));
+
+    apiGetProjects(session)
+      .then(p => { if (Array.isArray(p)) setProjects(p); })
+      .catch(() => {/* пустой список */});
+  }, []);
 
   const handleLogout = () => { clearSession(); navigate('/'); };
 

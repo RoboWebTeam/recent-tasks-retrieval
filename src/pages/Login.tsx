@@ -25,7 +25,8 @@ const Login = () => {
       }
       setSession(data.session_id as string);
       storeUser(data.user as Parameters<typeof storeUser>[0]);
-      navigate('/dashboard');
+      // Используем window.location для гарантированного обновления после сохранения сессии
+      window.location.href = '/dashboard';
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : 'Ошибка входа');
     } finally {
