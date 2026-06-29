@@ -102,25 +102,25 @@ def handler(event: dict, context) -> dict:
         conn = get_conn()
         try:
             with conn.cursor() as cur:
-                # Фильтр по сайту или пользователю
+                # Фильтр по сайту или пользователю (без дней — days вставляем через f-string)
                 if is_admin and not site_url:
                     site_filter = ""
-                    site_params = (days,)
+                    site_params: tuple = ()
                 elif site_url:
                     site_filter = "AND pv.site_url = %s"
-                    site_params = (days, site_url)
+                    site_params = (site_url,)
                 else:
                     site_filter = "AND p.user_id = %s"
-                    site_params = (days, user_id)
+                    site_params = (user_id,)
 
                 # Общая статистика за период
                 cur.execute(f"""
                     SELECT
                         COUNT(*) as total_views,
-                        COUNT(DISTINCT date_trunc('hour', pv.created_at) || pv.site_url) as approx_visitors
+                        COUNT(DISTINCT date_trunc('hour', pv.created_at)::text || pv.site_url) as approx_visitors
                     FROM {schema}.page_views pv
                     LEFT JOIN {schema}.projects p ON p.id = pv.project_id
-                    WHERE pv.created_at > NOW() - INTERVAL '%s days'
+                    WHERE pv.created_at > NOW() - INTERVAL '{days} days'
                     {site_filter}
                 """, site_params)
                 stats = cur.fetchone()
@@ -131,24 +131,24 @@ def handler(event: dict, context) -> dict:
                 cur.execute(f"""
                     SELECT COUNT(*) FROM {schema}.page_views pv
                     LEFT JOIN {schema}.projects p ON p.id = pv.project_id
-                    WHERE pv.created_at BETWEEN NOW() - INTERVAL '%s days' AND NOW() - INTERVAL '%s days'
-                    {site_filter.replace('%s', '%s')}
-                """, (days * 2, days) + (site_params[1:] if len(site_params) > 1 else ()))
+                    WHERE pv.created_at BETWEEN NOW() - INTERVAL '{days * 2} days' AND NOW() - INTERVAL '{days} days'
+                    {site_filter}
+                """, site_params)
                 prev_row = cur.fetchone()
                 prev_views = prev_row[0] if prev_row else 0
 
                 # График по дням
                 cur.execute(f"""
                     SELECT
-                        to_char(DATE(pv.created_at AT TIME ZONE 'Europe/Moscow'), 'DD.MM') as day,
+                        to_char(DATE(pv.created_at), 'DD.MM') as day,
                         COUNT(*) as views,
-                        COUNT(DISTINCT date_trunc('hour', pv.created_at) || pv.site_url) as visitors
+                        COUNT(DISTINCT date_trunc('hour', pv.created_at)::text || pv.site_url) as visitors
                     FROM {schema}.page_views pv
                     LEFT JOIN {schema}.projects p ON p.id = pv.project_id
-                    WHERE pv.created_at > NOW() - INTERVAL '%s days'
+                    WHERE pv.created_at > NOW() - INTERVAL '{days} days'
                     {site_filter}
-                    GROUP BY DATE(pv.created_at AT TIME ZONE 'Europe/Moscow')
-                    ORDER BY DATE(pv.created_at AT TIME ZONE 'Europe/Moscow')
+                    GROUP BY DATE(pv.created_at)
+                    ORDER BY DATE(pv.created_at)
                 """, site_params)
                 chart = [{'day': r[0], 'views': r[1], 'visitors': r[2]} for r in cur.fetchall()]
 
@@ -157,7 +157,7 @@ def handler(event: dict, context) -> dict:
                     SELECT device, COUNT(*) as cnt
                     FROM {schema}.page_views pv
                     LEFT JOIN {schema}.projects p ON p.id = pv.project_id
-                    WHERE pv.created_at > NOW() - INTERVAL '%s days'
+                    WHERE pv.created_at > NOW() - INTERVAL '{days} days'
                     {site_filter}
                     GROUP BY device ORDER BY cnt DESC
                 """, site_params)
@@ -170,7 +170,7 @@ def handler(event: dict, context) -> dict:
                     SELECT path, COUNT(*) as views
                     FROM {schema}.page_views pv
                     LEFT JOIN {schema}.projects p ON p.id = pv.project_id
-                    WHERE pv.created_at > NOW() - INTERVAL '%s days'
+                    WHERE pv.created_at > NOW() - INTERVAL '{days} days'
                     {site_filter}
                     GROUP BY path ORDER BY views DESC LIMIT 10
                 """, site_params)
@@ -182,13 +182,12 @@ def handler(event: dict, context) -> dict:
                     cur.execute(f"""
                         SELECT pv.site_url,
                                COUNT(*) as views,
-                               COUNT(DISTINCT date_trunc('hour', pv.created_at) || pv.site_url) as visitors
+                               COUNT(DISTINCT date_trunc('hour', pv.created_at)::text || pv.site_url) as visitors
                         FROM {schema}.page_views pv
-                        WHERE pv.created_at > NOW() - INTERVAL '%s days'
+                        WHERE pv.created_at > NOW() - INTERVAL '{days} days'
                         GROUP BY pv.site_url ORDER BY views DESC LIMIT 10
-                    """, (days,))
+                    """)
                     for r in cur.fetchall():
-                        # Считаем заявки для этого сайта
                         cur.execute(f"SELECT COUNT(*) FROM {schema}.site_leads WHERE site_url = %s", (r[0],))
                         leads_count = cur.fetchone()[0]
                         top_sites.append({'url': r[0], 'views': r[1], 'visitors': r[2], 'leads': leads_count})
@@ -205,7 +204,7 @@ def handler(event: dict, context) -> dict:
                         COUNT(*) as cnt
                     FROM {schema}.page_views pv
                     LEFT JOIN {schema}.projects p ON p.id = pv.project_id
-                    WHERE pv.created_at > NOW() - INTERVAL '%s days'
+                    WHERE pv.created_at > NOW() - INTERVAL '{days} days'
                     {site_filter}
                     GROUP BY source ORDER BY cnt DESC
                 """, site_params)
