@@ -47,6 +47,7 @@ const Dashboard = () => {
   const [newTitle, setNewTitle] = useState('');
   const [newDesc, setNewDesc] = useState('');
   const [creating, setCreating] = useState(false);
+  const [createError, setCreateError] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
 
   useEffect(() => {
@@ -82,6 +83,7 @@ const Dashboard = () => {
     e.preventDefault();
     if (!newTitle.trim()) return;
     setCreating(true);
+    setCreateError('');
     try {
       const session = getSession()!;
       const project = await apiCreateProject(session, newTitle.trim(), newDesc.trim());
@@ -90,7 +92,9 @@ const Dashboard = () => {
       setNewDesc('');
       setDialogOpen(false);
       navigate(`/builder?project=${project.id}`);
-    } catch { /* silent */ }
+    } catch (err: unknown) {
+      setCreateError(err instanceof Error ? err.message : 'Ошибка создания проекта');
+    }
     setCreating(false);
   };
 
@@ -199,6 +203,12 @@ const Dashboard = () => {
                         className="h-10 rounded-xl"
                       />
                     </div>
+                    {createError && (
+                      <div className="flex items-start gap-2 text-sm text-destructive bg-destructive/10 rounded-xl px-3 py-2.5">
+                        <Icon name="AlertCircle" size={15} className="shrink-0 mt-0.5" />
+                        <span>{createError}</span>
+                      </div>
+                    )}
                     <Button type="submit" className="w-full rounded-xl font-semibold" disabled={creating}>
                       {creating ? <><Icon name="Loader" size={15} className="mr-2 animate-spin" />{tr('creating', lang)}</> : <><Icon name="Sparkles" size={15} className="mr-1.5" />{tr('createAndOpen', lang)}</>}
                     </Button>

@@ -66,12 +66,12 @@ def handler(event: dict, context) -> dict:
                 if not title:
                     return err('Укажите название проекта')
                 cur.execute(
-                    f"INSERT INTO {schema}.projects (user_id, title, description) VALUES (%s, %s, %s) RETURNING id, created_at",
+                    f"INSERT INTO {schema}.projects (user_id, title, description) VALUES (%s, %s, %s) RETURNING id, created_at, updated_at",
                     (user_id, title, description)
                 )
-                project_id, created_at = cur.fetchone()
+                project_id, created_at, updated_at = cur.fetchone()
                 conn.commit()
-                return ok({'project': {'id': project_id, 'title': title, 'description': description, 'status': 'draft', 'url': '', 'created_at': created_at.isoformat()}})
+                return ok({'project': {'id': project_id, 'title': title, 'description': description, 'status': 'draft', 'url': '', 'created_at': created_at.isoformat(), 'updated_at': updated_at.isoformat()}})
 
             # PUT — обновить проект
             if method == 'PUT':
