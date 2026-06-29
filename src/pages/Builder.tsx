@@ -61,7 +61,7 @@ export default function Builder() {
   const user = getStoredUser();
 
   useEffect(() => {
-    if (!session) { navigate('/login'); return; }
+    if (!session) { navigate('/login', { replace: true }); }
   }, [session, navigate]);
 
   useEffect(() => {
@@ -341,7 +341,7 @@ export default function Builder() {
                   value={input}
                   onChange={e => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder={tr('builderPlaceholder', lang)}
+                  placeholder={tr('builderInputPlaceholder', lang)}
                   rows={1}
                   className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground resize-none outline-none min-h-[20px] max-h-[160px]"
                 />
@@ -353,7 +353,7 @@ export default function Builder() {
                   {loading ? <Icon name="Loader" size={14} className="animate-spin" /> : <Icon name="Send" size={14} />}
                 </button>
               </div>
-              <p className="text-center text-[10px] text-muted-foreground mt-2">{tr('builderHint', lang)}</p>
+              <p className="text-center text-[10px] text-muted-foreground mt-2">{tr('builderInputHint', lang)}</p>
             </div>
           </div>
         )}
