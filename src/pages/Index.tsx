@@ -406,11 +406,106 @@ const Index = () => {
           {/* Robot + chat */}
           <div className="relative animate-scale-in max-w-md mx-auto w-full">
             <div className="absolute inset-0 -z-10 rounded-[2.5rem] bg-gradient-to-tr from-primary/10 to-accent/20 blur-2xl" />
-            <img
-              src={ROBO_IMG}
-              alt="Roboweb — AI-помощник"
-              className="mx-auto w-44 sm:w-56 md:w-64 drop-shadow-2xl animate-float rounded-3xl"
-            />
+
+            {/* Animated Robot SVG */}
+            <div className="mx-auto w-44 sm:w-52 md:w-60 flex items-center justify-center">
+              <svg
+                viewBox="0 0 256 256"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                className="w-full h-full robo-bob drop-shadow-2xl"
+              >
+                {/* Glow behind */}
+                <circle cx="128" cy="160" r="70" fill="hsl(232,90%,58%)" opacity="0.12" className="robo-bob" style={{animationDelay:'0.2s'}} />
+                <circle cx="128" cy="155" r="54" fill="hsl(232,90%,58%)" opacity="0.08" />
+
+                {/* Antenna */}
+                <g className="antenna-sway">
+                  <line x1="128" y1="72" x2="128" y2="52" stroke="hsl(232,90%,58%)" strokeWidth="3.5" strokeLinecap="round"/>
+                  <circle cx="128" cy="46" r="7" fill="hsl(232,90%,58%)" opacity="0.9"/>
+                  <circle cx="128" cy="46" r="4" fill="white"/>
+                  <circle cx="128" cy="46" r="4" fill="hsl(232,90%,58%)" opacity="0.6">
+                    <animate attributeName="r" values="4;6;4" dur="1.2s" repeatCount="indefinite"/>
+                    <animate attributeName="opacity" values="0.6;1;0.6" dur="1.2s" repeatCount="indefinite"/>
+                  </circle>
+                </g>
+
+                {/* Body */}
+                <rect x="72" y="72" width="112" height="120" rx="28" fill="white" stroke="hsl(220,18%,88%)" strokeWidth="1.5"/>
+                <rect x="72" y="72" width="112" height="120" rx="28" fill="url(#bodyGrad)" opacity="0.5"/>
+
+                {/* Scanline overlay */}
+                <clipPath id="bodyClip">
+                  <rect x="72" y="72" width="112" height="120" rx="28"/>
+                </clipPath>
+                <rect x="72" y="72" width="112" height="4" fill="hsl(232,90%,58%)" opacity="0.3" clipPath="url(#bodyClip)" className="robo-scan"/>
+
+                {/* Screen / face panel */}
+                <rect x="86" y="88" width="84" height="72" rx="16" fill="hsl(224,47%,9%)" opacity="0.94"/>
+                <rect x="86" y="88" width="84" height="72" rx="16" fill="url(#screenGrad)" opacity="0.3"/>
+
+                {/* Eyes */}
+                <g className="eye-l">
+                  <rect x="96" y="108" width="22" height="22" rx="7" fill="hsl(232,90%,58%)"/>
+                  <rect x="96" y="108" width="22" height="22" rx="7" fill="white" opacity="0.15"/>
+                  <circle cx="107" cy="119" r="6" fill="white"/>
+                  <circle cx="109" cy="117" r="2.5" fill="hsl(224,47%,9%)"/>
+                  <circle cx="111" cy="116" r="1.2" fill="white" opacity="0.9"/>
+                </g>
+                <g className="eye-r">
+                  <rect x="138" y="108" width="22" height="22" rx="7" fill="hsl(232,90%,58%)"/>
+                  <rect x="138" y="108" width="22" height="22" rx="7" fill="white" opacity="0.15"/>
+                  <circle cx="149" cy="119" r="6" fill="white"/>
+                  <circle cx="151" cy="117" r="2.5" fill="hsl(224,47%,9%)"/>
+                  <circle cx="153" cy="116" r="1.2" fill="white" opacity="0.9"/>
+                </g>
+
+                {/* Mouth — animated smile */}
+                <path d="M 108 140 Q 128 152 148 140" stroke="hsl(88,70%,50%)" strokeWidth="3" strokeLinecap="round" fill="none">
+                  <animate attributeName="d" values="M 108 140 Q 128 150 148 140;M 108 138 Q 128 155 148 138;M 108 140 Q 128 150 148 140" dur="3s" repeatCount="indefinite"/>
+                </path>
+
+                {/* Circuit lines on body */}
+                <g opacity="0.6">
+                  <path d="M 90 148 L 106 148 L 106 160 L 118 160" stroke="hsl(232,90%,58%)" strokeWidth="1.5" strokeLinecap="round" fill="none" className="circuit-1"/>
+                  <path d="M 166 148 L 150 148 L 150 160 L 138 160" stroke="hsl(88,70%,50%)" strokeWidth="1.5" strokeLinecap="round" fill="none" className="circuit-2"/>
+                  <path d="M 110 178 L 128 178 L 128 172 L 146 172" stroke="hsl(232,90%,58%)" strokeWidth="1.5" strokeLinecap="round" fill="none" className="circuit-3"/>
+                </g>
+
+                {/* Chest light */}
+                <circle cx="128" cy="178" r="6" fill="hsl(88,70%,50%)" opacity="0.9">
+                  <animate attributeName="opacity" values="0.5;1;0.5" dur="1.5s" repeatCount="indefinite"/>
+                  <animate attributeName="r" values="5;7;5" dur="1.5s" repeatCount="indefinite"/>
+                </circle>
+                <circle cx="128" cy="178" r="3" fill="white" opacity="0.8"/>
+
+                {/* Arms */}
+                <rect x="48" y="96" width="26" height="56" rx="13" fill="white" stroke="hsl(220,18%,88%)" strokeWidth="1.5"/>
+                <rect x="182" y="96" width="26" height="56" rx="13" fill="white" stroke="hsl(220,18%,88%)" strokeWidth="1.5"/>
+                <circle cx="61" cy="152" r="10" fill="hsl(232,90%,58%)" opacity="0.15"/>
+                <circle cx="195" cy="152" r="10" fill="hsl(232,90%,58%)" opacity="0.15"/>
+
+                {/* Legs */}
+                <rect x="94" y="188" width="26" height="36" rx="13" fill="white" stroke="hsl(220,18%,88%)" strokeWidth="1.5"/>
+                <rect x="136" y="188" width="26" height="36" rx="13" fill="white" stroke="hsl(220,18%,88%)" strokeWidth="1.5"/>
+
+                {/* Feet */}
+                <ellipse cx="107" cy="226" rx="16" ry="7" fill="hsl(232,90%,58%)" opacity="0.2"/>
+                <ellipse cx="149" cy="226" rx="16" ry="7" fill="hsl(232,90%,58%)" opacity="0.2"/>
+
+                {/* Gradients */}
+                <defs>
+                  <linearGradient id="bodyGrad" x1="72" y1="72" x2="184" y2="192" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stopColor="hsl(232,90%,90%)"/>
+                    <stop offset="100%" stopColor="hsl(232,90%,58%)" stopOpacity="0"/>
+                  </linearGradient>
+                  <linearGradient id="screenGrad" x1="86" y1="88" x2="170" y2="160" gradientUnits="userSpaceOnUse">
+                    <stop offset="0%" stopColor="hsl(232,90%,58%)"/>
+                    <stop offset="100%" stopColor="hsl(88,70%,50%)"/>
+                  </linearGradient>
+                </defs>
+              </svg>
+            </div>
             <div className="glass rounded-3xl p-4 sm:p-5 shadow-2xl mt-[-1.5rem] mx-2 sm:mx-0">
 
               {/* Header */}

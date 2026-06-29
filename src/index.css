@@ -144,3 +144,118 @@
     opacity: 1;
   }
 }
+
+@keyframes eye-blink {
+  0%,
+  88%,
+  100% {
+    transform: scaleY(1);
+  }
+  94% {
+    transform: scaleY(0.06);
+  }
+}
+
+@keyframes antenna-sway {
+  0%,
+  100% {
+    transform: rotate(-10deg) translateX(0);
+  }
+  50% {
+    transform: rotate(10deg) translateX(1px);
+  }
+}
+
+@keyframes robo-bob {
+  0%,
+  100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-12px);
+  }
+}
+
+@keyframes robo-glow-pulse {
+  0%,
+  100% {
+    opacity: 0.4;
+    r: 52;
+  }
+  50% {
+    opacity: 0.85;
+    r: 58;
+  }
+}
+
+@keyframes scan-line {
+  0% {
+    transform: translateY(0%);
+    opacity: 0;
+  }
+  5% {
+    opacity: 0.5;
+  }
+  95% {
+    opacity: 0.5;
+  }
+  100% {
+    transform: translateY(140px);
+    opacity: 0;
+  }
+}
+
+@keyframes circuit-dash {
+  0% {
+    stroke-dashoffset: 180;
+    opacity: 0.2;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    stroke-dashoffset: 0;
+    opacity: 0.2;
+  }
+}
+
+@keyframes mouth-talk {
+  0%,
+  100% {
+    d: path("M 112 175 Q 128 182 144 175");
+  }
+  50% {
+    d: path("M 112 175 Q 128 190 144 175");
+  }
+}
+
+.robo-bob {
+  animation: robo-bob 4s ease-in-out infinite;
+}
+.eye-l {
+  animation: eye-blink 4s ease-in-out infinite;
+  transform-origin: 108px 148px;
+}
+.eye-r {
+  animation: eye-blink 4s ease-in-out infinite 0.12s;
+  transform-origin: 148px 148px;
+}
+.antenna-sway {
+  animation: antenna-sway 2.2s ease-in-out infinite;
+  transform-origin: 128px 72px;
+}
+.robo-scan {
+  animation: scan-line 3.5s ease-in-out infinite 0.5s;
+}
+.circuit-1 {
+  stroke-dasharray: 180;
+  animation: circuit-dash 2s linear infinite;
+}
+.circuit-2 {
+  stroke-dasharray: 180;
+  animation: circuit-dash 2s linear infinite 0.65s;
+}
+.circuit-3 {
+  stroke-dasharray: 180;
+  animation: circuit-dash 2s linear infinite 1.3s;
+}
