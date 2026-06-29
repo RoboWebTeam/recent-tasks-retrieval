@@ -1087,7 +1087,7 @@ const Index = () => {
                   <Icon name="ArrowRight" size={18} className="ml-1" />
                 </a>
               </Button>
-              <Button size="lg" variant="outline" className="rounded-full font-semibold px-8 border-white/30 text-white hover:bg-white/10 h-12 w-full sm:w-auto" asChild>
+              <Button size="lg" className="rounded-full font-semibold px-8 bg-white text-primary hover:bg-white/90 h-12 shadow-xl w-full sm:w-auto" asChild>
                 <a href="https://t.me/roboweb" target="_blank" rel="noopener noreferrer">
                   <Icon name="Send" size={16} className="mr-2" />
                   {L.cta2.phone[lang]}
