@@ -38,8 +38,8 @@ export default function ParticlesBg() {
           y: Math.random() * H,
           vx: (Math.random() - 0.5) * 0.4,
           vy: (Math.random() - 0.5) * 0.4,
-          r: Math.random() * 2.5 + 1,
-          opacity: Math.random() * 0.5 + 0.5,
+          r: Math.random() * 4 + 1.5,
+          opacity: Math.random() * 0.4 + 0.6,
         });
       }
     };
