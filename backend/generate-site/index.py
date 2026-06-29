@@ -58,7 +58,7 @@ def handler(event: dict, context) -> dict:
     if event.get('httpMethod') == 'OPTIONS':
         return {'statusCode': 200, 'headers': cors(), 'body': ''}
 
-    headers = event.get('headers') or {}
+    headers = {k.lower(): v for k, v in (event.get('headers') or {}).items()}
     session_id = headers.get('x-session-id', '')
     schema = os.environ.get('MAIN_DB_SCHEMA', 'public')
 

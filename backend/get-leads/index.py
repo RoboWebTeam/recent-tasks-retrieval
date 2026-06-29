@@ -18,7 +18,7 @@ def handler(event: dict, context) -> dict:
             'body': ''
         }
 
-    headers = event.get('headers', {})
+    headers = {k.lower(): v for k, v in (event.get('headers') or {}).items()}
     admin_key = (
         headers.get('x-admin-key') or
         headers.get('X-Admin-Key') or
