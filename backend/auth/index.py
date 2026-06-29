@@ -22,7 +22,8 @@ def cors_headers():
     return {
         'Access-Control-Allow-Origin': '*',
         'Access-Control-Allow-Methods': 'POST, GET, OPTIONS',
-        'Access-Control-Allow-Headers': 'Content-Type, X-Session-Id',
+        'Access-Control-Allow-Headers': 'Content-Type, X-Session-Id, X-Session-ID, x-session-id',
+        'Access-Control-Max-Age': '86400',
     }
 
 def ok(data: dict) -> dict:

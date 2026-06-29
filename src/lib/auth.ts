@@ -45,53 +45,70 @@ export function storeUser(user: User) {
   localStorage.setItem('user', JSON.stringify(user));
 }
 
+async function apiFetch(url: string, options: RequestInit = {}) {
+  try {
+    const res = await fetch(url, {
+      ...options,
+      headers: {
+        'Content-Type': 'application/json',
+        ...(options.headers || {}),
+      },
+    });
+    let data: Record<string, unknown> = {};
+    try {
+      data = await res.json();
+    } catch {
+      if (!res.ok) throw new Error(`Ошибка сервера: ${res.status}`);
+    }
+    return { res, data };
+  } catch (e: unknown) {
+    if (e instanceof TypeError && e.message.includes('fetch')) {
+      throw new Error('Нет соединения с сервером. Проверьте интернет.');
+    }
+    throw e;
+  }
+}
+
 export async function apiRegister(email: string, password: string, name: string) {
-  const res = await fetch(AUTH_URL, {
+  const { res, data } = await apiFetch(AUTH_URL, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ action: 'register', email, password, name }),
   });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error || 'Ошибка регистрации');
+  if (!res.ok) throw new Error((data as {error?: string}).error || 'Ошибка регистрации');
   return data;
 }
 
 export async function apiLogin(email: string, password: string) {
-  const res = await fetch(AUTH_URL, {
+  const { res, data } = await apiFetch(AUTH_URL, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
     body: JSON.stringify({ action: 'login', email, password }),
   });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error || 'Ошибка входа');
+  if (!res.ok) throw new Error((data as {error?: string}).error || 'Ошибка входа');
   return data;
 }
 
 export async function apiGetMe(sessionId: string) {
-  const res = await fetch(AUTH_URL, {
+  const { res, data } = await apiFetch(AUTH_URL, {
     headers: { 'x-session-id': sessionId },
   });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error || 'Не авторизован');
+  if (!res.ok) throw new Error((data as {error?: string}).error || 'Не авторизован');
   return data;
 }
 
 export async function apiGetProjects(sessionId: string): Promise<Project[]> {
-  const res = await fetch(PROJECTS_URL, {
+  const { res, data } = await apiFetch(PROJECTS_URL, {
     headers: { 'x-session-id': sessionId },
   });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error || 'Ошибка загрузки проектов');
-  return data.projects;
+  if (!res.ok) throw new Error((data as {error?: string}).error || 'Ошибка загрузки проектов');
+  return (data as {projects: Project[]}).projects;
 }
 
 export async function apiCreateProject(sessionId: string, title: string, description: string) {
-  const res = await fetch(PROJECTS_URL, {
+  const { res, data } = await apiFetch(PROJECTS_URL, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json', 'x-session-id': sessionId },
+    headers: { 'x-session-id': sessionId },
     body: JSON.stringify({ title, description }),
   });
-  const data = await res.json();
-  if (!res.ok) throw new Error(data.error || 'Ошибка создания проекта');
-  return data.project;
+  if (!res.ok) throw new Error((data as {error?: string}).error || 'Ошибка создания проекта');
+  return (data as {project: Project}).project;
 }
