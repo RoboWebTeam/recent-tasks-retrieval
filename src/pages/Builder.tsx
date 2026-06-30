@@ -604,10 +604,10 @@ export default function Builder() {
 
         {/* LEFT — CHAT */}
         {sidebarOpen && (
-          <div className="flex flex-col w-full sm:w-[340px] lg:w-[380px] shrink-0 border-r border-[#1e1e1e] bg-[#111111]">
+          <div className="flex flex-col w-full sm:w-[340px] lg:w-[380px] shrink-0 border-r border-[#2a2a2e] bg-[#1e1e24]">
 
             {/* Chat header */}
-            <div className="flex items-center gap-2.5 px-4 py-3 border-b border-[#1e1e1e] shrink-0 bg-[#0d0d0d]">
+            <div className="flex items-center gap-2.5 px-4 py-3 border-b border-[#2a2a2e] shrink-0 bg-[#18181e]">
               <div className="relative grid h-9 w-9 place-items-center rounded-xl bg-primary text-primary-foreground shrink-0">
                 <Icon name="Bot" size={17} />
                 <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-500 border-2 border-[#0d0d0d]" />
@@ -647,7 +647,7 @@ export default function Builder() {
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-3 space-y-3 bg-[#0d0d0d]">
+            <div className="flex-1 overflow-y-auto p-3 space-y-3 bg-[#1a1a20]">
               {messages.length === 0 ? (
                 <div className="pt-2">
                   <div className="text-center mb-6">
@@ -764,7 +764,7 @@ export default function Builder() {
             )}
 
             {/* Input */}
-            <div className="p-3 border-t border-[#1e1e1e] bg-[#111111]">
+            <div className="p-3 border-t border-[#2a2a2e] bg-[#18181e]">
               {/* Прикреплённое изображение */}
               {attachedImage && (
                 <div className="flex items-center gap-2 mb-2 px-2 py-1.5 bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl">
