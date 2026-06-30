@@ -254,12 +254,12 @@ export function IndexHero({ lang, wordIdx, chatStep, isTyping, progress, chatSte
             )}
 
             {/* Messages */}
-            <div ref={chatContainerRef} className="space-y-2 sm:space-y-2.5 pt-3 min-h-[160px] sm:min-h-[190px] overflow-y-auto max-h-[220px]">
+            <div ref={chatContainerRef} className="space-y-2 sm:space-y-2.5 pt-3 h-[200px] sm:h-[220px] overflow-y-auto">
               {chatSteps.slice(0, chatStep).map((m, i) => (
                 <div
                   key={i}
                   className={`flex ${m.who === 'user' ? 'justify-end' : 'justify-start'}`}
-                  style={{ animation: 'fade-in 0.4s ease-out forwards' }}
+                  style={{ animation: 'msgIn 0.3s ease-out forwards' }}
                 >
                   {m.who === 'bot' && (
                     <span className="grid h-5 w-5 place-items-center rounded-full bg-primary text-primary-foreground shrink-0 mr-1.5 mt-0.5">
@@ -290,7 +290,7 @@ export function IndexHero({ lang, wordIdx, chatStep, isTyping, progress, chatSte
 
               {/* Typing indicator */}
               {isTyping && (
-                <div className="flex justify-start" style={{ animation: 'fade-in 0.3s ease-out forwards' }}>
+                <div className="flex justify-start" style={{ animation: 'msgIn 0.3s ease-out forwards' }}>
                   <span className="grid h-5 w-5 place-items-center rounded-full bg-primary text-primary-foreground shrink-0 mr-1.5 mt-0.5">
                     <Icon name="Bot" size={11} />
                   </span>
