@@ -91,6 +91,8 @@ export default function Builder() {
   const [totalTokens, setTotalTokens] = useState(0);
   const [copied, setCopied] = useState(false);
   const [iframeKey, setIframeKey] = useState(0);
+  const [codeEditorValue, setCodeEditorValue] = useState('');
+  const [codeApplied, setCodeApplied] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const session = getSession();
@@ -273,7 +275,7 @@ export default function Builder() {
           {/* Preview / Code tabs */}
           <div className="flex items-center gap-0.5 bg-secondary rounded-xl p-1 border border-border">
             {([['preview', 'Eye', tr('builderPreview', lang)], ['code', 'Code', tr('builderCode', lang)]] as const).map(([tab, icon, label]) => (
-              <button key={tab} onClick={() => setRightTab(tab)}
+              <button key={tab} onClick={() => { setRightTab(tab); if (tab === 'code') setCodeEditorValue(html); }}
                 className={`flex items-center gap-1.5 h-7 px-2.5 rounded-lg text-xs font-medium transition-all ${rightTab === tab ? 'bg-card text-foreground shadow-sm border border-border' : 'text-muted-foreground hover:text-foreground'}`}>
                 <Icon name={icon} size={13} />
                 <span className="hidden sm:inline">{label}</span>
@@ -592,15 +594,58 @@ export default function Builder() {
             </div>
           ) : (
             <div className="flex-1 flex flex-col overflow-hidden">
+              {/* Code editor toolbar */}
               <div className="flex items-center justify-between px-4 py-2.5 border-b border-border bg-card shrink-0">
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <Icon name="FileCode" size={13} />
                   <span className="font-mono font-medium">index.html</span>
-                  {html && <span className="text-muted-foreground/50">· {html.length.toLocaleString()} {lang === 'ru' ? 'символов' : 'chars'}</span>}
+                  {codeEditorValue && (
+                    <span className="text-muted-foreground/50">
+                      · {codeEditorValue.length.toLocaleString()} {lang === 'ru' ? 'символов' : 'chars'}
+                    </span>
+                  )}
+                  {codeEditorValue !== html && (
+                    <span className="text-amber-500 font-semibold flex items-center gap-1">
+                      <span className="h-1.5 w-1.5 rounded-full bg-amber-500 inline-block" />
+                      {lang === 'ru' ? 'Не сохранено' : 'Unsaved'}
+                    </span>
+                  )}
                 </div>
                 <div className="flex items-center gap-2">
-                  {html && (
+                  {/* Применить изменения */}
+                  {codeEditorValue !== html && (
+                    <button
+                      onClick={() => {
+                        setHtml(codeEditorValue);
+                        setVersions(prev => [
+                          { html: codeEditorValue, label: lang === 'ru' ? 'Ручное редактирование' : 'Manual edit', ts: Date.now() },
+                          ...prev.slice(0, 9),
+                        ]);
+                        setIframeKey(k => k + 1);
+                        setCodeApplied(true);
+                        setTimeout(() => setCodeApplied(false), 2000);
+                      }}
+                      className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+                    >
+                      <Icon name={codeApplied ? 'Check' : 'Play'} size={13} />
+                      {codeApplied
+                        ? (lang === 'ru' ? 'Применено!' : 'Applied!')
+                        : (lang === 'ru' ? 'Применить' : 'Apply')}
+                    </button>
+                  )}
+                  {/* Сбросить */}
+                  {codeEditorValue !== html && (
+                    <button
+                      onClick={() => setCodeEditorValue(html)}
+                      className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                    >
+                      <Icon name="RotateCcw" size={13} />
+                      {lang === 'ru' ? 'Сбросить' : 'Reset'}
+                    </button>
+                  )}
+                  {codeEditorValue && (
                     <>
+                      <div className="w-px h-4 bg-border" />
                       <button onClick={handleCopyCode}
                         className={`flex items-center gap-1.5 text-xs transition-colors ${copied ? 'text-emerald-600' : 'text-muted-foreground hover:text-foreground'}`}>
                         <Icon name={copied ? 'Check' : 'Copy'} size={13} />
@@ -616,16 +661,56 @@ export default function Builder() {
                   )}
                 </div>
               </div>
-              <div className="flex-1 overflow-auto p-4 bg-card">
-                {html ? (
-                  <pre className="text-xs text-primary/70 font-mono whitespace-pre-wrap break-all leading-relaxed">
-                    {html}
-                  </pre>
+
+              {/* Редактор */}
+              <div className="flex-1 overflow-hidden bg-[#1e1e1e]">
+                {codeEditorValue !== undefined ? (
+                  <textarea
+                    value={codeEditorValue}
+                    onChange={e => setCodeEditorValue(e.target.value)}
+                    spellCheck={false}
+                    className="w-full h-full resize-none bg-transparent text-[#d4d4d4] font-mono text-xs leading-relaxed p-4 outline-none border-none"
+                    placeholder={lang === 'ru' ? '<!-- Вставьте или введите HTML код -->' : '<!-- Paste or type HTML code -->'}
+                    style={{ tabSize: 2 }}
+                    onKeyDown={e => {
+                      // Tab вставляет 2 пробела
+                      if (e.key === 'Tab') {
+                        e.preventDefault();
+                        const el = e.currentTarget;
+                        const start = el.selectionStart;
+                        const end = el.selectionEnd;
+                        const newVal = codeEditorValue.substring(0, start) + '  ' + codeEditorValue.substring(end);
+                        setCodeEditorValue(newVal);
+                        requestAnimationFrame(() => {
+                          el.selectionStart = el.selectionEnd = start + 2;
+                        });
+                      }
+                      // Ctrl+Enter — применить
+                      if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                        e.preventDefault();
+                        setHtml(codeEditorValue);
+                        setVersions(prev => [
+                          { html: codeEditorValue, label: lang === 'ru' ? 'Ручное редактирование' : 'Manual edit', ts: Date.now() },
+                          ...prev.slice(0, 9),
+                        ]);
+                        setIframeKey(k => k + 1);
+                        setCodeApplied(true);
+                        setTimeout(() => setCodeApplied(false), 2000);
+                      }
+                    }}
+                  />
                 ) : (
                   <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
                     {tr('builderCodeEmpty', lang)}
                   </div>
                 )}
+              </div>
+
+              {/* Подсказка */}
+              <div className="px-4 py-1.5 bg-[#1e1e1e] border-t border-white/5 text-[10px] text-white/30 flex items-center gap-3 shrink-0">
+                <span>Tab → отступ</span>
+                <span>·</span>
+                <span>{lang === 'ru' ? 'Ctrl+Enter → применить' : 'Ctrl+Enter → apply'}</span>
               </div>
             </div>
           )}
