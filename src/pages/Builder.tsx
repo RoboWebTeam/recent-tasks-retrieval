@@ -94,6 +94,11 @@ export default function Builder() {
   const [codeEditorValue, setCodeEditorValue] = useState('');
   const [codeApplied, setCodeApplied] = useState(false);
   const [editMode, setEditMode] = useState(false);
+  const [isRecording, setIsRecording] = useState(false);
+  const [attachedImage, setAttachedImage] = useState<{ url: string; name: string } | null>(null);
+  const [showExtensions, setShowExtensions] = useState(false);
+  const imageInputRef = useRef<HTMLInputElement>(null);
+  const recognitionRef = useRef<SpeechRecognition | null>(null);
   const [editPopover, setEditPopover] = useState<{ x: number; y: number; text: string; path: string } | null>(null);
   const [editValue, setEditValue] = useState('');
   const [propsPanel, setPropsPanel] = useState<{
@@ -125,9 +130,12 @@ export default function Builder() {
   }, [input]);
 
   const sendMessage = async (text?: string) => {
-    const content = (text || input).trim();
-    if (!content || loading) return;
+    const rawContent = (text || input).trim();
+    const imageNote = attachedImage ? `\n[Изображение прикреплено: ${attachedImage.name}]` : '';
+    const content = rawContent + imageNote;
+    if (!content.trim() || loading) return;
     setInput('');
+    setAttachedImage(null);
     setShowQuickEdits(false);
 
     const newMessages: Message[] = [...messages, { role: 'user', content }];
@@ -407,6 +415,47 @@ export default function Builder() {
       { html: newHtml, label: lang === 'ru' ? 'Правка стилей' : 'Style edit', ts: Date.now() },
       ...prev.slice(0, 9),
     ]);
+  };
+
+  // Голосовой ввод
+  const toggleRecording = () => {
+    const SpeechRecognitionAPI = (window as unknown as { SpeechRecognition?: typeof SpeechRecognition; webkitSpeechRecognition?: typeof SpeechRecognition }).SpeechRecognition
+      || (window as unknown as { webkitSpeechRecognition?: typeof SpeechRecognition }).webkitSpeechRecognition;
+    if (!SpeechRecognitionAPI) {
+      alert(lang === 'ru' ? 'Голосовой ввод не поддерживается в вашем браузере' : 'Voice input not supported in your browser');
+      return;
+    }
+    if (isRecording) {
+      recognitionRef.current?.stop();
+      setIsRecording(false);
+      return;
+    }
+    const rec = new SpeechRecognitionAPI();
+    rec.lang = lang === 'ru' ? 'ru-RU' : 'en-US';
+    rec.interimResults = true;
+    rec.continuous = false;
+    rec.onresult = (e: SpeechRecognitionEvent) => {
+      const transcript = Array.from(e.results).map(r => r[0].transcript).join('');
+      setInput(transcript);
+    };
+    rec.onend = () => setIsRecording(false);
+    rec.onerror = () => setIsRecording(false);
+    recognitionRef.current = rec;
+    rec.start();
+    setIsRecording(true);
+  };
+
+  // Загрузка изображения
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      setAttachedImage({ url: ev.target?.result as string, name: file.name });
+      if (!input) setInput(lang === 'ru' ? 'Создай сайт по этому изображению' : 'Create a website based on this image');
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
   };
 
   const initials = user?.name?.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || 'U';
@@ -716,54 +765,115 @@ export default function Builder() {
 
             {/* Input */}
             <div className="p-3 border-t border-[#1e1e1e] bg-[#111111]">
-              <div className="flex items-end gap-2 bg-[#1a1a1a] border border-[#2a2a2a] focus-within:border-primary/50 rounded-2xl px-3 py-2.5 transition-all">
-                {/* Кнопка быстрых правок внутри поля */}
+              {/* Прикреплённое изображение */}
+              {attachedImage && (
+                <div className="flex items-center gap-2 mb-2 px-2 py-1.5 bg-[#1a1a1a] border border-[#2a2a2a] rounded-xl">
+                  <img src={attachedImage.url} alt="" className="h-8 w-8 rounded-lg object-cover shrink-0" />
+                  <span className="text-[11px] text-[#aaa] flex-1 truncate">{attachedImage.name}</span>
+                  <button onClick={() => setAttachedImage(null)} className="text-[#555] hover:text-red-400 transition-colors">
+                    <Icon name="X" size={13} />
+                  </button>
+                </div>
+              )}
+
+              <div className={`flex items-end gap-1.5 bg-[#1a1a1a] border rounded-2xl px-3 py-2.5 transition-all ${isRecording ? 'border-red-500/50' : 'border-[#2a2a2a] focus-within:border-primary/50'}`}>
+                {/* Быстрые правки */}
                 {html && (
-                  <button
-                    onClick={() => setShowQuickEdits(v => !v)}
+                  <button onClick={() => setShowQuickEdits(v => !v)}
                     className={`grid h-7 w-7 place-items-center rounded-lg transition-colors shrink-0 mb-0.5 ${showQuickEdits ? 'text-primary bg-primary/10' : 'text-[#555] hover:text-[#aaa] hover:bg-[#222]'}`}
-                    title={lang === 'ru' ? 'Быстрые правки' : 'Quick edits'}
-                  >
+                    title={lang === 'ru' ? 'Быстрые правки' : 'Quick edits'}>
                     <Icon name="Wand2" size={14} />
                   </button>
                 )}
-                {/* Кнопка прикрепить файл (задизейблена) */}
-                <button
-                  disabled
-                  className="grid h-7 w-7 place-items-center rounded-lg text-[#333] cursor-not-allowed shrink-0 mb-0.5"
-                  title={lang === 'ru' ? 'Прикрепить файл (скоро)' : 'Attach file (coming soon)'}
-                >
-                  <Icon name="Paperclip" size={14} />
+
+                {/* Визуальный редактор */}
+                {html && (
+                  <button onClick={toggleEditMode}
+                    className={`grid h-7 w-7 place-items-center rounded-lg transition-colors shrink-0 mb-0.5 ${editMode ? 'text-primary bg-primary/10' : 'text-[#555] hover:text-[#aaa] hover:bg-[#222]'}`}
+                    title={lang === 'ru' ? 'Визуальный редактор' : 'Visual editor'}>
+                    <Icon name="MousePointer" size={14} />
+                  </button>
+                )}
+
+                {/* Прикрепить изображение */}
+                <button onClick={() => imageInputRef.current?.click()}
+                  className="grid h-7 w-7 place-items-center rounded-lg text-[#555] hover:text-[#aaa] hover:bg-[#222] transition-colors shrink-0 mb-0.5"
+                  title={lang === 'ru' ? 'Прикрепить изображение' : 'Attach image'}>
+                  <Icon name="Image" size={14} />
                 </button>
+                <input ref={imageInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+
+                {/* Расширения */}
+                <div className="relative shrink-0 mb-0.5">
+                  <button onClick={() => setShowExtensions(v => !v)}
+                    className={`grid h-7 w-7 place-items-center rounded-lg transition-colors ${showExtensions ? 'text-primary bg-primary/10' : 'text-[#555] hover:text-[#aaa] hover:bg-[#222]'}`}
+                    title={lang === 'ru' ? 'Расширения' : 'Extensions'}>
+                    <Icon name="Puzzle" size={14} />
+                  </button>
+                  {showExtensions && (
+                    <div className="absolute bottom-10 left-0 z-50 w-60 bg-[#1a1a1a] border border-[#2a2a2a] rounded-2xl shadow-2xl p-3">
+                      <p className="text-[10px] text-[#555] uppercase tracking-widest font-semibold mb-2">{lang === 'ru' ? 'Расширения' : 'Extensions'}</p>
+                      {[
+                        { icon: 'ShoppingCart', label: lang === 'ru' ? 'Интернет-магазин' : 'E-commerce', desc: lang === 'ru' ? 'Каталог, корзина, оплата' : 'Catalog, cart, checkout' },
+                        { icon: 'MessageSquare', label: lang === 'ru' ? 'Онлайн-чат' : 'Live chat', desc: lang === 'ru' ? 'Виджет чата на сайте' : 'Chat widget on site' },
+                        { icon: 'BarChart2', label: lang === 'ru' ? 'Аналитика' : 'Analytics', desc: lang === 'ru' ? 'Google Analytics, Яндекс' : 'Google Analytics, Yandex' },
+                        { icon: 'CreditCard', label: lang === 'ru' ? 'Оплата' : 'Payments', desc: lang === 'ru' ? 'Stripe, ЮКасса' : 'Stripe, YooKassa' },
+                        { icon: 'Mail', label: lang === 'ru' ? 'Email-рассылка' : 'Email list', desc: lang === 'ru' ? 'Форма подписки' : 'Subscription form' },
+                      ].map(ext => (
+                        <button key={ext.label}
+                          onClick={() => { sendMessage(`Добавь расширение: ${ext.label}`); setShowExtensions(false); }}
+                          className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl hover:bg-[#222] transition-colors text-left group">
+                          <div className="grid h-7 w-7 place-items-center rounded-lg bg-primary/10 text-primary shrink-0">
+                            <Icon name={ext.icon} size={13} />
+                          </div>
+                          <div>
+                            <div className="text-xs font-medium text-[#e0e0e0] group-hover:text-white">{ext.label}</div>
+                            <div className="text-[10px] text-[#555]">{ext.desc}</div>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
                 <textarea
                   ref={textareaRef}
                   value={input}
                   onChange={e => setInput(e.target.value)}
                   onKeyDown={handleKeyDown}
-                  placeholder={tr('builderInputPlaceholder', lang)}
+                  placeholder={isRecording ? (lang === 'ru' ? '🎙 Говорите…' : '🎙 Speaking…') : tr('builderInputPlaceholder', lang)}
                   rows={1}
-                  className="flex-1 bg-transparent text-sm text-[#e0e0e0] placeholder:text-[#444] resize-none outline-none min-h-[20px] max-h-[160px]"
+                  className={`flex-1 bg-transparent text-sm resize-none outline-none min-h-[20px] max-h-[160px] ${isRecording ? 'text-red-400 placeholder:text-red-400/50' : 'text-[#e0e0e0] placeholder:text-[#444]'}`}
                 />
-                <button
-                  onClick={() => sendMessage()}
-                  disabled={loading || !input.trim()}
-                  className="grid h-8 w-8 place-items-center rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground disabled:opacity-30 transition-all shrink-0 shadow-sm shadow-primary/20"
-                >
+
+                {/* Голосовой ввод */}
+                <button onClick={toggleRecording}
+                  className={`grid h-7 w-7 place-items-center rounded-lg transition-all shrink-0 mb-0.5 ${isRecording ? 'text-red-400 bg-red-500/10 animate-pulse' : 'text-[#555] hover:text-[#aaa] hover:bg-[#222]'}`}
+                  title={lang === 'ru' ? (isRecording ? 'Остановить запись' : 'Голосовой ввод') : (isRecording ? 'Stop recording' : 'Voice input')}>
+                  <Icon name={isRecording ? 'MicOff' : 'Mic'} size={14} />
+                </button>
+
+                {/* Отправить */}
+                <button onClick={() => sendMessage()}
+                  disabled={loading || (!input.trim() && !attachedImage)}
+                  className="grid h-8 w-8 place-items-center rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground disabled:opacity-30 transition-all shrink-0 shadow-sm shadow-primary/20">
                   {loading ? <Icon name="Loader" size={14} className="animate-spin" /> : <Icon name="Send" size={14} />}
                 </button>
               </div>
+
               <div className="flex items-center justify-between mt-1.5 px-1">
                 <p className="text-[10px] text-[#444]">{tr('builderInputHint', lang)}</p>
-                {input.length > 0 && (
-                  <span className="text-[10px] text-[#444]">{input.length}</span>
-                )}
+                {input.length > 0 && <span className="text-[10px] text-[#444]">{input.length}</span>}
               </div>
             </div>
+
+            {/* Overlay закрывает расширения */}
+            {showExtensions && <div className="fixed inset-0 z-40" onClick={() => setShowExtensions(false)} />}
           </div>
         )}
 
         {/* RIGHT — PREVIEW / CODE */}
-        <div className="flex-1 flex flex-col bg-[#0d0d0d] overflow-hidden">
+        <div className="flex-1 flex flex-col bg-[#1c1c1e] overflow-hidden">
           {rightTab === 'preview' ? (
             <div className="flex-1 flex flex-col items-center overflow-hidden">
               {html ? (
