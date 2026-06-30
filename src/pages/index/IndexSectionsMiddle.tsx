@@ -35,6 +35,7 @@ const PAGE_SIZE = 12;
 function PortfolioSection({ lang, portfolio }: { lang: Lang; portfolio: ReturnType<typeof getPORTFOLIO> }) {
   const [activeFilter, setActiveFilter] = useState<DemoCategory>('all');
   const [page, setPage] = useState(1);
+  const [prevCount, setPrevCount] = useState(0);
   const CATEGORIES = lang === 'ru' ? DEMO_CATEGORIES_RU : DEMO_CATEGORIES_EN;
 
   const filtered = activeFilter === 'all' ? portfolio : portfolio.filter(p => p.category === activeFilter);
@@ -44,6 +45,12 @@ function PortfolioSection({ lang, portfolio }: { lang: Lang; portfolio: ReturnTy
   const handleFilter = (id: DemoCategory) => {
     setActiveFilter(id);
     setPage(1);
+    setPrevCount(0);
+  };
+
+  const handleShowMore = () => {
+    setPrevCount(visible.length);
+    setPage(p => p + 1);
   };
 
   return (
@@ -89,10 +96,14 @@ function PortfolioSection({ lang, portfolio }: { lang: Lang; portfolio: ReturnTy
 
         {/* Сетка */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-          {visible.map((p) => (
+          {visible.map((p, i) => {
+            const isNew = i >= prevCount;
+            const delay = isNew ? `${(i - prevCount) * 50}ms` : '0ms';
+            return (
             <div
               key={p.title}
               className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+              style={isNew ? { animation: `cardIn 0.4s ease both`, animationDelay: delay } : undefined}
             >
               <div className="relative h-44 overflow-hidden bg-muted">
                 <img
@@ -123,7 +134,8 @@ function PortfolioSection({ lang, portfolio }: { lang: Lang; portfolio: ReturnTy
                 </a>
               </div>
             </div>
-          ))}
+            );
+          })}
         </div>
 
         {/* Показать ещё / счётчик */}
@@ -133,7 +145,7 @@ function PortfolioSection({ lang, portfolio }: { lang: Lang; portfolio: ReturnTy
           </p>
           {hasMore && (
             <button
-              onClick={() => setPage(p => p + 1)}
+              onClick={handleShowMore}
               className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full border border-border bg-card text-sm font-semibold text-muted-foreground hover:text-foreground hover:border-primary/40 transition-all"
             >
               <Icon name="ChevronDown" size={15} />
