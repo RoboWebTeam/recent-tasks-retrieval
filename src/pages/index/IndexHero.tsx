@@ -210,7 +210,7 @@ export function IndexHero({ lang, typedText, chatStep, isTyping, progress, chatS
             </svg>
           </div>
 
-          <div className="glass rounded-3xl p-4 sm:p-5 shadow-2xl mt-[-1.5rem] mx-2 sm:mx-0">
+          <div className="glass rounded-3xl p-4 sm:p-5 shadow-2xl mt-[-1.5rem] mx-2 sm:mx-0 flex flex-col" style={{ height: '380px' }}>
             {/* Header */}
             <div className="flex items-center gap-2 pb-3 border-b border-border/60">
               <span className="relative grid h-6 w-6 sm:h-7 sm:w-7 place-items-center rounded-lg bg-primary text-primary-foreground shrink-0">
@@ -234,9 +234,9 @@ export function IndexHero({ lang, typedText, chatStep, isTyping, progress, chatS
               </span>
             </div>
 
-            {/* Progress bar */}
-            {progress > 0 && (
-              <div className="mt-3 mb-1">
+            {/* Progress bar — фиксированная высота, не влияет на layout */}
+            <div className="shrink-0 overflow-hidden transition-all duration-300" style={{ height: progress > 0 ? '44px' : '0px' }}>
+              <div className="pt-2 pb-1">
                 <div className="flex items-center justify-between mb-1">
                   <span className="text-xs text-muted-foreground font-medium">{L.chat.progress[lang]}</span>
                   <span className="text-xs font-bold text-primary">{progress}%</span>
@@ -248,10 +248,10 @@ export function IndexHero({ lang, typedText, chatStep, isTyping, progress, chatS
                   />
                 </div>
               </div>
-            )}
+            </div>
 
-            {/* Messages */}
-            <div ref={chatContainerRef} className="space-y-2 sm:space-y-2.5 pt-3 h-[200px] sm:h-[220px] overflow-y-auto">
+            {/* Messages — занимает всё оставшееся место */}
+            <div ref={chatContainerRef} className="flex-1 space-y-2 sm:space-y-2.5 pt-3 overflow-y-auto overflow-x-hidden">
               {chatSteps.slice(0, chatStep).map((m, i) => (
                 <div
                   key={i}
@@ -302,7 +302,7 @@ export function IndexHero({ lang, typedText, chatStep, isTyping, progress, chatS
             </div>
 
             {/* Input */}
-            <div className="mt-3 flex items-center gap-2 rounded-full border border-border bg-background px-3 sm:px-4 py-2 sm:py-2.5">
+            <div className="mt-3 shrink-0 flex items-center gap-2 rounded-full border border-border bg-background px-3 sm:px-4 py-2 sm:py-2.5">
               <Icon name="MessageSquare" size={15} className="text-muted-foreground shrink-0" />
               <span className="text-xs sm:text-sm text-muted-foreground truncate">Опишите ваш сайт…</span>
               <span className="ml-auto grid h-7 w-7 sm:h-8 sm:w-8 place-items-center rounded-full bg-primary text-primary-foreground shrink-0 hover:bg-primary/90 transition-colors cursor-pointer">
