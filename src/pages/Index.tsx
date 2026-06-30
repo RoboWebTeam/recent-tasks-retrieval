@@ -13,8 +13,6 @@ const Index = () => {
   const [progress, setProgress] = useState(0);
   const [menuOpen, setMenuOpen] = useState(false);
   const [wordIdx, setWordIdx] = useState(0);
-  const [typedText, setTypedText] = useState('');
-  const [isDeleting, setIsDeleting] = useState(false);
 
   const CHAT_STEPS = getCHAT_STEPS(lang);
   const typedWords = L.hero.words[lang] as unknown as string[];
@@ -48,28 +46,13 @@ const Index = () => {
     return () => clearTimeout(t);
   }, [chatStep]);
 
-  // Typewriter effect
+  // Смена слов каждые 2.5 секунды
   useEffect(() => {
-    const words = typedWords;
-    const full = words[wordIdx];
-    const typeSpeed = isDeleting ? 40 : 70;
-    const pauseDelay = 1800;
-    const t = setTimeout(() => {
-      if (!isDeleting) {
-        const next = full.slice(0, typedText.length + 1);
-        setTypedText(next);
-        if (next === full) setTimeout(() => setIsDeleting(true), pauseDelay);
-      } else {
-        const next = typedText.slice(0, -1);
-        setTypedText(next);
-        if (next === '') {
-          setIsDeleting(false);
-          setWordIdx(i => (i + 1) % words.length);
-        }
-      }
-    }, typeSpeed);
-    return () => clearTimeout(t);
-  }, [typedText, isDeleting, wordIdx]);
+    const t = setInterval(() => {
+      setWordIdx(i => (i + 1) % typedWords.length);
+    }, 2500);
+    return () => clearInterval(t);
+  }, [typedWords.length]);
 
   // Lock scroll on mobile menu
   useEffect(() => {
@@ -102,7 +85,7 @@ const Index = () => {
       />
       <IndexHero
         lang={lang}
-        typedText={typedText}
+        wordIdx={wordIdx}
         chatStep={chatStep}
         isTyping={isTyping}
         progress={progress}

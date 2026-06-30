@@ -71,7 +71,7 @@ export function IndexNav({ lang, menuOpen, setMenuOpen, onLangSwitch }: IndexNav
 
 interface IndexHeroProps {
   lang: Lang;
-  typedText: string;
+  wordIdx: number;
   chatStep: number;
   isTyping: boolean;
   progress: number;
@@ -79,7 +79,7 @@ interface IndexHeroProps {
   onDemoOpen: () => void;
 }
 
-export function IndexHero({ lang, typedText, chatStep, isTyping, progress, chatSteps, onDemoOpen }: IndexHeroProps) {
+export function IndexHero({ lang, wordIdx, chatStep, isTyping, progress, chatSteps, onDemoOpen }: IndexHeroProps) {
   const chatEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
 
@@ -113,11 +113,12 @@ export function IndexHero({ lang, typedText, chatStep, isTyping, progress, chatS
             {L.hero.badge[lang]}
           </span>
           <h1 className="mt-5 font-display font-black leading-[1.05] text-4xl sm:text-5xl md:text-6xl xl:text-7xl tracking-tight">
-            <span className="block h-[1.1em]">
-              <span className="text-gradient">
-                {typedText}
-                <span className="typed-cursor">|</span>
-              </span>
+            <span
+              key={wordIdx}
+              className="text-gradient inline-block"
+              style={{ animation: 'wordSwap 0.5s ease both' }}
+            >
+              {(L.hero.words[lang] as unknown as string[])[wordIdx]}
             </span>
           </h1>
           <p className="mt-5 text-base sm:text-lg text-muted-foreground max-w-xl mx-auto lg:mx-0">
