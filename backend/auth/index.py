@@ -253,6 +253,129 @@ def handler(event: dict, context) -> dict:
 
             return ok({'session_id': session_id, 'user': {'id': user_id, 'email': gh_email, 'name': name, 'plan': plan}})
 
+        # YANDEX OAUTH
+        if action == 'yandex_oauth':
+            code = body.get('code', '')
+            if not code:
+                return err('Нет кода авторизации')
+
+            client_id = os.environ.get('YANDEX_CLIENT_ID', '')
+            client_secret = os.environ.get('YANDEX_CLIENT_SECRET', '')
+
+            token_data = urllib.parse.urlencode({
+                'grant_type': 'authorization_code',
+                'code': code,
+                'client_id': client_id,
+                'client_secret': client_secret,
+            }).encode()
+            req = urllib.request.Request(
+                'https://oauth.yandex.ru/token',
+                data=token_data,
+                headers={'Content-Type': 'application/x-www-form-urlencoded'},
+            )
+            try:
+                with urllib.request.urlopen(req) as resp:
+                    token_resp = json.loads(resp.read())
+            except Exception:
+                return err('Не удалось получить токен Яндекс')
+
+            access_token = token_resp.get('access_token', '')
+            if not access_token:
+                return err('Не удалось получить токен Яндекс')
+
+            user_req = urllib.request.Request(
+                'https://login.yandex.ru/info?format=json',
+                headers={'Authorization': f'OAuth {access_token}'},
+            )
+            with urllib.request.urlopen(user_req) as resp:
+                ya_user = json.loads(resp.read())
+
+            ya_email = ya_user.get('default_email') or ya_user.get('emails', [None])[0] or f"yandex_{ya_user['id']}@roboweb.user"
+            ya_name = ya_user.get('real_name') or ya_user.get('display_name') or 'Яндекс Пользователь'
+            ya_email = ya_email.strip().lower()
+
+            conn = get_conn()
+            try:
+                with conn.cursor() as cur:
+                    cur.execute(f"SELECT id, name, plan FROM {schema}.users WHERE email = %s", (ya_email,))
+                    row = cur.fetchone()
+                    if row:
+                        user_id, name, plan = row
+                    else:
+                        cur.execute(
+                            f"INSERT INTO {schema}.users (email, password_hash, name) VALUES (%s, %s, %s) RETURNING id",
+                            (ya_email, hash_password(str(uuid.uuid4())), ya_name)
+                        )
+                        user_id = cur.fetchone()[0]
+                        name, plan = ya_name, 'free'
+
+                    session_id = str(uuid.uuid4())
+                    cur.execute(
+                        f"INSERT INTO {schema}.sessions (id, user_id) VALUES (%s, %s)",
+                        (session_id, user_id)
+                    )
+                conn.commit()
+            finally:
+                conn.close()
+
+            return ok({'session_id': session_id, 'user': {'id': user_id, 'email': ya_email, 'name': name, 'plan': plan}})
+
+        # TELEGRAM OAUTH
+        if action == 'telegram_oauth':
+            import hashlib
+            import hmac
+
+            tg_data = body.get('tg_data', {})
+            bot_token = os.environ.get('TELEGRAM_BOT_TOKEN', '')
+
+            # Верификация подписи от Telegram
+            check_hash = tg_data.pop('hash', '')
+            data_check_arr = sorted([f"{k}={v}" for k, v in tg_data.items()])
+            data_check_string = '\n'.join(data_check_arr)
+            secret_key = hashlib.sha256(bot_token.encode()).digest()
+            computed_hash = hmac.new(secret_key, data_check_string.encode(), hashlib.sha256).hexdigest()
+
+            if computed_hash != check_hash:
+                return err('Неверная подпись Telegram', 403)
+
+            # Проверка актуальности данных (не старше 1 часа)
+            auth_date = int(tg_data.get('auth_date', 0))
+            if datetime.utcnow().timestamp() - auth_date > 3600:
+                return err('Данные авторизации устарели', 403)
+
+            tg_id = tg_data.get('id')
+            tg_first = tg_data.get('first_name', '')
+            tg_last = tg_data.get('last_name', '')
+            tg_username = tg_data.get('username', '')
+            tg_name = f"{tg_first} {tg_last}".strip() or tg_username or 'Telegram User'
+            tg_email = f"tg_{tg_id}@roboweb.user"
+
+            conn = get_conn()
+            try:
+                with conn.cursor() as cur:
+                    cur.execute(f"SELECT id, name, plan FROM {schema}.users WHERE email = %s", (tg_email,))
+                    row = cur.fetchone()
+                    if row:
+                        user_id, name, plan = row
+                    else:
+                        cur.execute(
+                            f"INSERT INTO {schema}.users (email, password_hash, name) VALUES (%s, %s, %s) RETURNING id",
+                            (tg_email, hash_password(str(uuid.uuid4())), tg_name)
+                        )
+                        user_id = cur.fetchone()[0]
+                        name, plan = tg_name, 'free'
+
+                    session_id = str(uuid.uuid4())
+                    cur.execute(
+                        f"INSERT INTO {schema}.sessions (id, user_id) VALUES (%s, %s)",
+                        (session_id, user_id)
+                    )
+                conn.commit()
+            finally:
+                conn.close()
+
+            return ok({'session_id': session_id, 'user': {'id': user_id, 'email': tg_email, 'name': name, 'plan': plan}})
+
         return err('Неизвестное действие')
 
     # GET /me

@@ -13,6 +13,8 @@ import Builder from "./pages/Builder";
 import Blog from "./pages/Blog";
 import Article from "./pages/Article";
 import GithubCallback from "./pages/GithubCallback";
+import YandexCallback from "./pages/YandexCallback";
+import TelegramCallback from "./pages/TelegramCallback";
 import DomainSettings from "./pages/DomainSettings";
 import Pricing from "./pages/Pricing";
 import Analytics from "./pages/Analytics";
@@ -40,6 +42,8 @@ const App = () => (
           <Route path="/blog/:slug" element={<Article />} />
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/auth/github/callback" element={<GithubCallback />} />
+          <Route path="/auth/yandex/callback" element={<YandexCallback />} />
+          <Route path="/auth/telegram/callback" element={<TelegramCallback />} />
 
           {/* Защищённые роуты */}
           <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />

@@ -113,6 +113,24 @@ export async function apiGithubOAuth(code: string) {
   return data;
 }
 
+export async function apiYandexOAuth(code: string) {
+  const { res, data } = await apiFetch(AUTH_URL, {
+    method: 'POST',
+    body: JSON.stringify({ action: 'yandex_oauth', code }),
+  });
+  if (!res.ok) throw new Error((data as {error?: string}).error || 'Ошибка авторизации через Яндекс');
+  return data;
+}
+
+export async function apiTelegramOAuth(tgData: Record<string, string>) {
+  const { res, data } = await apiFetch(AUTH_URL, {
+    method: 'POST',
+    body: JSON.stringify({ action: 'telegram_oauth', tg_data: tgData }),
+  });
+  if (!res.ok) throw new Error((data as {error?: string}).error || 'Ошибка авторизации через Telegram');
+  return data;
+}
+
 export async function apiGetMe(sessionId: string) {
   const { res, data } = await apiFetch(AUTH_URL, {
     headers: { 'x-session-id': sessionId },
