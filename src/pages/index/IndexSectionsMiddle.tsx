@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState } from 'react';
 import { type Lang } from '@/lib/i18n';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
@@ -29,25 +29,25 @@ function SiteCounter({ lang }: { lang: Lang }) {
   );
 }
 
+const PAGE_SIZE = 12;
+
 // --- Секция портфолио ---
 function PortfolioSection({ lang, portfolio }: { lang: Lang; portfolio: ReturnType<typeof getPORTFOLIO> }) {
   const [activeFilter, setActiveFilter] = useState<DemoCategory>('all');
-  const sliderRef = useRef<HTMLDivElement>(null);
+  const [page, setPage] = useState(1);
   const CATEGORIES = lang === 'ru' ? DEMO_CATEGORIES_RU : DEMO_CATEGORIES_EN;
 
   const filtered = activeFilter === 'all' ? portfolio : portfolio.filter(p => p.category === activeFilter);
+  const visible = filtered.slice(0, page * PAGE_SIZE);
+  const hasMore = visible.length < filtered.length;
 
-  const scroll = (dir: 'left' | 'right') => {
-    if (!sliderRef.current) return;
-    sliderRef.current.scrollBy({ left: dir === 'left' ? -320 : 320, behavior: 'smooth' });
+  const handleFilter = (id: DemoCategory) => {
+    setActiveFilter(id);
+    setPage(1);
   };
 
-  useEffect(() => {
-    if (sliderRef.current) sliderRef.current.scrollLeft = 0;
-  }, [activeFilter]);
-
   return (
-    <section id="portfolio" className="py-16 md:py-24 bg-secondary/30 overflow-hidden">
+    <section id="portfolio" className="py-16 md:py-24 bg-secondary/30">
       <div className="container">
         <Reveal>
           <div className="text-center max-w-2xl mx-auto px-2 mb-6">
@@ -63,12 +63,13 @@ function PortfolioSection({ lang, portfolio }: { lang: Lang; portfolio: ReturnTy
 
         <SiteCounter lang={lang} />
 
+        {/* Фильтры */}
         <Reveal>
-          <div className="flex items-center gap-2 overflow-x-auto pb-1 mb-6 scrollbar-hide justify-center flex-wrap">
+          <div className="flex items-center gap-2 pb-1 mb-8 justify-center flex-wrap">
             {CATEGORIES.map(cat => (
               <button
                 key={cat.id}
-                onClick={() => setActiveFilter(cat.id)}
+                onClick={() => handleFilter(cat.id)}
                 className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all duration-200 ${
                   activeFilter === cat.id
                     ? 'bg-primary text-primary-foreground shadow-md shadow-primary/20 scale-105'
@@ -86,72 +87,59 @@ function PortfolioSection({ lang, portfolio }: { lang: Lang; portfolio: ReturnTy
           </div>
         </Reveal>
 
-        <div className="relative">
-          <button
-            onClick={() => scroll('left')}
-            className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 z-10 hidden md:grid h-10 w-10 place-items-center rounded-full bg-card border border-border shadow-lg hover:bg-primary hover:border-primary hover:text-primary-foreground transition-all"
-          >
-            <Icon name="ChevronLeft" size={18} />
-          </button>
-          <button
-            onClick={() => scroll('right')}
-            className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 z-10 hidden md:grid h-10 w-10 place-items-center rounded-full bg-card border border-border shadow-lg hover:bg-primary hover:border-primary hover:text-primary-foreground transition-all"
-          >
-            <Icon name="ChevronRight" size={18} />
-          </button>
-          <div className="absolute left-0 top-0 bottom-0 w-8 bg-gradient-to-r from-secondary/30 to-transparent z-10 pointer-events-none hidden md:block" />
-          <div className="absolute right-0 top-0 bottom-0 w-8 bg-gradient-to-l from-secondary/30 to-transparent z-10 pointer-events-none hidden md:block" />
-
-          <div
-            ref={sliderRef}
-            className="flex gap-4 overflow-x-auto pb-4 scrollbar-hide snap-x snap-mandatory"
-            style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-          >
-            {filtered.map((p) => (
-              <div
-                key={p.title}
-                className="group flex-none w-72 sm:w-80 snap-start flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition-all duration-300 hover:shadow-2xl hover:-translate-y-1"
-              >
-                <div className="relative h-44 overflow-hidden bg-muted">
-                  <img
-                    src={p.img}
-                    alt={p.title}
-                    className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3.5">
-                    <p className="text-white text-xs leading-relaxed line-clamp-2 italic">«{p.prompt}»</p>
-                  </div>
-                  <span className="absolute top-3 left-3 flex items-center gap-1.5 rounded-full bg-black/55 backdrop-blur px-2.5 py-1 text-[10px] font-semibold text-white">
-                    <Icon name="Sparkles" size={10} className="text-primary" />
-                    {lang === 'ru' ? 'ИИ за минуты' : 'AI in minutes'}
-                  </span>
+        {/* Сетка */}
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+          {visible.map((p) => (
+            <div
+              key={p.title}
+              className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+            >
+              <div className="relative h-44 overflow-hidden bg-muted">
+                <img
+                  src={p.img}
+                  alt={p.title}
+                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3.5">
+                  <p className="text-white text-xs leading-relaxed line-clamp-2 italic">«{p.prompt}»</p>
                 </div>
-                <div className="p-4 flex flex-col flex-1">
-                  <span className="inline-block rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary mb-2 w-fit">{p.tag}</span>
-                  <h3 className="font-display font-bold text-sm text-foreground group-hover:text-primary transition-colors flex-1 mb-3">
-                    {p.title}
-                  </h3>
-                  <a
-                    href={`/register?prompt=${encodeURIComponent(p.prompt)}`}
-                    className="flex items-center justify-center gap-2 w-full rounded-xl bg-primary/10 hover:bg-primary text-primary hover:text-primary-foreground text-xs font-semibold py-2.5 transition-all duration-200 group/btn"
-                  >
-                    <Icon name="Sparkles" size={13} />
-                    {lang === 'ru' ? 'Попробовать промпт' : 'Try this prompt'}
-                    <Icon name="ArrowRight" size={13} className="opacity-0 -ml-2 group-hover/btn:opacity-100 group-hover/btn:ml-0 transition-all" />
-                  </a>
-                </div>
+                <span className="absolute top-3 left-3 flex items-center gap-1.5 rounded-full bg-black/55 backdrop-blur px-2.5 py-1 text-[10px] font-semibold text-white">
+                  <Icon name="Sparkles" size={10} className="text-primary" />
+                  {lang === 'ru' ? 'ИИ за минуты' : 'AI in minutes'}
+                </span>
               </div>
-            ))}
-            <div className="flex-none w-4 shrink-0" />
-          </div>
+              <div className="p-4 flex flex-col flex-1">
+                <span className="inline-block rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary mb-2 w-fit">{p.tag}</span>
+                <h3 className="font-display font-bold text-sm text-foreground group-hover:text-primary transition-colors flex-1 mb-3">
+                  {p.title}
+                </h3>
+                <a
+                  href={`/register?prompt=${encodeURIComponent(p.prompt)}`}
+                  className="flex items-center justify-center gap-2 w-full rounded-xl bg-primary/10 hover:bg-primary text-primary hover:text-primary-foreground text-xs font-semibold py-2.5 transition-all duration-200 group/btn"
+                >
+                  <Icon name="Sparkles" size={13} />
+                  {lang === 'ru' ? 'Попробовать промпт' : 'Try this prompt'}
+                  <Icon name="ArrowRight" size={13} className="opacity-0 -ml-2 group-hover/btn:opacity-100 group-hover/btn:ml-0 transition-all" />
+                </a>
+              </div>
+            </div>
+          ))}
+        </div>
 
-          <p className="text-center text-xs text-muted-foreground mt-3">
-            {lang === 'ru' ? `Показано ${filtered.length} из ${portfolio.length}` : `Showing ${filtered.length} of ${portfolio.length}`}
-            {' · '}
-            <span className="text-primary font-medium">
-              {lang === 'ru' ? 'листайте →' : 'swipe →'}
-            </span>
+        {/* Показать ещё / счётчик */}
+        <div className="mt-8 flex flex-col items-center gap-3">
+          <p className="text-xs text-muted-foreground">
+            {lang === 'ru' ? `Показано ${visible.length} из ${filtered.length}` : `Showing ${visible.length} of ${filtered.length}`}
           </p>
+          {hasMore && (
+            <button
+              onClick={() => setPage(p => p + 1)}
+              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full border border-border bg-card text-sm font-semibold text-muted-foreground hover:text-foreground hover:border-primary/40 transition-all"
+            >
+              <Icon name="ChevronDown" size={15} />
+              {lang === 'ru' ? 'Показать ещё' : 'Show more'}
+            </button>
+          )}
         </div>
 
         <Reveal>
