@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
-import { getLang } from '@/lib/i18n';
+import { getLang, tr } from '@/lib/i18n';
 import { getSession } from '@/lib/auth';
 
 const ANALYTICS_URL = 'https://functions.poehali.dev/ee6777e6-59d0-4d5f-acb2-d292c72253d3';
@@ -65,7 +65,7 @@ export default function Analytics() {
         const counts = lData.counts || {};
         setLeadsCount(Object.values(counts).reduce((s: number, v) => s + (v as number), 0));
       })
-      .catch(() => setError(isRu ? 'Ошибка загрузки данных' : 'Failed to load data'))
+      .catch(() => setError(tr('errorLoad', lang)))
       .finally(() => setLoading(false));
   }, [session, period]);
 
@@ -163,19 +163,15 @@ export default function Analytics() {
         {loading ? (
           <div className="flex items-center justify-center py-20 gap-3 text-muted-foreground">
             <Icon name="Loader" size={20} className="animate-spin" />
-            {isRu ? 'Загружаем данные...' : 'Loading data...'}
+            {tr('loading', lang)}
           </div>
         ) : !data || data.total_views === 0 ? (
           <div className="flex flex-col items-center justify-center py-20 text-center">
             <div className="grid h-20 w-20 place-items-center rounded-3xl bg-card border border-border mb-5">
               <Icon name="BarChart2" size={32} className="text-muted-foreground/30" />
             </div>
-            <h3 className="font-display font-bold text-lg mb-2">{isRu ? 'Данных пока нет' : 'No data yet'}</h3>
-            <p className="text-sm text-muted-foreground max-w-xs">
-              {isRu
-                ? 'Статистика появится когда посетители начнут заходить на ваши сайты'
-                : 'Stats will appear when visitors start visiting your sites'}
-            </p>
+            <h3 className="font-display font-bold text-lg mb-2">{tr('noData', lang)}</h3>
+            <p className="text-sm text-muted-foreground max-w-xs">{tr('noDataDesc', lang)}</p>
           </div>
         ) : (
           <>

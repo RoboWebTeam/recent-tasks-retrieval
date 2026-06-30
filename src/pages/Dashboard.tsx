@@ -93,7 +93,7 @@ const Dashboard = () => {
       setDialogOpen(false);
       navigate(`/builder?project=${project.id}`);
     } catch (err: unknown) {
-      setCreateError(err instanceof Error ? err.message : 'Ошибка создания проекта');
+      setCreateError(err instanceof Error ? err.message : tr('errorProject', lang));
     }
     setCreating(false);
   };
@@ -105,7 +105,7 @@ const Dashboard = () => {
       <div className="min-h-screen flex items-center justify-center bg-background">
         <div className="text-center space-y-3">
           <Icon name="Loader" size={32} className="animate-spin text-primary mx-auto" />
-          <p className="text-muted-foreground text-sm">{lang === 'ru' ? 'Загружаем ваш кабинет…' : 'Loading your dashboard…'}</p>
+          <p className="text-muted-foreground text-sm">{tr('loadingCabinet', lang)}</p>
         </div>
       </div>
     );

@@ -20,14 +20,14 @@ const Register = () => {
     e.preventDefault();
     setError('');
     if (password.length < 6) {
-      setError(lang === 'ru' ? 'Пароль должен быть не менее 6 символов' : 'Password must be at least 6 characters');
+      setError(tr('errorPassword', lang));
       return;
     }
     setLoading(true);
     try {
       const data = await apiRegister(email.trim().toLowerCase(), password, name.trim());
       if (!data.session_id || !data.user) {
-        throw new Error(lang === 'ru' ? 'Неверный ответ сервера. Попробуйте ещё раз.' : 'Invalid server response. Please try again.');
+        throw new Error(tr('errorServer', lang));
       }
       setSession(data.session_id as string);
       storeUser(data.user as Parameters<typeof storeUser>[0]);

@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
-import { getLang } from '@/lib/i18n';
+import { getLang, tr } from '@/lib/i18n';
 
 type Step = 'input' | 'dns' | 'verify' | 'done';
 type DomainStatus = 'idle' | 'checking' | 'success' | 'error';
@@ -32,7 +32,7 @@ export default function DomainSettings() {
   const handleSubmit = () => {
     const clean = cleanDomain(domain);
     if (!validateDomain(clean)) {
-      setDomainError(isRu ? 'Введите корректный домен, например: mysite.ru' : 'Enter a valid domain, e.g.: mysite.com');
+      setDomainError(tr('errorDomain', lang));
       return;
     }
     setDomainError('');

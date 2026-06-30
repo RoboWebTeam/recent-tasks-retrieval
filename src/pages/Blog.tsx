@@ -5,20 +5,24 @@ import Icon from '@/components/ui/icon';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { setSeo, setBlogJsonLd } from '@/lib/seo';
-
-const ALL = 'Все';
-const CATEGORIES = [ALL, ...Array.from(new Set(ARTICLES.map(a => a.category)))];
+import { getLang, tr } from '@/lib/i18n';
 
 export default function Blog() {
+  const lang = getLang();
+  const ALL = tr('blogAll', lang);
+  const CATEGORIES = [ALL, ...Array.from(new Set(ARTICLES.map(a => a.category)))];
+
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState(ALL);
 
   useEffect(() => {
     setSeo({
-      title: 'Блог о AI-разработке сайтов — Roboweb',
-      description: 'Статьи, инструкции и кейсы о том, как создавать сайты быстро и без лишних затрат с помощью Roboweb.',
+      title: tr('blogSeoTitle', lang),
+      description: tr('blogSeoDesc', lang),
       url: '/blog',
-      keywords: 'блог о сайтах, AI разработка, создать сайт быстро, конструктор сайтов',
+      keywords: lang === 'ru'
+        ? 'блог о сайтах, AI разработка, создать сайт быстро, конструктор сайтов'
+        : 'website blog, AI development, build site fast, site builder',
     });
     setBlogJsonLd();
   }, []);
@@ -32,6 +36,13 @@ export default function Blog() {
     });
   }, [search, category]);
 
+  const getArticlesCount = (count: number) => {
+    if (lang === 'en') return `${tr('blogFoundCount', lang)} ${count} ${count === 1 ? tr('blogArticles1', lang) : tr('blogArticles5', lang)}`;
+    if (count === 1) return `${tr('blogFoundCount', lang)} ${count} ${tr('blogArticles1', lang)}`;
+    if (count >= 2 && count <= 4) return `${tr('blogFoundCount', lang)} ${count} ${tr('blogArticles2', lang)}`;
+    return `${tr('blogFoundCount', lang)} ${count} ${tr('blogArticles5', lang)}`;
+  };
+
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
@@ -39,7 +50,7 @@ export default function Blog() {
         <div className="container flex h-16 items-center justify-between">
           <Link to="/" className="font-display font-black text-xl text-primary">Roboweb</Link>
           <Button size="sm" className="rounded-full font-semibold" asChild>
-            <Link to="/register">Создать сайт</Link>
+            <Link to="/register">{tr('blogCreate', lang)}</Link>
           </Button>
         </div>
       </header>
@@ -48,14 +59,14 @@ export default function Blog() {
         {/* Hero */}
         <div className="max-w-2xl mb-10">
           <Link to="/" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors mb-6">
-            <Icon name="ArrowLeft" size={16} /> На главную
+            <Icon name="ArrowLeft" size={16} /> {tr('blogBackHome', lang)}
           </Link>
-          <span className="inline-block text-xs font-semibold uppercase tracking-widest text-primary mb-3">Блог</span>
+          <span className="inline-block text-xs font-semibold uppercase tracking-widest text-primary mb-3">{tr('blogLabel', lang)}</span>
           <h1 className="font-display font-black text-4xl sm:text-5xl md:text-6xl tracking-tight leading-tight">
-            Всё об AI‑разработке сайтов
+            {tr('blogTitle', lang)}
           </h1>
           <p className="mt-4 text-lg text-muted-foreground">
-            Статьи, инструкции и кейсы о том, как создавать сайты быстро и без лишних затрат.
+            {tr('blogDesc', lang)}
           </p>
         </div>
 
@@ -66,7 +77,7 @@ export default function Blog() {
             <Input
               value={search}
               onChange={e => setSearch(e.target.value)}
-              placeholder="Поиск по статьям…"
+              placeholder={tr('blogSearch', lang)}
               className="pl-9 h-10 rounded-xl"
             />
             {search && (
@@ -97,9 +108,9 @@ export default function Blog() {
         {(search || category !== ALL) && (
           <p className="text-sm text-muted-foreground mb-5">
             {filtered.length === 0
-              ? 'Ничего не найдено'
-              : `Найдено ${filtered.length} ${filtered.length === 1 ? 'статья' : filtered.length < 5 ? 'статьи' : 'статей'}`}
-            {search && <span> по запросу «<span className="font-semibold text-foreground">{search}</span>»</span>}
+              ? tr('blogNotFound', lang)
+              : getArticlesCount(filtered.length)}
+            {search && <span> {tr('blogQuery', lang)} «<span className="font-semibold text-foreground">{search}</span>»</span>}
           </p>
         )}
 
@@ -109,10 +120,10 @@ export default function Blog() {
             <div className="grid h-16 w-16 place-items-center rounded-3xl bg-secondary border border-border mb-4">
               <Icon name="Search" size={28} className="text-muted-foreground/40" />
             </div>
-            <p className="font-semibold text-foreground mb-2">Статей не найдено</p>
-            <p className="text-sm text-muted-foreground mb-5">Попробуйте другой запрос или выберите другую категорию</p>
+            <p className="font-semibold text-foreground mb-2">{tr('blogEmpty', lang)}</p>
+            <p className="text-sm text-muted-foreground mb-5">{tr('blogEmptyDesc', lang)}</p>
             <button onClick={() => { setSearch(''); setCategory(ALL); }} className="text-sm text-primary hover:underline">
-              Сбросить фильтры
+              {tr('blogReset', lang)}
             </button>
           </div>
         ) : (
@@ -127,12 +138,12 @@ export default function Blog() {
                   <img src={article.cover} alt={article.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                   <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
                   <span className="absolute top-3 left-3 rounded-full bg-black/50 backdrop-blur px-2.5 py-1 text-[10px] font-semibold text-white">
-                    {article.readTime} чтения
+                    {article.readTime} {tr('blogReadTime', lang)}
                   </span>
                 </div>
-                <div className="flex flex-col flex-1 p-6">
+                <div className="flex flex-col flex-1 p-5 sm:p-6">
                   <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary w-fit mb-3">{article.category}</span>
-                  <h2 className="font-display font-bold text-lg leading-snug group-hover:text-primary transition-colors flex-1">
+                  <h2 className="font-display font-bold text-base sm:text-lg leading-snug group-hover:text-primary transition-colors flex-1">
                     {article.title}
                   </h2>
                   <p className="mt-3 text-sm text-muted-foreground line-clamp-2">{article.description}</p>
@@ -141,7 +152,7 @@ export default function Blog() {
                       <Icon name="Calendar" size={12} />{article.date}
                     </span>
                     <span className="inline-flex items-center gap-1 text-xs font-semibold text-primary group-hover:gap-2 transition-all">
-                      Читать <Icon name="ArrowRight" size={13} />
+                      {tr('blogRead', lang)} <Icon name="ArrowRight" size={13} />
                     </span>
                   </div>
                 </div>
@@ -152,10 +163,10 @@ export default function Blog() {
 
         {/* Bottom CTA */}
         <div className="mt-20 rounded-3xl bg-gradient-to-r from-primary to-[hsl(250,90%,60%)] p-8 md:p-12 text-center text-white">
-          <h2 className="font-display font-black text-3xl md:text-4xl mb-3">Готовы создать свой сайт?</h2>
-          <p className="text-white/80 text-lg mb-8">Попробуйте Roboweb бесплатно — первый сайт за несколько минут</p>
-          <Button size="lg" className="rounded-full bg-white text-primary hover:bg-white/90 font-semibold px-10 text-base shadow-xl" asChild>
-            <Link to="/register">Создать сайт бесплатно <Icon name="ArrowRight" size={18} className="ml-1" /></Link>
+          <h2 className="font-display font-black text-2xl sm:text-3xl md:text-4xl mb-3">{tr('blogCtaTitle', lang)}</h2>
+          <p className="text-white/80 text-base sm:text-lg mb-8">{tr('blogCtaDesc', lang)}</p>
+          <Button size="lg" className="rounded-full bg-white text-primary hover:bg-white/90 font-semibold px-8 sm:px-10 text-base shadow-xl" asChild>
+            <Link to="/register">{tr('blogCtaBtn', lang)} <Icon name="ArrowRight" size={18} className="ml-1" /></Link>
           </Button>
         </div>
       </main>

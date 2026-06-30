@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import { SEND_EMAIL_URL } from './indexData';
+import { getLang, tr } from '@/lib/i18n';
 
 // --- Hooks ---
 
@@ -63,11 +64,14 @@ export function CounterStat({ value, suffix, label }: { value: number; suffix: s
   );
 }
 
-export function EmailForm({ dark = false, placeholder = 'Ваш e-mail', btnText = 'Начать бесплатно' }: {
+export function EmailForm({ dark = false, placeholder, btnText }: {
   dark?: boolean;
   placeholder?: string;
   btnText?: string;
 }) {
+  const lang = getLang();
+  const resolvedPlaceholder = placeholder ?? (lang === 'ru' ? 'Ваш e-mail' : 'Your e-mail');
+  const resolvedBtnText = btnText ?? (lang === 'ru' ? 'Начать бесплатно' : 'Start for free');
   const [email, setEmail] = useState('');
   const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 
@@ -92,7 +96,7 @@ export function EmailForm({ dark = false, placeholder = 'Ваш e-mail', btnText
         dark ? 'bg-white/10 border border-white/20 text-background' : 'bg-primary/10 border border-primary/20 text-primary'
       }`}>
         <Icon name="CheckCircle" size={20} />
-        Заявка принята! Мы свяжемся с вами.
+        {tr('successEmail', lang)}
       </div>
     );
   }
@@ -102,7 +106,7 @@ export function EmailForm({ dark = false, placeholder = 'Ваш e-mail', btnText
       <form onSubmit={handleSubmit} className="flex flex-col sm:flex-row gap-3 max-w-md mx-auto">
         <Input
           type="email"
-          placeholder={placeholder}
+          placeholder={resolvedPlaceholder}
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
@@ -121,14 +125,14 @@ export function EmailForm({ dark = false, placeholder = 'Ваш e-mail', btnText
           }`}
         >
           {status === 'loading'
-            ? <><Icon name="Loader" size={16} className="mr-2 animate-spin" />Отправляем…</>
-            : <>{btnText} <Icon name="ArrowRight" size={16} className="ml-1 animate-bounce-x" /></>
+            ? <><Icon name="Loader" size={16} className="mr-2 animate-spin" />{tr('sending', lang)}</>
+            : <>{resolvedBtnText} <Icon name="ArrowRight" size={16} className="ml-1 animate-bounce-x" /></>
           }
         </Button>
       </form>
       {status === 'error' && (
         <p className={`mt-2 text-sm text-center ${dark ? 'text-rose-300' : 'text-rose-500'}`}>
-          Ошибка отправки. Попробуйте ещё раз.
+          {tr('errorSend', lang)}
         </p>
       )}
     </div>

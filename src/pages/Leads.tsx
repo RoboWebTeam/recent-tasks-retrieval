@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
-import { getLang } from '@/lib/i18n';
+import { getLang, tr } from '@/lib/i18n';
 import { getSession } from '@/lib/auth';
 
 const SITE_LEADS_URL = 'https://functions.poehali.dev/96a428e9-25c5-47d2-83b1-bdc68f9f8010';
@@ -50,7 +50,7 @@ export default function Leads() {
         setLeads(data.leads || []);
         setCounts(data.counts || {});
       })
-      .catch(() => setError(isRu ? 'Ошибка загрузки' : 'Load error'))
+      .catch(() => setError(tr('errorLoad', lang)))
       .finally(() => setLoading(false));
   };
 

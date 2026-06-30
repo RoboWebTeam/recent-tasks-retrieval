@@ -4,15 +4,16 @@ import { getArticle, ARTICLES } from '@/data/blog';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { setSeo, setArticleJsonLd } from '@/lib/seo';
+import { getLang, tr } from '@/lib/i18n';
 
 export default function Article() {
+  const lang = getLang();
   const { slug } = useParams<{ slug: string }>();
   const navigate = useNavigate();
   const article = slug ? getArticle(slug) : null;
   const [readProgress, setReadProgress] = useState(0);
   const [copied, setCopied] = useState(false);
 
-  // Прогресс-бар чтения
   useEffect(() => {
     const handleScroll = () => {
       const el = document.documentElement;
@@ -35,7 +36,7 @@ export default function Article() {
       url: `/blog/${article.slug}`,
       type: 'article',
       publishedTime: article.date,
-      keywords: `${article.category}, AI сайты, Roboweb, ${article.title.toLowerCase()}`,
+      keywords: `${article.category}, AI websites, Roboweb, ${article.title.toLowerCase()}`,
     });
     setArticleJsonLd(article);
   }, [slug, article]);
@@ -59,7 +60,6 @@ export default function Article() {
     }
   };
 
-  // Безопасный рендер inline-разметки без dangerouslySetInnerHTML
   const renderInline = (text: string, key: number) => {
     const parts: React.ReactNode[] = [];
     const re = /\*\*(.+?)\*\*|\*(.+?)\*/g;
@@ -89,7 +89,7 @@ export default function Article() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Прогресс-бар чтения */}
+      {/* Progress bar */}
       <div className="fixed top-0 left-0 right-0 z-[100] h-1 bg-border">
         <div
           className="h-full bg-gradient-to-r from-primary to-violet-500 transition-all duration-100"
@@ -103,19 +103,18 @@ export default function Article() {
           <div className="flex items-center gap-2 min-w-0">
             <Link to="/" className="font-display font-black text-lg text-primary shrink-0">Roboweb</Link>
             <span className="text-muted-foreground shrink-0">/</span>
-            <Link to="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors shrink-0">Блог</Link>
+            <Link to="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors shrink-0">{tr('blogLabel', lang)}</Link>
             <span className="text-muted-foreground shrink-0 hidden sm:inline">/</span>
             <span className="text-sm text-foreground truncate hidden sm:inline">{article.title}</span>
           </div>
           <div className="flex items-center gap-2 shrink-0">
-            {/* Прогресс в заголовке */}
             <span className="text-xs text-muted-foreground hidden sm:inline">{readProgress}%</span>
             <button
               onClick={handleShare}
               className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-xl border border-border hover:bg-secondary transition-colors"
             >
               <Icon name={copied ? 'Check' : 'Share2'} size={14} />
-              <span className="hidden sm:inline">{copied ? 'Скопировано!' : 'Поделиться'}</span>
+              <span className="hidden sm:inline">{copied ? tr('articleCopied', lang) : tr('articleShare', lang)}</span>
             </button>
           </div>
         </div>
@@ -124,7 +123,7 @@ export default function Article() {
       <main className="container max-w-3xl py-12 md:py-20">
         {/* Back */}
         <Link to="/blog" className="inline-flex items-center gap-2 text-sm text-muted-foreground hover:text-primary transition-colors mb-8">
-          <Icon name="ArrowLeft" size={16} /> Все статьи
+          <Icon name="ArrowLeft" size={16} /> {tr('articleBack', lang)}
         </Link>
 
         {/* Meta */}
@@ -139,7 +138,7 @@ export default function Article() {
             <Icon name="Calendar" size={14} />{article.date}
           </span>
           <span className="text-sm text-muted-foreground flex items-center gap-1.5">
-            <Icon name="Clock" size={14} />{article.readTime} чтения
+            <Icon name="Clock" size={14} />{article.readTime} {tr('blogReadTime', lang)}
           </span>
         </div>
 
@@ -165,8 +164,8 @@ export default function Article() {
         {/* Share bottom */}
         <div className="mt-10 pt-8 border-t border-border flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
           <div>
-            <p className="text-sm font-semibold text-foreground mb-1">Понравилась статья?</p>
-            <p className="text-xs text-muted-foreground">Поделитесь с коллегами и друзьями</p>
+            <p className="text-sm font-semibold text-foreground mb-1">{tr('articleShareTitle', lang)}</p>
+            <p className="text-xs text-muted-foreground">{tr('articleShareDesc', lang)}</p>
           </div>
           <div className="flex gap-2">
             <button
@@ -174,7 +173,7 @@ export default function Article() {
               className="flex items-center gap-2 px-4 py-2 rounded-xl bg-primary text-primary-foreground text-sm font-semibold hover:bg-primary/90 transition-colors"
             >
               <Icon name={copied ? 'Check' : 'Share2'} size={15} />
-              {copied ? 'Скопировано!' : 'Поделиться'}
+              {copied ? tr('articleCopied', lang) : tr('articleShare', lang)}
             </button>
             <a
               href={`https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(article.title)}`}
@@ -189,10 +188,10 @@ export default function Article() {
 
         {/* CTA */}
         <div className="mt-12 rounded-3xl bg-gradient-to-r from-primary to-[hsl(250,90%,60%)] p-8 text-center text-white">
-          <h3 className="font-display font-black text-2xl mb-2">Попробуй Roboweb бесплатно</h3>
-          <p className="text-white/80 mb-6">Создай свой первый сайт за несколько минут — без технических знаний</p>
+          <h3 className="font-display font-black text-2xl mb-2">{tr('blogCtaTitle', lang)}</h3>
+          <p className="text-white/80 mb-6">{tr('blogCtaDesc', lang)}</p>
           <Button size="lg" className="rounded-full bg-white text-primary hover:bg-white/90 font-semibold px-8" asChild>
-            <Link to="/register">Создать сайт бесплатно <Icon name="ArrowRight" size={18} className="ml-1" /></Link>
+            <Link to="/register">{tr('blogCtaBtn', lang)} <Icon name="ArrowRight" size={18} className="ml-1" /></Link>
           </Button>
         </div>
 
@@ -202,7 +201,7 @@ export default function Article() {
             {prevArticle ? (
               <Link to={`/blog/${prevArticle.slug}`} className="group flex flex-col gap-2 p-4 rounded-2xl border border-border bg-card hover:border-primary/40 hover:shadow-md transition-all">
                 <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                  <Icon name="ArrowLeft" size={13} /> Предыдущая
+                  <Icon name="ArrowLeft" size={13} /> {lang === 'ru' ? 'Предыдущая' : 'Previous'}
                 </span>
                 <span className="font-display font-bold text-sm leading-snug group-hover:text-primary transition-colors line-clamp-2">{prevArticle.title}</span>
               </Link>
@@ -210,7 +209,7 @@ export default function Article() {
             {nextArticle && (
               <Link to={`/blog/${nextArticle.slug}`} className="group flex flex-col gap-2 p-4 rounded-2xl border border-border bg-card hover:border-primary/40 hover:shadow-md transition-all text-right">
                 <span className="flex items-center gap-1.5 text-xs text-muted-foreground justify-end">
-                  Следующая <Icon name="ArrowRight" size={13} />
+                  {lang === 'ru' ? 'Следующая' : 'Next'} <Icon name="ArrowRight" size={13} />
                 </span>
                 <span className="font-display font-bold text-sm leading-snug group-hover:text-primary transition-colors line-clamp-2">{nextArticle.title}</span>
               </Link>
@@ -222,7 +221,9 @@ export default function Article() {
         {fallbackRelated.length > 0 && (
           <div className="mt-14">
             <h2 className="font-display font-black text-2xl mb-6">
-              {related.length > 0 ? 'Похожие статьи' : 'Читайте также'}
+              {related.length > 0
+                ? (lang === 'ru' ? 'Похожие статьи' : 'Related articles')
+                : (lang === 'ru' ? 'Читайте также' : 'Read also')}
             </h2>
             <div className="grid gap-4 sm:grid-cols-3">
               {fallbackRelated.map(a => (
@@ -233,7 +234,7 @@ export default function Article() {
                   <div className="p-4">
                     <span className="text-xs font-semibold text-primary">{a.category}</span>
                     <h3 className="mt-1.5 font-display font-bold text-sm leading-snug group-hover:text-primary transition-colors line-clamp-2">{a.title}</h3>
-                    <span className="mt-2 text-xs text-muted-foreground">{a.readTime} чтения</span>
+                    <span className="mt-2 text-xs text-muted-foreground">{a.readTime} {tr('blogReadTime', lang)}</span>
                   </div>
                 </Link>
               ))}
