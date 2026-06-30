@@ -25,12 +25,12 @@ export function useCounter(target: number, duration = 1800, active = false) {
   useEffect(() => {
     if (!active) return;
     let start = 0;
-    const step = target / (duration / 16);
+    const step = target / (duration / 32);
     const t = setInterval(() => {
       start += step;
       if (start >= target) { setVal(target); clearInterval(t); }
       else setVal(Math.floor(start));
-    }, 16);
+    }, 32);
     return () => clearInterval(t);
   }, [active, target, duration]);
   return val;
@@ -44,7 +44,7 @@ export function Reveal({ children, delay = 0, className = '' }: { children: Reac
     <div
       ref={ref}
       style={{ transitionDelay: `${delay}ms` }}
-      className={`transition-all duration-700 ${shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'} ${className}`}
+      className={`transition-opacity duration-700 ${shown ? 'opacity-100' : 'opacity-0'} ${className}`}
     >
       {children}
     </div>
@@ -56,8 +56,8 @@ export function CounterStat({ value, suffix, label }: { value: number; suffix: s
   const count = useCounter(value, 1600, shown);
   return (
     <div ref={ref} className="text-center">
-      <div className="font-display font-extrabold text-xl sm:text-2xl text-foreground">
-        {count}{suffix}
+      <div className="font-display font-extrabold text-xl sm:text-2xl text-foreground tabular-nums">
+        {count.toLocaleString()}{suffix}
       </div>
       <div className="text-sm text-muted-foreground">{label}</div>
     </div>

@@ -82,8 +82,8 @@ export default {
 					to: { height: '0' }
 				},
 				'fade-in': {
-					'0%': { opacity: '0', transform: 'translateY(20px)' },
-					'100%': { opacity: '1', transform: 'translateY(0)' }
+					'0%': { opacity: '0' },
+					'100%': { opacity: '1' }
 				},
 				'scale-in': {
 					'0%': { opacity: '0', transform: 'scale(0.95)' },
@@ -102,7 +102,7 @@ export default {
 					'50%': { opacity: '0' }
 				},
 				'slide-up': {
-					'0%': { opacity: '0', transform: 'translateY(40px)' },
+					'0%': { opacity: '0', transform: 'translateY(12px)' },
 					'100%': { opacity: '1', transform: 'translateY(0)' }
 				},
 				'pulse-ring': {
