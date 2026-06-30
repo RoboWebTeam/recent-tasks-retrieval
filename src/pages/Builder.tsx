@@ -413,93 +413,93 @@ export default function Builder() {
   const msgCount = messages.filter(m => m.role === 'user').length;
 
   return (
-    <div className="flex flex-col h-screen bg-background overflow-hidden">
+    <div className="flex flex-col h-screen bg-[#0d0d0d] overflow-hidden">
 
       {/* TOP BAR */}
-      <header className="flex items-center justify-between px-3 sm:px-4 h-14 border-b border-border shrink-0 bg-card shadow-sm">
+      <header className="flex items-center justify-between px-3 sm:px-4 h-14 border-b border-[#1e1e1e] shrink-0 bg-[#111111]">
         <div className="flex items-center gap-2 sm:gap-3">
           <button
             onClick={() => setSidebarOpen(v => !v)}
-            className="grid h-8 w-8 place-items-center rounded-xl hover:bg-secondary transition-colors text-muted-foreground hover:text-foreground"
+            className="grid h-8 w-8 place-items-center rounded-lg bg-[#1a1a1a] border border-[#2a2a2a] text-[#888] hover:text-white hover:bg-[#222] transition-colors"
             title={lang === 'ru' ? 'Свернуть чат' : 'Collapse chat'}
           >
-            <Icon name="PanelLeft" size={17} />
+            <Icon name="PanelLeft" size={15} />
           </button>
           <Link to="/dashboard" className="flex items-center gap-2 font-display font-extrabold text-base">
-            <span className="grid h-7 w-7 place-items-center rounded-xl bg-primary text-primary-foreground shrink-0">
+            <span className="grid h-7 w-7 place-items-center rounded-lg bg-primary text-primary-foreground shrink-0">
               <Icon name="Bot" size={14} />
             </span>
-            <span className="text-foreground hidden sm:block">Roboweb</span>
+            <span className="text-white hidden sm:block tracking-tight">Roboweb</span>
           </Link>
           {projectId && (
-            <span className="hidden sm:flex items-center gap-1.5 text-xs text-muted-foreground bg-secondary rounded-lg px-2.5 py-1.5 border border-border">
+            <span className="hidden sm:flex items-center gap-1.5 text-xs text-[#555] bg-[#1a1a1a] rounded-lg px-2.5 py-1.5 border border-[#2a2a2a]">
               <Icon name="Layers" size={11} />
               #{projectId}
             </span>
           )}
           {msgCount > 0 && (
-            <span className="hidden md:flex items-center gap-1 text-xs text-muted-foreground">
+            <span className="hidden md:flex items-center gap-1 text-xs text-[#555]">
               <Icon name="MessageSquare" size={11} />
               {msgCount} {lang === 'ru' ? 'запросов' : 'requests'}
-              {totalTokens > 0 && <span className="text-muted-foreground/60 ml-1">· {(totalTokens / 1000).toFixed(1)}k tokens</span>}
+              {totalTokens > 0 && <span className="text-[#444] ml-1">· {(totalTokens / 1000).toFixed(1)}k tokens</span>}
             </span>
           )}
         </div>
 
         <div className="flex items-center gap-1 sm:gap-1.5">
           {/* Device switcher */}
-          <div className="hidden md:flex items-center gap-0.5 bg-secondary rounded-xl p-1 border border-border">
+          <div className="hidden md:flex items-center gap-0.5 bg-[#1a1a1a] rounded-lg p-1 border border-[#2a2a2a]">
             {([['desktop', 'Monitor'], ['tablet', 'Tablet'], ['mobile', 'Smartphone']] as const).map(([d, icon]) => (
               <button key={d} onClick={() => setDevice(d)}
-                className={`grid h-7 w-7 place-items-center rounded-lg transition-all ${device === d ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-background'}`}
+                className={`grid h-7 w-7 place-items-center rounded-md transition-all ${device === d ? 'bg-primary text-primary-foreground shadow-sm' : 'text-[#555] hover:text-white hover:bg-[#222]'}`}
                 title={d}>
-                <Icon name={icon} size={14} />
+                <Icon name={icon} size={13} />
               </button>
             ))}
           </div>
 
           {/* Preview / Code tabs */}
-          <div className="flex items-center gap-0.5 bg-secondary rounded-xl p-1 border border-border">
+          <div className="flex items-center gap-0.5 bg-[#1a1a1a] rounded-lg p-1 border border-[#2a2a2a]">
             {([['preview', 'Eye', tr('builderPreview', lang)], ['code', 'Code', tr('builderCode', lang)]] as const).map(([tab, icon, label]) => (
               <button key={tab} onClick={() => { setRightTab(tab); if (tab === 'code') setCodeEditorValue(html); }}
-                className={`flex items-center gap-1.5 h-7 px-2.5 rounded-lg text-xs font-medium transition-all ${rightTab === tab ? 'bg-card text-foreground shadow-sm border border-border' : 'text-muted-foreground hover:text-foreground'}`}>
+                className={`flex items-center gap-1.5 h-7 px-2.5 rounded-md text-xs font-medium transition-all ${rightTab === tab ? 'bg-[#1e1e1e] text-white border border-[#333] shadow-sm' : 'text-[#888] hover:text-white hover:bg-[#222]'}`}>
                 <Icon name={icon} size={13} />
                 <span className="hidden sm:inline">{label}</span>
               </button>
             ))}
           </div>
 
-          <div className="w-px h-5 bg-border" />
+          <div className="w-px h-5 bg-[#2a2a2a]" />
 
           {/* Versions */}
           {versions.length > 0 && (
             <div className="relative">
               <button
                 onClick={() => setShowVersions(v => !v)}
-                className="flex items-center gap-1.5 h-8 px-2.5 rounded-xl text-xs font-medium border border-border bg-secondary hover:bg-background transition-colors text-muted-foreground hover:text-foreground"
+                className="flex items-center gap-1.5 h-8 px-2.5 rounded-lg text-xs font-medium border border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#222] hover:text-white transition-colors text-[#888]"
                 title={lang === 'ru' ? 'История версий' : 'Version history'}
               >
                 <Icon name="History" size={13} />
                 <span className="hidden sm:inline">{versions.length}</span>
               </button>
               {showVersions && (
-                <div className="absolute right-0 top-10 z-50 w-72 bg-card border border-border rounded-2xl shadow-2xl p-2">
-                  <div className="text-xs font-semibold text-muted-foreground px-2 py-1.5 mb-1">
+                <div className="absolute right-0 top-10 z-50 w-72 bg-[#111111] border border-[#2a2a2a] rounded-xl shadow-2xl p-2">
+                  <div className="text-[10px] font-semibold text-[#555] uppercase tracking-widest px-2 py-1.5 mb-1">
                     {lang === 'ru' ? 'История версий' : 'Version history'}
                   </div>
                   {versions.map((v, i) => (
                     <button key={v.ts} onClick={() => restoreVersion(v)}
-                      className="w-full flex items-start gap-2 px-2.5 py-2 rounded-xl hover:bg-secondary transition-colors text-left group">
+                      className="w-full flex items-start gap-2 px-2.5 py-2 rounded-lg hover:bg-[#1a1a1a] transition-colors text-left group">
                       <div className="grid h-5 w-5 place-items-center rounded-full bg-primary/10 text-primary shrink-0 mt-0.5 text-xs font-bold">
                         {versions.length - i}
                       </div>
                       <div className="min-w-0 flex-1">
-                        <div className="text-xs font-medium text-foreground truncate">{v.label}</div>
-                        <div className="text-[10px] text-muted-foreground mt-0.5">
+                        <div className="text-xs font-medium text-[#ccc] truncate">{v.label}</div>
+                        <div className="text-[10px] text-[#555] mt-0.5">
                           {new Date(v.ts).toLocaleTimeString(lang === 'ru' ? 'ru' : 'en', { hour: '2-digit', minute: '2-digit' })}
                         </div>
                       </div>
-                      <Icon name="RotateCcw" size={12} className="text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity shrink-0 mt-0.5" />
+                      <Icon name="RotateCcw" size={12} className="text-[#555] opacity-0 group-hover:opacity-100 transition-opacity shrink-0 mt-0.5" />
                     </button>
                   ))}
                 </div>
@@ -510,7 +510,7 @@ export default function Builder() {
           {/* Refresh preview */}
           {html && (
             <button onClick={() => setIframeKey(k => k + 1)}
-              className="grid h-8 w-8 place-items-center rounded-xl border border-border bg-secondary hover:bg-background transition-colors text-muted-foreground hover:text-foreground"
+              className="grid h-8 w-8 place-items-center rounded-lg border border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#222] hover:text-white transition-colors text-[#888]"
               title={lang === 'ru' ? 'Обновить превью' : 'Refresh preview'}>
               <Icon name="RefreshCw" size={13} />
             </button>
@@ -519,32 +519,32 @@ export default function Builder() {
           {/* Open in new tab */}
           {html && (
             <button onClick={openInNewTab}
-              className="hidden sm:grid h-8 w-8 place-items-center rounded-xl border border-border bg-secondary hover:bg-background transition-colors text-muted-foreground hover:text-foreground"
+              className="hidden sm:grid h-8 w-8 place-items-center rounded-lg border border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#222] hover:text-white transition-colors text-[#888]"
               title={lang === 'ru' ? 'Открыть в новой вкладке' : 'Open in new tab'}>
               <Icon name="ExternalLink" size={13} />
             </button>
           )}
 
-          <Button size="sm" variant="outline" onClick={handleDownload} disabled={!html}
-            className="h-8 rounded-xl text-xs px-2.5 gap-1.5 hidden sm:flex">
+          <button onClick={handleDownload} disabled={!html}
+            className="hidden sm:flex items-center gap-1.5 h-8 px-2.5 rounded-lg text-xs border border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#222] hover:text-white text-[#888] transition-colors disabled:opacity-30">
             <Icon name="Download" size={13} />
             <span className="hidden md:inline">{tr('builderDownload', lang)}</span>
-          </Button>
+          </button>
 
-          <Button size="sm" disabled={!html} className="h-8 rounded-xl text-xs px-2.5 gap-1.5">
+          <Button size="sm" disabled={!html} className="h-8 rounded-lg text-xs px-2.5 gap-1.5">
             <Icon name="Globe" size={13} />
             <span className="hidden md:inline">{tr('builderPublish', lang)}</span>
           </Button>
 
           <Link to="/settings/domain"
-            className="flex items-center gap-1.5 h-8 px-2.5 rounded-xl text-xs font-medium border border-border bg-secondary hover:bg-background text-muted-foreground hover:text-foreground transition-colors shrink-0">
+            className="flex items-center gap-1.5 h-8 px-2.5 rounded-lg text-xs font-medium border border-[#2a2a2a] bg-[#1a1a1a] hover:bg-[#222] text-[#888] hover:text-white transition-colors shrink-0">
             <Icon name="Link" size={13} />
             <span className="hidden lg:inline">{lang === 'ru' ? 'Домен' : 'Domain'}</span>
           </Link>
 
           <LangSwitcher lang={lang} />
 
-          <div className="grid h-8 w-8 place-items-center rounded-xl bg-primary text-primary-foreground text-xs font-bold shrink-0">
+          <div className="grid h-8 w-8 place-items-center rounded-lg bg-primary text-primary-foreground text-xs font-bold shrink-0">
             {initials}
           </div>
         </div>
@@ -555,21 +555,35 @@ export default function Builder() {
 
         {/* LEFT — CHAT */}
         {sidebarOpen && (
-          <div className="flex flex-col w-full sm:w-[340px] lg:w-[380px] shrink-0 border-r border-border bg-card">
+          <div className="flex flex-col w-full sm:w-[340px] lg:w-[380px] shrink-0 border-r border-[#1e1e1e] bg-[#111111]">
 
             {/* Chat header */}
-            <div className="flex items-center gap-2.5 px-4 py-3 border-b border-border shrink-0 bg-gradient-to-r from-primary/5 to-secondary">
-              <div className="relative grid h-9 w-9 place-items-center rounded-xl bg-primary text-primary-foreground shrink-0 shadow-sm">
+            <div className="flex items-center gap-2.5 px-4 py-3 border-b border-[#1e1e1e] shrink-0 bg-[#0d0d0d]">
+              <div className="relative grid h-9 w-9 place-items-center rounded-xl bg-primary text-primary-foreground shrink-0">
                 <Icon name="Bot" size={17} />
-                <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-400 border-2 border-card" />
+                <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-500 border-2 border-[#0d0d0d]" />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-bold text-foreground">Roboweb AI</div>
-                <div className="text-xs text-emerald-600 font-semibold">● {lang === 'ru' ? 'онлайн' : 'online'}</div>
+                <div className="text-sm font-bold text-white">Roboweb AI</div>
+                <div className="flex items-center gap-2 mt-0.5">
+                  <span className="text-[11px] text-emerald-500 font-medium">● {lang === 'ru' ? 'онлайн' : 'online'}</span>
+                  {msgCount > 0 && (
+                    <>
+                      <span className="text-[#333]">·</span>
+                      <span className="text-[10px] text-[#555]">{msgCount} {lang === 'ru' ? 'сообщ.' : 'msg'}</span>
+                    </>
+                  )}
+                  {totalTokens > 0 && (
+                    <>
+                      <span className="text-[#333]">·</span>
+                      <span className="text-[10px] text-[#555]">{(totalTokens / 1000).toFixed(1)}k tok</span>
+                    </>
+                  )}
+                </div>
               </div>
               {messages.length > 0 && (
                 <button onClick={handleClearChat}
-                  className="grid h-7 w-7 place-items-center rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
+                  className="grid h-7 w-7 place-items-center rounded-lg text-[#555] hover:text-red-400 hover:bg-red-500/10 transition-colors"
                   title={lang === 'ru' ? 'Очистить чат' : 'Clear chat'}>
                   <Icon name="Trash2" size={14} />
                 </button>
@@ -577,35 +591,35 @@ export default function Builder() {
               {loading && (
                 <div className="flex gap-1 ml-1">
                   {[0,1,2].map(i => (
-                    <span key={i} className="h-1.5 w-1.5 rounded-full bg-primary/60 animate-bounce" style={{animationDelay:`${i*0.15}s`}} />
+                    <span key={i} className="h-1.5 w-1.5 rounded-full bg-primary/70 animate-bounce" style={{animationDelay:`${i*0.15}s`}} />
                   ))}
                 </div>
               )}
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-3 space-y-3 bg-secondary/30">
+            <div className="flex-1 overflow-y-auto p-3 space-y-3 bg-[#0d0d0d]">
               {messages.length === 0 ? (
                 <div className="pt-2">
-                  <div className="text-center mb-5">
+                  <div className="text-center mb-6">
                     <div className="grid h-14 w-14 place-items-center rounded-2xl bg-primary/10 text-primary mx-auto mb-3 border border-primary/20">
                       <Icon name="Sparkles" size={24} />
                     </div>
-                    <h2 className="font-display font-bold text-lg text-foreground">
+                    <h2 className="font-display font-bold text-lg text-white">
                       {tr('builderHello', lang)}{user?.name ? `, ${user.name.split(' ')[0]}` : ''}!
                     </h2>
-                    <p className="text-sm text-muted-foreground mt-1">{tr('builderWelcome', lang)}</p>
+                    <p className="text-sm text-[#666] mt-1">{tr('builderWelcome', lang)}</p>
                   </div>
 
                   {/* Categorized suggestions */}
                   <div className="space-y-3">
                     {SUGGESTIONS.map(group => (
                       <div key={group.cat}>
-                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold px-1 mb-1.5">{group.cat}</p>
+                        <p className="text-[10px] text-[#444] uppercase tracking-widest font-semibold px-1 mb-1.5">{group.cat}</p>
                         <div className="space-y-1">
                           {group.items.map(s => (
                             <button key={s} onClick={() => sendMessage(s)}
-                              className="w-full text-left text-xs text-foreground/80 hover:text-foreground bg-card hover:bg-background border border-border rounded-xl px-3 py-2 transition-all hover:shadow-sm hover:border-primary/30 group">
+                              className="w-full text-left text-xs text-[#aaa] hover:text-white bg-[#1a1a1a] hover:bg-[#222] border border-[#2a2a2a] hover:border-primary/50 rounded-xl px-3 py-2.5 transition-all group">
                               <span className="flex items-center gap-2">
                                 <Icon name="ArrowRight" size={11} className="text-primary shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
                                 {s}
@@ -618,71 +632,80 @@ export default function Builder() {
                   </div>
                 </div>
               ) : (
-                messages.map((m, i) => (
-                  <div key={i} className={`flex gap-2 ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                    {m.role === 'assistant' && (
-                      <div className="grid h-7 w-7 place-items-center rounded-xl bg-primary text-primary-foreground shrink-0 mt-0.5 shadow-sm">
-                        <Icon name="Bot" size={14} />
+                messages.map((m, i) => {
+                  const msgTime = new Date().toLocaleTimeString(lang === 'ru' ? 'ru' : 'en', { hour: '2-digit', minute: '2-digit' });
+                  return (
+                    <div key={i} className={`flex gap-2 ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                      {m.role === 'assistant' && (
+                        <div className="grid h-7 w-7 place-items-center rounded-xl bg-primary text-primary-foreground shrink-0 mt-0.5 shadow-sm">
+                          <Icon name="Bot" size={14} />
+                        </div>
+                      )}
+                      <div className={`max-w-[88%] text-sm leading-relaxed ${
+                        m.role === 'user'
+                          ? 'bg-primary text-white rounded-2xl rounded-br-sm px-3.5 py-2.5 shadow-sm'
+                          : 'bg-[#1a1a1a] border border-[#2a2a2a] text-[#e0e0e0] rounded-2xl rounded-bl-sm px-3.5 py-2.5'
+                      }`}>
+                        {m.role === 'user' && (
+                          <div className="text-[10px] text-white/50 mb-1">{msgTime}</div>
+                        )}
+                        {m.role === 'assistant' && m.content === '' ? (
+                          <div className="flex items-center gap-1.5 py-0.5">
+                            <span className="text-[#666] text-xs">{tr('builderGenerating', lang)}</span>
+                            <span className="flex gap-1">
+                              {[0,1,2].map(j => (
+                                <span key={j} className="h-1.5 w-1.5 rounded-full bg-primary animate-bounce" style={{animationDelay:`${j*0.15}s`}} />
+                              ))}
+                            </span>
+                          </div>
+                        ) : m.isHtml ? (
+                          <div className="space-y-2">
+                            <div className="flex items-center gap-2 text-emerald-400 text-xs font-semibold">
+                              <Icon name="CheckCircle" size={13} /> {tr('builderReady', lang)}
+                            </div>
+                            <p className="text-[#777] text-xs">{tr('builderReadyDesc', lang)}</p>
+                            {m.tokens && m.tokens > 0 && (
+                              <p className="text-[10px] text-[#555]">{m.tokens.toLocaleString()} tokens</p>
+                            )}
+                            <div className="flex gap-2 mt-2.5 pt-2 border-t border-[#2a2a2a]">
+                              <button onClick={() => setRightTab('preview')}
+                                className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 font-semibold bg-primary/10 hover:bg-primary/20 px-2.5 py-1 rounded-lg transition-colors">
+                                <Icon name="Eye" size={11} /> {tr('builderPreview', lang)}
+                              </button>
+                              <button onClick={() => { setRightTab('code'); setCodeEditorValue(html); }}
+                                className="flex items-center gap-1 text-xs text-[#888] hover:text-white bg-[#222] hover:bg-[#2a2a2a] px-2.5 py-1 rounded-lg transition-colors">
+                                <Icon name="Code" size={11} /> {tr('builderCode', lang)}
+                              </button>
+                              <button onClick={handleDownload}
+                                className="flex items-center gap-1 text-xs text-[#888] hover:text-white bg-[#222] hover:bg-[#2a2a2a] px-2.5 py-1 rounded-lg transition-colors">
+                                <Icon name="Download" size={11} /> {tr('builderDownload', lang)}
+                              </button>
+                            </div>
+                          </div>
+                        ) : m.content}
                       </div>
-                    )}
-                    <div className={`max-w-[88%] rounded-2xl px-3.5 py-2.5 text-sm leading-relaxed shadow-sm ${
-                      m.role === 'user'
-                        ? 'bg-primary text-primary-foreground rounded-br-sm'
-                        : 'bg-card text-foreground rounded-bl-sm border border-border'
-                    }`}>
-                      {m.role === 'assistant' && m.content === '' ? (
-                        <div className="flex items-center gap-1.5 py-0.5">
-                          <span className="text-muted-foreground text-xs">{tr('builderGenerating', lang)}</span>
-                          <span className="flex gap-1">
-                            {[0,1,2].map(j => (
-                              <span key={j} className="h-1.5 w-1.5 rounded-full bg-primary animate-bounce" style={{animationDelay:`${j*0.15}s`}} />
-                            ))}
-                          </span>
+                      {m.role === 'user' && (
+                        <div className="grid h-7 w-7 place-items-center rounded-xl bg-primary text-primary-foreground text-xs font-bold shrink-0 mt-0.5 shadow-sm">
+                          {initials}
                         </div>
-                      ) : m.isHtml ? (
-                        <div className="space-y-2">
-                          <div className="flex items-center gap-2 text-emerald-600 text-xs font-semibold">
-                            <Icon name="CheckCircle" size={13} /> {tr('builderReady', lang)}
-                          </div>
-                          <p className="text-muted-foreground text-xs">{tr('builderReadyDesc', lang)}</p>
-                          {m.tokens && m.tokens > 0 && (
-                            <p className="text-[10px] text-muted-foreground/60">{m.tokens.toLocaleString()} tokens</p>
-                          )}
-                          <div className="flex gap-3 mt-2">
-                            <button onClick={() => setRightTab('preview')} className="flex items-center gap-1 text-xs text-primary hover:underline font-semibold">
-                              <Icon name="Eye" size={11} /> {tr('builderPreview', lang)}
-                            </button>
-                            <button onClick={() => setRightTab('code')} className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground hover:underline">
-                              <Icon name="Code" size={11} /> {tr('builderCode', lang)}
-                            </button>
-                            <button onClick={handleDownload} className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground hover:underline">
-                              <Icon name="Download" size={11} /> {tr('builderDownload', lang)}
-                            </button>
-                          </div>
-                        </div>
-                      ) : m.content}
+                      )}
                     </div>
-                    {m.role === 'user' && (
-                      <div className="grid h-7 w-7 place-items-center rounded-xl bg-primary text-primary-foreground text-xs font-bold shrink-0 mt-0.5 shadow-sm">
-                        {initials}
-                      </div>
-                    )}
-                  </div>
-                ))
+                  );
+                })
               )}
               <div ref={messagesEndRef} />
             </div>
 
             {/* Quick edits panel */}
             {showQuickEdits && html && (
-              <div className="border-t border-border bg-secondary/40 p-3">
-                <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold mb-2">
+              <div className="border-t border-[#1e1e1e] bg-[#161616] p-3">
+                <p className="text-[10px] text-[#555] uppercase tracking-widest font-semibold mb-2">
                   {lang === 'ru' ? 'Быстрые правки' : 'Quick edits'}
                 </p>
                 <div className="grid grid-cols-2 gap-1.5">
                   {QUICK_EDITS.map(e => (
                     <button key={e.label} onClick={() => sendMessage(e.prompt)}
-                      className="flex items-center gap-1.5 px-2.5 py-2 rounded-xl bg-card border border-border text-xs text-foreground/80 hover:text-foreground hover:bg-background hover:border-primary/30 transition-all text-left">
+                      className="flex items-center gap-1.5 px-2.5 py-2 rounded-xl bg-[#1a1a1a] border border-[#2a2a2a] text-xs text-[#aaa] hover:text-white hover:bg-[#222] hover:border-[#3a3a3a] transition-all text-left">
                       <Icon name={e.icon} size={12} className="text-primary shrink-0" />
                       {e.label}
                     </button>
@@ -692,16 +715,26 @@ export default function Builder() {
             )}
 
             {/* Input */}
-            <div className="p-3 border-t border-border bg-card">
-              {html && (
-                <button onClick={() => setShowQuickEdits(v => !v)}
-                  className={`w-full flex items-center justify-center gap-1.5 text-xs mb-2 py-1.5 rounded-xl border transition-colors ${showQuickEdits ? 'bg-primary/10 border-primary/30 text-primary' : 'border-border text-muted-foreground hover:text-foreground hover:bg-secondary'}`}>
-                  <Icon name="Wand2" size={12} />
-                  {lang === 'ru' ? 'Быстрые правки' : 'Quick edits'}
-                  <Icon name={showQuickEdits ? 'ChevronDown' : 'ChevronUp'} size={11} />
+            <div className="p-3 border-t border-[#1e1e1e] bg-[#111111]">
+              <div className="flex items-end gap-2 bg-[#1a1a1a] border border-[#2a2a2a] focus-within:border-primary/50 rounded-2xl px-3 py-2.5 transition-all">
+                {/* Кнопка быстрых правок внутри поля */}
+                {html && (
+                  <button
+                    onClick={() => setShowQuickEdits(v => !v)}
+                    className={`grid h-7 w-7 place-items-center rounded-lg transition-colors shrink-0 mb-0.5 ${showQuickEdits ? 'text-primary bg-primary/10' : 'text-[#555] hover:text-[#aaa] hover:bg-[#222]'}`}
+                    title={lang === 'ru' ? 'Быстрые правки' : 'Quick edits'}
+                  >
+                    <Icon name="Wand2" size={14} />
+                  </button>
+                )}
+                {/* Кнопка прикрепить файл (задизейблена) */}
+                <button
+                  disabled
+                  className="grid h-7 w-7 place-items-center rounded-lg text-[#333] cursor-not-allowed shrink-0 mb-0.5"
+                  title={lang === 'ru' ? 'Прикрепить файл (скоро)' : 'Attach file (coming soon)'}
+                >
+                  <Icon name="Paperclip" size={14} />
                 </button>
-              )}
-              <div className="flex items-end gap-2 bg-background border border-border rounded-2xl px-3.5 py-2.5 focus-within:border-primary/40 focus-within:ring-2 focus-within:ring-primary/10 transition-all shadow-sm">
                 <textarea
                   ref={textareaRef}
                   value={input}
@@ -709,47 +742,52 @@ export default function Builder() {
                   onKeyDown={handleKeyDown}
                   placeholder={tr('builderInputPlaceholder', lang)}
                   rows={1}
-                  className="flex-1 bg-transparent text-sm text-foreground placeholder:text-muted-foreground resize-none outline-none min-h-[20px] max-h-[160px]"
+                  className="flex-1 bg-transparent text-sm text-[#e0e0e0] placeholder:text-[#444] resize-none outline-none min-h-[20px] max-h-[160px]"
                 />
                 <button
                   onClick={() => sendMessage()}
                   disabled={loading || !input.trim()}
-                  className="grid h-8 w-8 place-items-center rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 disabled:opacity-30 transition-all shrink-0 shadow-sm shadow-primary/20"
+                  className="grid h-8 w-8 place-items-center rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground disabled:opacity-30 transition-all shrink-0 shadow-sm shadow-primary/20"
                 >
                   {loading ? <Icon name="Loader" size={14} className="animate-spin" /> : <Icon name="Send" size={14} />}
                 </button>
               </div>
-              <p className="text-center text-[10px] text-muted-foreground mt-2">{tr('builderInputHint', lang)}</p>
+              <div className="flex items-center justify-between mt-1.5 px-1">
+                <p className="text-[10px] text-[#444]">{tr('builderInputHint', lang)}</p>
+                {input.length > 0 && (
+                  <span className="text-[10px] text-[#444]">{input.length}</span>
+                )}
+              </div>
             </div>
           </div>
         )}
 
         {/* RIGHT — PREVIEW / CODE */}
-        <div className="flex-1 flex flex-col bg-secondary/30 overflow-hidden">
+        <div className="flex-1 flex flex-col bg-[#0d0d0d] overflow-hidden">
           {rightTab === 'preview' ? (
             <div className="flex-1 flex flex-col items-center overflow-hidden">
               {html ? (
                 <>
                   {/* Preview toolbar */}
-                  <div className="w-full flex items-center justify-between px-4 py-2 border-b border-border bg-card shrink-0">
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <div className="flex gap-1">
-                        <div className="h-2.5 w-2.5 rounded-full bg-rose-400" />
-                        <div className="h-2.5 w-2.5 rounded-full bg-amber-400" />
-                        <div className="h-2.5 w-2.5 rounded-full bg-emerald-400" />
+                  <div className="w-full flex items-center justify-between px-4 py-2 border-b border-[#1e1e1e] bg-[#111111] shrink-0">
+                    <div className="flex items-center gap-2 text-xs text-[#555]">
+                      <div className="flex gap-1.5">
+                        <div className="h-2.5 w-2.5 rounded-full bg-rose-500/80" />
+                        <div className="h-2.5 w-2.5 rounded-full bg-amber-500/80" />
+                        <div className="h-2.5 w-2.5 rounded-full bg-emerald-500/80" />
                       </div>
-                      <span className="font-mono text-[11px] bg-secondary border border-border rounded-md px-2 py-0.5 text-muted-foreground">
+                      <span className="font-mono text-[11px] bg-[#1a1a1a] border border-[#2a2a2a] rounded-md px-2 py-0.5 text-[#555]">
                         {lang === 'ru' ? 'предпросмотр' : 'preview'} · {device}
                       </span>
                     </div>
-                    <div className="flex items-center gap-1.5">
+                    <div className="flex items-center gap-1">
                       {/* Кнопка режима редактирования текста */}
                       <button
                         onClick={toggleEditMode}
-                        className={`flex items-center gap-1 text-[11px] font-medium px-2 py-1 rounded-lg transition-all ${
+                        className={`flex items-center gap-1 text-[11px] font-medium px-2.5 py-1 rounded-lg transition-all ${
                           editMode
                             ? 'bg-primary text-primary-foreground'
-                            : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
+                            : 'text-[#888] hover:text-white hover:bg-[#1a1a1a]'
                         }`}
                         title={lang === 'ru' ? 'Режим редактирования текста' : 'Text edit mode'}
                       >
@@ -759,11 +797,11 @@ export default function Builder() {
                           : (lang === 'ru' ? 'Изменить текст' : 'Edit text')}
                       </button>
                       <button onClick={() => setIframeKey(k => k + 1)}
-                        className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded-lg hover:bg-secondary">
+                        className="flex items-center gap-1 text-[11px] text-[#888] hover:text-white transition-colors px-2 py-1 rounded-lg hover:bg-[#1a1a1a]">
                         <Icon name="RefreshCw" size={11} /> {lang === 'ru' ? 'Обновить' : 'Refresh'}
                       </button>
                       <button onClick={openInNewTab}
-                        className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded-lg hover:bg-secondary">
+                        className="flex items-center gap-1 text-[11px] text-[#888] hover:text-white transition-colors px-2 py-1 rounded-lg hover:bg-[#1a1a1a]">
                         <Icon name="ExternalLink" size={11} /> {lang === 'ru' ? 'В новой вкладке' : 'New tab'}
                       </button>
                     </div>
@@ -782,7 +820,7 @@ export default function Builder() {
                     </div>
                   )}
 
-                  <div className="flex-1 flex overflow-hidden">
+                  <div className="flex-1 flex overflow-hidden w-full">
                     {/* iframe */}
                     <div className="flex-1 relative overflow-hidden transition-all duration-500" style={{ maxWidth: propsPanel ? undefined : DEVICE_WIDTHS[device] }}>
                       <iframe
@@ -796,15 +834,15 @@ export default function Builder() {
                       {/* Popover редактирования текста */}
                       {editPopover && (
                         <div
-                          className="absolute z-50 bg-card border border-border rounded-2xl shadow-2xl p-3 w-64"
+                          className="absolute z-50 bg-[#111111] border border-[#2a2a2a] rounded-2xl shadow-2xl p-3 w-64"
                           style={{ left: Math.min(editPopover.x - 128, 9999), top: Math.min(editPopover.y + 8, 9999) }}
                         >
                           <div className="flex items-center justify-between mb-2">
-                            <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                            <span className="text-xs font-semibold text-white flex items-center gap-1.5">
                               <Icon name="Type" size={12} />
                               {lang === 'ru' ? 'Текст' : 'Text'}
                             </span>
-                            <button onClick={() => setEditPopover(null)} className="text-muted-foreground hover:text-foreground">
+                            <button onClick={() => setEditPopover(null)} className="text-[#555] hover:text-white transition-colors">
                               <Icon name="X" size={13} />
                             </button>
                           </div>
@@ -812,7 +850,7 @@ export default function Builder() {
                             autoFocus
                             value={editValue}
                             onChange={e => setEditValue(e.target.value)}
-                            className="w-full text-xs rounded-xl border border-border bg-secondary px-3 py-2 resize-none outline-none focus:border-primary transition-colors"
+                            className="w-full text-xs rounded-xl border border-[#2a2a2a] bg-[#1a1a1a] text-[#e0e0e0] px-3 py-2 resize-none outline-none focus:border-primary/50 transition-colors"
                             rows={2}
                             onKeyDown={e => {
                               if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); applyTextEdit(); }
@@ -824,7 +862,7 @@ export default function Builder() {
                               <Icon name="Check" size={12} />
                               {lang === 'ru' ? 'Сохранить' : 'Save'}
                             </button>
-                            <button onClick={() => setEditPopover(null)} className="px-3 text-xs text-muted-foreground hover:text-foreground rounded-xl border border-border hover:bg-secondary transition-colors">
+                            <button onClick={() => setEditPopover(null)} className="px-3 text-xs text-[#888] hover:text-white rounded-xl border border-[#2a2a2a] hover:bg-[#1a1a1a] transition-colors">
                               {lang === 'ru' ? 'Отмена' : 'Cancel'}
                             </button>
                           </div>
@@ -834,14 +872,14 @@ export default function Builder() {
 
                     {/* Панель свойств элемента */}
                     {propsPanel && editMode && (
-                      <div className="w-56 shrink-0 border-l border-border bg-card overflow-y-auto flex flex-col">
+                      <div className="w-56 shrink-0 border-l border-[#1e1e1e] bg-[#111111] overflow-y-auto flex flex-col">
                         {/* Заголовок */}
-                        <div className="flex items-center justify-between px-3 py-2.5 border-b border-border shrink-0">
+                        <div className="flex items-center justify-between px-3 py-2.5 border-b border-[#1e1e1e] shrink-0 bg-[#0d0d0d]">
                           <span className="text-xs font-semibold flex items-center gap-1.5">
                             <Icon name="Sliders" size={12} className="text-primary" />
                             <span className="font-mono text-primary">&lt;{propsPanel.tag}&gt;</span>
                           </span>
-                          <button onClick={() => setPropsPanel(null)} className="text-muted-foreground hover:text-foreground">
+                          <button onClick={() => setPropsPanel(null)} className="text-[#555] hover:text-white transition-colors">
                             <Icon name="X" size={13} />
                           </button>
                         </div>
@@ -849,37 +887,37 @@ export default function Builder() {
                         <div className="p-3 space-y-4 text-xs">
                           {/* Цвет текста */}
                           <div>
-                            <p className="text-muted-foreground uppercase tracking-widest text-[10px] font-semibold mb-2">
+                            <p className="text-[#555] uppercase tracking-widest text-[10px] font-semibold mb-2">
                               {lang === 'ru' ? 'Текст' : 'Text'}
                             </p>
                             <div className="flex items-center gap-2">
                               <input type="color"
                                 value={propsPanel.color === 'transparent' ? '#000000' : propsPanel.color}
                                 onChange={e => applyStyle('color', e.target.value)}
-                                className="h-7 w-7 rounded-lg border border-border cursor-pointer bg-transparent shrink-0"
+                                className="h-7 w-7 rounded-lg border border-[#2a2a2a] cursor-pointer bg-[#1a1a1a] shrink-0"
                               />
-                              <span className="font-mono text-[11px] text-muted-foreground">{propsPanel.color}</span>
+                              <span className="font-mono text-[11px] text-[#666]">{propsPanel.color}</span>
                             </div>
                           </div>
 
                           {/* Фон */}
                           <div>
-                            <p className="text-muted-foreground uppercase tracking-widest text-[10px] font-semibold mb-2">
+                            <p className="text-[#555] uppercase tracking-widest text-[10px] font-semibold mb-2">
                               {lang === 'ru' ? 'Фон' : 'Background'}
                             </p>
                             <div className="flex items-center gap-2">
                               <input type="color"
                                 value={propsPanel.backgroundColor === 'transparent' ? '#ffffff' : propsPanel.backgroundColor}
                                 onChange={e => applyStyle('backgroundColor', e.target.value)}
-                                className="h-7 w-7 rounded-lg border border-border cursor-pointer bg-transparent shrink-0"
+                                className="h-7 w-7 rounded-lg border border-[#2a2a2a] cursor-pointer bg-[#1a1a1a] shrink-0"
                               />
-                              <span className="font-mono text-[11px] text-muted-foreground truncate">{propsPanel.backgroundColor}</span>
+                              <span className="font-mono text-[11px] text-[#666] truncate">{propsPanel.backgroundColor}</span>
                             </div>
                           </div>
 
                           {/* Размер шрифта */}
                           <div>
-                            <p className="text-muted-foreground uppercase tracking-widest text-[10px] font-semibold mb-2">
+                            <p className="text-[#555] uppercase tracking-widest text-[10px] font-semibold mb-2">
                               {lang === 'ru' ? 'Размер шрифта' : 'Font size'}
                             </p>
                             <div className="flex items-center gap-2">
@@ -888,19 +926,19 @@ export default function Builder() {
                                 onChange={e => applyStyle('fontSize', e.target.value + 'px')}
                                 className="flex-1 accent-primary"
                               />
-                              <span className="font-mono text-[11px] w-10 text-right shrink-0">{propsPanel.fontSize}</span>
+                              <span className="font-mono text-[11px] w-10 text-right shrink-0 text-[#888]">{propsPanel.fontSize}</span>
                             </div>
                           </div>
 
                           {/* Жирность */}
                           <div>
-                            <p className="text-muted-foreground uppercase tracking-widest text-[10px] font-semibold mb-2">
+                            <p className="text-[#555] uppercase tracking-widest text-[10px] font-semibold mb-2">
                               {lang === 'ru' ? 'Жирность' : 'Font weight'}
                             </p>
                             <div className="flex gap-1 flex-wrap">
                               {[['400', lang === 'ru' ? 'Норм' : 'Normal'], ['600', lang === 'ru' ? 'Полужирный' : 'Semi'], ['700', lang === 'ru' ? 'Жирный' : 'Bold'], ['900', lang === 'ru' ? 'Чёрный' : 'Black']].map(([w, label]) => (
                                 <button key={w} onClick={() => applyStyle('fontWeight', w)}
-                                  className={`px-2 py-1 rounded-lg text-[10px] font-medium border transition-all ${propsPanel.fontWeight === w ? 'bg-primary text-primary-foreground border-primary' : 'border-border text-muted-foreground hover:text-foreground hover:bg-secondary'}`}>
+                                  className={`px-2 py-1 rounded-lg text-[10px] font-medium border transition-all ${propsPanel.fontWeight === w ? 'bg-primary text-primary-foreground border-primary' : 'border-[#2a2a2a] bg-[#1a1a1a] text-[#666] hover:text-white hover:bg-[#222]'}`}>
                                   {label}
                                 </button>
                               ))}
@@ -909,13 +947,13 @@ export default function Builder() {
 
                           {/* Выравнивание */}
                           <div>
-                            <p className="text-muted-foreground uppercase tracking-widest text-[10px] font-semibold mb-2">
+                            <p className="text-[#555] uppercase tracking-widest text-[10px] font-semibold mb-2">
                               {lang === 'ru' ? 'Выравнивание' : 'Align'}
                             </p>
                             <div className="flex gap-1">
                               {[['left', 'AlignLeft'], ['center', 'AlignCenter'], ['right', 'AlignRight']].map(([align, icon]) => (
                                 <button key={align} onClick={() => applyStyle('textAlign', align)}
-                                  className={`flex-1 flex items-center justify-center py-1.5 rounded-lg border transition-all ${propsPanel.textAlign === align ? 'bg-primary text-primary-foreground border-primary' : 'border-border text-muted-foreground hover:text-foreground hover:bg-secondary'}`}>
+                                  className={`flex-1 flex items-center justify-center py-1.5 rounded-lg border transition-all ${propsPanel.textAlign === align ? 'bg-primary text-primary-foreground border-primary' : 'border-[#2a2a2a] bg-[#1a1a1a] text-[#666] hover:text-white hover:bg-[#222]'}`}>
                                   <Icon name={icon} size={13} />
                                 </button>
                               ))}
@@ -924,7 +962,7 @@ export default function Builder() {
 
                           {/* Скругление */}
                           <div>
-                            <p className="text-muted-foreground uppercase tracking-widest text-[10px] font-semibold mb-2">
+                            <p className="text-[#555] uppercase tracking-widest text-[10px] font-semibold mb-2">
                               {lang === 'ru' ? 'Скругление' : 'Border radius'}
                             </p>
                             <div className="flex items-center gap-2">
@@ -933,13 +971,13 @@ export default function Builder() {
                                 onChange={e => applyStyle('borderRadius', e.target.value + 'px')}
                                 className="flex-1 accent-primary"
                               />
-                              <span className="font-mono text-[11px] w-10 text-right shrink-0">{propsPanel.borderRadius}</span>
+                              <span className="font-mono text-[11px] w-10 text-right shrink-0 text-[#888]">{propsPanel.borderRadius}</span>
                             </div>
                           </div>
 
                           {/* Прозрачность */}
                           <div>
-                            <p className="text-muted-foreground uppercase tracking-widest text-[10px] font-semibold mb-2">
+                            <p className="text-[#555] uppercase tracking-widest text-[10px] font-semibold mb-2">
                               {lang === 'ru' ? 'Прозрачность' : 'Opacity'}
                             </p>
                             <div className="flex items-center gap-2">
@@ -948,24 +986,24 @@ export default function Builder() {
                                 onChange={e => applyStyle('opacity', e.target.value)}
                                 className="flex-1 accent-primary"
                               />
-                              <span className="font-mono text-[11px] w-10 text-right shrink-0">{Math.round(parseFloat(propsPanel.opacity) * 100)}%</span>
+                              <span className="font-mono text-[11px] w-10 text-right shrink-0 text-[#888]">{Math.round(parseFloat(propsPanel.opacity) * 100)}%</span>
                             </div>
                           </div>
 
                           {/* Отступы */}
                           <div>
-                            <p className="text-muted-foreground uppercase tracking-widest text-[10px] font-semibold mb-2">
+                            <p className="text-[#555] uppercase tracking-widest text-[10px] font-semibold mb-2">
                               {lang === 'ru' ? 'Отступы (padding)' : 'Padding'}
                             </p>
                             <div className="grid grid-cols-2 gap-1.5">
                               {([['paddingTop', '↑'], ['paddingBottom', '↓'], ['paddingLeft', '←'], ['paddingRight', '→']] as const).map(([prop, arrow]) => (
                                 <div key={prop} className="flex items-center gap-1.5">
-                                  <span className="text-muted-foreground w-4 text-center">{arrow}</span>
+                                  <span className="text-[#555] w-4 text-center">{arrow}</span>
                                   <input
                                     type="number" min="0" max="200"
                                     value={parseInt((propsPanel as Record<string, string>)[prop]) || 0}
                                     onChange={e => applyStyle(prop, e.target.value + 'px')}
-                                    className="w-full text-[11px] border border-border rounded-lg px-1.5 py-1 bg-secondary outline-none focus:border-primary font-mono"
+                                    className="w-full text-[11px] border border-[#2a2a2a] rounded-lg px-1.5 py-1 bg-[#1a1a1a] text-[#aaa] outline-none focus:border-primary/50 font-mono"
                                   />
                                 </div>
                               ))}
@@ -979,27 +1017,27 @@ export default function Builder() {
               ) : (
                 <div className="flex-1 flex flex-col items-center justify-center text-center px-8">
                   <div className="relative mb-6">
-                    <div className="h-20 w-20 rounded-3xl bg-card border border-border grid place-items-center mx-auto shadow-sm">
-                      <Icon name="Globe" size={32} className="text-muted-foreground/40" />
+                    <div className="h-20 w-20 rounded-3xl bg-[#111111] border border-[#1e1e1e] grid place-items-center mx-auto">
+                      <Icon name="Globe" size={32} className="text-[#333]" />
                     </div>
                     <div className="absolute -top-1 -right-1 h-6 w-6 rounded-full bg-primary/10 border border-primary/20 grid place-items-center">
                       <Icon name="Sparkles" size={11} className="text-primary" />
                     </div>
                   </div>
-                  <h3 className="font-display font-bold text-foreground text-lg mb-2">{tr('builderPreviewEmpty', lang)}</h3>
-                  <p className="text-muted-foreground text-sm max-w-xs leading-relaxed">{tr('builderPreviewEmptyDesc', lang)}</p>
+                  <h3 className="font-display font-bold text-white text-lg mb-2">{tr('builderPreviewEmpty', lang)}</h3>
+                  <p className="text-[#555] text-sm max-w-xs leading-relaxed">{tr('builderPreviewEmptyDesc', lang)}</p>
                 </div>
               )}
             </div>
           ) : (
             <div className="flex-1 flex flex-col overflow-hidden">
               {/* Code editor toolbar */}
-              <div className="flex items-center justify-between px-4 py-2.5 border-b border-border bg-card shrink-0">
-                <div className="flex items-center gap-2 text-xs text-muted-foreground">
+              <div className="flex items-center justify-between px-4 py-2.5 border-b border-[#1e1e1e] bg-[#111111] shrink-0">
+                <div className="flex items-center gap-2 text-xs text-[#666]">
                   <Icon name="FileCode" size={13} />
-                  <span className="font-mono font-medium">index.html</span>
+                  <span className="font-mono font-medium text-[#aaa]">index.html</span>
                   {codeEditorValue && (
-                    <span className="text-muted-foreground/50">
+                    <span className="text-[#444]">
                       · {codeEditorValue.length.toLocaleString()} {lang === 'ru' ? 'символов' : 'chars'}
                     </span>
                   )}
@@ -1036,7 +1074,7 @@ export default function Builder() {
                   {codeEditorValue !== html && (
                     <button
                       onClick={() => setCodeEditorValue(html)}
-                      className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                      className="flex items-center gap-1.5 text-xs text-[#666] hover:text-white transition-colors"
                     >
                       <Icon name="RotateCcw" size={13} />
                       {lang === 'ru' ? 'Сбросить' : 'Reset'}
@@ -1044,15 +1082,15 @@ export default function Builder() {
                   )}
                   {codeEditorValue && (
                     <>
-                      <div className="w-px h-4 bg-border" />
+                      <div className="w-px h-4 bg-[#2a2a2a]" />
                       <button onClick={handleCopyCode}
-                        className={`flex items-center gap-1.5 text-xs transition-colors ${copied ? 'text-emerald-600' : 'text-muted-foreground hover:text-foreground'}`}>
+                        className={`flex items-center gap-1.5 text-xs transition-colors ${copied ? 'text-emerald-400' : 'text-[#666] hover:text-white'}`}>
                         <Icon name={copied ? 'Check' : 'Copy'} size={13} />
                         {copied ? (lang === 'ru' ? 'Скопировано!' : 'Copied!') : tr('builderCopy', lang)}
                       </button>
-                      <div className="w-px h-4 bg-border" />
+                      <div className="w-px h-4 bg-[#2a2a2a]" />
                       <button onClick={handleDownload}
-                        className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors">
+                        className="flex items-center gap-1.5 text-xs text-[#666] hover:text-white transition-colors">
                         <Icon name="Download" size={13} />
                         {tr('builderDownload', lang)}
                       </button>
@@ -1099,7 +1137,7 @@ export default function Builder() {
                     }}
                   />
                 ) : (
-                  <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
+                  <div className="flex items-center justify-center h-full text-[#555] text-sm">
                     {tr('builderCodeEmpty', lang)}
                   </div>
                 )}
