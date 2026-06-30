@@ -99,19 +99,21 @@
   }
 }
 
-@keyframes wordFlip {
-  0% {
-    opacity: 0;
-    transform: rotateX(-90deg) scale(0.95);
-  }
-  60% {
-    opacity: 1;
-    transform: rotateX(8deg) scale(1.01);
-  }
+@keyframes blink {
+  0%,
   100% {
     opacity: 1;
-    transform: rotateX(0deg) scale(1);
   }
+  50% {
+    opacity: 0;
+  }
+}
+
+.typed-cursor {
+  display: inline-block;
+  margin-left: 1px;
+  font-weight: 300;
+  animation: blink 0.8s step-end infinite;
 }
 
 @keyframes cardIn {
