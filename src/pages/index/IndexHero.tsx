@@ -92,16 +92,16 @@ export function IndexHero({ lang, wordIdx, chatStep, isTyping, progress, chatSte
       <div className="absolute top-40 -right-24 h-56 w-56 md:h-80 md:w-80 rounded-full bg-accent/25 blur-3xl animate-glow" style={{animationDelay:'1.5s'}} />
       <div className="absolute bottom-10 left-1/3 h-40 w-40 rounded-full bg-primary/10 blur-2xl animate-glow" style={{animationDelay:'0.8s'}} />
 
-      {/* Floating badges */}
-      <div className="absolute top-36 left-8 hidden xl:flex items-center gap-2 rounded-2xl glass px-4 py-2.5 shadow-lg animate-float" style={{animationDelay:'0.3s'}}>
+      {/* Floating badges — только на очень широких экранах, за пределами контента */}
+      <div className="absolute top-40 left-4 hidden 2xl:flex items-center gap-2 rounded-2xl glass px-4 py-2.5 shadow-lg animate-float" style={{animationDelay:'0.3s'}}>
         <Icon name="Zap" size={16} className="text-primary" />
         <span className="text-xs font-semibold">{lang === 'ru' ? '47 секунд' : '47 seconds'}</span>
       </div>
-      <div className="absolute top-56 right-8 hidden xl:flex items-center gap-2 rounded-2xl glass px-4 py-2.5 shadow-lg animate-float" style={{animationDelay:'1s'}}>
+      <div className="absolute top-52 right-4 hidden 2xl:flex items-center gap-2 rounded-2xl glass px-4 py-2.5 shadow-lg animate-float" style={{animationDelay:'1s'}}>
         <Icon name="TrendingUp" size={16} className="text-[hsl(88,70%,40%)]" />
         <span className="text-xs font-semibold">+212% {lang === 'ru' ? 'конверсия' : 'conversion'}</span>
       </div>
-      <div className="absolute bottom-32 left-12 hidden xl:flex items-center gap-2 rounded-2xl glass px-4 py-2.5 shadow-lg animate-float" style={{animationDelay:'1.8s'}}>
+      <div className="absolute bottom-36 left-4 hidden 2xl:flex items-center gap-2 rounded-2xl glass px-4 py-2.5 shadow-lg animate-float" style={{animationDelay:'1.8s'}}>
         <Icon name="Shield" size={16} className="text-primary" />
         <span className="text-xs font-semibold">SSL + {lang === 'ru' ? 'хостинг' : 'hosting'}</span>
       </div>
