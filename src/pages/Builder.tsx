@@ -96,6 +96,13 @@ export default function Builder() {
   const [editMode, setEditMode] = useState(false);
   const [editPopover, setEditPopover] = useState<{ x: number; y: number; text: string; path: string } | null>(null);
   const [editValue, setEditValue] = useState('');
+  const [propsPanel, setPropsPanel] = useState<{
+    path: string; tag: string;
+    color: string; backgroundColor: string;
+    fontSize: string; fontWeight: string; textAlign: string;
+    paddingTop: string; paddingRight: string; paddingBottom: string; paddingLeft: string;
+    borderRadius: string; opacity: string;
+  } | null>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
@@ -227,37 +234,68 @@ export default function Builder() {
     window.open(url, '_blank');
   };
 
-  // Скрипт, внедряемый в HTML для режима редактирования текста
+  // Скрипт, внедряемый в HTML для режима редактирования
   const EDIT_SCRIPT = `
 <script id="__roboweb_edit__">
 (function() {
   var editMode = false;
   var highlighted = null;
-  var EDITABLE = 'h1,h2,h3,h4,h5,h6,p,span,a,button,li,td,th,label,div';
+  var selected = null;
+  var ANY = '*';
 
   function getPath(el) {
     var path = [];
-    while (el && el !== document.body) {
-      var idx = Array.from(el.parentNode ? el.parentNode.children : []).indexOf(el);
-      path.unshift(el.tagName.toLowerCase() + ':nth-child(' + (idx + 1) + ')');
-      el = el.parentNode;
+    var cur = el;
+    while (cur && cur !== document.body) {
+      var idx = Array.from(cur.parentNode ? cur.parentNode.children : []).indexOf(cur);
+      path.unshift(cur.tagName.toLowerCase() + ':nth-child(' + (idx + 1) + ')');
+      cur = cur.parentNode;
     }
     return path.join(' > ');
   }
 
+  function getStyles(el) {
+    var cs = window.getComputedStyle(el);
+    return {
+      color: rgbToHex(cs.color),
+      backgroundColor: rgbToHex(cs.backgroundColor),
+      fontSize: cs.fontSize,
+      fontWeight: cs.fontWeight,
+      textAlign: cs.textAlign,
+      paddingTop: cs.paddingTop,
+      paddingRight: cs.paddingRight,
+      paddingBottom: cs.paddingBottom,
+      paddingLeft: cs.paddingLeft,
+      borderRadius: cs.borderRadius,
+      opacity: cs.opacity,
+      tag: el.tagName.toLowerCase(),
+    };
+  }
+
+  function rgbToHex(rgb) {
+    if (!rgb || rgb === 'transparent' || rgb === 'rgba(0, 0, 0, 0)') return 'transparent';
+    var m = rgb.match(/rgba?\\((\\d+),\\s*(\\d+),\\s*(\\d+)/);
+    if (!m) return rgb;
+    return '#' + [m[1],m[2],m[3]].map(function(x){ return parseInt(x).toString(16).padStart(2,'0'); }).join('');
+  }
+
   window.addEventListener('message', function(e) {
-    if (e.data && e.data.type === 'ROBOWEB_EDIT_MODE') {
+    if (!e.data) return;
+    if (e.data.type === 'ROBOWEB_EDIT_MODE') {
       editMode = e.data.enabled;
       document.body.style.cursor = editMode ? 'crosshair' : '';
-      if (!editMode && highlighted) {
-        highlighted.style.outline = '';
-        highlighted = null;
+      if (!editMode) {
+        if (highlighted) { highlighted.style.outline = ''; highlighted = null; }
+        if (selected) { selected.style.outline = ''; selected = null; }
       }
     }
-    if (e.data && e.data.type === 'ROBOWEB_APPLY_TEXT') {
+    if (e.data.type === 'ROBOWEB_APPLY_TEXT') {
+      try { var el = document.querySelector(e.data.path); if (el) el.textContent = e.data.text; } catch(err) {}
+    }
+    if (e.data.type === 'ROBOWEB_APPLY_STYLE') {
       try {
         var el = document.querySelector(e.data.path);
-        if (el) el.textContent = e.data.text;
+        if (el) { el.style[e.data.prop] = e.data.value; }
       } catch(err) {}
     }
   });
@@ -265,9 +303,9 @@ export default function Builder() {
   document.addEventListener('mouseover', function(e) {
     if (!editMode) return;
     var t = e.target;
-    if (!t.matches || !t.matches(EDITABLE)) return;
+    if (t === selected) return;
     if (highlighted && highlighted !== t) highlighted.style.outline = '';
-    t.style.outline = '2px solid #4f6ef7';
+    t.style.outline = '2px dashed #4f6ef7';
     t.style.outlineOffset = '2px';
     highlighted = t;
   });
@@ -275,21 +313,25 @@ export default function Builder() {
   document.addEventListener('mouseout', function(e) {
     if (!editMode) return;
     var t = e.target;
-    if (t === highlighted) { t.style.outline = ''; highlighted = null; }
+    if (t === highlighted && t !== selected) { t.style.outline = ''; highlighted = null; }
   });
 
   document.addEventListener('click', function(e) {
     if (!editMode) return;
-    var t = e.target;
-    if (!t.matches || !t.matches(EDITABLE)) return;
     e.preventDefault(); e.stopPropagation();
+    var t = e.target;
+    if (selected && selected !== t) selected.style.outline = '';
+    selected = t;
+    t.style.outline = '2px solid #4f6ef7';
+    t.style.outlineOffset = '2px';
     var rect = t.getBoundingClientRect();
     window.parent.postMessage({
       type: 'ROBOWEB_CLICK',
       text: t.textContent || '',
       path: getPath(t),
+      styles: getStyles(t),
       x: rect.left + rect.width / 2,
-      y: rect.bottom + window.scrollY,
+      y: rect.bottom,
     }, '*');
   }, true);
 })();
@@ -307,13 +349,9 @@ export default function Builder() {
   useEffect(() => {
     const handler = (e: MessageEvent) => {
       if (!e.data || e.data.type !== 'ROBOWEB_CLICK') return;
-      setEditPopover({
-        x: e.data.x,
-        y: e.data.y,
-        text: e.data.text,
-        path: e.data.path,
-      });
+      setEditPopover({ x: e.data.x, y: e.data.y, text: e.data.text, path: e.data.path });
       setEditValue(e.data.text);
+      if (e.data.styles) setPropsPanel({ path: e.data.path, ...e.data.styles });
     };
     window.addEventListener('message', handler);
     return () => window.removeEventListener('message', handler);
@@ -349,6 +387,26 @@ export default function Builder() {
       ...prev.slice(0, 9),
     ]);
     setEditPopover(null);
+  };
+
+  // Применяем стиль через iframe + патчим HTML
+  const applyStyle = (prop: string, value: string) => {
+    if (!propsPanel) return;
+    iframeRef.current?.contentWindow?.postMessage({ type: 'ROBOWEB_APPLY_STYLE', path: propsPanel.path, prop, value }, '*');
+    setPropsPanel(prev => prev ? { ...prev, [prop]: value } : null);
+    // Патчим HTML
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    try {
+      const el = doc.querySelector(propsPanel.path) as HTMLElement | null;
+      if (el) (el.style as unknown as Record<string, string>)[prop] = value;
+    } catch { /* ignore */ }
+    const newHtml = doc.documentElement.outerHTML;
+    setHtml(newHtml);
+    setVersions(prev => [
+      { html: newHtml, label: lang === 'ru' ? 'Правка стилей' : 'Style edit', ts: Date.now() },
+      ...prev.slice(0, 9),
+    ]);
   };
 
   const initials = user?.name?.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || 'U';
@@ -724,58 +782,196 @@ export default function Builder() {
                     </div>
                   )}
 
-                  <div className="flex-1 w-full overflow-hidden transition-all duration-500 relative" style={{ maxWidth: DEVICE_WIDTHS[device] }}>
-                    <iframe
-                      ref={iframeRef}
-                      key={iframeKey}
-                      srcDoc={htmlWithEditScript(html)}
-                      title={tr('builderPreview', lang)}
-                      className="w-full h-full border-0"
-                      sandbox="allow-scripts allow-same-origin"
-                    />
+                  <div className="flex-1 flex overflow-hidden">
+                    {/* iframe */}
+                    <div className="flex-1 relative overflow-hidden transition-all duration-500" style={{ maxWidth: propsPanel ? undefined : DEVICE_WIDTHS[device] }}>
+                      <iframe
+                        ref={iframeRef}
+                        key={iframeKey}
+                        srcDoc={htmlWithEditScript(html)}
+                        title={tr('builderPreview', lang)}
+                        className="w-full h-full border-0"
+                        sandbox="allow-scripts allow-same-origin"
+                      />
+                      {/* Popover редактирования текста */}
+                      {editPopover && (
+                        <div
+                          className="absolute z-50 bg-card border border-border rounded-2xl shadow-2xl p-3 w-64"
+                          style={{ left: Math.min(editPopover.x - 128, 9999), top: Math.min(editPopover.y + 8, 9999) }}
+                        >
+                          <div className="flex items-center justify-between mb-2">
+                            <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                              <Icon name="Type" size={12} />
+                              {lang === 'ru' ? 'Текст' : 'Text'}
+                            </span>
+                            <button onClick={() => setEditPopover(null)} className="text-muted-foreground hover:text-foreground">
+                              <Icon name="X" size={13} />
+                            </button>
+                          </div>
+                          <textarea
+                            autoFocus
+                            value={editValue}
+                            onChange={e => setEditValue(e.target.value)}
+                            className="w-full text-xs rounded-xl border border-border bg-secondary px-3 py-2 resize-none outline-none focus:border-primary transition-colors"
+                            rows={2}
+                            onKeyDown={e => {
+                              if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); applyTextEdit(); }
+                              if (e.key === 'Escape') setEditPopover(null);
+                            }}
+                          />
+                          <div className="flex gap-2 mt-2">
+                            <button onClick={applyTextEdit} className="flex-1 flex items-center justify-center gap-1.5 text-xs font-semibold py-1.5 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
+                              <Icon name="Check" size={12} />
+                              {lang === 'ru' ? 'Сохранить' : 'Save'}
+                            </button>
+                            <button onClick={() => setEditPopover(null)} className="px-3 text-xs text-muted-foreground hover:text-foreground rounded-xl border border-border hover:bg-secondary transition-colors">
+                              {lang === 'ru' ? 'Отмена' : 'Cancel'}
+                            </button>
+                          </div>
+                        </div>
+                      )}
+                    </div>
 
-                    {/* Popover редактирования текста */}
-                    {editPopover && (
-                      <div
-                        className="absolute z-50 bg-card border border-border rounded-2xl shadow-2xl p-3 w-72"
-                        style={{ left: Math.min(editPopover.x - 144, DEVICE_WIDTHS[device] === '100%' ? 9999 : parseInt(DEVICE_WIDTHS[device]) - 288), top: editPopover.y + 8 }}
-                      >
-                        <div className="flex items-center justify-between mb-2">
-                          <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
-                            <Icon name="Type" size={12} />
-                            {lang === 'ru' ? 'Редактировать текст' : 'Edit text'}
+                    {/* Панель свойств элемента */}
+                    {propsPanel && editMode && (
+                      <div className="w-56 shrink-0 border-l border-border bg-card overflow-y-auto flex flex-col">
+                        {/* Заголовок */}
+                        <div className="flex items-center justify-between px-3 py-2.5 border-b border-border shrink-0">
+                          <span className="text-xs font-semibold flex items-center gap-1.5">
+                            <Icon name="Sliders" size={12} className="text-primary" />
+                            <span className="font-mono text-primary">&lt;{propsPanel.tag}&gt;</span>
                           </span>
-                          <button onClick={() => setEditPopover(null)} className="text-muted-foreground hover:text-foreground">
+                          <button onClick={() => setPropsPanel(null)} className="text-muted-foreground hover:text-foreground">
                             <Icon name="X" size={13} />
                           </button>
                         </div>
-                        <textarea
-                          autoFocus
-                          value={editValue}
-                          onChange={e => setEditValue(e.target.value)}
-                          className="w-full text-xs rounded-xl border border-border bg-secondary px-3 py-2 resize-none outline-none focus:border-primary transition-colors"
-                          rows={3}
-                          onKeyDown={e => {
-                            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); applyTextEdit(); }
-                            if (e.key === 'Escape') setEditPopover(null);
-                          }}
-                        />
-                        <div className="flex gap-2 mt-2">
-                          <button
-                            onClick={applyTextEdit}
-                            className="flex-1 flex items-center justify-center gap-1.5 text-xs font-semibold py-1.5 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
-                          >
-                            <Icon name="Check" size={12} />
-                            {lang === 'ru' ? 'Сохранить' : 'Save'}
-                          </button>
-                          <button
-                            onClick={() => setEditPopover(null)}
-                            className="px-3 text-xs text-muted-foreground hover:text-foreground rounded-xl border border-border hover:bg-secondary transition-colors"
-                          >
-                            {lang === 'ru' ? 'Отмена' : 'Cancel'}
-                          </button>
+
+                        <div className="p-3 space-y-4 text-xs">
+                          {/* Цвет текста */}
+                          <div>
+                            <p className="text-muted-foreground uppercase tracking-widest text-[10px] font-semibold mb-2">
+                              {lang === 'ru' ? 'Текст' : 'Text'}
+                            </p>
+                            <div className="flex items-center gap-2">
+                              <input type="color"
+                                value={propsPanel.color === 'transparent' ? '#000000' : propsPanel.color}
+                                onChange={e => applyStyle('color', e.target.value)}
+                                className="h-7 w-7 rounded-lg border border-border cursor-pointer bg-transparent shrink-0"
+                              />
+                              <span className="font-mono text-[11px] text-muted-foreground">{propsPanel.color}</span>
+                            </div>
+                          </div>
+
+                          {/* Фон */}
+                          <div>
+                            <p className="text-muted-foreground uppercase tracking-widest text-[10px] font-semibold mb-2">
+                              {lang === 'ru' ? 'Фон' : 'Background'}
+                            </p>
+                            <div className="flex items-center gap-2">
+                              <input type="color"
+                                value={propsPanel.backgroundColor === 'transparent' ? '#ffffff' : propsPanel.backgroundColor}
+                                onChange={e => applyStyle('backgroundColor', e.target.value)}
+                                className="h-7 w-7 rounded-lg border border-border cursor-pointer bg-transparent shrink-0"
+                              />
+                              <span className="font-mono text-[11px] text-muted-foreground truncate">{propsPanel.backgroundColor}</span>
+                            </div>
+                          </div>
+
+                          {/* Размер шрифта */}
+                          <div>
+                            <p className="text-muted-foreground uppercase tracking-widest text-[10px] font-semibold mb-2">
+                              {lang === 'ru' ? 'Размер шрифта' : 'Font size'}
+                            </p>
+                            <div className="flex items-center gap-2">
+                              <input type="range" min="8" max="96" step="1"
+                                value={parseInt(propsPanel.fontSize) || 16}
+                                onChange={e => applyStyle('fontSize', e.target.value + 'px')}
+                                className="flex-1 accent-primary"
+                              />
+                              <span className="font-mono text-[11px] w-10 text-right shrink-0">{propsPanel.fontSize}</span>
+                            </div>
+                          </div>
+
+                          {/* Жирность */}
+                          <div>
+                            <p className="text-muted-foreground uppercase tracking-widest text-[10px] font-semibold mb-2">
+                              {lang === 'ru' ? 'Жирность' : 'Font weight'}
+                            </p>
+                            <div className="flex gap-1 flex-wrap">
+                              {[['400', lang === 'ru' ? 'Норм' : 'Normal'], ['600', lang === 'ru' ? 'Полужирный' : 'Semi'], ['700', lang === 'ru' ? 'Жирный' : 'Bold'], ['900', lang === 'ru' ? 'Чёрный' : 'Black']].map(([w, label]) => (
+                                <button key={w} onClick={() => applyStyle('fontWeight', w)}
+                                  className={`px-2 py-1 rounded-lg text-[10px] font-medium border transition-all ${propsPanel.fontWeight === w ? 'bg-primary text-primary-foreground border-primary' : 'border-border text-muted-foreground hover:text-foreground hover:bg-secondary'}`}>
+                                  {label}
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Выравнивание */}
+                          <div>
+                            <p className="text-muted-foreground uppercase tracking-widest text-[10px] font-semibold mb-2">
+                              {lang === 'ru' ? 'Выравнивание' : 'Align'}
+                            </p>
+                            <div className="flex gap-1">
+                              {[['left', 'AlignLeft'], ['center', 'AlignCenter'], ['right', 'AlignRight']].map(([align, icon]) => (
+                                <button key={align} onClick={() => applyStyle('textAlign', align)}
+                                  className={`flex-1 flex items-center justify-center py-1.5 rounded-lg border transition-all ${propsPanel.textAlign === align ? 'bg-primary text-primary-foreground border-primary' : 'border-border text-muted-foreground hover:text-foreground hover:bg-secondary'}`}>
+                                  <Icon name={icon} size={13} />
+                                </button>
+                              ))}
+                            </div>
+                          </div>
+
+                          {/* Скругление */}
+                          <div>
+                            <p className="text-muted-foreground uppercase tracking-widest text-[10px] font-semibold mb-2">
+                              {lang === 'ru' ? 'Скругление' : 'Border radius'}
+                            </p>
+                            <div className="flex items-center gap-2">
+                              <input type="range" min="0" max="48" step="1"
+                                value={parseInt(propsPanel.borderRadius) || 0}
+                                onChange={e => applyStyle('borderRadius', e.target.value + 'px')}
+                                className="flex-1 accent-primary"
+                              />
+                              <span className="font-mono text-[11px] w-10 text-right shrink-0">{propsPanel.borderRadius}</span>
+                            </div>
+                          </div>
+
+                          {/* Прозрачность */}
+                          <div>
+                            <p className="text-muted-foreground uppercase tracking-widest text-[10px] font-semibold mb-2">
+                              {lang === 'ru' ? 'Прозрачность' : 'Opacity'}
+                            </p>
+                            <div className="flex items-center gap-2">
+                              <input type="range" min="0" max="1" step="0.05"
+                                value={parseFloat(propsPanel.opacity) || 1}
+                                onChange={e => applyStyle('opacity', e.target.value)}
+                                className="flex-1 accent-primary"
+                              />
+                              <span className="font-mono text-[11px] w-10 text-right shrink-0">{Math.round(parseFloat(propsPanel.opacity) * 100)}%</span>
+                            </div>
+                          </div>
+
+                          {/* Отступы */}
+                          <div>
+                            <p className="text-muted-foreground uppercase tracking-widest text-[10px] font-semibold mb-2">
+                              {lang === 'ru' ? 'Отступы (padding)' : 'Padding'}
+                            </p>
+                            <div className="grid grid-cols-2 gap-1.5">
+                              {([['paddingTop', '↑'], ['paddingBottom', '↓'], ['paddingLeft', '←'], ['paddingRight', '→']] as const).map(([prop, arrow]) => (
+                                <div key={prop} className="flex items-center gap-1.5">
+                                  <span className="text-muted-foreground w-4 text-center">{arrow}</span>
+                                  <input
+                                    type="number" min="0" max="200"
+                                    value={parseInt((propsPanel as Record<string, string>)[prop]) || 0}
+                                    onChange={e => applyStyle(prop, e.target.value + 'px')}
+                                    className="w-full text-[11px] border border-border rounded-lg px-1.5 py-1 bg-secondary outline-none focus:border-primary font-mono"
+                                  />
+                                </div>
+                              ))}
+                            </div>
+                          </div>
                         </div>
-                        <p className="text-[10px] text-muted-foreground mt-1.5 text-center">Enter — сохранить · Esc — отмена</p>
                       </div>
                     )}
                   </div>
