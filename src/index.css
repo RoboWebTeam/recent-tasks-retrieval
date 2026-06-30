@@ -99,14 +99,18 @@
   }
 }
 
-@keyframes wordSwap {
+@keyframes wordFlip {
   0% {
     opacity: 0;
-    transform: translateY(10px) scale(0.97);
+    transform: rotateX(-90deg) scale(0.95);
+  }
+  60% {
+    opacity: 1;
+    transform: rotateX(8deg) scale(1.01);
   }
   100% {
     opacity: 1;
-    transform: translateY(0) scale(1);
+    transform: rotateX(0deg) scale(1);
   }
 }
 
