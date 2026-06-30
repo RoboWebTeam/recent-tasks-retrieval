@@ -112,10 +112,10 @@ export function IndexHero({ lang, typedText, chatStep, isTyping, progress, chatS
             <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
             {L.hero.badge[lang]}
           </span>
-          <h1 className="mt-5 font-display font-black leading-[1.05] text-4xl sm:text-5xl md:text-6xl xl:text-7xl tracking-tight">
-            <span className="text-gradient inline-block">
+          <h1 className="mt-5 font-display font-black leading-[1.05] text-4xl sm:text-5xl md:text-6xl xl:text-7xl tracking-tight min-h-[1.1em]">
+            <span className="text-gradient">
               {typedText}
-              <span className="animate-pulse">|</span>
+              <span className="typed-cursor">|</span>
             </span>
           </h1>
           <p className="mt-5 text-base sm:text-lg text-muted-foreground max-w-xl mx-auto lg:mx-0">

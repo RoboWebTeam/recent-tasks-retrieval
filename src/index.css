@@ -90,6 +90,24 @@
   }
 }
 
+@keyframes blink {
+  0%,
+  100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0;
+  }
+}
+
+.typed-cursor {
+  display: inline-block;
+  width: 0.05em;
+  margin-left: 2px;
+  animation: blink 0.9s step-end infinite;
+  vertical-align: baseline;
+}
+
 @keyframes cardIn {
   from {
     opacity: 0;
