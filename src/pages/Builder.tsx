@@ -93,6 +93,10 @@ export default function Builder() {
   const [iframeKey, setIframeKey] = useState(0);
   const [codeEditorValue, setCodeEditorValue] = useState('');
   const [codeApplied, setCodeApplied] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [editPopover, setEditPopover] = useState<{ x: number; y: number; text: string; path: string } | null>(null);
+  const [editValue, setEditValue] = useState('');
+  const iframeRef = useRef<HTMLIFrameElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const session = getSession();
@@ -221,6 +225,130 @@ export default function Builder() {
     const blob = new Blob([html], { type: 'text/html' });
     const url = URL.createObjectURL(blob);
     window.open(url, '_blank');
+  };
+
+  // Скрипт, внедряемый в HTML для режима редактирования текста
+  const EDIT_SCRIPT = `
+<script id="__roboweb_edit__">
+(function() {
+  var editMode = false;
+  var highlighted = null;
+  var EDITABLE = 'h1,h2,h3,h4,h5,h6,p,span,a,button,li,td,th,label,div';
+
+  function getPath(el) {
+    var path = [];
+    while (el && el !== document.body) {
+      var idx = Array.from(el.parentNode ? el.parentNode.children : []).indexOf(el);
+      path.unshift(el.tagName.toLowerCase() + ':nth-child(' + (idx + 1) + ')');
+      el = el.parentNode;
+    }
+    return path.join(' > ');
+  }
+
+  window.addEventListener('message', function(e) {
+    if (e.data && e.data.type === 'ROBOWEB_EDIT_MODE') {
+      editMode = e.data.enabled;
+      document.body.style.cursor = editMode ? 'crosshair' : '';
+      if (!editMode && highlighted) {
+        highlighted.style.outline = '';
+        highlighted = null;
+      }
+    }
+    if (e.data && e.data.type === 'ROBOWEB_APPLY_TEXT') {
+      try {
+        var el = document.querySelector(e.data.path);
+        if (el) el.textContent = e.data.text;
+      } catch(err) {}
+    }
+  });
+
+  document.addEventListener('mouseover', function(e) {
+    if (!editMode) return;
+    var t = e.target;
+    if (!t.matches || !t.matches(EDITABLE)) return;
+    if (highlighted && highlighted !== t) highlighted.style.outline = '';
+    t.style.outline = '2px solid #4f6ef7';
+    t.style.outlineOffset = '2px';
+    highlighted = t;
+  });
+
+  document.addEventListener('mouseout', function(e) {
+    if (!editMode) return;
+    var t = e.target;
+    if (t === highlighted) { t.style.outline = ''; highlighted = null; }
+  });
+
+  document.addEventListener('click', function(e) {
+    if (!editMode) return;
+    var t = e.target;
+    if (!t.matches || !t.matches(EDITABLE)) return;
+    e.preventDefault(); e.stopPropagation();
+    var rect = t.getBoundingClientRect();
+    window.parent.postMessage({
+      type: 'ROBOWEB_CLICK',
+      text: t.textContent || '',
+      path: getPath(t),
+      x: rect.left + rect.width / 2,
+      y: rect.bottom + window.scrollY,
+    }, '*');
+  }, true);
+})();
+</` + `script>`;
+
+  // HTML с внедрённым скриптом для режима редактирования
+  const htmlWithEditScript = (rawHtml: string) => {
+    if (!rawHtml) return rawHtml;
+    const hasHead = /<head[\s>]/i.test(rawHtml);
+    if (hasHead) return rawHtml.replace(/<head([^>]*)>/i, `<head$1>${EDIT_SCRIPT}`);
+    return EDIT_SCRIPT + rawHtml;
+  };
+
+  // Слушаем сообщения от iframe
+  useEffect(() => {
+    const handler = (e: MessageEvent) => {
+      if (!e.data || e.data.type !== 'ROBOWEB_CLICK') return;
+      setEditPopover({
+        x: e.data.x,
+        y: e.data.y,
+        text: e.data.text,
+        path: e.data.path,
+      });
+      setEditValue(e.data.text);
+    };
+    window.addEventListener('message', handler);
+    return () => window.removeEventListener('message', handler);
+  }, []);
+
+  // Включение/выключение edit-режима — шлём сообщение в iframe
+  const toggleEditMode = () => {
+    const next = !editMode;
+    setEditMode(next);
+    setEditPopover(null);
+    iframeRef.current?.contentWindow?.postMessage({ type: 'ROBOWEB_EDIT_MODE', enabled: next }, '*');
+  };
+
+  // Сохраняем изменённый текст в HTML и обновляем превью
+  const applyTextEdit = () => {
+    if (!editPopover) return;
+    iframeRef.current?.contentWindow?.postMessage({
+      type: 'ROBOWEB_APPLY_TEXT',
+      path: editPopover.path,
+      text: editValue,
+    }, '*');
+    // Патчим исходный HTML через innerHTML замену
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    try {
+      const el = doc.querySelector(editPopover.path);
+      if (el) el.textContent = editValue;
+    } catch { /* сложный path — игнорируем */ }
+    const newHtml = doc.documentElement.outerHTML;
+    setHtml(newHtml);
+    setVersions(prev => [
+      { html: newHtml, label: lang === 'ru' ? 'Правка текста' : 'Text edit', ts: Date.now() },
+      ...prev.slice(0, 9),
+    ]);
+    setEditPopover(null);
   };
 
   const initials = user?.name?.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || 'U';
@@ -557,6 +685,21 @@ export default function Builder() {
                       </span>
                     </div>
                     <div className="flex items-center gap-1.5">
+                      {/* Кнопка режима редактирования текста */}
+                      <button
+                        onClick={toggleEditMode}
+                        className={`flex items-center gap-1 text-[11px] font-medium px-2 py-1 rounded-lg transition-all ${
+                          editMode
+                            ? 'bg-primary text-primary-foreground'
+                            : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
+                        }`}
+                        title={lang === 'ru' ? 'Режим редактирования текста' : 'Text edit mode'}
+                      >
+                        <Icon name="MousePointer" size={11} />
+                        {editMode
+                          ? (lang === 'ru' ? 'Редактирование' : 'Editing')
+                          : (lang === 'ru' ? 'Изменить текст' : 'Edit text')}
+                      </button>
                       <button onClick={() => setIframeKey(k => k + 1)}
                         className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded-lg hover:bg-secondary">
                         <Icon name="RefreshCw" size={11} /> {lang === 'ru' ? 'Обновить' : 'Refresh'}
@@ -567,14 +710,74 @@ export default function Builder() {
                       </button>
                     </div>
                   </div>
-                  <div className="flex-1 w-full overflow-hidden transition-all duration-500" style={{ maxWidth: DEVICE_WIDTHS[device] }}>
+
+                  {/* Подсказка в режиме редактирования */}
+                  {editMode && (
+                    <div className="w-full flex items-center justify-between gap-2 px-4 py-1.5 bg-primary/5 border-b border-primary/20 text-[11px] text-primary shrink-0">
+                      <span className="flex items-center gap-1.5">
+                        <Icon name="MousePointer" size={11} />
+                        {lang === 'ru' ? 'Кликните на любой текст для редактирования' : 'Click any text to edit'}
+                      </span>
+                      <button onClick={toggleEditMode} className="hover:text-primary/70 transition-colors">
+                        <Icon name="X" size={11} />
+                      </button>
+                    </div>
+                  )}
+
+                  <div className="flex-1 w-full overflow-hidden transition-all duration-500 relative" style={{ maxWidth: DEVICE_WIDTHS[device] }}>
                     <iframe
+                      ref={iframeRef}
                       key={iframeKey}
-                      srcDoc={html}
+                      srcDoc={htmlWithEditScript(html)}
                       title={tr('builderPreview', lang)}
                       className="w-full h-full border-0"
                       sandbox="allow-scripts allow-same-origin"
                     />
+
+                    {/* Popover редактирования текста */}
+                    {editPopover && (
+                      <div
+                        className="absolute z-50 bg-card border border-border rounded-2xl shadow-2xl p-3 w-72"
+                        style={{ left: Math.min(editPopover.x - 144, DEVICE_WIDTHS[device] === '100%' ? 9999 : parseInt(DEVICE_WIDTHS[device]) - 288), top: editPopover.y + 8 }}
+                      >
+                        <div className="flex items-center justify-between mb-2">
+                          <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                            <Icon name="Type" size={12} />
+                            {lang === 'ru' ? 'Редактировать текст' : 'Edit text'}
+                          </span>
+                          <button onClick={() => setEditPopover(null)} className="text-muted-foreground hover:text-foreground">
+                            <Icon name="X" size={13} />
+                          </button>
+                        </div>
+                        <textarea
+                          autoFocus
+                          value={editValue}
+                          onChange={e => setEditValue(e.target.value)}
+                          className="w-full text-xs rounded-xl border border-border bg-secondary px-3 py-2 resize-none outline-none focus:border-primary transition-colors"
+                          rows={3}
+                          onKeyDown={e => {
+                            if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); applyTextEdit(); }
+                            if (e.key === 'Escape') setEditPopover(null);
+                          }}
+                        />
+                        <div className="flex gap-2 mt-2">
+                          <button
+                            onClick={applyTextEdit}
+                            className="flex-1 flex items-center justify-center gap-1.5 text-xs font-semibold py-1.5 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+                          >
+                            <Icon name="Check" size={12} />
+                            {lang === 'ru' ? 'Сохранить' : 'Save'}
+                          </button>
+                          <button
+                            onClick={() => setEditPopover(null)}
+                            className="px-3 text-xs text-muted-foreground hover:text-foreground rounded-xl border border-border hover:bg-secondary transition-colors"
+                          >
+                            {lang === 'ru' ? 'Отмена' : 'Cancel'}
+                          </button>
+                        </div>
+                        <p className="text-[10px] text-muted-foreground mt-1.5 text-center">Enter — сохранить · Esc — отмена</p>
+                      </div>
+                    )}
                   </div>
                 </>
               ) : (
