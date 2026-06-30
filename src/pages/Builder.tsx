@@ -873,7 +873,7 @@ export default function Builder() {
         )}
 
         {/* RIGHT — PREVIEW / CODE */}
-        <div className="flex-1 flex flex-col bg-[#1c1c1e] overflow-hidden">
+        <div className="flex-1 flex flex-col bg-[#2a2a2e] overflow-hidden">
           {rightTab === 'preview' ? (
             <div className="flex-1 flex flex-col items-center overflow-hidden">
               {html ? (
