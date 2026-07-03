@@ -186,7 +186,11 @@ const Register = () => {
               {/* Telegram */}
               <button
                 type="button"
-                onClick={() => window.open('https://t.me', '_blank')}
+                onClick={() => {
+                  const botUsername = 'roboweb_bot';
+                  const redirectUri = encodeURIComponent(window.location.origin + '/auth/telegram/callback');
+                  window.location.href = `https://oauth.telegram.org/auth?bot_id=${botUsername}&origin=${redirectUri}&return_to=${redirectUri}`;
+                }}
                 className="flex items-center justify-center gap-2 h-11 rounded-xl border border-border bg-card hover:bg-secondary transition-colors text-sm font-medium group"
                 title="Telegram"
               >
