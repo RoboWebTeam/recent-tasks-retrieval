@@ -67,9 +67,14 @@ export default function BuilderCorePanel({ lang, projectId, onUseFileInChat }: B
               key={img.id}
               onClick={() => onUseFileInChat(img)}
               title={lang === 'ru' ? `Использовать «${img.file_name}» в чате` : `Use "${img.file_name}" in chat`}
-              className="shrink-0 h-8 w-8 rounded-lg overflow-hidden border border-border hover:border-primary hover:scale-110 transition-all"
+              className="relative shrink-0 h-8 w-8 rounded-lg overflow-hidden border border-border hover:border-primary hover:scale-110 transition-all"
             >
               <img src={img.file_url} alt={img.file_name} className="h-full w-full object-cover" />
+              {img.file_name.startsWith('dalle_') && (
+                <span className="absolute -top-1 -right-1 grid h-3.5 w-3.5 place-items-center rounded-full bg-primary text-primary-foreground">
+                  <Icon name="Sparkles" size={8} />
+                </span>
+              )}
             </button>
           ))}
         </div>
