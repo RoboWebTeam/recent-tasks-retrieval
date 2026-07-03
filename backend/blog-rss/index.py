@@ -5,7 +5,7 @@ from xml.sax.saxutils import escape
 
 from articles_data import ARTICLES
 
-SITE_URL = 'https://roboweb.poehali.app'
+SITE_URL = 'https://roboweb.site'
 
 MONTHS_RU = {
     'января': 1, 'февраля': 2, 'марта': 3, 'апреля': 4, 'мая': 5, 'июня': 6,

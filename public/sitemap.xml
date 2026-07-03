@@ -4,7 +4,7 @@
 
   <!-- Главная -->
   <url>
-    <loc>https://roboweb.poehali.app/</loc>
+    <loc>https://roboweb.site/</loc>
     <lastmod>2026-06-29</lastmod>
     <changefreq>weekly</changefreq>
     <priority>1.0</priority>
@@ -12,7 +12,7 @@
 
   <!-- Блог -->
   <url>
-    <loc>https://roboweb.poehali.app/blog</loc>
+    <loc>https://roboweb.site/blog</loc>
     <lastmod>2026-06-29</lastmod>
     <changefreq>weekly</changefreq>
     <priority>0.9</priority>
@@ -20,7 +20,7 @@
 
   <!-- Регистрация -->
   <url>
-    <loc>https://roboweb.poehali.app/register</loc>
+    <loc>https://roboweb.site/register</loc>
     <lastmod>2026-06-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
@@ -28,7 +28,7 @@
 
   <!-- Вход -->
   <url>
-    <loc>https://roboweb.poehali.app/login</loc>
+    <loc>https://roboweb.site/login</loc>
     <lastmod>2026-06-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.6</priority>
@@ -36,140 +36,140 @@
 
   <!-- Статьи блога -->
   <url>
-    <loc>https://roboweb.poehali.app/blog/pochemu-ai-luchshe-frilanserov</loc>
+    <loc>https://roboweb.site/blog/pochemu-ai-luchshe-frilanserov</loc>
     <lastmod>2026-06-10</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://roboweb.poehali.app/blog/kak-sozdать-sajt-za-5-minut</loc>
+    <loc>https://roboweb.site/blog/kak-sozdать-sajt-za-5-minut</loc>
     <lastmod>2026-06-12</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://roboweb.poehali.app/blog/preimushchestva-ai-sajtov</loc>
+    <loc>https://roboweb.site/blog/preimushchestva-ai-sajtov</loc>
     <lastmod>2026-06-14</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://roboweb.poehali.app/blog/ai-sajt-dlya-malogo-biznesa</loc>
+    <loc>https://roboweb.site/blog/ai-sajt-dlya-malogo-biznesa</loc>
     <lastmod>2026-06-15</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://roboweb.poehali.app/blog/sajt-za-minuty-ne-mif</loc>
+    <loc>https://roboweb.site/blog/sajt-za-minuty-ne-mif</loc>
     <lastmod>2026-06-16</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://roboweb.poehali.app/blog/seo-ai-sajtov</loc>
+    <loc>https://roboweb.site/blog/seo-ai-sajtov</loc>
     <lastmod>2026-06-17</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://roboweb.poehali.app/blog/sravnenie-ai-vs-konstruktory</loc>
+    <loc>https://roboweb.site/blog/sravnenie-ai-vs-konstruktory</loc>
     <lastmod>2026-06-18</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://roboweb.poehali.app/blog/landing-s-pomoschyu-ai</loc>
+    <loc>https://roboweb.site/blog/landing-s-pomoschyu-ai</loc>
     <lastmod>2026-06-19</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://roboweb.poehali.app/blog/istorii-uspeha-roboweb</loc>
+    <loc>https://roboweb.site/blog/istorii-uspeha-roboweb</loc>
     <lastmod>2026-06-21</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://roboweb.poehali.app/blog/budushchee-sozdaniya-sajtov</loc>
+    <loc>https://roboweb.site/blog/budushchee-sozdaniya-sajtov</loc>
     <lastmod>2026-06-23</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://roboweb.poehali.app/blog/prioritety-razrabotki-sajta-s-ii</loc>
+    <loc>https://roboweb.site/blog/prioritety-razrabotki-sajta-s-ii</loc>
     <lastmod>2026-06-24</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://roboweb.poehali.app/blog/skorost-zagruzki-prioritet-sajta</loc>
+    <loc>https://roboweb.site/blog/skorost-zagruzki-prioritet-sajta</loc>
     <lastmod>2026-06-25</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://roboweb.poehali.app/blog/ux-prioritet-pri-sozdanii-sajta</loc>
+    <loc>https://roboweb.site/blog/ux-prioritet-pri-sozdanii-sajta</loc>
     <lastmod>2026-06-26</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://roboweb.poehali.app/blog/konversiya-prioritet-biznesa</loc>
+    <loc>https://roboweb.site/blog/konversiya-prioritet-biznesa</loc>
     <lastmod>2026-06-27</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://roboweb.poehali.app/blog/mobilnaya-versiya-pervyj-prioritet</loc>
+    <loc>https://roboweb.site/blog/mobilnaya-versiya-pervyj-prioritet</loc>
     <lastmod>2026-06-28</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://roboweb.poehali.app/blog/kontent-prioritet-prodvizhenie</loc>
+    <loc>https://roboweb.site/blog/kontent-prioritet-prodvizhenie</loc>
     <lastmod>2026-06-29</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://roboweb.poehali.app/blog/bezopasnost-sajta-prioritet</loc>
+    <loc>https://roboweb.site/blog/bezopasnost-sajta-prioritet</loc>
     <lastmod>2026-06-30</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://roboweb.poehali.app/blog/analitika-sayta-prioritet-rosta</loc>
+    <loc>https://roboweb.site/blog/analitika-sayta-prioritet-rosta</loc>
     <lastmod>2026-06-30</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://roboweb.poehali.app/blog/avtomatizatsiya-prioritet-ii-sajty</loc>
+    <loc>https://roboweb.site/blog/avtomatizatsiya-prioritet-ii-sajty</loc>
     <lastmod>2026-06-30</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>
   </url>
 
   <url>
-    <loc>https://roboweb.poehali.app/blog/zapusk-sajta-prioritety-chek-list</loc>
+    <loc>https://roboweb.site/blog/zapusk-sajta-prioritety-chek-list</loc>
     <lastmod>2026-06-30</lastmod>
     <changefreq>monthly</changefreq>
     <priority>0.8</priority>

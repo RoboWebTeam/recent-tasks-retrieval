@@ -1,4 +1,4 @@
-const BASE_URL = 'https://roboweb.poehali.app';
+const BASE_URL = 'https://roboweb.site';
 const DEFAULT_IMAGE = 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/4ad7a664-b53c-40fe-8519-d34d7d589413.jpg';
 
 interface SeoMeta {
