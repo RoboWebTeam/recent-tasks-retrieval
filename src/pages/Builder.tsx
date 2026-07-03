@@ -768,7 +768,7 @@ export default function Builder() {
 
         {/* LEFT — CHAT */}
         {sidebarOpen && (
-          <div className="flex flex-col w-full sm:w-[340px] lg:w-[380px] shrink-0 border-r border-border bg-card">
+          <div className="flex flex-col w-full sm:w-[360px] lg:w-[400px] xl:w-[430px] shrink-0 border-r border-border bg-card">
 
             {/* Chat header */}
             <div className="flex items-center gap-2.5 px-4 py-3 border-b border-border shrink-0 bg-background">
@@ -967,111 +967,7 @@ export default function Builder() {
                 </div>
               )}
 
-              <div className={`flex items-end gap-1.5 bg-secondary/50 border rounded-2xl px-3 py-2.5 transition-all ${isRecording ? 'border-red-500/50' : 'border-border focus-within:border-primary/50'}`}>
-                {/* Быстрые правки */}
-                {html && (
-                  <button onClick={() => setShowQuickEdits(v => !v)}
-                    className={`grid h-7 w-7 place-items-center rounded-lg transition-colors shrink-0 mb-0.5 ${showQuickEdits ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-muted-foreground hover:bg-secondary/70'}`}
-                    title={lang === 'ru' ? 'Быстрые правки' : 'Quick edits'}>
-                    <Icon name="Wand2" size={14} />
-                  </button>
-                )}
-
-                {/* Визуальный редактор */}
-                {html && (
-                  <button onClick={toggleEditMode}
-                    className={`grid h-7 w-7 place-items-center rounded-lg transition-colors shrink-0 mb-0.5 ${editMode ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-muted-foreground hover:bg-secondary/70'}`}
-                    title={lang === 'ru' ? 'Визуальный редактор' : 'Visual editor'}>
-                    <Icon name="MousePointer" size={14} />
-                  </button>
-                )}
-
-                {/* Прикрепить изображение */}
-                <button onClick={() => imageInputRef.current?.click()}
-                  className="grid h-7 w-7 place-items-center rounded-lg text-muted-foreground hover:text-muted-foreground hover:bg-secondary/70 transition-colors shrink-0 mb-0.5"
-                  title={lang === 'ru' ? 'Прикрепить изображение' : 'Attach image'}>
-                  <Icon name="Image" size={14} />
-                </button>
-                <input ref={imageInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
-
-                {/* Модель AI */}
-                <div className="relative shrink-0 mb-0.5">
-                  <button onClick={() => setShowModelMenu(v => !v)}
-                    className="flex items-center gap-1 h-7 px-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary/70 transition-colors text-[11px] font-semibold"
-                    title={lang === 'ru' ? 'Модель AI' : 'AI model'}>
-                    <Icon name="Cpu" size={13} />
-                    {aiModel === 'gpt-4o' ? 'GPT-4o' : 'Claude'}
-                  </button>
-                  {showModelMenu && (
-                    <div className="absolute bottom-10 left-0 z-50 w-60 bg-secondary border border-border rounded-2xl shadow-2xl p-1.5">
-                      {[
-                        {
-                          id: 'claude' as const,
-                          label: 'Claude Sonnet',
-                          desc: lang === 'ru' ? 'Точный и качественный' : 'Precise & polished',
-                          hint: lang === 'ru'
-                            ? 'Лучше для бизнес-сайтов, лендингов и сложной структуры'
-                            : 'Best for business sites, landings & complex layouts',
-                        },
-                        {
-                          id: 'gpt-4o' as const,
-                          label: 'GPT-4o',
-                          desc: lang === 'ru' ? 'Быстрый и креативный' : 'Fast & creative',
-                          hint: lang === 'ru'
-                            ? 'Лучше для нестандартного дизайна и творческих идей'
-                            : 'Best for bold design and creative concepts',
-                        },
-                      ].map(m => (
-                        <button key={m.id}
-                          onClick={() => { setAiModel(m.id); setShowModelMenu(false); }}
-                          className="w-full flex items-start gap-2.5 px-2.5 py-2 rounded-xl hover:bg-secondary/70 transition-colors text-left">
-                          <div className={`grid h-6 w-6 place-items-center rounded-lg shrink-0 mt-0.5 ${aiModel === m.id ? 'bg-primary text-primary-foreground' : 'bg-background text-muted-foreground'}`}>
-                            <Icon name={aiModel === m.id ? 'Check' : 'Cpu'} size={12} />
-                          </div>
-                          <div>
-                            <div className="text-xs font-medium text-foreground">{m.label}</div>
-                            <div className="text-[10px] text-muted-foreground">{m.desc}</div>
-                            <div className="text-[10px] text-muted-foreground/70 mt-0.5 leading-snug">{m.hint}</div>
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
-                {/* Расширения */}
-                <div className="relative shrink-0 mb-0.5">
-                  <button onClick={() => setShowExtensions(v => !v)}
-                    className={`grid h-7 w-7 place-items-center rounded-lg transition-colors ${showExtensions ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-muted-foreground hover:bg-secondary/70'}`}
-                    title={lang === 'ru' ? 'Расширения' : 'Extensions'}>
-                    <Icon name="Puzzle" size={14} />
-                  </button>
-                  {showExtensions && (
-                    <div className="absolute bottom-10 left-0 z-50 w-60 bg-secondary border border-border rounded-2xl shadow-2xl p-3">
-                      <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold mb-2">{lang === 'ru' ? 'Расширения' : 'Extensions'}</p>
-                      {[
-                        { icon: 'ShoppingCart', label: lang === 'ru' ? 'Интернет-магазин' : 'E-commerce', desc: lang === 'ru' ? 'Каталог, корзина, оплата' : 'Catalog, cart, checkout' },
-                        { icon: 'MessageSquare', label: lang === 'ru' ? 'Онлайн-чат' : 'Live chat', desc: lang === 'ru' ? 'Виджет чата на сайте' : 'Chat widget on site' },
-                        { icon: 'BarChart2', label: lang === 'ru' ? 'Аналитика' : 'Analytics', desc: lang === 'ru' ? 'Google Analytics, Яндекс' : 'Google Analytics, Yandex' },
-                        { icon: 'CreditCard', label: lang === 'ru' ? 'Оплата' : 'Payments', desc: lang === 'ru' ? 'Stripe, ЮКасса' : 'Stripe, YooKassa' },
-                        { icon: 'Mail', label: lang === 'ru' ? 'Email-рассылка' : 'Email list', desc: lang === 'ru' ? 'Форма подписки' : 'Subscription form' },
-                      ].map(ext => (
-                        <button key={ext.label}
-                          onClick={() => { sendMessage(`Добавь расширение: ${ext.label}`); setShowExtensions(false); }}
-                          className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl hover:bg-secondary/70 transition-colors text-left group">
-                          <div className="grid h-7 w-7 place-items-center rounded-lg bg-primary/10 text-primary shrink-0">
-                            <Icon name={ext.icon} size={13} />
-                          </div>
-                          <div>
-                            <div className="text-xs font-medium text-foreground group-hover:text-foreground">{ext.label}</div>
-                            <div className="text-[10px] text-muted-foreground">{ext.desc}</div>
-                          </div>
-                        </button>
-                      ))}
-                    </div>
-                  )}
-                </div>
-
+              <div className={`flex flex-col bg-secondary/50 border rounded-2xl transition-all ${isRecording ? 'border-red-500/50' : 'border-border focus-within:border-primary/50 focus-within:bg-secondary/70'}`}>
                 <textarea
                   ref={textareaRef}
                   value={input}
@@ -1079,28 +975,136 @@ export default function Builder() {
                   onKeyDown={handleKeyDown}
                   placeholder={isRecording ? (lang === 'ru' ? '🎙 Говорите…' : '🎙 Speaking…') : tr('builderInputPlaceholder', lang)}
                   rows={1}
-                  className={`flex-1 bg-transparent text-[15px] font-medium resize-none outline-none min-h-[20px] max-h-[160px] ${isRecording ? 'text-red-400 placeholder:text-red-400/50' : 'text-foreground placeholder:text-muted-foreground/50'}`}
+                  className={`w-full bg-transparent text-[15px] font-medium resize-none outline-none min-h-[52px] max-h-[220px] px-3.5 pt-3 pb-1.5 leading-relaxed ${isRecording ? 'text-red-400 placeholder:text-red-400/50' : 'text-foreground placeholder:text-muted-foreground/50'}`}
                 />
 
-                {/* Голосовой ввод */}
-                <button onClick={toggleRecording}
-                  className={`grid h-7 w-7 place-items-center rounded-lg transition-all shrink-0 mb-0.5 ${isRecording ? 'text-red-400 bg-red-500/10 animate-pulse' : 'text-muted-foreground hover:text-muted-foreground hover:bg-secondary/70'}`}
-                  title={lang === 'ru' ? (isRecording ? 'Остановить запись' : 'Голосовой ввод') : (isRecording ? 'Stop recording' : 'Voice input')}>
-                  <Icon name={isRecording ? 'MicOff' : 'Mic'} size={14} />
-                </button>
+                {/* Toolbar */}
+                <div className="flex items-center gap-1 px-2 pb-2 pt-0.5">
+                  {/* Быстрые правки */}
+                  {html && (
+                    <button onClick={() => setShowQuickEdits(v => !v)}
+                      className={`grid h-7 w-7 place-items-center rounded-lg transition-colors shrink-0 ${showQuickEdits ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-foreground hover:bg-secondary'}`}
+                      title={lang === 'ru' ? 'Быстрые правки' : 'Quick edits'}>
+                      <Icon name="Wand2" size={14} />
+                    </button>
+                  )}
 
-                {/* Отправить */}
-                <button onClick={() => sendMessage()}
-                  disabled={loading || (!input.trim() && !attachedImage)}
-                  className="grid h-8 w-8 place-items-center rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground disabled:opacity-30 transition-all shrink-0 shadow-sm shadow-primary/20">
-                  {loading ? <Icon name="Loader" size={14} className="animate-spin" /> : <Icon name="Send" size={14} />}
-                </button>
+                  {/* Визуальный редактор */}
+                  {html && (
+                    <button onClick={toggleEditMode}
+                      className={`grid h-7 w-7 place-items-center rounded-lg transition-colors shrink-0 ${editMode ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-foreground hover:bg-secondary'}`}
+                      title={lang === 'ru' ? 'Визуальный редактор' : 'Visual editor'}>
+                      <Icon name="MousePointer" size={14} />
+                    </button>
+                  )}
+
+                  {/* Прикрепить изображение */}
+                  <button onClick={() => imageInputRef.current?.click()}
+                    className="grid h-7 w-7 place-items-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors shrink-0"
+                    title={lang === 'ru' ? 'Прикрепить изображение' : 'Attach image'}>
+                    <Icon name="Image" size={14} />
+                  </button>
+                  <input ref={imageInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+
+                  {/* Модель AI */}
+                  <div className="relative shrink-0">
+                    <button onClick={() => setShowModelMenu(v => !v)}
+                      className="flex items-center gap-1 h-7 px-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors text-[11px] font-semibold"
+                      title={lang === 'ru' ? 'Модель AI' : 'AI model'}>
+                      <Icon name="Cpu" size={13} />
+                      <span className="hidden sm:inline">{aiModel === 'gpt-4o' ? 'GPT-4o' : 'Claude'}</span>
+                    </button>
+                    {showModelMenu && (
+                      <div className="absolute bottom-10 left-0 z-50 w-60 bg-secondary border border-border rounded-2xl shadow-2xl p-1.5">
+                        {[
+                          {
+                            id: 'claude' as const,
+                            label: 'Claude Sonnet',
+                            desc: lang === 'ru' ? 'Точный и качественный' : 'Precise & polished',
+                            hint: lang === 'ru'
+                              ? 'Лучше для бизнес-сайтов, лендингов и сложной структуры'
+                              : 'Best for business sites, landings & complex layouts',
+                          },
+                          {
+                            id: 'gpt-4o' as const,
+                            label: 'GPT-4o',
+                            desc: lang === 'ru' ? 'Быстрый и креативный' : 'Fast & creative',
+                            hint: lang === 'ru'
+                              ? 'Лучше для нестандартного дизайна и творческих идей'
+                              : 'Best for bold design and creative concepts',
+                          },
+                        ].map(m => (
+                          <button key={m.id}
+                            onClick={() => { setAiModel(m.id); setShowModelMenu(false); }}
+                            className="w-full flex items-start gap-2.5 px-2.5 py-2 rounded-xl hover:bg-secondary/70 transition-colors text-left">
+                            <div className={`grid h-6 w-6 place-items-center rounded-lg shrink-0 mt-0.5 ${aiModel === m.id ? 'bg-primary text-primary-foreground' : 'bg-background text-muted-foreground'}`}>
+                              <Icon name={aiModel === m.id ? 'Check' : 'Cpu'} size={12} />
+                            </div>
+                            <div>
+                              <div className="text-xs font-medium text-foreground">{m.label}</div>
+                              <div className="text-[10px] text-muted-foreground">{m.desc}</div>
+                              <div className="text-[10px] text-muted-foreground/70 mt-0.5 leading-snug">{m.hint}</div>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Расширения */}
+                  <div className="relative shrink-0">
+                    <button onClick={() => setShowExtensions(v => !v)}
+                      className={`grid h-7 w-7 place-items-center rounded-lg transition-colors ${showExtensions ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-foreground hover:bg-secondary'}`}
+                      title={lang === 'ru' ? 'Расширения' : 'Extensions'}>
+                      <Icon name="Puzzle" size={14} />
+                    </button>
+                    {showExtensions && (
+                      <div className="absolute bottom-10 left-0 z-50 w-60 bg-secondary border border-border rounded-2xl shadow-2xl p-3">
+                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold mb-2">{lang === 'ru' ? 'Расширения' : 'Extensions'}</p>
+                        {[
+                          { icon: 'ShoppingCart', label: lang === 'ru' ? 'Интернет-магазин' : 'E-commerce', desc: lang === 'ru' ? 'Каталог, корзина, оплата' : 'Catalog, cart, checkout' },
+                          { icon: 'MessageSquare', label: lang === 'ru' ? 'Онлайн-чат' : 'Live chat', desc: lang === 'ru' ? 'Виджет чата на сайте' : 'Chat widget on site' },
+                          { icon: 'BarChart2', label: lang === 'ru' ? 'Аналитика' : 'Analytics', desc: lang === 'ru' ? 'Google Analytics, Яндекс' : 'Google Analytics, Yandex' },
+                          { icon: 'CreditCard', label: lang === 'ru' ? 'Оплата' : 'Payments', desc: lang === 'ru' ? 'Stripe, ЮКасса' : 'Stripe, YooKassa' },
+                          { icon: 'Mail', label: lang === 'ru' ? 'Email-рассылка' : 'Email list', desc: lang === 'ru' ? 'Форма подписки' : 'Subscription form' },
+                        ].map(ext => (
+                          <button key={ext.label}
+                            onClick={() => { sendMessage(`Добавь расширение: ${ext.label}`); setShowExtensions(false); }}
+                            className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl hover:bg-secondary/70 transition-colors text-left group">
+                            <div className="grid h-7 w-7 place-items-center rounded-lg bg-primary/10 text-primary shrink-0">
+                              <Icon name={ext.icon} size={13} />
+                            </div>
+                            <div>
+                              <div className="text-xs font-medium text-foreground group-hover:text-foreground">{ext.label}</div>
+                              <div className="text-[10px] text-muted-foreground">{ext.desc}</div>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="flex-1" />
+
+                  {input.length > 0 && <span className="text-[10px] text-muted-foreground/70 mr-1">{input.length}</span>}
+
+                  {/* Голосовой ввод */}
+                  <button onClick={toggleRecording}
+                    className={`grid h-7 w-7 place-items-center rounded-lg transition-all shrink-0 ${isRecording ? 'text-red-400 bg-red-500/10 animate-pulse' : 'text-muted-foreground hover:text-foreground hover:bg-secondary'}`}
+                    title={lang === 'ru' ? (isRecording ? 'Остановить запись' : 'Голосовой ввод') : (isRecording ? 'Stop recording' : 'Voice input')}>
+                    <Icon name={isRecording ? 'MicOff' : 'Mic'} size={14} />
+                  </button>
+
+                  {/* Отправить */}
+                  <button onClick={() => sendMessage()}
+                    disabled={loading || (!input.trim() && !attachedImage)}
+                    className="grid h-8 w-8 place-items-center rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground disabled:opacity-30 transition-all shrink-0 shadow-sm shadow-primary/20">
+                    {loading ? <Icon name="Loader" size={14} className="animate-spin" /> : <Icon name="Send" size={14} />}
+                  </button>
+                </div>
               </div>
 
-              <div className="flex items-center justify-between mt-1.5 px-1">
-                <p className="text-[10px] text-muted-foreground/70">{tr('builderInputHint', lang)}</p>
-                {input.length > 0 && <span className="text-[10px] text-muted-foreground/70">{input.length}</span>}
-              </div>
+              <p className="text-[10px] text-muted-foreground/70 mt-1.5 px-1">{tr('builderInputHint', lang)}</p>
             </div>
 
             {/* Overlay закрывает расширения */}
