@@ -101,7 +101,7 @@ export default function Blog() {
               value={search}
               onChange={e => setSearch(e.target.value)}
               placeholder={tr('blogSearch', lang)}
-              className="pl-9 h-11 rounded-2xl"
+              className="pl-9 pr-9 h-11 rounded-2xl text-foreground"
             />
             {search && (
               <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
