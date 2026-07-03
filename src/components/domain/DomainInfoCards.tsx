@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import Icon from '@/components/ui/icon';
 
-const SERVER_IP = '185.230.209.10';
-const CNAME_VALUE = 'cname.roboweb.site';
+export const SERVER_IP = '185.230.209.10';
+export const CNAME_VALUE = 'cname.roboweb.site';
 
 // Официальные разделы поддержки (главные страницы — реже меняют адрес, чем ссылки на конкретные статьи)
 const REGISTRAR_LINKS: Record<string, string> = {
@@ -244,5 +244,3 @@ export function DomainRegistrarGuides({ isRu }: DomainInfoCardsProps) {
     </div>
   );
 }
-
-export { SERVER_IP, CNAME_VALUE };

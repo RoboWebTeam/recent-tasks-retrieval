@@ -7,6 +7,7 @@ import { getLang, tr } from '@/lib/i18n';
 import LangSwitcher from '@/components/LangSwitcher';
 import { useToast } from '@/hooks/use-toast';
 import BuilderCorePanel from '@/components/builder/BuilderCorePanel';
+import BuilderDomainModal from '@/components/builder/BuilderDomainModal';
 
 const GENERATE_URL = 'https://functions.poehali.dev/64b3e52e-6bb5-4d4e-b7ee-e3840af35990';
 
@@ -116,6 +117,7 @@ export default function Builder() {
   const [imagePrompt, setImagePrompt] = useState('');
   const [generatingImage, setGeneratingImage] = useState(false);
   const [imageGenError, setImageGenError] = useState('');
+  const [showDomainModal, setShowDomainModal] = useState(false);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const [editPopover, setEditPopover] = useState<{ x: number; y: number; text: string; path: string } | null>(null);
@@ -792,11 +794,11 @@ export default function Builder() {
             </span>
           </Button>
 
-          <Link to="/settings/domain"
+          <button type="button" onClick={() => setShowDomainModal(true)}
             className="flex items-center gap-1.5 h-8 px-2.5 rounded-lg text-xs font-medium border border-border bg-secondary hover:bg-secondary/70 text-muted-foreground hover:text-foreground transition-colors shrink-0">
             <Icon name="Link" size={13} />
             <span className="hidden lg:inline">{lang === 'ru' ? 'Домен' : 'Domain'}</span>
-          </Link>
+          </button>
 
           <LangSwitcher lang={lang} />
 
@@ -1664,6 +1666,13 @@ export default function Builder() {
           </div>
         </div>
       )}
+
+      <BuilderDomainModal
+        open={showDomainModal}
+        onOpenChange={setShowDomainModal}
+        lang={lang}
+        projectId={projectId ? Number(projectId) : null}
+      />
     </div>
   );
 }
