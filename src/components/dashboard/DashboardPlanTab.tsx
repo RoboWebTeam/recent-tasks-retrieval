@@ -1,8 +1,10 @@
 import { Link } from 'react-router-dom';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { tr, type Lang } from '@/lib/i18n';
 import { type User } from '@/lib/auth';
+import { PLAN_PRICING_URL, FALLBACK_PRO_PLANS, PRO_PLAN_DETAILS, getProRequestsLabel, type ProPlanOption } from '@/data/proPlans';
 
 const ENERGY_PACKAGES = [
   { code: 'small', requests: 10, price: 290 },
@@ -28,6 +30,20 @@ interface DashboardPlanTabProps {
 export default function DashboardPlanTab({
   lang, user, plan, buyingEnergy, energyError, handleBuyEnergy,
 }: DashboardPlanTabProps) {
+  const [proPlans, setProPlans] = useState<ProPlanOption[]>(FALLBACK_PRO_PLANS);
+  const [proIndex, setProIndex] = useState(0);
+  const selectedPro = proPlans[proIndex] ?? proPlans[0];
+
+  useEffect(() => {
+    fetch(PLAN_PRICING_URL)
+      .then(r => r.json())
+      .then(raw => {
+        const d = raw.body !== undefined ? (typeof raw.body === 'string' ? JSON.parse(raw.body) : raw.body) : raw;
+        if (Array.isArray(d.plans) && d.plans.length > 0) setProPlans(d.plans);
+      })
+      .catch(() => {/* остаёмся на резервных ценах */});
+  }, []);
+
   return (
     <div>
       <h1 className="font-display font-black text-2xl mb-6">{lang === 'ru' ? 'Тарифный план' : 'Pricing Plan'}</h1>
@@ -95,7 +111,6 @@ export default function DashboardPlanTab({
         {[
           { id: 'free', name: tr('planFree', lang), price: lang === 'ru' ? 'Бесплатно' : 'Free', requests: lang === 'ru' ? '10 запросов разово' : '10 requests once', features: lang === 'ru' ? ['Облачный хостинг', 'До 3 проектов', 'БД 128 МБ', 'Хранилище 512 МБ'] : ['Cloud hosting', 'Up to 3 projects', '128 MB DB', '512 MB storage'], current: user?.plan === 'free' },
           { id: 'premium', name: tr('planPremium', lang), price: '999 ₽/мес', requests: `40 ${tr('requestsMonthly', lang)}`, features: lang === 'ru' ? ['Подключение домена', 'До 3 проектов', 'БД 128 МБ', 'Хранилище 512 МБ'] : ['Custom domain', 'Up to 3 projects', '128 MB DB', '512 MB storage'], current: user?.plan === 'premium', hot: true },
-          { id: 'pro', name: tr('planPro', lang), price: lang === 'ru' ? 'от 2 999 ₽/мес' : 'from 2 999 ₽/mo', requests: lang === 'ru' ? '60–800 запросов на выбор' : '60–800 requests, your pick', features: lang === 'ru' ? ['Приоритетная поддержка', '5–50 проектов', 'БД 1–10 ГБ', 'Хранилище 5–100 ГБ'] : ['Priority support', '5–50 projects', '1–10 GB DB', '5–100 GB storage'], current: (user?.plan ?? '').startsWith('pro_') },
         ].map(p => (
           <div key={p.id} className={`rounded-2xl border p-5 ${p.current ? 'border-primary bg-primary/5' : 'border-border bg-card'}`}>
             {p.hot && <span className="inline-block bg-primary text-primary-foreground text-xs font-bold rounded-full px-2.5 py-0.5 mb-2">{lang === 'ru' ? 'Популярный' : 'Popular'}</span>}
@@ -120,6 +135,47 @@ export default function DashboardPlanTab({
             )}
           </div>
         ))}
+
+        {/* Pro — интерактивная карточка с выбором количества запросов */}
+        <div className={`rounded-2xl border p-5 ${(user?.plan ?? '').startsWith('pro_') ? 'border-primary bg-primary/5' : 'border-border bg-card'}`}>
+          <h3 className="font-display font-bold text-lg">{tr('planPro', lang)}</h3>
+          <div className="font-display font-black text-2xl my-2">{selectedPro.price.toLocaleString()} ₽/{lang === 'ru' ? 'мес' : 'mo'}</div>
+          <p className="text-xs text-primary font-semibold mb-2">{getProRequestsLabel(selectedPro.requests, lang)}</p>
+          <div className="flex flex-wrap gap-1.5 mb-3">
+            {proPlans.map((p, i) => (
+              <button
+                key={p.plan_code}
+                onClick={() => setProIndex(i)}
+                className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${
+                  proIndex === i ? 'bg-foreground text-background' : 'bg-secondary text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                {p.requests}
+              </button>
+            ))}
+          </div>
+          <ul className="space-y-1.5 mb-4">
+            {(lang === 'ru' ? ['Приоритетная поддержка'] : ['Priority support']).map(f => (
+              <li key={f} className="flex items-center gap-2 text-sm">
+                <Icon name="Check" size={13} className="text-emerald-500 shrink-0" />{f}
+              </li>
+            ))}
+            {(PRO_PLAN_DETAILS[selectedPro.plan_code]?.[lang] ?? []).map(f => (
+              <li key={f} className="flex items-center gap-2 text-sm">
+                <Icon name="Check" size={13} className="text-emerald-500 shrink-0" />{f}
+              </li>
+            ))}
+          </ul>
+          {user?.plan === selectedPro.plan_code ? (
+            <Button className="w-full rounded-xl text-sm font-semibold bg-secondary text-secondary-foreground hover:bg-secondary" disabled>
+              {tr('currentPlanBtn', lang)}
+            </Button>
+          ) : (
+            <Button className="w-full rounded-xl text-sm font-semibold" asChild>
+              <Link to="/pricing">{tr('selectPlan', lang)}</Link>
+            </Button>
+          )}
+        </div>
       </div>
     </div>
   );

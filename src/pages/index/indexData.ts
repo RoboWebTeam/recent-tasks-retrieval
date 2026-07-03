@@ -369,11 +369,9 @@ export const getPORTFOLIO = (lang: Lang) => lang === 'ru' ? DEMO_ITEMS_RU : DEMO
 export const getPLANS = (lang: Lang) => lang === 'ru' ? [
   { name: 'Пробный', badge: 'сейчас', price: 'Бесплатно', note: '', tag: '10 запросов разово', features: ['Без подключения домена','Без скачивания кода','Облачный хостинг','До 3 проектов','База данных 128 МБ','Хранилище 512 МБ','5 функций','8 ч вычислений'], cta: 'Начать бесплатно', hot: false },
   { name: 'Премиум', badge: 'популярный', price: '999 ₽', note: 'в месяц', tag: '40 запросов ежемесячно', features: ['Подключение домена','Бесплатные расширения','Облачный хостинг','До 3 проектов','База данных 128 МБ','Хранилище 512 МБ','5 функций','8 ч вычислений'], cta: 'Выбрать Премиум', hot: true },
-  { name: 'Профи', badge: '', price: 'от 2 999 ₽', note: 'в месяц', tag: '60–800 запросов на выбор', features: ['Приоритетная поддержка','Все возможности Премиум','Облачный хостинг','5–50 проектов','База данных 1–10 ГБ','Хранилище 5–100 ГБ','25–500 функций','250–4167 ч вычислений'], cta: 'Выбрать Профи', hot: false },
 ] : [
   { name: 'Free', badge: 'now', price: 'Free', note: '', tag: '10 requests once', features: ['No custom domain','No code download','Cloud hosting','Up to 3 projects','128 MB database','512 MB storage','5 functions','8h compute'], cta: 'Start free', hot: false },
   { name: 'Premium', badge: 'popular', price: '999 ₽', note: 'per month', tag: '40 requests/month', features: ['Custom domain','Free extensions','Cloud hosting','Up to 3 projects','128 MB database','512 MB storage','5 functions','8h compute'], cta: 'Choose Premium', hot: true },
-  { name: 'Pro', badge: '', price: 'from 2 999 ₽', note: 'per month', tag: '60–800 requests, your pick', features: ['Priority support','All Premium features','Cloud hosting','5–50 projects','1–10 GB database','5–100 GB storage','25–500 functions','250–4167h compute'], cta: 'Choose Pro', hot: false },
 ];
 
 export const getFAQ = (lang: Lang) => lang === 'ru' ? [
