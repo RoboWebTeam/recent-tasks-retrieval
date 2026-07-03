@@ -47,7 +47,7 @@ export const L = {
   portfolio: {
     label: { ru: 'Возможности ИИ', en: 'AI Capabilities' },
     title: { ru: 'Что может сделать ИИ', en: 'What AI can build' },
-    desc:  { ru: 'Любой тип сайта — от лендинга до интернет-магазина. Просто опишите идею.', en: 'Any type of website — from landing to online store. Just describe your idea.' },
+    desc:  { ru: 'Любой тип сайта — от лендинга до интернет-магазина. Просто опишите идею. Вы увидите как ваш личный разработчик будет выполнять все быстро и безукоризненно!', en: 'Any type of website — from landing to online store. Just describe your idea. Watch your personal developer build everything fast and flawlessly!' },
   },
   compare: {
     label: { ru: 'Сравнение', en: 'Comparison' },
