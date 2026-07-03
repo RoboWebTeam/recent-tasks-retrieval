@@ -200,7 +200,11 @@ const Register = () => {
               {/* Yandex */}
               <button
                 type="button"
-                onClick={() => window.open('https://oauth.yandex.ru', '_blank')}
+                onClick={() => {
+                  const clientId = 'cfa33cfc717d4e948af52a29acc46002';
+                  const redirectUri = encodeURIComponent(window.location.origin + '/auth/yandex/callback');
+                  window.location.href = `https://oauth.yandex.ru/authorize?response_type=code&client_id=${clientId}&redirect_uri=${redirectUri}`;
+                }}
                 className="flex items-center justify-center gap-2 h-11 rounded-xl border border-border bg-card hover:bg-secondary transition-colors text-sm font-medium group"
                 title="Яндекс"
               >
