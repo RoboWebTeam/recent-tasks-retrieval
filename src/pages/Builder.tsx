@@ -153,6 +153,7 @@ export default function Builder() {
         setProjectTitle(project.title);
         if (project.html_content) {
           setHtml(project.html_content);
+          setCodeEditorValue(project.html_content);
           setVersions([{ html: project.html_content, label: lang === 'ru' ? 'Сохранённая версия' : 'Saved version', ts: Date.now() }]);
         }
         if (project.status === 'published' && project.slug) {
@@ -261,6 +262,7 @@ export default function Builder() {
         return;
       }
 
+      setQuotaExceeded(false);
       const generatedHtml = (data as { html?: string }).html || '';
       const tokens = (data as { tokens?: number }).tokens || 0;
       if (typeof (data as { remaining?: number }).remaining === 'number') {
@@ -365,12 +367,15 @@ export default function Builder() {
   const handleClearChat = () => {
     setMessages([]);
     setHtml('');
+    setCodeEditorValue('');
     setVersions([]);
     setTotalTokens(0);
+    setPublishedSlug(null);
   };
 
   const restoreVersion = (v: Version) => {
     setHtml(v.html);
+    setCodeEditorValue(v.html);
     setRightTab('preview');
     setIframeKey(k => k + 1);
     setShowVersions(false);
@@ -604,12 +609,29 @@ export default function Builder() {
     setImageGenError('');
     try {
       const result = await apiGenerateImage(session, imagePrompt.trim(), projectId ? Number(projectId) : undefined);
+      setQuotaExceeded(false);
+      if (typeof result.remaining === 'number') {
+        setRemaining(result.remaining);
+        if (result.remaining <= LOW_BALANCE_THRESHOLD) {
+          toast({
+            title: lang === 'ru' ? '⚡ Заканчиваются запросы к AI' : '⚡ AI requests running low',
+            description: lang === 'ru'
+              ? `Осталось ${result.remaining} запросов. Пополните энергию или смените тариф, чтобы не потерять доступ.`
+              : `${result.remaining} requests left. Top up energy or upgrade your plan to avoid losing access.`,
+          });
+        }
+      }
       setAttachedImage({ url: result.url, name: result.file_name, alreadyUploaded: true });
       setShowImageGen(false);
       setImagePrompt('');
       if (!input) setInput(lang === 'ru' ? 'Используй это изображение на сайте' : 'Use this image on the site');
     } catch (e) {
-      setImageGenError(e instanceof Error ? e.message : tr('builderError', lang));
+      const message = e instanceof Error ? e.message : tr('builderError', lang);
+      setImageGenError(message);
+      if (message.includes('Лимит') || message.includes('limit')) {
+        setQuotaExceeded(true);
+        setRemaining(0);
+      }
     } finally {
       setGeneratingImage(false);
     }
@@ -1125,7 +1147,8 @@ export default function Builder() {
 
                   {/* Отправить */}
                   <button onClick={() => sendMessage()}
-                    disabled={loading || (!input.trim() && !attachedImage)}
+                    disabled={loading || quotaExceeded || (!input.trim() && !attachedImage)}
+                    title={quotaExceeded ? (lang === 'ru' ? 'Лимит AI-запросов исчерпан' : 'AI request limit reached') : undefined}
                     className="grid h-8 w-8 place-items-center rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground disabled:opacity-30 transition-all shrink-0 shadow-sm shadow-primary/20">
                     {loading ? <Icon name="Loader" size={14} className="animate-spin" /> : <Icon name="Send" size={14} />}
                   </button>
@@ -1632,7 +1655,7 @@ export default function Builder() {
               <Button variant="outline" className="flex-1 rounded-xl" disabled={generatingImage} onClick={() => setShowImageGen(false)}>
                 {lang === 'ru' ? 'Отмена' : 'Cancel'}
               </Button>
-              <Button className="flex-1 rounded-xl" disabled={generatingImage || !imagePrompt.trim()} onClick={handleGenerateImage}>
+              <Button className="flex-1 rounded-xl" disabled={generatingImage || quotaExceeded || !imagePrompt.trim()} onClick={handleGenerateImage}>
                 {generatingImage
                   ? <><Icon name="Loader" size={14} className="mr-1.5 animate-spin" />{lang === 'ru' ? 'Создаём…' : 'Generating…'}</>
                   : <><Icon name="Sparkles" size={14} className="mr-1.5" />{lang === 'ru' ? 'Создать' : 'Generate'}</>}

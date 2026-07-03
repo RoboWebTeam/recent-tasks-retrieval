@@ -333,14 +333,14 @@ export async function apiGenerateImage(
   prompt: string,
   projectId?: number,
   size?: '1024x1024' | '1792x1024' | '1024x1792',
-): Promise<{ url: string; file_name: string; revised_prompt: string }> {
+): Promise<{ url: string; file_name: string; revised_prompt: string; remaining?: number }> {
   const { res, data } = await apiFetch(GENERATE_IMAGE_URL, {
     method: 'POST',
     headers: { 'x-session-id': sessionId },
     body: JSON.stringify({ prompt, project_id: projectId, size }),
   });
   if (!res.ok) throw new Error((data as {error?: string}).error || 'Ошибка генерации изображения');
-  return data as { url: string; file_name: string; revised_prompt: string };
+  return data as { url: string; file_name: string; revised_prompt: string; remaining?: number };
 }
 
 export async function apiDeleteFile(sessionId: string, fileId: number) {

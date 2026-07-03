@@ -57,7 +57,8 @@ PLAN_LIMITS = {
 
 
 def check_and_consume_quota(user_id: int, schema: str):
-    """Генерация картинки расходует один AI-запрос из общей квоты (тариф + энергия)."""
+    """Генерация картинки расходует один AI-запрос из общей квоты (тариф + энергия).
+    Возвращает (allowed: bool, error_message: str|None, remaining: int)"""
     conn = get_conn()
     try:
         with conn.cursor() as cur:
@@ -68,7 +69,7 @@ def check_and_consume_quota(user_id: int, schema: str):
             )
             row = cur.fetchone()
             if not row:
-                return False, 'Пользователь не найден'
+                return False, 'Пользователь не найден', 0
             plan, used, limit, reset_at, energy = row
 
             from datetime import datetime, timezone
@@ -85,15 +86,15 @@ def check_and_consume_quota(user_id: int, schema: str):
             if used < limit:
                 cur.execute(f"UPDATE {schema}.users SET requests_used = requests_used + 1 WHERE id = %s", (user_id,))
                 conn.commit()
-                return True, None
+                return True, None, (limit - used - 1) + energy
 
             if energy > 0:
                 cur.execute(f"UPDATE {schema}.users SET energy_balance = energy_balance - 1 WHERE id = %s", (user_id,))
                 conn.commit()
-                return True, None
+                return True, None, energy - 1
 
             conn.commit()
-            return False, 'Лимит AI-запросов исчерпан. Пополните энергию или смените тариф.'
+            return False, 'Лимит AI-запросов исчерпан. Пополните энергию или смените тариф.', 0
     finally:
         conn.close()
 
@@ -137,7 +138,7 @@ def handler(event: dict, context) -> dict:
     if not prompt:
         return err('Опишите изображение, которое нужно сгенерировать')
 
-    allowed, quota_error = check_and_consume_quota(user_id, schema)
+    allowed, quota_error, remaining = check_and_consume_quota(user_id, schema)
     if not allowed:
         return err(quota_error, 402)
 
@@ -191,4 +192,4 @@ def handler(event: dict, context) -> dict:
 
     save_file(user_id, project_id, file_name, key, cdn_url, len(img_bytes), schema)
 
-    return ok({'url': cdn_url, 'file_name': file_name, 'revised_prompt': revised_prompt})
+    return ok({'url': cdn_url, 'file_name': file_name, 'revised_prompt': revised_prompt, 'remaining': remaining})
