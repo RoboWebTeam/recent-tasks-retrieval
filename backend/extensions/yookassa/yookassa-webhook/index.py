@@ -2,7 +2,10 @@
 import json
 import os
 import base64
+import smtplib
 from datetime import datetime
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 from urllib.request import Request, urlopen
 from urllib.error import HTTPError
 
@@ -17,6 +20,71 @@ HEADERS = {
 }
 
 YOOKASSA_API_URL = "https://api.yookassa.ru/v3/payments"
+
+# Лимит AI-запросов по тарифу (месячная квота)
+PLAN_LIMITS = {
+    'free': 10, 'premium': 40,
+    'pro_60': 60, 'pro_80': 80, 'pro_200': 200, 'pro_400': 400, 'pro_800': 800,
+}
+
+# Подробности возможностей тарифа для письма пользователю
+PLAN_NAMES = {
+    'premium': 'Премиум',
+    'pro_60': 'Профи', 'pro_80': 'Профи', 'pro_200': 'Профи',
+    'pro_400': 'Профи', 'pro_800': 'Профи',
+}
+
+PLAN_FEATURES = {
+    'premium': ['Подключение домена', 'Бесплатные расширения', 'Облачный хостинг', 'До 3 проектов', 'База данных 128 МБ', 'Хранилище 512 МБ', '5 функций', '8 ч вычислений'],
+    'pro_60': ['Приоритетная поддержка', 'До 5 проектов', 'База данных 1 ГБ', 'Хранилище 5 ГБ', '25 функций', '250 ч вычислений'],
+    'pro_80': ['Приоритетная поддержка', 'До 8 проектов', 'База данных 1 ГБ', 'Хранилище 10 ГБ', '50 функций', '417 ч вычислений'],
+    'pro_200': ['Приоритетная поддержка', 'До 10 проектов', 'База данных 2 ГБ', 'Хранилище 20 ГБ', '100 функций', '833 ч вычислений'],
+    'pro_400': ['Приоритетная поддержка', 'До 20 проектов', 'База данных 4 ГБ', 'Хранилище 40 ГБ', '200 функций', '1667 ч вычислений'],
+    'pro_800': ['Приоритетная поддержка', 'До 50 проектов', 'База данных 10 ГБ', 'Хранилище 100 ГБ', '500 функций', '4167 ч вычислений'],
+}
+
+
+# =============================================================================
+# EMAIL
+# =============================================================================
+
+def send_plan_activated_email(to_email: str, plan_code: str, requests_limit: int):
+    """Отправляет пользователю письмо с подтверждением оплаты и списком возможностей тарифа."""
+    smtp_password = os.environ.get('SMTP_PASSWORD')
+    if not smtp_password or not to_email:
+        return
+
+    smtp_user = 'roboweb.site@yandex.ru'
+    plan_name = PLAN_NAMES.get(plan_code, plan_code)
+    features = PLAN_FEATURES.get(plan_code, [])
+    features_html = ''.join(f'<li style="margin:6px 0;">{f}</li>' for f in features)
+
+    msg = MIMEMultipart('alternative')
+    msg['Subject'] = f'✅ Тариф «{plan_name}» активирован'
+    msg['From'] = smtp_user
+    msg['To'] = to_email
+
+    html = f"""
+    <div style="font-family: Arial, sans-serif; max-width: 560px; margin: 0 auto; background: #f8f9fa; padding: 32px; border-radius: 16px;">
+      <h2 style="color: #3b4cff; margin: 0 0 16px;">Оплата прошла успешно!</h2>
+      <p style="color: #444; font-size: 16px; margin: 0 0 8px;">Тариф <strong>«{plan_name}»</strong> активирован на вашем аккаунте.</p>
+      <div style="background: #fff; border-radius: 12px; padding: 20px; margin: 16px 0; border: 1px solid #e5e7eb;">
+        <p style="margin: 0 0 10px; color: #111;"><strong>{requests_limit} запросов к AI в месяц</strong></p>
+        <ul style="margin: 0; padding-left: 20px; color: #333; font-size: 14px;">
+          {features_html}
+        </ul>
+      </div>
+      <p style="color: #888; font-size: 13px;">Письмо отправлено автоматически с сайта Roboweb</p>
+    </div>
+    """
+    msg.attach(MIMEText(html, 'html'))
+
+    try:
+        with smtplib.SMTP_SSL('smtp.yandex.ru', 465) as server:
+            server.login(smtp_user, smtp_password)
+            server.sendmail(smtp_user, to_email, msg.as_string())
+    except Exception:
+        pass
 
 
 # =============================================================================
@@ -130,7 +198,7 @@ def handler(event, context):
 
         # Find order by payment_id
         cur.execute(f"""
-            SELECT id, status, user_id, plan, order_type, energy_amount FROM {S}orders
+            SELECT id, status, user_id, plan, order_type, energy_amount, user_email FROM {S}orders
             WHERE yookassa_payment_id = %s
         """, (payment_id,))
 
@@ -141,7 +209,7 @@ def handler(event, context):
             order_id_meta = metadata.get('order_id')
             if order_id_meta:
                 cur.execute(f"""
-                    SELECT id, status, user_id, plan, order_type, energy_amount FROM {S}orders WHERE id = %s
+                    SELECT id, status, user_id, plan, order_type, energy_amount, user_email FROM {S}orders WHERE id = %s
                 """, (int(order_id_meta),))
                 row = cur.fetchone()
 
@@ -152,7 +220,7 @@ def handler(event, context):
                 'body': json.dumps({'error': 'Order not found'})
             }
 
-        order_id, current_status, order_user_id, order_plan, order_type, energy_amount = row
+        order_id, current_status, order_user_id, order_plan, order_type, energy_amount, order_email = row
 
         # Update based on verified payment status
         if payment_status == 'succeeded':
@@ -170,9 +238,20 @@ def handler(event, context):
                     """, (energy_amount, order_user_id))
                 elif order_user_id and order_plan:
                     # Активируем тариф пользователю после подтверждённой оплаты
-                    cur.execute(f"""
-                        UPDATE {S}users SET plan = %s WHERE id = %s
-                    """, (order_plan, order_user_id))
+                    # и сразу обновляем лимит AI-запросов под новый тариф
+                    new_limit = PLAN_LIMITS.get(order_plan)
+                    if new_limit is not None:
+                        cur.execute(f"""
+                            UPDATE {S}users
+                            SET plan = %s, requests_limit = %s, requests_used = 0, requests_reset_at = NOW() + INTERVAL '30 days'
+                            WHERE id = %s
+                        """, (order_plan, new_limit, order_user_id))
+                    else:
+                        cur.execute(f"""
+                            UPDATE {S}users SET plan = %s WHERE id = %s
+                        """, (order_plan, order_user_id))
+
+                    send_plan_activated_email(order_email, order_plan, new_limit or 0)
 
                 conn.commit()
 
