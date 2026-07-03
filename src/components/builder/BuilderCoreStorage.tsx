@@ -8,6 +8,7 @@ interface BuilderCoreStorageProps {
   lang: Lang;
   projectId: number;
   onUseInChat?: (file: SiteFile) => void;
+  onFilesChanged?: () => void;
 }
 
 function formatSize(bytes: number): string {
@@ -18,7 +19,7 @@ function formatSize(bytes: number): string {
 
 const ACCEPTED_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.webp', '.gif', '.svg', '.html', '.htm', '.zip'];
 
-export default function BuilderCoreStorage({ lang, projectId, onUseInChat }: BuilderCoreStorageProps) {
+export default function BuilderCoreStorage({ lang, projectId, onUseInChat, onFilesChanged }: BuilderCoreStorageProps) {
   const isRu = lang === 'ru';
   const session = getSession();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -70,6 +71,7 @@ export default function BuilderCoreStorage({ lang, projectId, onUseInChat }: Bui
       const isZip = file.name.toLowerCase().endsWith('.zip');
       const uploaded = await apiUploadFile(session, file.name, base64, isZip, projectId);
       setFiles(prev => [uploaded, ...prev]);
+      onFilesChanged?.();
     } catch (err) {
       setError(err instanceof Error ? err.message : (isRu ? 'Ошибка загрузки' : 'Upload error'));
     }
@@ -83,6 +85,7 @@ export default function BuilderCoreStorage({ lang, projectId, onUseInChat }: Bui
     try {
       await apiDeleteFile(session, id);
       setFiles(prev => prev.filter(f => f.id !== id));
+      onFilesChanged?.();
     } catch { /* тихо */ }
     setDeletingId(null);
   };
