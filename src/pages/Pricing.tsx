@@ -5,12 +5,14 @@ import Icon from '@/components/ui/icon';
 import { getLang } from '@/lib/i18n';
 import { getSession, getStoredUser } from '@/lib/auth';
 import { PLAN_PRICING_URL, FALLBACK_PRO_PLANS, PRO_PLAN_DETAILS, type ProPlanOption } from '@/data/proPlans';
+import { SiteFooter } from '@/components/SiteFooter';
 
 const YOOKASSA_URL = 'https://functions.poehali.dev/4fec45e4-aaef-4bc4-ba3c-7a43dfc964bc';
 
 const getLangData = (isRu: boolean) => ({
   title: isRu ? 'Тарифы' : 'Pricing',
   subtitle: isRu ? 'Выберите план, который подходит вашему бизнесу' : 'Choose the plan that fits your business',
+  desc: isRu ? 'Прозрачные цены без скрытых часов и бесконечных правок.' : 'Transparent pricing with no hidden hours or endless revisions.',
   cta: isRu ? 'Начать бесплатно' : 'Start free',
   ctaPaid: isRu ? 'Выбрать тариф' : 'Choose plan',
   faq: isRu ? 'Частые вопросы' : 'FAQ',
@@ -98,7 +100,7 @@ export default function Pricing() {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background overflow-x-hidden">
       {/* Header */}
       <header className="sticky top-0 z-50 border-b border-border bg-card/80 backdrop-blur-xl shadow-sm">
         <div className="container flex h-14 items-center justify-between">
@@ -119,21 +121,28 @@ export default function Pricing() {
         </div>
       </header>
 
-      <main className="container py-14 md:py-20 max-w-6xl">
-        {/* Hero */}
-        <div className="text-center mb-12">
-          <span className="inline-block text-xs font-semibold uppercase tracking-widest text-primary mb-3">
-            {data.title}
+      {/* Hero */}
+      <section className="relative overflow-hidden border-b border-border">
+        <div className="absolute -top-24 -left-24 h-72 w-72 sm:h-96 sm:w-96 rounded-full bg-primary/10 blur-3xl" />
+        <div className="absolute -top-10 right-0 h-56 w-56 sm:h-80 sm:w-80 rounded-full bg-violet-500/10 blur-3xl" />
+        <div className="container relative py-10 sm:py-16 md:py-20 text-center">
+          <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-primary mb-3">
+            <Icon name="Sparkles" size={13} /> {data.title}
           </span>
-          <h1 className="font-display font-black text-4xl sm:text-5xl tracking-tight mb-4">
+          <h1 className="font-display font-black text-3xl sm:text-5xl tracking-tight mb-4 max-w-2xl mx-auto leading-[1.1]">
             {data.subtitle}
           </h1>
+          <p className="text-muted-foreground text-base sm:text-lg max-w-lg mx-auto">
+            {data.desc}
+          </p>
         </div>
+      </section>
 
+      <main className="container py-10 sm:py-14 md:py-20 max-w-6xl">
         {/* Plans */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-16 items-stretch">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-12 sm:mb-16 items-stretch">
           {/* Free */}
-          <div className="relative flex flex-col rounded-3xl border-2 border-border bg-card p-6">
+          <div className="relative flex flex-col rounded-3xl border-2 border-border bg-card p-6 hover:border-border/80 hover:shadow-lg transition-all">
             <div className="mb-5">
               <div className="inline-flex items-center gap-2 text-sm font-bold mb-2 text-muted-foreground">
                 <div className="grid h-7 w-7 place-items-center rounded-xl text-xs bg-secondary border border-border">
@@ -177,10 +186,10 @@ export default function Pricing() {
           </div>
 
           {/* Premium */}
-          <div className="relative flex flex-col rounded-3xl border-2 border-primary bg-card p-6 shadow-xl shadow-primary/10 scale-[1.02]">
+          <div className="relative flex flex-col rounded-3xl border-2 border-primary bg-card p-6 shadow-xl shadow-primary/10 sm:scale-[1.02] hover:shadow-2xl hover:shadow-primary/20 transition-all">
             <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-              <span className="bg-primary text-primary-foreground text-xs font-bold px-4 py-1 rounded-full shadow-lg">
-                {isRu ? 'Популярный' : 'Popular'}
+              <span className="bg-primary text-primary-foreground text-xs font-bold px-4 py-1 rounded-full shadow-lg flex items-center gap-1">
+                <Icon name="Star" size={11} className="fill-current" /> {isRu ? 'Популярный' : 'Popular'}
               </span>
             </div>
             <div className="mb-5">
@@ -202,7 +211,7 @@ export default function Pricing() {
             </div>
 
             <Button
-              className="w-full h-11 rounded-xl font-semibold mb-6"
+              className="w-full h-11 rounded-xl font-semibold mb-6 shadow-lg shadow-primary/20 hover:scale-[1.02] transition-transform"
               disabled={payingPlan === 'premium'}
               onClick={() => handleSelectPlan('premium', 999, isRu ? 'Премиум' : 'Premium')}
             >
@@ -225,7 +234,12 @@ export default function Pricing() {
           </div>
 
           {/* Pro — объединённая карточка с выбором количества запросов */}
-          <div className="relative flex flex-col rounded-3xl border-2 border-foreground bg-card p-6">
+          <div className="relative flex flex-col rounded-3xl border-2 border-foreground bg-card p-6 hover:shadow-xl transition-all sm:col-span-2 lg:col-span-1">
+            <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
+              <span className="bg-foreground text-background text-xs font-bold px-4 py-1 rounded-full shadow-lg flex items-center gap-1">
+                <Icon name="Crown" size={11} /> {isRu ? 'Для профи' : 'For pros'}
+              </span>
+            </div>
             <div className="mb-5">
               <div className="inline-flex items-center gap-2 text-sm font-bold mb-2 text-foreground">
                 <div className="grid h-7 w-7 place-items-center rounded-xl text-xs bg-foreground text-background">
@@ -260,7 +274,7 @@ export default function Pricing() {
             </div>
 
             <Button
-              className="w-full h-11 rounded-xl font-semibold mb-6 bg-foreground text-background hover:bg-foreground/90"
+              className="w-full h-11 rounded-xl font-semibold mb-6 bg-foreground text-background hover:bg-foreground/90 hover:scale-[1.02] transition-transform"
               disabled={payingPlan === selectedPro.plan_code}
               onClick={() => handleSelectPlan(selectedPro.plan_code, selectedPro.price, isRu ? 'Профи' : 'Pro')}
             >
@@ -297,15 +311,49 @@ export default function Pricing() {
           </div>
         )}
 
+        {/* Compare with alternatives */}
+        <div className="mb-12 sm:mb-16">
+          <h2 className="font-display font-black text-xl sm:text-2xl text-center mb-6 sm:mb-8">
+            {isRu ? 'Дешевле любого исполнителя' : 'Cheaper than any freelancer'}
+          </h2>
+          <div className="rounded-3xl border border-border bg-card overflow-hidden overflow-x-auto">
+            <table className="w-full text-sm min-w-[480px]">
+              <thead>
+                <tr className="border-b border-border bg-secondary/40">
+                  <th className="text-left px-4 sm:px-6 py-3 font-semibold text-muted-foreground text-xs uppercase tracking-wide">{isRu ? 'Параметр' : 'Metric'}</th>
+                  <th className="px-4 sm:px-6 py-3 font-bold text-primary">Roboweb</th>
+                  <th className="px-4 sm:px-6 py-3 font-semibold text-muted-foreground">{isRu ? 'Агентство' : 'Agency'}</th>
+                  <th className="px-4 sm:px-6 py-3 font-semibold text-muted-foreground">{isRu ? 'Фрилансер' : 'Freelancer'}</th>
+                </tr>
+              </thead>
+              <tbody>
+                {[
+                  { label: isRu ? 'Стоимость' : 'Cost', roboweb: isRu ? 'от 0 ₽' : 'from $0', agency: isRu ? 'от 80 000 ₽' : 'from $1000', freelancer: isRu ? 'от 15 000 ₽' : 'from $200' },
+                  { label: isRu ? 'Срок' : 'Timeline', roboweb: isRu ? '47 секунд' : '47 seconds', agency: isRu ? '3–6 недель' : '3–6 weeks', freelancer: isRu ? '1–3 недели' : '1–3 weeks' },
+                  { label: isRu ? 'Правки' : 'Revisions', roboweb: isRu ? 'Мгновенно' : 'Instant', agency: isRu ? 'Долго и дорого' : 'Slow & costly', freelancer: isRu ? 'По договору' : 'By contract' },
+                  { label: isRu ? 'Хостинг' : 'Hosting', roboweb: isRu ? 'Включён' : 'Included', agency: isRu ? 'Отдельно' : 'Separate', freelancer: isRu ? 'Отдельно' : 'Separate' },
+                ].map((row, i) => (
+                  <tr key={row.label} className={i % 2 === 0 ? 'bg-card' : 'bg-secondary/10'}>
+                    <td className="px-4 sm:px-6 py-3.5 font-semibold text-foreground whitespace-nowrap">{row.label}</td>
+                    <td className="px-4 sm:px-6 py-3.5 text-center font-bold text-primary whitespace-nowrap">{row.roboweb}</td>
+                    <td className="px-4 sm:px-6 py-3.5 text-center text-muted-foreground whitespace-nowrap">{row.agency}</td>
+                    <td className="px-4 sm:px-6 py-3.5 text-center text-muted-foreground whitespace-nowrap">{row.freelancer}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+
         {/* Trust badges */}
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-16">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4 mb-12 sm:mb-16">
           {[
             { icon: 'Shield', label: isRu ? 'Безопасная оплата' : 'Secure payment' },
             { icon: 'RefreshCw', label: isRu ? 'Возврат за 7 дней' : '7-day refund' },
             { icon: 'Lock', label: isRu ? 'SSL на всех тарифах' : 'SSL on all plans' },
             { icon: 'Headphones', label: isRu ? 'Поддержка 24/7' : 'Support 24/7' },
           ].map(b => (
-            <div key={b.label} className="flex flex-col items-center gap-2 p-4 bg-card border border-border rounded-2xl text-center">
+            <div key={b.label} className="flex flex-col items-center gap-2 p-4 bg-card border border-border rounded-2xl text-center hover:border-primary/30 hover:shadow-md transition-all">
               <div className="grid h-9 w-9 place-items-center rounded-xl bg-primary/10 text-primary">
                 <Icon name={b.icon} size={17} />
               </div>
@@ -315,20 +363,20 @@ export default function Pricing() {
         </div>
 
         {/* FAQ */}
-        <div className="max-w-2xl mx-auto">
-          <h2 className="font-display font-black text-2xl text-center mb-6">{data.faq}</h2>
+        <div className="max-w-2xl mx-auto mb-12 sm:mb-16">
+          <h2 className="font-display font-black text-xl sm:text-2xl text-center mb-6">{data.faq}</h2>
           <div className="space-y-3">
             {data.faqs.map((faq, i) => (
               <div key={i} className="bg-card border border-border rounded-2xl overflow-hidden">
                 <button
                   onClick={() => setOpenFaq(openFaq === i ? null : i)}
-                  className="w-full flex items-center justify-between px-5 py-4 text-left font-semibold text-sm hover:bg-secondary/50 transition-colors"
+                  className="w-full flex items-center justify-between px-4 sm:px-5 py-4 text-left font-semibold text-sm hover:bg-secondary/50 transition-colors"
                 >
                   {faq.q}
                   <Icon name={openFaq === i ? 'ChevronUp' : 'ChevronDown'} size={16} className="text-muted-foreground shrink-0 ml-3" />
                 </button>
                 {openFaq === i && (
-                  <div className="px-5 pb-4 text-sm text-muted-foreground leading-relaxed border-t border-border pt-3">
+                  <div className="px-4 sm:px-5 pb-4 text-sm text-muted-foreground leading-relaxed border-t border-border pt-3">
                     {faq.a}
                   </div>
                 )}
@@ -338,21 +386,27 @@ export default function Pricing() {
         </div>
 
         {/* Bottom CTA */}
-        <div className="mt-16 rounded-3xl bg-gradient-to-r from-primary to-violet-500 p-8 md:p-12 text-center text-white">
-          <h2 className="font-display font-black text-3xl mb-3">
-            {isRu ? 'Начните прямо сейчас' : 'Start right now'}
-          </h2>
-          <p className="text-white/80 mb-8 text-lg">
-            {isRu ? 'Первый сайт бесплатно. Без карты.' : 'First site free. No card required.'}
-          </p>
-          <Button size="lg" className="rounded-full bg-white text-primary hover:bg-white/90 font-semibold px-10 h-13 shadow-xl" asChild>
-            <Link to="/register">
-              {isRu ? 'Создать сайт бесплатно' : 'Create site for free'}
-              <Icon name="ArrowRight" size={18} className="ml-1.5" />
-            </Link>
-          </Button>
+        <div className="relative overflow-hidden rounded-3xl bg-gradient-to-br from-primary to-violet-500 p-7 sm:p-10 md:p-14 text-center text-white">
+          <div className="absolute -top-10 -right-10 h-48 w-48 rounded-full bg-white/10 blur-3xl" />
+          <div className="absolute -bottom-10 -left-10 h-48 w-48 rounded-full bg-white/10 blur-3xl" />
+          <div className="relative">
+            <h2 className="font-display font-black text-2xl sm:text-3xl mb-3">
+              {isRu ? 'Начните прямо сейчас' : 'Start right now'}
+            </h2>
+            <p className="text-white/80 mb-8 text-base sm:text-lg">
+              {isRu ? 'Первый сайт бесплатно. Без карты.' : 'First site free. No card required.'}
+            </p>
+            <Button size="lg" className="rounded-full bg-white text-primary hover:bg-white/90 font-semibold px-8 sm:px-10 h-12 sm:h-13 shadow-xl" asChild>
+              <Link to="/register">
+                {isRu ? 'Создать сайт бесплатно' : 'Create site for free'}
+                <Icon name="ArrowRight" size={18} className="ml-1.5" />
+              </Link>
+            </Button>
+          </div>
         </div>
       </main>
+
+      <SiteFooter lang={lang} />
     </div>
   );
 }

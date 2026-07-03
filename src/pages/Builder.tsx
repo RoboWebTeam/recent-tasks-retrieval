@@ -814,7 +814,7 @@ export default function Builder() {
                         <div className="space-y-1">
                           {group.items.map(s => (
                             <button key={s} onClick={() => sendMessage(s)}
-                              className="w-full text-left text-xs text-muted-foreground hover:text-foreground bg-secondary hover:bg-secondary/70 border border-border hover:border-primary/50 rounded-xl px-3 py-2.5 transition-all group">
+                              className="w-full text-left text-sm font-medium text-muted-foreground hover:text-foreground bg-secondary hover:bg-secondary/70 border border-border hover:border-primary/50 rounded-xl px-3 py-2.5 transition-all group">
                               <span className="flex items-center gap-2">
                                 <Icon name="ArrowRight" size={11} className="text-primary shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
                                 {s}
@@ -836,7 +836,7 @@ export default function Builder() {
                           <Icon name="Bot" size={14} />
                         </div>
                       )}
-                      <div className={`max-w-[88%] text-sm leading-relaxed ${
+                      <div className={`max-w-[88%] text-[15px] font-medium leading-relaxed ${
                         m.role === 'user'
                           ? 'bg-primary text-white rounded-2xl rounded-br-sm px-3.5 py-2.5 shadow-sm'
                           : 'bg-secondary border border-border text-foreground rounded-2xl rounded-bl-sm px-3.5 py-2.5'
@@ -1016,7 +1016,7 @@ export default function Builder() {
                   onKeyDown={handleKeyDown}
                   placeholder={isRecording ? (lang === 'ru' ? '🎙 Говорите…' : '🎙 Speaking…') : tr('builderInputPlaceholder', lang)}
                   rows={1}
-                  className={`flex-1 bg-transparent text-sm resize-none outline-none min-h-[20px] max-h-[160px] ${isRecording ? 'text-red-400 placeholder:text-red-400/50' : 'text-foreground placeholder:text-muted-foreground/50'}`}
+                  className={`flex-1 bg-transparent text-[15px] font-medium resize-none outline-none min-h-[20px] max-h-[160px] ${isRecording ? 'text-red-400 placeholder:text-red-400/50' : 'text-foreground placeholder:text-muted-foreground/50'}`}
                 />
 
                 {/* Голосовой ввод */}
