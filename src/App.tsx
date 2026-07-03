@@ -19,6 +19,7 @@ import DomainSettings from "./pages/DomainSettings";
 import Pricing from "./pages/Pricing";
 import Analytics from "./pages/Analytics";
 import Leads from "./pages/Leads";
+import Files from "./pages/Files";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -51,6 +52,7 @@ const App = () => (
           <Route path="/settings/domain" element={<ProtectedRoute><DomainSettings /></ProtectedRoute>} />
           <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
           <Route path="/leads" element={<ProtectedRoute><Leads /></ProtectedRoute>} />
+          <Route path="/files" element={<ProtectedRoute><Files /></ProtectedRoute>} />
           <Route path="/admin" element={<Admin />} />
           {/* /admin защищён собственным паролем внутри компонента */}
 

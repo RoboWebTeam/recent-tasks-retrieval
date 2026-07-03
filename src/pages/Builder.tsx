@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
-import { getSession, getStoredUser } from '@/lib/auth';
+import { getSession, getStoredUser, apiUploadFile } from '@/lib/auth';
 import { getLang, tr } from '@/lib/i18n';
 import LangSwitcher from '@/components/LangSwitcher';
 
@@ -97,6 +97,8 @@ export default function Builder() {
   const [isRecording, setIsRecording] = useState(false);
   const [attachedImage, setAttachedImage] = useState<{ url: string; name: string } | null>(null);
   const [showExtensions, setShowExtensions] = useState(false);
+  const [savingToFiles, setSavingToFiles] = useState(false);
+  const [saveToFilesDone, setSaveToFilesDone] = useState(false);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const [editPopover, setEditPopover] = useState<{ x: number; y: number; text: string; path: string } | null>(null);
@@ -218,6 +220,23 @@ export default function Builder() {
     const a = document.createElement('a');
     a.href = url; a.download = 'site.html'; a.click();
     URL.revokeObjectURL(url);
+  };
+
+  const handleSaveToFiles = async () => {
+    if (!html) return;
+    const session = getSession();
+    if (!session) return;
+    setSavingToFiles(true);
+    setSaveToFilesDone(false);
+    try {
+      const base64 = btoa(unescape(encodeURIComponent(html)));
+      await apiUploadFile(session, `site-${projectId || Date.now()}.html`, base64, false, projectId ? Number(projectId) : undefined);
+      setSaveToFilesDone(true);
+      setTimeout(() => setSaveToFilesDone(false), 2000);
+    } catch {
+      /* тихо игнорируем — не критично для UX */
+    }
+    setSavingToFiles(false);
   };
 
   const handleCopyCode = () => {
@@ -582,6 +601,15 @@ export default function Builder() {
             className="hidden sm:flex items-center gap-1.5 h-8 px-2.5 rounded-lg text-xs border border-border bg-secondary hover:bg-secondary/70 hover:text-foreground text-muted-foreground transition-colors disabled:opacity-30">
             <Icon name="Download" size={13} />
             <span className="hidden md:inline">{tr('builderDownload', lang)}</span>
+          </button>
+
+          <button onClick={handleSaveToFiles} disabled={!html || savingToFiles}
+            title={lang === 'ru' ? 'Сохранить в моё хранилище файлов' : 'Save to my file storage'}
+            className="hidden sm:flex items-center gap-1.5 h-8 px-2.5 rounded-lg text-xs border border-border bg-secondary hover:bg-secondary/70 hover:text-foreground text-muted-foreground transition-colors disabled:opacity-30">
+            <Icon name={savingToFiles ? 'Loader' : saveToFilesDone ? 'Check' : 'FolderOpen'} size={13} className={savingToFiles ? 'animate-spin' : ''} />
+            <span className="hidden md:inline">
+              {saveToFilesDone ? (lang === 'ru' ? 'Сохранено' : 'Saved') : (lang === 'ru' ? 'В хранилище' : 'To storage')}
+            </span>
           </button>
 
           <Button size="sm" disabled={!html} className="h-8 rounded-lg text-xs px-2.5 gap-1.5">

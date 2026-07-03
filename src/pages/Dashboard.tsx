@@ -142,6 +142,9 @@ const Dashboard = () => {
               <Icon name="Inbox" size={15} />{lang === 'ru' ? 'Заявки' : 'Leads'}
               <span className="absolute -top-0.5 -right-0.5 h-4 w-4 bg-primary text-primary-foreground text-[9px] font-bold rounded-full flex items-center justify-center">2</span>
             </Link>
+            <Link to="/files" className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors">
+              <Icon name="FolderOpen" size={15} />{lang === 'ru' ? 'Мои файлы' : 'My files'}
+            </Link>
           </nav>
 
           <div className="flex items-center gap-2">
@@ -173,6 +176,10 @@ const Dashboard = () => {
             <Icon name="Inbox" size={18} />
             <span className="absolute top-1.5 left-1/2 translate-x-1 -translate-y-0.5 h-3.5 w-3.5 bg-primary text-primary-foreground text-[8px] font-bold rounded-full flex items-center justify-center">2</span>
             {lang === 'ru' ? 'Заявки' : 'Leads'}
+          </Link>
+          <Link to="/files" className="flex-1 flex flex-col items-center gap-1 py-2.5 text-xs font-medium text-muted-foreground shrink-0">
+            <Icon name="FolderOpen" size={18} />
+            {lang === 'ru' ? 'Файлы' : 'Files'}
           </Link>
         </div>
       </header>

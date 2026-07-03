@@ -1,5 +1,6 @@
 export const AUTH_URL = 'https://functions.poehali.dev/1c31dd39-a734-4b06-bc38-a2e25d8ad7cf';
 export const PROJECTS_URL = 'https://functions.poehali.dev/2b772da8-0a47-4371-97c7-b0a6834cdf0e';
+export const FILES_URL = 'https://functions.poehali.dev/86596285-1259-4cdb-8c8d-48a19c6f94df';
 
 export interface User {
   id: number;
@@ -17,6 +18,16 @@ export interface Project {
   url: string;
   created_at: string;
   updated_at: string;
+}
+
+export interface SiteFile {
+  id: number;
+  project_id: number | null;
+  file_name: string;
+  file_url: string;
+  file_type: 'html' | 'zip';
+  file_size: number;
+  created_at: string;
 }
 
 export function getSession(): string | null {
@@ -155,4 +166,42 @@ export async function apiCreateProject(sessionId: string, title: string, descrip
   });
   if (!res.ok) throw new Error((data as {error?: string}).error || 'Ошибка создания проекта');
   return (data as {project: Project}).project;
+}
+
+export async function apiGetFiles(sessionId: string): Promise<SiteFile[]> {
+  const { res, data } = await apiFetch(FILES_URL, {
+    headers: { 'x-session-id': sessionId },
+  });
+  if (!res.ok) throw new Error((data as {error?: string}).error || 'Ошибка загрузки файлов');
+  return (data as {files: SiteFile[]}).files;
+}
+
+export async function apiUploadFile(
+  sessionId: string,
+  fileName: string,
+  fileContentB64: string,
+  isZip: boolean,
+  projectId?: number,
+): Promise<SiteFile> {
+  const { res, data } = await apiFetch(FILES_URL, {
+    method: 'POST',
+    headers: { 'x-session-id': sessionId },
+    body: JSON.stringify({
+      file_name: fileName,
+      file_content: fileContentB64,
+      is_zip: isZip,
+      project_id: projectId,
+    }),
+  });
+  if (!res.ok) throw new Error((data as {error?: string}).error || 'Ошибка загрузки файла');
+  return (data as {file: SiteFile}).file;
+}
+
+export async function apiDeleteFile(sessionId: string, fileId: number) {
+  const { res, data } = await apiFetch(`${FILES_URL}?id=${fileId}`, {
+    method: 'DELETE',
+    headers: { 'x-session-id': sessionId },
+  });
+  if (!res.ok) throw new Error((data as {error?: string}).error || 'Ошибка удаления файла');
+  return data;
 }
