@@ -1,0 +1,17 @@
+{
+  "tests": [
+    {
+      "name": "GET method not allowed",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 405
+    },
+    {
+      "name": "POST without payment id returns 400",
+      "method": "POST",
+      "path": "/",
+      "body": {"event": "payment.succeeded", "object": {}},
+      "expectedStatus": 400
+    }
+  ]
+}

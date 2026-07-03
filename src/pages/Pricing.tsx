@@ -1,8 +1,11 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { getLang } from '@/lib/i18n';
+import { getSession, getStoredUser } from '@/lib/auth';
+
+const YOOKASSA_URL = 'https://functions.poehali.dev/4fec45e4-aaef-4bc4-ba3c-7a43dfc964bc';
 
 const getLangData = (isRu: boolean) => ({
   title: isRu ? 'Тарифы' : 'Pricing',
@@ -108,8 +111,50 @@ export default function Pricing() {
   const lang = getLang();
   const isRu = lang === 'ru';
   const data = getLangData(isRu);
+  const navigate = useNavigate();
   const [billing, setBilling] = useState<'monthly' | 'yearly'>('monthly');
   const [openFaq, setOpenFaq] = useState<number | null>(null);
+  const [payingPlan, setPayingPlan] = useState<string | null>(null);
+  const [payError, setPayError] = useState('');
+  const session = getSession();
+  const user = getStoredUser();
+
+  const handleSelectPlan = async (planId: string, priceRub: number) => {
+    if (!session || !user) {
+      navigate(`/register?plan=${planId}&billing=${billing}`);
+      return;
+    }
+    setPayingPlan(planId);
+    setPayError('');
+    try {
+      const planLabel = planId === 'premium' ? (isRu ? 'Премиум' : 'Premium') : (isRu ? 'Профи' : 'Pro');
+      const res = await fetch(YOOKASSA_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amount: priceRub,
+          user_email: user.email,
+          user_name: user.name,
+          description: `Тариф «${planLabel}» (${billing === 'yearly' ? (isRu ? 'год' : 'yearly') : (isRu ? 'месяц' : 'monthly')})`,
+          return_url: `${window.location.origin}/pricing/status`,
+          plan: planId,
+          billing_period: billing,
+          user_id: user.id,
+        }),
+      });
+      const raw = await res.json();
+      const dataRes = raw.body !== undefined ? (typeof raw.body === 'string' ? JSON.parse(raw.body) : raw.body) : raw;
+      if (!res.ok || dataRes.error) {
+        throw new Error(dataRes.error || (isRu ? 'Ошибка создания платежа' : 'Payment creation error'));
+      }
+      if (dataRes.payment_url) {
+        window.location.href = dataRes.payment_url;
+      }
+    } catch (e) {
+      setPayError(e instanceof Error ? e.message : (isRu ? 'Ошибка оплаты' : 'Payment error'));
+    }
+    setPayingPlan(null);
+  };
 
   return (
     <div className="min-h-screen bg-background">
@@ -200,16 +245,29 @@ export default function Pricing() {
                   <p className="text-sm text-muted-foreground">{plan.desc}</p>
                 </div>
 
-                <Button
-                  className={`w-full h-11 rounded-xl font-semibold mb-6 ${isPro ? 'bg-foreground text-background hover:bg-foreground/90' : ''}`}
-                  variant={isPopular ? 'default' : isPro ? 'default' : 'outline'}
-                  asChild
-                >
-                  <Link to="/register">
-                    {isFree ? data.cta : data.ctaPaid}
-                    <Icon name="ArrowRight" size={15} className="ml-1.5" />
-                  </Link>
-                </Button>
+                {isFree ? (
+                  <Button
+                    className="w-full h-11 rounded-xl font-semibold mb-6"
+                    variant="outline"
+                    asChild
+                  >
+                    <Link to="/register">
+                      {data.cta}
+                      <Icon name="ArrowRight" size={15} className="ml-1.5" />
+                    </Link>
+                  </Button>
+                ) : (
+                  <Button
+                    className={`w-full h-11 rounded-xl font-semibold mb-6 ${isPro ? 'bg-foreground text-background hover:bg-foreground/90' : ''}`}
+                    variant={isPopular ? 'default' : 'default'}
+                    disabled={payingPlan === plan.id}
+                    onClick={() => handleSelectPlan(plan.id, plan.price[billing])}
+                  >
+                    {payingPlan === plan.id
+                      ? <><Icon name="Loader" size={15} className="mr-1.5 animate-spin" />{isRu ? 'Переходим к оплате…' : 'Redirecting…'}</>
+                      : <>{data.ctaPaid}<Icon name="ArrowRight" size={15} className="ml-1.5" /></>}
+                  </Button>
+                )}
 
                 <div className="space-y-2.5 flex-1">
                   {plan.features.map(f => (
@@ -229,6 +287,14 @@ export default function Pricing() {
             );
           })}
         </div>
+
+        {payError && (
+          <div className="flex items-center gap-2 bg-destructive/10 text-destructive rounded-2xl px-4 py-3 mb-8 text-sm max-w-lg mx-auto">
+            <Icon name="AlertCircle" size={15} className="shrink-0" />
+            <span className="flex-1">{payError}</span>
+            <button onClick={() => setPayError('')}><Icon name="X" size={14} /></button>
+          </div>
+        )}
 
         {/* Trust badges */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mb-16">
