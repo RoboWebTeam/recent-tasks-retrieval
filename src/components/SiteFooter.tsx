@@ -23,13 +23,16 @@ export function SiteFooter({ lang }: Props) {
         <div>
           <h4 className="font-display font-bold mb-3 md:mb-4 text-sm md:text-base">{L.footer.nav[lang]}</h4>
           <ul className="space-y-2 text-sm text-muted-foreground">
-            {NAV.map((n) => (
-              <li key={n.href}>
-                {n.href.startsWith('/') && !n.href.startsWith('/#')
-                  ? <Link to={n.href} className="hover:text-foreground transition-colors">{n.label}</Link>
-                  : <a href={n.href} className="hover:text-foreground transition-colors">{n.label}</a>}
-              </li>
-            ))}
+            {NAV.map((n) => {
+              // Якорные ссылки (#process и т.п.) в футере ведут на соответствующую секцию
+              // главной страницы, чтобы работать с любой страницы сайта.
+              const to = n.href.startsWith('#') ? `/${n.href}` : n.href;
+              return (
+                <li key={n.href}>
+                  <Link to={to} className="hover:text-foreground transition-colors">{n.label}</Link>
+                </li>
+              );
+            })}
           </ul>
         </div>
         <div className="col-span-2 sm:col-span-1">
