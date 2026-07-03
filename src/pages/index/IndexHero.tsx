@@ -1,10 +1,14 @@
 import { useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import ParticlesBg from '@/components/ui/particles-bg';
 import Icon from '@/components/ui/icon';
 import { Button } from '@/components/ui/button';
+import {
+  DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import LangSwitcher from '@/components/LangSwitcher';
 import { type Lang } from '@/lib/i18n';
+import { getSession, getStoredUser, clearSession } from '@/lib/auth';
 import { L, getNAV } from './indexData';
 import { CounterStat } from './IndexShared';
 
@@ -17,6 +21,13 @@ interface IndexNavProps {
 
 export function IndexNav({ lang, menuOpen, setMenuOpen, onLangSwitch }: IndexNavProps) {
   const NAV = getNAV(lang);
+  const navigate = useNavigate();
+  const session = getSession();
+  const user = getStoredUser();
+  const isAuthed = !!(session && user);
+  const initials = user?.name?.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || 'U';
+  const handleLogout = () => { clearSession(); navigate(0); };
+
   return (
     <header className="fixed top-0 inset-x-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50">
       <nav className="container flex items-center justify-between py-3 md:py-4">
@@ -36,14 +47,56 @@ export function IndexNav({ lang, menuOpen, setMenuOpen, onLangSwitch }: IndexNav
         </div>
         <div className="flex items-center gap-2">
           <LangSwitcher lang={lang} onSwitch={onLangSwitch} />
-          <a href="/login" className="hidden sm:inline-flex items-center justify-center rounded-full border border-border bg-card text-sm font-semibold px-4 h-9 hover:bg-secondary transition-colors">
-            {L.nav.login[lang]}
-          </a>
-          <a href="/register">
-            <Button className="hidden sm:flex rounded-full font-semibold shadow-lg shadow-primary/20 text-sm px-5 h-9">
-              {L.nav.create[lang]}
-            </Button>
-          </a>
+          {isAuthed ? (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="hidden sm:grid h-9 w-9 place-items-center rounded-xl bg-primary text-primary-foreground font-display font-bold text-sm shrink-0 hover:opacity-90 transition-opacity">
+                  {initials}
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <div className="px-2 py-1.5">
+                  <p className="text-sm font-semibold truncate">{user?.name}</p>
+                  <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
+                </div>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem asChild>
+                  <Link to="/dashboard" className="cursor-pointer">
+                    <Icon name="LayoutDashboard" size={15} className="mr-2" />
+                    {lang === 'ru' ? 'В кабинет' : 'Dashboard'}
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/dashboard?tab=plan" className="cursor-pointer">
+                    <Icon name="CreditCard" size={15} className="mr-2" />
+                    {lang === 'ru' ? 'Тариф' : 'Plan'}
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/dashboard?tab=profile" className="cursor-pointer">
+                    <Icon name="User" size={15} className="mr-2" />
+                    {lang === 'ru' ? 'Профиль' : 'Profile'}
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={handleLogout} className="cursor-pointer text-destructive focus:text-destructive">
+                  <Icon name="LogOut" size={15} className="mr-2" />
+                  {lang === 'ru' ? 'Выйти' : 'Log out'}
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : (
+            <>
+              <a href="/login" className="hidden sm:inline-flex items-center justify-center rounded-full border border-border bg-card text-sm font-semibold px-4 h-9 hover:bg-secondary transition-colors">
+                {L.nav.login[lang]}
+              </a>
+              <a href="/register">
+                <Button className="hidden sm:flex rounded-full font-semibold shadow-lg shadow-primary/20 text-sm px-5 h-9">
+                  {L.nav.create[lang]}
+                </Button>
+              </a>
+            </>
+          )}
           <button
             onClick={() => setMenuOpen((v) => !v)}
             className="md:hidden grid h-9 w-9 place-items-center rounded-xl border border-border bg-card transition-colors hover:bg-secondary"
@@ -60,9 +113,20 @@ export function IndexNav({ lang, menuOpen, setMenuOpen, onLangSwitch }: IndexNav
               ? <Link key={n.href} to={n.href} onClick={() => setMenuOpen(false)} className="flex items-center gap-2 py-3 px-4 rounded-xl font-medium hover:bg-secondary transition-colors">{n.label}</Link>
               : <a key={n.href} href={n.href} onClick={() => setMenuOpen(false)} className="flex items-center gap-2 py-3 px-4 rounded-xl font-medium hover:bg-secondary transition-colors">{n.label}</a>
           ))}
-          <a href="/register" className="block">
-            <Button className="w-full rounded-full font-semibold mt-4">{L.nav.create[lang]}</Button>
-          </a>
+          {isAuthed ? (
+            <>
+              <Link to="/dashboard" onClick={() => setMenuOpen(false)} className="flex items-center gap-2 py-3 px-4 rounded-xl font-medium hover:bg-secondary transition-colors">
+                <Icon name="LayoutDashboard" size={16} /> {lang === 'ru' ? 'В кабинет' : 'Dashboard'}
+              </Link>
+              <button onClick={() => { setMenuOpen(false); handleLogout(); }} className="w-full flex items-center gap-2 py-3 px-4 rounded-xl font-medium text-destructive hover:bg-secondary transition-colors text-left">
+                <Icon name="LogOut" size={16} /> {lang === 'ru' ? 'Выйти' : 'Log out'}
+              </button>
+            </>
+          ) : (
+            <a href="/register" className="block">
+              <Button className="w-full rounded-full font-semibold mt-4">{L.nav.create[lang]}</Button>
+            </a>
+          )}
         </div>
       )}
     </header>

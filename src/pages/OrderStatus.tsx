@@ -19,6 +19,8 @@ export default function OrderStatus() {
 
   const [status, setStatus] = useState<'loading' | 'paid' | 'pending' | 'canceled' | 'error'>('loading');
   const [plan, setPlan] = useState('');
+  const [orderType, setOrderType] = useState('plan');
+  const [energyAmount, setEnergyAmount] = useState(0);
 
   useEffect(() => {
     if (!orderNumber) {
@@ -43,6 +45,8 @@ export default function OrderStatus() {
           }
 
           setPlan(data.plan || '');
+          setOrderType(data.order_type || 'plan');
+          setEnergyAmount(data.energy_amount || 0);
 
           if (data.status === 'paid') {
             setStatus('paid');
@@ -87,9 +91,9 @@ export default function OrderStatus() {
               {isRu ? 'Оплата прошла успешно!' : 'Payment successful!'}
             </h1>
             <p className="text-muted-foreground text-sm mb-6">
-              {isRu
-                ? `Тариф «${planName}» активирован на вашем аккаунте.`
-                : `The "${planName}" plan has been activated on your account.`}
+              {orderType === 'energy'
+                ? (isRu ? `Энергия начислена: +${energyAmount} запросов к AI.` : `Energy credited: +${energyAmount} AI requests.`)
+                : (isRu ? `Тариф «${planName}» активирован на вашем аккаунте.` : `The "${planName}" plan has been activated on your account.`)}
             </p>
             <Button asChild className="rounded-xl font-semibold">
               <Link to="/dashboard">

@@ -9,6 +9,8 @@ from datetime import datetime, timedelta
 
 SCHEMA = None
 
+PLAN_LIMITS = {'free': 3, 'premium': 40, 'pro': 60}
+
 def get_schema():
     global SCHEMA
     if not SCHEMA:
@@ -17,6 +19,37 @@ def get_schema():
 
 def get_conn():
     return psycopg2.connect(os.environ['DATABASE_URL'])
+
+def get_user_id_by_session(cur, schema: str, session_id: str):
+    cur.execute(
+        f"SELECT user_id FROM {schema}.sessions WHERE id = %s AND expires_at > NOW()",
+        (session_id,)
+    )
+    row = cur.fetchone()
+    return row[0] if row else None
+
+def reset_requests_if_needed(cur, schema: str, user_id: int, plan: str):
+    """Сбрасывает счётчик AI-запросов, если истёк месячный период"""
+    cur.execute(
+        f"""SELECT requests_used, requests_limit, requests_reset_at, energy_balance
+            FROM {schema}.users WHERE id = %s""",
+        (user_id,)
+    )
+    row = cur.fetchone()
+    if not row:
+        return None
+    used, limit, reset_at, energy = row
+    from datetime import timezone
+    if reset_at and reset_at <= datetime.now(timezone.utc):
+        used = 0
+        limit = PLAN_LIMITS.get(plan, limit)
+        cur.execute(
+            f"""UPDATE {schema}.users
+                SET requests_used = 0, requests_limit = %s, requests_reset_at = NOW() + INTERVAL '30 days'
+                WHERE id = %s""",
+            (limit, user_id)
+        )
+    return {'requests_used': used, 'requests_limit': limit, 'energy_balance': energy}
 
 def hash_password(password: str) -> str:
     """bcrypt с солью — безопасное хэширование"""
@@ -136,7 +169,7 @@ def handler(event: dict, context) -> dict:
                 conn.commit()
             finally:
                 conn.close()
-            return ok({'session_id': session_id, 'user': {'id': user_id, 'email': email, 'name': name, 'plan': 'free'}})
+            return ok({'session_id': session_id, 'user': {'id': user_id, 'email': email, 'name': name, 'plan': 'free', 'requests_used': 0, 'requests_limit': PLAN_LIMITS['free'], 'energy_balance': 0}})
 
         # LOGIN
         if action == 'login':
@@ -175,10 +208,11 @@ def handler(event: dict, context) -> dict:
                         f"INSERT INTO {schema}.sessions (id, user_id) VALUES (%s, %s)",
                         (session_id, user_id)
                     )
+                    quota = reset_requests_if_needed(cur, schema, user_id, plan)
                 conn.commit()
             finally:
                 conn.close()
-            return ok({'session_id': session_id, 'user': {'id': user_id, 'email': email, 'name': name, 'plan': plan}})
+            return ok({'session_id': session_id, 'user': {'id': user_id, 'email': email, 'name': name, 'plan': plan, **(quota or {})}})
 
         # GITHUB OAUTH
         if action == 'github_oauth':
@@ -247,11 +281,12 @@ def handler(event: dict, context) -> dict:
                         f"INSERT INTO {schema}.sessions (id, user_id) VALUES (%s, %s)",
                         (session_id, user_id)
                     )
+                    quota = reset_requests_if_needed(cur, schema, user_id, plan)
                 conn.commit()
             finally:
                 conn.close()
 
-            return ok({'session_id': session_id, 'user': {'id': user_id, 'email': gh_email, 'name': name, 'plan': plan}})
+            return ok({'session_id': session_id, 'user': {'id': user_id, 'email': gh_email, 'name': name, 'plan': plan, **(quota or {})}})
 
         # YANDEX OAUTH
         if action == 'yandex_oauth':
@@ -314,11 +349,12 @@ def handler(event: dict, context) -> dict:
                         f"INSERT INTO {schema}.sessions (id, user_id) VALUES (%s, %s)",
                         (session_id, user_id)
                     )
+                    quota = reset_requests_if_needed(cur, schema, user_id, plan)
                 conn.commit()
             finally:
                 conn.close()
 
-            return ok({'session_id': session_id, 'user': {'id': user_id, 'email': ya_email, 'name': name, 'plan': plan}})
+            return ok({'session_id': session_id, 'user': {'id': user_id, 'email': ya_email, 'name': name, 'plan': plan, **(quota or {})}})
 
         # TELEGRAM OAUTH
         if action == 'telegram_oauth':
@@ -370,38 +406,139 @@ def handler(event: dict, context) -> dict:
                         f"INSERT INTO {schema}.sessions (id, user_id) VALUES (%s, %s)",
                         (session_id, user_id)
                     )
+                    quota = reset_requests_if_needed(cur, schema, user_id, plan)
                 conn.commit()
             finally:
                 conn.close()
 
-            return ok({'session_id': session_id, 'user': {'id': user_id, 'email': tg_email, 'name': name, 'plan': plan}})
+            return ok({'session_id': session_id, 'user': {'id': user_id, 'email': tg_email, 'name': name, 'plan': plan, **(quota or {})}})
+
+        # CHANGE PASSWORD
+        if action == 'change_password':
+            session_id = headers.get('x-session-id', '')
+            if not session_id:
+                return err('Не авторизован', 401)
+            old_password = body.get('old_password', '')
+            new_password = body.get('new_password', '')
+            if len(new_password) < 6:
+                return err('Новый пароль должен быть не менее 6 символов')
+
+            conn = get_conn()
+            try:
+                with conn.cursor() as cur:
+                    user_id = get_user_id_by_session(cur, schema, session_id)
+                    if not user_id:
+                        return err('Сессия истекла', 401)
+                    cur.execute(f"SELECT password_hash FROM {schema}.users WHERE id = %s", (user_id,))
+                    row = cur.fetchone()
+                    if not row or not check_password(old_password, row[0]):
+                        return err('Текущий пароль указан неверно')
+                    cur.execute(
+                        f"UPDATE {schema}.users SET password_hash = %s WHERE id = %s",
+                        (hash_password(new_password), user_id)
+                    )
+                conn.commit()
+            finally:
+                conn.close()
+            return ok({'ok': True})
+
+        # UPDATE NAME
+        if action == 'update_name':
+            session_id = headers.get('x-session-id', '')
+            if not session_id:
+                return err('Не авторизован', 401)
+            new_name = body.get('name', '').strip()
+            if not new_name:
+                return err('Укажите имя')
+
+            conn = get_conn()
+            try:
+                with conn.cursor() as cur:
+                    user_id = get_user_id_by_session(cur, schema, session_id)
+                    if not user_id:
+                        return err('Сессия истекла', 401)
+                    cur.execute(f"UPDATE {schema}.users SET name = %s WHERE id = %s", (new_name, user_id))
+                conn.commit()
+            finally:
+                conn.close()
+            return ok({'ok': True, 'name': new_name})
+
+        # DELETE ACCOUNT
+        if action == 'delete_account':
+            session_id = headers.get('x-session-id', '')
+            if not session_id:
+                return err('Не авторизован', 401)
+            password = body.get('password', '')
+
+            conn = get_conn()
+            try:
+                with conn.cursor() as cur:
+                    user_id = get_user_id_by_session(cur, schema, session_id)
+                    if not user_id:
+                        return err('Сессия истекла', 401)
+                    cur.execute(f"SELECT password_hash FROM {schema}.users WHERE id = %s", (user_id,))
+                    row = cur.fetchone()
+                    if row and row[0] and not check_password(password, row[0]):
+                        return err('Пароль указан неверно')
+                    cur.execute(f"UPDATE {schema}.sessions SET expires_at = NOW() WHERE user_id = %s", (user_id,))
+                    cur.execute(f"UPDATE {schema}.projects SET user_id = NULL WHERE user_id = %s", (user_id,))
+                    cur.execute(
+                        f"UPDATE {schema}.users SET email = 'deleted_' || id || '@deleted', name = 'Удалён', blocked = true WHERE id = %s",
+                        (user_id,)
+                    )
+                conn.commit()
+            finally:
+                conn.close()
+            return ok({'ok': True})
 
         return err('Неизвестное действие')
 
-    # GET /me
+    # GET /me или GET /me?action=orders
     if method == 'GET':
         session_id = headers.get('x-session-id', '')
         if not session_id:
             return err('Не авторизован', 401)
 
+        params = event.get('queryStringParameters') or {}
+
         conn = get_conn()
         try:
             with conn.cursor() as cur:
+                user_id = get_user_id_by_session(cur, schema, session_id)
+                if not user_id:
+                    return err('Сессия истекла', 401)
+
+                if params.get('action') == 'orders':
+                    cur.execute(
+                        f"""SELECT order_number, order_type, plan, energy_amount, billing_period, amount, status, created_at, paid_at
+                            FROM {schema}.orders WHERE user_id = %s ORDER BY created_at DESC LIMIT 50""",
+                        (user_id,)
+                    )
+                    rows = cur.fetchall()
+                    orders = [{
+                        'order_number': r[0], 'order_type': r[1], 'plan': r[2], 'energy_amount': r[3],
+                        'billing_period': r[4], 'amount': float(r[5]), 'status': r[6],
+                        'created_at': r[7].isoformat() if r[7] else None,
+                        'paid_at': r[8].isoformat() if r[8] else None,
+                    } for r in rows]
+                    return ok({'orders': orders})
+
                 cur.execute(
-                    f"""SELECT u.id, u.email, u.name, u.plan, u.created_at
-                        FROM {schema}.sessions s
-                        JOIN {schema}.users u ON u.id = s.user_id
-                        WHERE s.id = %s AND s.expires_at > NOW()""",
-                    (session_id,)
+                    f"""SELECT email, name, plan, created_at FROM {schema}.users WHERE id = %s""",
+                    (user_id,)
                 )
                 row = cur.fetchone()
+                if not row:
+                    return err('Пользователь не найден', 404)
+                email, name, plan, created_at = row
+                quota = reset_requests_if_needed(cur, schema, user_id, plan)
+                conn.commit()
         finally:
             conn.close()
 
-        if not row:
-            return err('Сессия истекла', 401)
-
-        user_id, email, name, plan, created_at = row
-        return ok({'user': {'id': user_id, 'email': email, 'name': name, 'plan': plan, 'created_at': created_at.isoformat()}})
+        return ok({'user': {
+            'id': user_id, 'email': email, 'name': name, 'plan': plan,
+            'created_at': created_at.isoformat(), **(quota or {}),
+        }})
 
     return err('Not found', 404)

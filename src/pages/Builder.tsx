@@ -105,6 +105,8 @@ export default function Builder() {
   const [publishedSlug, setPublishedSlug] = useState<string | null>(null);
   const [showPublishModal, setShowPublishModal] = useState(false);
   const [publishError, setPublishError] = useState('');
+  const [remaining, setRemaining] = useState<number | null>(null);
+  const [quotaExceeded, setQuotaExceeded] = useState(false);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const [editPopover, setEditPopover] = useState<{ x: number; y: number; text: string; path: string } | null>(null);
@@ -125,6 +127,13 @@ export default function Builder() {
   useEffect(() => {
     if (!session) { navigate('/login', { replace: true }); }
   }, [session, navigate]);
+
+  useEffect(() => {
+    if (user && typeof user.requests_limit === 'number') {
+      setRemaining(Math.max(0, user.requests_limit - (user.requests_used || 0)) + (user.energy_balance || 0));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // Загрузка сохранённого проекта при открытии по ссылке /builder?project=ID
   useEffect(() => {
@@ -190,6 +199,10 @@ export default function Builder() {
       const ok = statusCode >= 200 && statusCode < 300;
 
       if (!ok) {
+        if (statusCode === 402) {
+          setQuotaExceeded(true);
+          setRemaining(0);
+        }
         setMessages(prev => {
           const updated = [...prev];
           updated[updated.length - 1] = { role: 'assistant', content: (data as { error?: string }).error || tr('builderError', lang) };
@@ -200,6 +213,9 @@ export default function Builder() {
 
       const generatedHtml = (data as { html?: string }).html || '';
       const tokens = (data as { tokens?: number }).tokens || 0;
+      if (typeof (data as { remaining?: number }).remaining === 'number') {
+        setRemaining((data as { remaining?: number }).remaining!);
+      }
 
       // Сохраняем версию
       if (generatedHtml) {
@@ -557,6 +573,16 @@ export default function Builder() {
               {msgCount} {lang === 'ru' ? 'запросов' : 'requests'}
               {totalTokens > 0 && <span className="text-muted-foreground/50 ml-1">· {(totalTokens / 1000).toFixed(1)}k tokens</span>}
             </span>
+          )}
+          {remaining !== null && (
+            <Link
+              to="/dashboard?tab=plan"
+              title={lang === 'ru' ? 'Пополнить энергию' : 'Top up energy'}
+              className={`hidden sm:flex items-center gap-1 text-xs font-semibold rounded-lg px-2 py-1 transition-colors ${remaining <= 0 ? 'bg-destructive/10 text-destructive' : 'bg-amber-50 text-amber-700 hover:bg-amber-100'}`}
+            >
+              <Icon name="Zap" size={11} />
+              {remaining}
+            </Link>
           )}
         </div>
 

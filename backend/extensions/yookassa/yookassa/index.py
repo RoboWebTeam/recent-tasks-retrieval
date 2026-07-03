@@ -174,6 +174,8 @@ def handler(event, context):
     plan = data.get('plan', '')
     billing_period = data.get('billing_period', '')
     user_id = data.get('user_id')
+    order_type = data.get('order_type', 'plan')
+    energy_amount = data.get('energy_amount')
 
     if amount < MIN_AMOUNT or amount > MAX_AMOUNT:
         return {
@@ -229,10 +231,10 @@ def handler(event, context):
         # Create order in DB
         cur.execute(f"""
             INSERT INTO {S}orders
-            (order_number, user_id, plan, billing_period, user_name, user_email, user_phone, amount, status, created_at, updated_at)
-            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 'pending', %s, %s)
+            (order_number, user_id, plan, billing_period, user_name, user_email, user_phone, amount, status, order_type, energy_amount, created_at, updated_at)
+            VALUES (%s, %s, %s, %s, %s, %s, %s, %s, 'pending', %s, %s, %s, %s)
             RETURNING id
-        """, (order_number, user_id, plan, billing_period, user_name, user_email, user_phone, amount, now, now))
+        """, (order_number, user_id, plan, billing_period, user_name, user_email, user_phone, amount, order_type, energy_amount, now, now))
 
         order_id = cur.fetchone()[0]
 

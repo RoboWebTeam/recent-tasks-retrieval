@@ -130,7 +130,7 @@ def handler(event, context):
 
         # Find order by payment_id
         cur.execute(f"""
-            SELECT id, status, user_id, plan FROM {S}orders
+            SELECT id, status, user_id, plan, order_type, energy_amount FROM {S}orders
             WHERE yookassa_payment_id = %s
         """, (payment_id,))
 
@@ -141,7 +141,7 @@ def handler(event, context):
             order_id_meta = metadata.get('order_id')
             if order_id_meta:
                 cur.execute(f"""
-                    SELECT id, status, user_id, plan FROM {S}orders WHERE id = %s
+                    SELECT id, status, user_id, plan, order_type, energy_amount FROM {S}orders WHERE id = %s
                 """, (int(order_id_meta),))
                 row = cur.fetchone()
 
@@ -152,7 +152,7 @@ def handler(event, context):
                 'body': json.dumps({'error': 'Order not found'})
             }
 
-        order_id, current_status, order_user_id, order_plan = row
+        order_id, current_status, order_user_id, order_plan, order_type, energy_amount = row
 
         # Update based on verified payment status
         if payment_status == 'succeeded':
@@ -163,8 +163,13 @@ def handler(event, context):
                     WHERE id = %s
                 """, (now, now, order_id))
 
-                # Активируем тариф пользователю после подтверждённой оплаты
-                if order_user_id and order_plan:
+                if order_type == 'energy' and order_user_id and energy_amount:
+                    # Начисляем купленную энергию (доп. AI-запросы)
+                    cur.execute(f"""
+                        UPDATE {S}users SET energy_balance = energy_balance + %s WHERE id = %s
+                    """, (energy_amount, order_user_id))
+                elif order_user_id and order_plan:
+                    # Активируем тариф пользователю после подтверждённой оплаты
                     cur.execute(f"""
                         UPDATE {S}users SET plan = %s WHERE id = %s
                     """, (order_plan, order_user_id))

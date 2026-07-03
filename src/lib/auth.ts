@@ -9,6 +9,21 @@ export interface User {
   name: string;
   plan: string;
   created_at?: string;
+  requests_used?: number;
+  requests_limit?: number;
+  energy_balance?: number;
+}
+
+export interface Order {
+  order_number: string;
+  order_type: 'plan' | 'energy';
+  plan: string | null;
+  energy_amount: number | null;
+  billing_period: string | null;
+  amount: number;
+  status: string;
+  created_at: string | null;
+  paid_at: string | null;
 }
 
 export interface Project {
@@ -150,6 +165,44 @@ export async function apiGetMe(sessionId: string) {
     headers: { 'x-session-id': sessionId },
   });
   if (!res.ok) throw new Error((data as {error?: string}).error || 'Не авторизован');
+  return data;
+}
+
+export async function apiGetOrders(sessionId: string): Promise<Order[]> {
+  const { res, data } = await apiFetch(`${AUTH_URL}?action=orders`, {
+    headers: { 'x-session-id': sessionId },
+  });
+  if (!res.ok) throw new Error((data as {error?: string}).error || 'Ошибка загрузки истории платежей');
+  return (data as {orders: Order[]}).orders;
+}
+
+export async function apiChangePassword(sessionId: string, oldPassword: string, newPassword: string) {
+  const { res, data } = await apiFetch(AUTH_URL, {
+    method: 'POST',
+    headers: { 'x-session-id': sessionId },
+    body: JSON.stringify({ action: 'change_password', old_password: oldPassword, new_password: newPassword }),
+  });
+  if (!res.ok) throw new Error((data as {error?: string}).error || 'Ошибка смены пароля');
+  return data;
+}
+
+export async function apiUpdateName(sessionId: string, name: string) {
+  const { res, data } = await apiFetch(AUTH_URL, {
+    method: 'POST',
+    headers: { 'x-session-id': sessionId },
+    body: JSON.stringify({ action: 'update_name', name }),
+  });
+  if (!res.ok) throw new Error((data as {error?: string}).error || 'Ошибка изменения имени');
+  return data;
+}
+
+export async function apiDeleteAccount(sessionId: string, password: string) {
+  const { res, data } = await apiFetch(AUTH_URL, {
+    method: 'POST',
+    headers: { 'x-session-id': sessionId },
+    body: JSON.stringify({ action: 'delete_account', password }),
+  });
+  if (!res.ok) throw new Error((data as {error?: string}).error || 'Ошибка удаления аккаунта');
   return data;
 }
 

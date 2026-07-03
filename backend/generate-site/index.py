@@ -40,6 +40,50 @@ def get_user_id(session_id: str, schema: str):
     finally:
         conn.close()
 
+PLAN_LIMITS = {'free': 3, 'premium': 40, 'pro': 60}
+
+def check_and_consume_quota(user_id: int, schema: str):
+    """Проверяет лимит AI-запросов (тариф + энергия) и списывает один запрос.
+    Возвращает (allowed: bool, error_message: str|None, remaining: int)"""
+    conn = psycopg2.connect(os.environ['DATABASE_URL'])
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                f"""SELECT plan, requests_used, requests_limit, requests_reset_at, energy_balance
+                    FROM {schema}.users WHERE id = %s FOR UPDATE""",
+                (user_id,)
+            )
+            row = cur.fetchone()
+            if not row:
+                return False, 'Пользователь не найден', 0
+            plan, used, limit, reset_at, energy = row
+
+            from datetime import datetime, timezone
+            if reset_at and reset_at <= datetime.now(timezone.utc):
+                used = 0
+                limit = PLAN_LIMITS.get(plan, limit)
+                cur.execute(
+                    f"""UPDATE {schema}.users
+                        SET requests_used = 0, requests_limit = %s, requests_reset_at = NOW() + INTERVAL '30 days'
+                        WHERE id = %s""",
+                    (limit, user_id)
+                )
+
+            if used < limit:
+                cur.execute(f"UPDATE {schema}.users SET requests_used = requests_used + 1 WHERE id = %s", (user_id,))
+                conn.commit()
+                return True, None, (limit - used - 1) + energy
+
+            if energy > 0:
+                cur.execute(f"UPDATE {schema}.users SET energy_balance = energy_balance - 1 WHERE id = %s", (user_id,))
+                conn.commit()
+                return True, None, energy - 1
+
+            conn.commit()
+            return False, 'Лимит AI-запросов исчерпан. Пополните энергию или смените тариф.', 0
+    finally:
+        conn.close()
+
 def save_html(project_id: int, html: str, schema: str):
     conn = psycopg2.connect(os.environ['DATABASE_URL'])
     try:
@@ -68,6 +112,10 @@ def handler(event: dict, context) -> dict:
     user_id = get_user_id(session_id, schema)
     if not user_id:
         return err('Сессия истекла', 401)
+
+    allowed, quota_error, remaining = check_and_consume_quota(user_id, schema)
+    if not allowed:
+        return err(quota_error, 402)
 
     body = json.loads(event.get('body') or '{}')
     messages = body.get('messages', [])
@@ -130,4 +178,4 @@ def handler(event: dict, context) -> dict:
     if project_id:
         save_html(int(project_id), html, schema)
 
-    return ok({'html': html, 'tokens': result.get('usage', {}).get('total_tokens', 0)})
+    return ok({'html': html, 'tokens': result.get('usage', {}).get('total_tokens', 0), 'remaining': remaining})

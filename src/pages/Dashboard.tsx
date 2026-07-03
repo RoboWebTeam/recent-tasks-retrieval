@@ -9,10 +9,19 @@ import {
 import {
   getSession, getStoredUser, clearSession, storeUser,
   apiGetMe, apiGetProjects, apiCreateProject,
-  type User, type Project,
+  apiUpdateName, apiChangePassword, apiDeleteAccount, apiGetOrders,
+  type User, type Project, type Order,
 } from '@/lib/auth';
 import { getLang, tr } from '@/lib/i18n';
 import DashboardHeader from '@/components/DashboardHeader';
+
+const YOOKASSA_URL = 'https://functions.poehali.dev/4fec45e4-aaef-4bc4-ba3c-7a43dfc964bc';
+
+const ENERGY_PACKAGES = [
+  { code: 'small', requests: 10, price: 290 },
+  { code: 'medium', requests: 30, price: 690 },
+  { code: 'large', requests: 100, price: 1990 },
+];
 
 const getPlanLabels = (lang: ReturnType<typeof getLang>) => ({
   free:    { label: tr('planFree', lang),    color: 'bg-secondary text-secondary-foreground', requests: '3' },
@@ -44,6 +53,25 @@ const Dashboard = () => {
   const [createError, setCreateError] = useState('');
   const [dialogOpen, setDialogOpen] = useState(false);
 
+  // Профиль
+  const [nameValue, setNameValue] = useState('');
+  const [nameSaving, setNameSaving] = useState(false);
+  const [nameSaved, setNameSaved] = useState(false);
+  const [oldPassword, setOldPassword] = useState('');
+  const [newPassword, setNewPassword] = useState('');
+  const [pwSaving, setPwSaving] = useState(false);
+  const [pwError, setPwError] = useState('');
+  const [pwSaved, setPwSaved] = useState(false);
+  const [orders, setOrders] = useState<Order[]>([]);
+  const [deleteOpen, setDeleteOpen] = useState(false);
+  const [deletePassword, setDeletePassword] = useState('');
+  const [deleteError, setDeleteError] = useState('');
+  const [deleting, setDeleting] = useState(false);
+
+  // Энергия
+  const [buyingEnergy, setBuyingEnergy] = useState<string | null>(null);
+  const [energyError, setEnergyError] = useState('');
+
   useEffect(() => {
     const session = getSession();
     if (!session) {
@@ -71,7 +99,101 @@ const Dashboard = () => {
       .catch(() => {/* пустой список */});
   }, []);
 
+  useEffect(() => {
+    if (user) setNameValue(user.name);
+  }, [user?.name]);
+
+  useEffect(() => {
+    if (tab !== 'profile') return;
+    const session = getSession();
+    if (!session) return;
+    apiGetOrders(session).then(setOrders).catch(() => {/* пустая история */});
+  }, [tab]);
+
   const handleLogout = () => { clearSession(); navigate('/'); };
+
+  const handleSaveName = async () => {
+    if (!nameValue.trim() || !user) return;
+    setNameSaving(true);
+    setNameSaved(false);
+    try {
+      const session = getSession()!;
+      await apiUpdateName(session, nameValue.trim());
+      const updated = { ...user, name: nameValue.trim() };
+      setUser(updated);
+      storeUser(updated);
+      setNameSaved(true);
+      setTimeout(() => setNameSaved(false), 2000);
+    } catch {
+      /* показываем прежнее значение */
+    }
+    setNameSaving(false);
+  };
+
+  const handleChangePassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setPwError('');
+    setPwSaved(false);
+    setPwSaving(true);
+    try {
+      const session = getSession()!;
+      await apiChangePassword(session, oldPassword, newPassword);
+      setOldPassword('');
+      setNewPassword('');
+      setPwSaved(true);
+      setTimeout(() => setPwSaved(false), 2500);
+    } catch (err: unknown) {
+      setPwError(err instanceof Error ? err.message : (lang === 'ru' ? 'Ошибка смены пароля' : 'Password change error'));
+    }
+    setPwSaving(false);
+  };
+
+  const handleDeleteAccount = async () => {
+    setDeleteError('');
+    setDeleting(true);
+    try {
+      const session = getSession()!;
+      await apiDeleteAccount(session, deletePassword);
+      clearSession();
+      navigate('/');
+    } catch (err: unknown) {
+      setDeleteError(err instanceof Error ? err.message : (lang === 'ru' ? 'Ошибка удаления аккаунта' : 'Account deletion error'));
+    }
+    setDeleting(false);
+  };
+
+  const handleBuyEnergy = async (code: string, requests: number, price: number) => {
+    if (!user) return;
+    setBuyingEnergy(code);
+    setEnergyError('');
+    try {
+      const res = await fetch(YOOKASSA_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          amount: price,
+          user_email: user.email,
+          user_name: user.name,
+          description: lang === 'ru' ? `Пакет энергии: ${requests} запросов` : `Energy package: ${requests} requests`,
+          return_url: `${window.location.origin}/pricing/status`,
+          order_type: 'energy',
+          energy_amount: requests,
+          user_id: user.id,
+        }),
+      });
+      const raw = await res.json();
+      const data = raw.body !== undefined ? (typeof raw.body === 'string' ? JSON.parse(raw.body) : raw.body) : raw;
+      if (!res.ok || data.error) {
+        throw new Error(data.error || (lang === 'ru' ? 'Ошибка создания платежа' : 'Payment creation error'));
+      }
+      if (data.payment_url) {
+        window.location.href = data.payment_url;
+      }
+    } catch (err: unknown) {
+      setEnergyError(err instanceof Error ? err.message : (lang === 'ru' ? 'Ошибка оплаты' : 'Payment error'));
+    }
+    setBuyingEnergy(null);
+  };
 
   const handleCreateProject = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -243,18 +365,64 @@ const Dashboard = () => {
         {tab === 'plan' && (
           <div>
             <h1 className="font-display font-black text-2xl mb-6">{lang === 'ru' ? 'Тарифный план' : 'Pricing Plan'}</h1>
-            <div className="rounded-2xl border border-primary bg-card p-6 mb-6 flex flex-col sm:flex-row sm:items-center gap-4">
+            <div className="rounded-2xl border border-primary bg-card p-6 mb-4 flex flex-col sm:flex-row sm:items-center gap-4">
               <div className="flex-1">
                 <div className="flex items-center gap-2 mb-1">
                   <span className={`rounded-full px-3 py-0.5 text-xs font-bold ${plan.color}`}>{plan.label}</span>
                   <span className="text-xs text-muted-foreground">{tr('currentPlan', lang)}</span>
                 </div>
                 <h3 className="font-display font-bold text-xl">{lang === 'ru' ? 'Ваш план' : 'Your plan'}: {plan.label}</h3>
-                <p className="text-muted-foreground text-sm mt-1">{plan.requests} {lang === 'ru' ? 'запросов к AI в месяц' : 'AI requests per month'}</p>
+                <p className="text-muted-foreground text-sm mt-1">
+                  {(user?.requests_used ?? 0)} / {user?.requests_limit ?? plan.requests} {lang === 'ru' ? 'запросов к AI использовано в этом месяце' : 'AI requests used this month'}
+                </p>
               </div>
               <Button className="rounded-xl font-semibold shrink-0" asChild>
                 <Link to="/pricing">{tr('upgradePlan', lang)}</Link>
               </Button>
+            </div>
+
+            <div className="rounded-2xl border border-border bg-card p-6 mb-6">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                <div className="flex items-center gap-2">
+                  <div className="grid h-9 w-9 place-items-center rounded-xl bg-amber-100 text-amber-600">
+                    <Icon name="Zap" size={16} />
+                  </div>
+                  <div>
+                    <p className="font-display font-bold text-sm">{lang === 'ru' ? 'Энергия' : 'Energy'}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {lang === 'ru' ? `Доступно докупленных запросов: ${user?.energy_balance ?? 0}` : `Available extra requests: ${user?.energy_balance ?? 0}`}
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <p className="text-xs text-muted-foreground mb-3">
+                {lang === 'ru'
+                  ? 'Когда лимит тарифа заканчивается, дополнительные обращения к AI списываются из энергии.'
+                  : 'When your plan limit runs out, extra AI requests are deducted from energy.'}
+              </p>
+              <div className="grid sm:grid-cols-3 gap-3">
+                {ENERGY_PACKAGES.map(pkg => (
+                  <div key={pkg.code} className="rounded-xl border border-border p-4 flex flex-col items-center text-center gap-2">
+                    <div className="font-display font-black text-xl">{pkg.requests}</div>
+                    <p className="text-xs text-muted-foreground">{lang === 'ru' ? 'запросов' : 'requests'}</p>
+                    <p className="text-sm font-semibold">{pkg.price.toLocaleString()} ₽</p>
+                    <Button
+                      size="sm"
+                      variant="outline"
+                      className="rounded-lg text-xs w-full"
+                      disabled={buyingEnergy === pkg.code}
+                      onClick={() => handleBuyEnergy(pkg.code, pkg.requests, pkg.price)}
+                    >
+                      {buyingEnergy === pkg.code
+                        ? <Icon name="Loader" size={13} className="animate-spin" />
+                        : (lang === 'ru' ? 'Купить' : 'Buy')}
+                    </Button>
+                  </div>
+                ))}
+              </div>
+              {energyError && (
+                <p className="text-xs text-destructive mt-3">{energyError}</p>
+              )}
             </div>
 
             <div className="grid sm:grid-cols-3 gap-4">
@@ -310,9 +478,23 @@ const Dashboard = () => {
               </div>
 
               <div className="space-y-3">
-                <div className="rounded-xl bg-secondary/50 px-4 py-3">
-                  <div className="text-xs text-muted-foreground mb-0.5">{lang === 'ru' ? 'Имя' : 'Name'}</div>
-                  <div className="font-medium">{user.name}</div>
+                <div>
+                  <label className="text-xs text-muted-foreground mb-1 block">{lang === 'ru' ? 'Имя' : 'Name'}</label>
+                  <div className="flex gap-2">
+                    <Input
+                      value={nameValue}
+                      onChange={e => setNameValue(e.target.value)}
+                      className="h-10 rounded-xl"
+                    />
+                    <Button
+                      size="sm"
+                      className="rounded-xl shrink-0"
+                      disabled={nameSaving || !nameValue.trim() || nameValue.trim() === user.name}
+                      onClick={handleSaveName}
+                    >
+                      {nameSaving ? <Icon name="Loader" size={14} className="animate-spin" /> : nameSaved ? <Icon name="Check" size={14} /> : (lang === 'ru' ? 'Сохранить' : 'Save')}
+                    </Button>
+                  </div>
                 </div>
                 <div className="rounded-xl bg-secondary/50 px-4 py-3">
                   <div className="text-xs text-muted-foreground mb-0.5">E-mail</div>
@@ -327,7 +509,78 @@ const Dashboard = () => {
               </div>
             </div>
 
-            <div className="rounded-2xl border border-border bg-card p-5 flex items-center justify-between">
+            {/* Смена пароля */}
+            <div className="rounded-2xl border border-border bg-card p-6 mb-4">
+              <h3 className="font-display font-bold text-sm mb-4">{lang === 'ru' ? 'Смена пароля' : 'Change password'}</h3>
+              <form onSubmit={handleChangePassword} className="space-y-3">
+                <Input
+                  type="password"
+                  placeholder={lang === 'ru' ? 'Текущий пароль' : 'Current password'}
+                  value={oldPassword}
+                  onChange={e => setOldPassword(e.target.value)}
+                  required
+                  className="h-10 rounded-xl"
+                />
+                <Input
+                  type="password"
+                  placeholder={lang === 'ru' ? 'Новый пароль' : 'New password'}
+                  value={newPassword}
+                  onChange={e => setNewPassword(e.target.value)}
+                  required
+                  minLength={6}
+                  className="h-10 rounded-xl"
+                />
+                {pwError && (
+                  <div className="flex items-start gap-2 text-sm text-destructive bg-destructive/10 rounded-xl px-3 py-2.5">
+                    <Icon name="AlertCircle" size={15} className="shrink-0 mt-0.5" />
+                    <span>{pwError}</span>
+                  </div>
+                )}
+                {pwSaved && (
+                  <div className="flex items-center gap-2 text-sm text-emerald-600 bg-emerald-50 rounded-xl px-3 py-2.5">
+                    <Icon name="CheckCircle" size={15} />
+                    <span>{lang === 'ru' ? 'Пароль изменён' : 'Password changed'}</span>
+                  </div>
+                )}
+                <Button type="submit" variant="outline" size="sm" className="rounded-xl" disabled={pwSaving}>
+                  {pwSaving ? <Icon name="Loader" size={14} className="mr-1.5 animate-spin" /> : null}
+                  {lang === 'ru' ? 'Изменить пароль' : 'Change password'}
+                </Button>
+              </form>
+            </div>
+
+            {/* История платежей */}
+            <div className="rounded-2xl border border-border bg-card p-6 mb-4">
+              <h3 className="font-display font-bold text-sm mb-4">{lang === 'ru' ? 'История платежей' : 'Payment history'}</h3>
+              {orders.length === 0 ? (
+                <p className="text-sm text-muted-foreground">{lang === 'ru' ? 'Платежей пока нет' : 'No payments yet'}</p>
+              ) : (
+                <div className="space-y-2">
+                  {orders.map(o => (
+                    <div key={o.order_number} className="flex items-center justify-between gap-3 rounded-xl bg-secondary/50 px-4 py-3">
+                      <div className="min-w-0">
+                        <p className="text-sm font-medium truncate">
+                          {o.order_type === 'energy'
+                            ? (lang === 'ru' ? `Энергия +${o.energy_amount}` : `Energy +${o.energy_amount}`)
+                            : (o.plan ? o.plan : (lang === 'ru' ? 'Тариф' : 'Plan'))}
+                        </p>
+                        <p className="text-xs text-muted-foreground">
+                          {o.created_at ? new Date(o.created_at).toLocaleDateString(lang === 'ru' ? 'ru-RU' : 'en-US') : ''}
+                        </p>
+                      </div>
+                      <div className="text-right shrink-0">
+                        <p className="text-sm font-semibold">{o.amount.toLocaleString()} ₽</p>
+                        <span className={`text-xs font-medium ${o.status === 'paid' ? 'text-emerald-600' : o.status === 'canceled' ? 'text-destructive' : 'text-amber-600'}`}>
+                          {o.status === 'paid' ? (lang === 'ru' ? 'Оплачено' : 'Paid') : o.status === 'canceled' ? (lang === 'ru' ? 'Отменено' : 'Canceled') : (lang === 'ru' ? 'В обработке' : 'Pending')}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            <div className="rounded-2xl border border-border bg-card p-5 flex items-center justify-between mb-4">
               <div>
                 <div className="font-semibold text-sm">{tr('projects', lang)}</div>
                 <div className="text-muted-foreground text-xs">{projects.length} {tr('created', lang)}</div>
@@ -337,9 +590,50 @@ const Dashboard = () => {
               </Button>
             </div>
 
-            <Button variant="outline" className="w-full mt-4 rounded-xl text-destructive hover:text-destructive border-destructive/20 hover:bg-destructive/5" onClick={handleLogout}>
+            <Button variant="outline" className="w-full rounded-xl text-destructive hover:text-destructive border-destructive/20 hover:bg-destructive/5" onClick={handleLogout}>
               <Icon name="LogOut" size={15} className="mr-2" /> {tr('logout', lang)}
             </Button>
+
+            {/* Удаление аккаунта */}
+            <Dialog open={deleteOpen} onOpenChange={setDeleteOpen}>
+              <DialogTrigger asChild>
+                <Button variant="outline" className="w-full mt-3 rounded-xl text-destructive hover:text-destructive border-destructive/20 hover:bg-destructive/5">
+                  <Icon name="Trash2" size={15} className="mr-2" /> {lang === 'ru' ? 'Удалить аккаунт' : 'Delete account'}
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="rounded-2xl max-w-sm">
+                <DialogHeader>
+                  <DialogTitle className="font-display font-bold">{lang === 'ru' ? 'Удалить аккаунт?' : 'Delete account?'}</DialogTitle>
+                </DialogHeader>
+                <p className="text-sm text-muted-foreground">
+                  {lang === 'ru'
+                    ? 'Это действие необратимо. Все ваши сайты будут отвязаны от аккаунта.'
+                    : 'This action cannot be undone. All your sites will be unlinked from the account.'}
+                </p>
+                <Input
+                  type="password"
+                  placeholder={lang === 'ru' ? 'Введите пароль для подтверждения' : 'Enter password to confirm'}
+                  value={deletePassword}
+                  onChange={e => setDeletePassword(e.target.value)}
+                  className="h-10 rounded-xl"
+                />
+                {deleteError && (
+                  <div className="flex items-start gap-2 text-sm text-destructive bg-destructive/10 rounded-xl px-3 py-2.5">
+                    <Icon name="AlertCircle" size={15} className="shrink-0 mt-0.5" />
+                    <span>{deleteError}</span>
+                  </div>
+                )}
+                <Button
+                  variant="destructive"
+                  className="w-full rounded-xl"
+                  disabled={deleting || !deletePassword}
+                  onClick={handleDeleteAccount}
+                >
+                  {deleting ? <Icon name="Loader" size={14} className="mr-1.5 animate-spin" /> : null}
+                  {lang === 'ru' ? 'Удалить безвозвратно' : 'Delete permanently'}
+                </Button>
+              </DialogContent>
+            </Dialog>
           </div>
         )}
       </div>

@@ -28,19 +28,21 @@ def handler(event: dict, context) -> dict:
     try:
         with conn.cursor() as cur:
             cur.execute(
-                f"SELECT status, plan, billing_period, amount FROM {schema}.orders WHERE order_number = %s",
+                f"SELECT status, plan, billing_period, amount, order_type, energy_amount FROM {schema}.orders WHERE order_number = %s",
                 (order_number,)
             )
             row = cur.fetchone()
             if not row:
                 return err('Заказ не найден', 404)
 
-            status, plan, billing_period, amount = row
+            status, plan, billing_period, amount, order_type, energy_amount = row
             return ok({
                 'status': status,
                 'plan': plan,
                 'billing_period': billing_period,
                 'amount': float(amount),
+                'order_type': order_type,
+                'energy_amount': energy_amount,
             })
     finally:
         conn.close()
