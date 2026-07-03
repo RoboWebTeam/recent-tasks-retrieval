@@ -262,8 +262,11 @@ export function IndexSectionsBottom({ lang }: Props) {
             </div>
           </div>
         </div>
-        <div className="border-t border-border py-5 text-center text-xs sm:text-sm text-muted-foreground px-4">
-          © 2026 Roboweb. {L.footer.copy[lang]}
+        <div className="border-t border-border py-5 text-center text-xs sm:text-sm text-muted-foreground px-4 space-y-1">
+          <p>© 2026 Roboweb. {L.footer.copy[lang]}</p>
+          <p className="text-[11px] sm:text-xs text-muted-foreground/70">
+            ИП Аракелов Станислав Владиславович · ОГРНИП 324508100357892 · ИНН 501210007760
+          </p>
         </div>
       </footer>
     </>
