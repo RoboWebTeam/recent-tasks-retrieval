@@ -15,6 +15,8 @@ function formatSize(bytes: number): string {
   return `${(bytes / (1024 * 1024)).toFixed(1)} MB`;
 }
 
+const ACCEPTED_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.webp', '.gif', '.svg', '.html', '.htm', '.zip'];
+
 export default function BuilderCoreStorage({ lang, projectId }: BuilderCoreStorageProps) {
   const isRu = lang === 'ru';
   const session = getSession();
@@ -42,6 +44,16 @@ export default function BuilderCoreStorage({ lang, projectId }: BuilderCoreStora
   const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file || !session) return;
+
+    const lowerName = file.name.toLowerCase();
+    if (!ACCEPTED_EXTENSIONS.some(ext => lowerName.endsWith(ext))) {
+      setError(isRu
+        ? 'Поддерживаются изображения (png, jpg, webp, gif, svg), а также html и zip'
+        : 'Supported: images (png, jpg, webp, gif, svg), html and zip');
+      e.target.value = '';
+      return;
+    }
+
     setUploading(true);
     setError('');
     try {
@@ -88,13 +100,13 @@ export default function BuilderCoreStorage({ lang, projectId }: BuilderCoreStora
       <div className="flex items-center justify-between mb-4">
         <div>
           <h3 className="font-display font-bold text-base">{isRu ? 'Хранилище файлов' : 'File storage'}</h3>
-          <p className="text-xs text-muted-foreground mt-0.5">{isRu ? 'Файлы и изображения для этого проекта' : 'Files and images for this project'}</p>
+          <p className="text-xs text-muted-foreground mt-0.5">{isRu ? 'Изображения, HTML и ZIP для этого проекта' : 'Images, HTML and ZIP for this project'}</p>
         </div>
         <Button size="sm" className="rounded-xl gap-1.5 shrink-0" onClick={handleUploadClick} disabled={uploading}>
           {uploading ? <Icon name="Loader" size={14} className="animate-spin" /> : <Icon name="Upload" size={14} />}
           {isRu ? 'Загрузить' : 'Upload'}
         </Button>
-        <input ref={fileInputRef} type="file" className="hidden" onChange={handleFileChange} />
+        <input ref={fileInputRef} type="file" accept={ACCEPTED_EXTENSIONS.join(',')} className="hidden" onChange={handleFileChange} />
       </div>
 
       {error && (
@@ -115,13 +127,20 @@ export default function BuilderCoreStorage({ lang, projectId }: BuilderCoreStora
         <div className="space-y-2">
           {files.map(f => (
             <div key={f.id} className="flex items-center gap-3 bg-card border border-border rounded-xl p-3">
-              <div className={`grid h-9 w-9 place-items-center rounded-xl shrink-0 ${f.file_type === 'zip' ? 'bg-amber-100 text-amber-700' : 'bg-primary/10 text-primary'}`}>
-                <Icon name={f.file_type === 'zip' ? 'FileArchive' : 'FileCode'} size={16} />
-              </div>
+              {f.file_type === 'image' ? (
+                <img src={f.file_url} alt={f.file_name} className="h-9 w-9 rounded-xl object-cover shrink-0 border border-border" />
+              ) : (
+                <div className={`grid h-9 w-9 place-items-center rounded-xl shrink-0 ${f.file_type === 'zip' ? 'bg-amber-100 text-amber-700' : 'bg-primary/10 text-primary'}`}>
+                  <Icon name={f.file_type === 'zip' ? 'FileArchive' : 'FileCode'} size={16} />
+                </div>
+              )}
               <div className="min-w-0 flex-1">
                 <p className="text-sm font-medium truncate">{f.file_name}</p>
                 <p className="text-xs text-muted-foreground">{formatSize(f.file_size)} · {new Date(f.created_at).toLocaleDateString(isRu ? 'ru-RU' : 'en-US')}</p>
               </div>
+              <button onClick={() => { navigator.clipboard.writeText(f.file_url); }} title={isRu ? 'Скопировать ссылку' : 'Copy link'} className="shrink-0 grid h-8 w-8 place-items-center rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors">
+                <Icon name="Link" size={14} />
+              </button>
               <a href={f.file_url} target="_blank" rel="noopener noreferrer" className="shrink-0 grid h-8 w-8 place-items-center rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors">
                 <Icon name="Download" size={14} />
               </a>

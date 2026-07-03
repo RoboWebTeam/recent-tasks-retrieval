@@ -45,6 +45,29 @@ def get_user_id(cur, session_id: str, schema: str):
     return row[0] if row else None
 
 
+IMAGE_CONTENT_TYPES = {
+    'png': 'image/png',
+    'jpg': 'image/jpeg',
+    'jpeg': 'image/jpeg',
+    'webp': 'image/webp',
+    'gif': 'image/gif',
+    'svg': 'image/svg+xml',
+}
+
+
+def detect_file_kind(file_name: str, is_zip: bool):
+    """Определяет тип файла (zip/html/image) и корректный Content-Type по расширению."""
+    ext = file_name.rsplit('.', 1)[-1].lower() if '.' in file_name else ''
+
+    if is_zip:
+        return 'zip', 'zip', 'application/zip'
+
+    if ext in IMAGE_CONTENT_TYPES:
+        return 'image', ext, IMAGE_CONTENT_TYPES[ext]
+
+    return 'html', 'html', 'text/html'
+
+
 def handler(event: dict, context) -> dict:
     """Загрузка, список и удаление готовых сайтов пользователя (HTML/ZIP) в S3-хранилище"""
 
@@ -95,18 +118,12 @@ def handler(event: dict, context) -> dict:
 
                 raw = base64.b64decode(file_content_b64)
 
-                if is_zip:
-                    if not zipfile.is_zipfile(io.BytesIO(raw)):
-                        return err('Файл повреждён или не является ZIP-архивом')
-                    file_type = 'zip'
-                    ext = 'zip'
-                    content_type = 'application/zip'
-                else:
-                    file_type = 'html'
-                    ext = 'html'
-                    content_type = 'text/html'
+                if is_zip and not zipfile.is_zipfile(io.BytesIO(raw)):
+                    return err('Файл повреждён или не является ZIP-архивом')
 
-                safe_name = ''.join(c for c in file_name if c.isalnum() or c in ('-', '_', '.')) or f'site.{ext}'
+                file_type, ext, content_type = detect_file_kind(file_name, is_zip)
+
+                safe_name = ''.join(c for c in file_name if c.isalnum() or c in ('-', '_', '.')) or f'file.{ext}'
                 key = f"sites/{user_id}/{context.request_id}_{safe_name}"
 
                 s3 = get_s3()

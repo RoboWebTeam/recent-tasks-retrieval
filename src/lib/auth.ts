@@ -54,7 +54,7 @@ export interface SiteFile {
   project_id: number | null;
   file_name: string;
   file_url: string;
-  file_type: 'html' | 'zip';
+  file_type: 'html' | 'zip' | 'image';
   file_size: number;
   created_at: string;
 }
