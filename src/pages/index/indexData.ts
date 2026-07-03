@@ -192,7 +192,7 @@ export const getSTEPS = (lang: Lang) => lang === 'ru' ? [
   { n: '04', title: 'Publish online', text: 'One click — site is live, with domain, SSL and hosting.' },
 ];
 
-export type DemoCategory = 'all' | 'food' | 'services' | 'store' | 'business' | 'other';
+export type DemoCategory = 'all' | 'food' | 'services' | 'store' | 'business' | 'tech' | 'other';
 
 export interface DemoItem {
   tag: string;
@@ -209,6 +209,7 @@ export const DEMO_CATEGORIES_RU: { id: DemoCategory; label: string }[] = [
   { id: 'services', label: '💼 Услуги' },
   { id: 'store',    label: '🛍 Магазины' },
   { id: 'business', label: '🏢 Бизнес' },
+  { id: 'tech',     label: '💻 IT и технологии' },
   { id: 'other',    label: '🎯 Другое' },
 ];
 
@@ -218,6 +219,7 @@ export const DEMO_CATEGORIES_EN: { id: DemoCategory; label: string }[] = [
   { id: 'services', label: '💼 Services' },
   { id: 'store',    label: '🛍 Stores' },
   { id: 'business', label: '🏢 Business' },
+  { id: 'tech',     label: '💻 IT & Tech' },
   { id: 'other',    label: '🎯 Other' },
 ];
 
@@ -274,6 +276,17 @@ const DEMO_ITEMS_RU: DemoItem[] = [
   { category: 'other',    tag: '📸 Свадебный фото',   title: 'Свадебный фотограф',            prompt: 'Сделай сайт свадебного фотографа с галереей, пакетами услуг и формой бронирования даты',       img: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/87434f77-3485-40db-ad03-2d822588372b.jpg', color: 'from-neutral-700 to-rose-300' },
   { category: 'other',    tag: '🏢 Коворкинг',        title: 'Коворкинг-пространство',        prompt: 'Создай сайт коворкинга с тарифами, фото пространства, удобствами и формой бронирования места',  img: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/d31c6e8f-f8b0-4504-8b60-a1b91f14a9d3.jpg', color: 'from-slate-600 to-indigo-500' },
   { category: 'other',    tag: '🌍 Языковая школа',   title: 'Школа иностранных языков',      prompt: 'Сделай сайт языковой школы с курсами, уровнями, преподавателями и тестом для определения уровня', img: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/df1929f9-3357-4149-b9f6-b9afefcef8b3.jpg', color: 'from-blue-500 to-yellow-400' },
+  { category: 'food',     tag: '🍜 Лапшичная',        title: 'Азиатская лапшичная',            prompt: 'Создай сайт азиатской лапшичной с меню, фото блюд, доставкой и бронированием столика',           img: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/e18af4f7-cf34-4688-bac0-ff750d28b298.jpg', color: 'from-red-600 to-amber-500' },
+  { category: 'services', tag: '🚗 Автомойка',        title: 'Автомойка и детейлинг',          prompt: 'Сделай сайт автомойки с прайсом услуг, онлайн-записью и фото до/после детейлинга',                img: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/f9a0b888-8936-4877-9419-2e2c73a68a22.jpg', color: 'from-blue-500 to-slate-700' },
+  { category: 'store',    tag: '📚 Книжный',          title: 'Интернет-магазин книг',          prompt: 'Создай интернет-магазин книг с каталогом по жанрам, рекомендациями и оформлением заказа',         img: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/34beb432-f0a7-40b1-ac78-8c65d4a65aeb.jpg', color: 'from-emerald-700 to-lime-600' },
+  { category: 'business', tag: '💰 Финансы',          title: 'Финансовый консалтинг',          prompt: 'Сделай сайт финансовой консалтинговой компании с услугами, кейсами и формой заявки на консультацию', img: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/53e2183b-5536-43fd-bf81-1909a7134a65.jpg', color: 'from-blue-900 to-amber-500' },
+  { category: 'services', tag: '🏃 Реабилитация',     title: 'Центр физиотерапии',             prompt: 'Создай сайт центра реабилитации с услугами, врачами, программами восстановления и записью',      img: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/3082f9e0-8de9-4ff1-96b3-03c306575c71.jpg', color: 'from-teal-500 to-cyan-600' },
+  { category: 'tech',     tag: '💻 IT-курсы',          title: 'Школа программирования',        prompt: 'Сделай лендинг для школы программирования с курсами, программой обучения и записью на бесплатный урок', img: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/13f3efd9-137d-44d9-b7cb-355159a13268.jpg', color: 'from-violet-700 to-indigo-900' },
+  { category: 'services', tag: '🎨 Тату-салон',       title: 'Тату-студия',                    prompt: 'Создай сайт тату-студии с портфолио работ, мастерами, ценами и формой записи',                    img: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/622a7188-ff1f-4eb1-90f2-75d497ee22e8.jpg', color: 'from-neutral-900 to-red-700' },
+  { category: 'business', tag: '🏨 Отель',            title: 'Бутик-отель',                    prompt: 'Сделай сайт бутик-отеля с номерами, ценами, фото интерьера и онлайн-бронированием',                img: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/53fb0fd8-8ec5-4999-8ed1-07dd5d05b667.jpg', color: 'from-amber-600 to-emerald-800' },
+  { category: 'store',    tag: '🥦 Фермерские продукты', title: 'Магазин органических продуктов', prompt: 'Создай интернет-магазин органических продуктов с каталогом, доставкой и подпиской на еженедельный набор', img: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/2fceb611-9776-44eb-9eee-706d5c69f2c2.jpg', color: 'from-lime-600 to-green-800' },
+  { category: 'tech',     tag: '📲 Мобильное приложение', title: 'Лендинг мобильного приложения', prompt: 'Сделай лендинг для мобильного приложения с описанием функций, скриншотами и ссылками на скачивание', img: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/eae8cdf1-1992-4789-8561-5ddc889be53c.jpg', color: 'from-sky-600 to-indigo-600' },
+  { category: 'tech',     tag: '🤖 AI-сервис',        title: 'Лендинг AI-продукта',            prompt: 'Создай лендинг для AI-сервиса с демонстрацией возможностей, тарифами и формой регистрации',        img: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/fcf7cba0-ef75-48a1-90cc-67bea38a7a42.jpg', color: 'from-fuchsia-600 to-violet-800' },
 ];
 
 const EN_TAGS = [
@@ -288,6 +301,9 @@ const EN_TAGS = [
   '🛋️ Furniture','🐶 Pet store','💄 Cosmetics','🚚 Logistics','👔 HR agency',
   '🔒 Security','🎪 Events','📣 Marketing','🎸 Music school','🔐 Quest rooms',
   '📸 Wedding photo','🏢 Coworking','🌍 Language school',
+  '🍜 Noodle bar','🚗 Car wash','📚 Bookstore','💰 Finance','🏃 Rehab center',
+  '💻 Coding school','🎨 Tattoo studio','🏨 Boutique hotel','🥦 Organic store',
+  '📲 Mobile app','🤖 AI service',
 ];
 const EN_TITLES = [
   'Coffee shop landing','Personal trainer site','Online clothing store','Barbershop with booking','Photographer portfolio',
@@ -301,6 +317,9 @@ const EN_TITLES = [
   'Furniture & decor store','Pet supplies store','Cosmetics store','Logistics company','HR agency',
   'Security company','Event management agency','Digital marketing agency','Music school','Escape rooms',
   'Wedding photographer','Coworking space','Language school',
+  'Asian noodle bar','Car wash & detailing','Online bookstore','Financial consulting','Physiotherapy rehab center',
+  'Coding bootcamp','Tattoo studio','Boutique hotel','Organic grocery store',
+  'Mobile app landing','AI product landing',
 ];
 const EN_PROMPTS = [
   'Build a landing for coffee shop with menu, delivery and online orders',
@@ -355,6 +374,17 @@ const EN_PROMPTS = [
   'Build a wedding photographer site with gallery, packages and date booking form',
   'Create a coworking space site with plans, workspace photos, amenities and booking',
   'Build a language school site with courses, levels, teachers and placement test',
+  'Create an Asian noodle bar site with menu, dish photos, delivery and table reservation',
+  'Build a car wash & detailing site with pricing, online booking and before-after photos',
+  'Create an online bookstore with catalog by genre, recommendations and checkout',
+  'Build a financial consulting site with services, case studies and consultation form',
+  'Create a rehab center site with services, doctors, recovery programs and booking',
+  'Build a coding school landing with courses, curriculum and free lesson signup',
+  'Create a tattoo studio site with portfolio, artists, pricing and booking form',
+  'Build a boutique hotel site with rooms, pricing, interior photos and online booking',
+  'Create an organic grocery store with catalog, delivery and weekly box subscription',
+  'Build a mobile app landing with feature overview, screenshots and download links',
+  'Create an AI product landing with feature demo, pricing and sign-up form',
 ];
 
 const DEMO_ITEMS_EN: DemoItem[] = DEMO_ITEMS_RU.map((item, i) => ({

@@ -5,31 +5,9 @@ import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { getSession } from '@/lib/auth';
 import { L, getPORTFOLIO, DEMO_CATEGORIES_RU, DEMO_CATEGORIES_EN, type DemoCategory } from './indexData';
-import { Reveal, EmailForm, useCounter, useReveal } from './IndexShared';
+import { Reveal, EmailForm } from './IndexShared';
 
 interface Props { lang: Lang; }
-
-// --- Счётчик сайтов ---
-function SiteCounter({ lang }: { lang: Lang }) {
-  const { ref, shown } = useReveal();
-  const count = useCounter(18247, 2000, shown);
-  return (
-    <div ref={ref} className="flex items-center justify-center gap-3 mb-8">
-      <div className="flex items-center gap-2 rounded-2xl bg-card border border-border shadow-sm px-5 py-3">
-        <div className="relative">
-          <div className="h-2.5 w-2.5 rounded-full bg-emerald-500 animate-pulse" />
-          <div className="absolute inset-0 h-2.5 w-2.5 rounded-full bg-emerald-400 animate-ping opacity-75" />
-        </div>
-        <span className="font-display font-black text-xl sm:text-2xl text-primary tabular-nums">
-          {count.toLocaleString()}+
-        </span>
-        <span className="text-sm text-muted-foreground font-medium">
-          {lang === 'ru' ? 'сайтов создано прямо сейчас' : 'sites created right now'}
-        </span>
-      </div>
-    </div>
-  );
-}
 
 const PAGE_SIZE = 12;
 
@@ -79,8 +57,6 @@ function PortfolioSection({ lang, portfolio }: { lang: Lang; portfolio: ReturnTy
             </p>
           </div>
         </Reveal>
-
-        <SiteCounter lang={lang} />
 
         {/* Фильтры */}
         <Reveal>
@@ -210,6 +186,11 @@ export function IndexSectionsMiddle({ lang }: Props) {
               { name: 'Игорь Новиков', role: 'Фитнес-тренер', avatar: 'ИН', color: 'from-emerald-400 to-teal-500', stars: 5, text: 'Описал идею голосом в чат, через 2 минуты получил готовый сайт с записью на тренировки. Клиенты сразу начали бронировать онлайн.' },
               { name: 'Светлана Кравцова', role: 'Директор по маркетингу', avatar: 'СК', color: 'from-rose-500 to-pink-500', stars: 5, text: 'Тестировали 5 разных посадочных страниц за неделю. С обычными подрядчиками это заняло бы месяц. Конверсия выросла на 40%.' },
               { name: 'Алексей Громов', role: 'Барбер, owner IronCut', avatar: 'АГ', color: 'from-cyan-400 to-sky-500', stars: 5, text: 'Сайт выглядит дороже, чем стоил. Клиенты часто спрашивают, кто делал — показываю Roboweb. Уже посоветовал пятерым знакомым.' },
+              { name: 'Юлия Волкова', role: 'Флорист, «Бутон»', avatar: 'ЮВ', color: 'from-pink-400 to-rose-500', stars: 5, text: 'Заказы через сайт пошли уже в первый день. Конструктор букетов сделали за один вечер диалога с AI — раньше на это ушёл бы месяц поиска студии.' },
+              { name: 'Роман Ефимов', role: 'Владелец автомойки', avatar: 'РЕ', color: 'from-blue-500 to-slate-700', stars: 5, text: 'Не разбираюсь в сайтах вообще, но за 20 минут сделал рабочую онлайн-запись. Экономия на разработчике — минимум 40 000 ₽.' },
+              { name: 'Ксения Орлова', role: 'HR-директор', avatar: 'КО', color: 'from-teal-500 to-emerald-600', stars: 5, text: 'Собрали карьерный сайт компании за вечер вместо тендера среди подрядчиков на 2 месяца. Отклики соискателей выросли вдвое.' },
+              { name: 'Павел Соловьёв', role: 'Основатель IT-школы', avatar: 'ПС', color: 'from-violet-600 to-indigo-800', stars: 5, text: 'Тестировали 3 конструктора до этого — везде шаблонно и криво на мобильных. Roboweb сразу выдал адаптивный сайт под наш стиль.' },
+              { name: 'Наталья Волошина', role: 'Управляющая отелем', avatar: 'НВ', color: 'from-amber-600 to-emerald-800', stars: 5, text: 'Бронирования с сайта пошли через два дня после публикации. Раньше платили агентству 25 000 ₽ в месяц только за поддержку сайта.' },
             ] : [
               { name: 'Anna P.', role: 'Coffee shop owner', avatar: 'AP', color: 'from-amber-400 to-orange-500', stars: 5, text: 'Used to spend 3 weeks and $800 on freelancers. Now a new landing is ready in an hour. Leads tripled in the first week.' },
               { name: 'David K.', role: 'Startup founder', avatar: 'DK', color: 'from-indigo-500 to-blue-500', stars: 5, text: 'Launched MVP in one day. Investors were impressed with the site quality. Roboweb saved us at least $2k in development.' },
@@ -217,6 +198,11 @@ export function IndexSectionsMiddle({ lang }: Props) {
               { name: 'Igor N.', role: 'Fitness trainer', avatar: 'IN', color: 'from-emerald-400 to-teal-500', stars: 5, text: 'Described the idea in chat, got a ready booking site in 2 minutes. Clients started booking online right away.' },
               { name: 'Svetlana K.', role: 'Marketing Director', avatar: 'SK', color: 'from-rose-500 to-pink-500', stars: 5, text: 'Tested 5 different landing pages in a week. With regular contractors it would have taken a month. Conversion up 40%.' },
               { name: 'Alex G.', role: 'Barber, owner IronCut', avatar: 'AG', color: 'from-cyan-400 to-sky-500', stars: 5, text: 'The site looks more expensive than it cost. Clients often ask who built it — I show them Roboweb. Recommended to 5 friends already.' },
+              { name: 'Julia V.', role: 'Florist, "Bouton"', avatar: 'JV', color: 'from-pink-400 to-rose-500', stars: 5, text: 'Orders started coming through the site on day one. Built the bouquet builder in one evening chatting with AI — used to take a month of searching for a studio.' },
+              { name: 'Roman E.', role: 'Car wash owner', avatar: 'RE', color: 'from-blue-500 to-slate-700', stars: 5, text: 'I know nothing about websites, but I built a working booking page in 20 minutes. Saved at least $500 on a developer.' },
+              { name: 'Kate O.', role: 'HR Director', avatar: 'KO', color: 'from-teal-500 to-emerald-600', stars: 5, text: 'Built the company careers site in an evening instead of a 2-month contractor tender. Applicant responses doubled.' },
+              { name: 'Paul S.', role: 'Founder of a coding school', avatar: 'PS', color: 'from-violet-600 to-indigo-800', stars: 5, text: 'Tried 3 other builders before this — all template-y and broken on mobile. Roboweb gave us a responsive site matching our brand right away.' },
+              { name: 'Natalie V.', role: 'Hotel manager', avatar: 'NV', color: 'from-amber-600 to-emerald-800', stars: 5, text: 'Bookings from the site started two days after launch. We used to pay an agency $300/month just for site maintenance.' },
             ]).map((r, i) => (
               <Reveal key={r.name} delay={i * 70}>
                 <div className="h-full rounded-2xl md:rounded-3xl bg-card border border-border p-5 md:p-6 flex flex-col gap-4 hover:shadow-lg transition-shadow duration-300">
