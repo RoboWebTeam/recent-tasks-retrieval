@@ -2,9 +2,10 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { getSession } from "@/lib/auth";
 import ScrollToTop from "@/components/ScrollToTop";
+import SupportChatWidget from "@/components/SupportChatWidget";
 import Index from "./pages/Index";
 import Admin from "./pages/Admin";
 import Login from "./pages/Login";
@@ -32,6 +33,13 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return getSession() ? <>{children}</> : <Navigate to="/login" replace />;
 }
 
+// Виджет чата виден везде, кроме админ-панели (там своя вкладка чата)
+function GlobalSupportChat() {
+  const location = useLocation();
+  if (location.pathname.startsWith('/admin')) return null;
+  return <SupportChatWidget />;
+}
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -39,6 +47,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <ScrollToTop />
+        <GlobalSupportChat />
         <Routes>
           <Route path="/" element={<Index />} />
           <Route path="/login" element={<Login />} />

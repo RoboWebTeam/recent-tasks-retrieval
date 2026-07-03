@@ -10,6 +10,8 @@ import {
 import { AdminAnalytics } from './admin/AdminAnalytics';
 import { SiteLeadsTab, LeadsTab, UsersTab, LogTab, NotificationsTab } from './admin/AdminTables';
 import { AdminPricingTab } from './admin/AdminPricingTab';
+import { AdminSupportChatTab } from './admin/AdminSupportChatTab';
+import { SUPPORT_CHAT_URL } from './admin/adminTypes';
 
 const Admin = () => {
   const [key, setKey] = useState('');
@@ -30,7 +32,8 @@ const Admin = () => {
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
   const [authed, setAuthed] = useState(false);
-  const [tab, setTab] = useState<'analytics' | 'site-leads' | 'leads' | 'users' | 'log' | 'notifications' | 'pricing'>('analytics');
+  const [tab, setTab] = useState<'analytics' | 'site-leads' | 'leads' | 'users' | 'log' | 'notifications' | 'pricing' | 'chat'>('analytics');
+  const [chatUnread, setChatUnread] = useState(0);
   const [actionLoading, setActionLoading] = useState<number | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<number | null>(null);
   const [selectedLead, setSelectedLead] = useState<SiteLead | null>(null);
@@ -148,6 +151,15 @@ const Admin = () => {
     });
   };
 
+  const fetchChatUnread = (adminKey: string) => {
+    fetch(`${SUPPORT_CHAT_URL}?list=conversations`, { headers: { 'x-admin-key': adminKey } })
+      .then(r => r.json()).then(raw => {
+        const d = unwrap(raw);
+        if (!d.error) setChatUnread((d.unread_total as number) || 0);
+      })
+      .catch(() => {/* тихо */});
+  };
+
   useEffect(() => {
     if (authed && key) fetchAnalytics(key, analyticsPeriod === '7d' ? 7 : 30);
   }, [authed, analyticsPeriod]);
@@ -157,6 +169,14 @@ const Admin = () => {
     if (authed && key && tab === 'log') fetchLog(key, logActionFilter);
     if (authed && key && tab === 'notifications') fetchNotifications(key);
   }, [authed, tab]);
+
+  useEffect(() => {
+    if (!authed || !key) return;
+    fetchChatUnread(key);
+    const interval = setInterval(() => fetchChatUnread(key), 8000);
+    return () => clearInterval(interval);
+     
+  }, [authed, key]);
 
   const fetchData = async (adminKey: string) => {
     setLoading(true); setError('');
@@ -296,6 +316,7 @@ const Admin = () => {
         <div className="flex gap-2 mb-5 overflow-x-auto pb-1">
           {([
             ['analytics',     'Аналитика',    'BarChart2',  null],
+            ['chat',          'Чат',          'MessageCircle', chatUnread],
             ['site-leads',    'Заявки',        'Inbox',      newSiteLeads],
             ['leads',         'Email-лиды',    'Mail',       leads?.length ?? null],
             ['users',         'Пользователи', 'Users',      users?.length ?? null],
@@ -323,6 +344,9 @@ const Admin = () => {
             setAnalyticsPeriod={setAnalyticsPeriod}
             siteLeadCounts={siteLeadCounts}
           />
+        )}
+        {tab === 'chat' && (
+          <AdminSupportChatTab adminKey={key} />
         )}
         {tab === 'site-leads' && (
           <SiteLeadsTab

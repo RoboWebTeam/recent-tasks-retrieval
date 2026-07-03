@@ -1,0 +1,30 @@
+{
+  "tests": [
+    {
+      "name": "OPTIONS preflight",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "GET без visitor_id — 400",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 400
+    },
+    {
+      "name": "POST без text — 400",
+      "method": "POST",
+      "path": "/",
+      "body": {"visitor_id": "test"},
+      "expectedStatus": 400
+    },
+    {
+      "name": "PUT без ключа — 403",
+      "method": "PUT",
+      "path": "/",
+      "body": {"conversation_id": 1, "status": "closed"},
+      "expectedStatus": 403
+    }
+  ]
+}

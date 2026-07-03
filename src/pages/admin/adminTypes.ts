@@ -4,6 +4,7 @@ export const ANALYTICS_URL    = 'https://functions.poehali.dev/ee6777e6-59d0-4d5
 export const SITE_LEADS_URL   = 'https://functions.poehali.dev/96a428e9-25c5-47d2-83b1-bdc68f9f8010';
 export const ACTIVITY_LOG_URL = 'https://functions.poehali.dev/fa0bbc9f-ff34-4d08-877f-41fdf35d0dee';
 export const PLAN_PRICING_URL = 'https://functions.poehali.dev/b66b5f92-bcdf-4605-87e2-b42e3d90e6ff';
+export const SUPPORT_CHAT_URL = 'https://functions.poehali.dev/0ddd7998-ad2d-433a-a6ef-5801b4ed059b';
 
 export function unwrap(raw: Record<string, unknown>): Record<string, unknown> {
   if (raw.body !== undefined) {
@@ -44,6 +45,16 @@ export interface LogEntry {
 export interface Notification {
   id: number; type: string; title: string; body: string;
   link: string; is_read: boolean; created_at: string;
+}
+
+export interface SupportConversation {
+  id: number; visitor_id: string; user_id: number | null;
+  name: string; email: string; status: 'open' | 'closed';
+  unread_by_admin: boolean; created_at: string; last_message_at: string;
+}
+
+export interface SupportMessage {
+  id: number; sender: 'visitor' | 'admin'; text: string; created_at: string;
 }
 
 export interface UserProject {
