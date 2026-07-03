@@ -48,17 +48,23 @@ export function SiteFooter({ lang }: Props) {
               </a>
             </li>
             <li className="flex items-center gap-2">
-              <Icon name="MessageCircle" size={15} className="text-primary shrink-0" /> Telegram
+              <Icon name="MessageCircle" size={15} className="text-primary shrink-0" />
+              <a href="https://t.me/roboweb" target="_blank" rel="noopener noreferrer" className="hover:text-foreground transition-colors">
+                Telegram
+              </a>
             </li>
           </ul>
         </div>
         <div>
           <h4 className="font-display font-bold mb-3 md:mb-4 text-sm md:text-base">{L.footer.social[lang]}</h4>
           <div className="flex gap-2 md:gap-3">
-            {['Send', 'Youtube', 'Instagram'].map((s) => (
-              <a key={s} href="#"
+            {[
+              { icon: 'Send', href: 'https://t.me/roboweb', title: 'Telegram' },
+              { icon: 'Rss', href: 'https://dzen.ru/roboweb', title: 'Яндекс Дзен' },
+            ].map((s) => (
+              <a key={s.icon} href={s.href} target="_blank" rel="noopener noreferrer" title={s.title}
                 className="grid h-9 w-9 md:h-10 md:w-10 place-items-center rounded-xl border border-border text-muted-foreground hover:bg-primary hover:text-primary-foreground hover:border-primary transition-all hover:scale-110">
-                <Icon name={s} size={16} />
+                <Icon name={s.icon} size={16} />
               </a>
             ))}
           </div>
