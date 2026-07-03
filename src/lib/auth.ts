@@ -230,6 +230,16 @@ export async function apiDeleteAccount(sessionId: string, password: string) {
   return data;
 }
 
+export async function apiDisconnectGithub(sessionId: string) {
+  const { res, data } = await apiFetch(AUTH_URL, {
+    method: 'POST',
+    headers: { 'x-session-id': sessionId },
+    body: JSON.stringify({ action: 'disconnect_github' }),
+  });
+  if (!res.ok) throw new Error((data as {error?: string}).error || 'Ошибка отключения GitHub');
+  return data;
+}
+
 export async function apiGetProjects(sessionId: string): Promise<Project[]> {
   const { res, data } = await apiFetch(PROJECTS_URL, {
     headers: { 'x-session-id': sessionId },

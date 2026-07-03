@@ -463,6 +463,27 @@ def handler(event: dict, context) -> dict:
                 conn.close()
             return ok({'ok': True, 'name': new_name})
 
+        # DISCONNECT GITHUB
+        if action == 'disconnect_github':
+            session_id = headers.get('x-session-id', '')
+            if not session_id:
+                return err('Не авторизован', 401)
+
+            conn = get_conn()
+            try:
+                with conn.cursor() as cur:
+                    user_id = get_user_id_by_session(cur, schema, session_id)
+                    if not user_id:
+                        return err('Сессия истекла', 401)
+                    cur.execute(
+                        f"UPDATE {schema}.users SET github_access_token = NULL, github_login = NULL WHERE id = %s",
+                        (user_id,)
+                    )
+                conn.commit()
+            finally:
+                conn.close()
+            return ok({'ok': True})
+
         # DELETE ACCOUNT
         if action == 'delete_account':
             session_id = headers.get('x-session-id', '')

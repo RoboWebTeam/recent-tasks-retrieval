@@ -4,7 +4,7 @@ import Icon from '@/components/ui/icon';
 import {
   getSession, getStoredUser, clearSession, storeUser,
   apiGetMe, apiGetProjects, apiCreateProject,
-  apiUpdateName, apiChangePassword, apiDeleteAccount, apiGetOrders,
+  apiUpdateName, apiChangePassword, apiDeleteAccount, apiGetOrders, apiDisconnectGithub,
   type User, type Project, type Order,
 } from '@/lib/auth';
 import { getLang, tr } from '@/lib/i18n';
@@ -59,6 +59,7 @@ const Dashboard = () => {
   const [deletePassword, setDeletePassword] = useState('');
   const [deleteError, setDeleteError] = useState('');
   const [deleting, setDeleting] = useState(false);
+  const [disconnectingGithub, setDisconnectingGithub] = useState(false);
 
   // Энергия
   const [buyingEnergy, setBuyingEnergy] = useState<string | null>(null);
@@ -138,6 +139,21 @@ const Dashboard = () => {
       setPwError(err instanceof Error ? err.message : (lang === 'ru' ? 'Ошибка смены пароля' : 'Password change error'));
     }
     setPwSaving(false);
+  };
+
+  const handleDisconnectGithub = async () => {
+    if (!user) return;
+    setDisconnectingGithub(true);
+    try {
+      const session = getSession()!;
+      await apiDisconnectGithub(session);
+      const updated = { ...user, github_login: null };
+      setUser(updated);
+      storeUser(updated);
+    } catch {
+      /* тихо игнорируем */
+    }
+    setDisconnectingGithub(false);
   };
 
   const handleDeleteAccount = async () => {
@@ -278,6 +294,8 @@ const Dashboard = () => {
             handleChangePassword={handleChangePassword}
             orders={orders}
             handleLogout={handleLogout}
+            disconnectingGithub={disconnectingGithub}
+            handleDisconnectGithub={handleDisconnectGithub}
             deleteOpen={deleteOpen}
             setDeleteOpen={setDeleteOpen}
             deletePassword={deletePassword}

@@ -39,6 +39,9 @@ interface DashboardProfileTabProps {
 
   handleLogout: () => void;
 
+  disconnectingGithub: boolean;
+  handleDisconnectGithub: () => void;
+
   deleteOpen: boolean;
   setDeleteOpen: (v: boolean) => void;
   deletePassword: string;
@@ -54,6 +57,7 @@ export default function DashboardProfileTab({
   oldPassword, setOldPassword, newPassword, setNewPassword, pwSaving, pwError, pwSaved, handleChangePassword,
   orders,
   handleLogout,
+  disconnectingGithub, handleDisconnectGithub,
   deleteOpen, setDeleteOpen, deletePassword, setDeletePassword, deleteError, deleting, handleDeleteAccount,
 }: DashboardProfileTabProps) {
   return (
@@ -144,6 +148,51 @@ export default function DashboardProfileTab({
             {lang === 'ru' ? 'Изменить пароль' : 'Change password'}
           </Button>
         </form>
+      </div>
+
+      {/* GitHub */}
+      <div className="rounded-2xl border border-border bg-card p-6 mb-4">
+        <h3 className="font-display font-bold text-sm mb-4">GitHub</h3>
+        {user.github_login ? (
+          <div className="flex items-center justify-between gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              <div className="grid h-10 w-10 place-items-center rounded-xl bg-foreground text-background shrink-0">
+                <Icon name="Github" size={18} />
+              </div>
+              <div className="min-w-0">
+                <p className="text-sm font-semibold truncate">@{user.github_login}</p>
+                <p className="text-xs text-muted-foreground">{lang === 'ru' ? 'Аккаунт подключён' : 'Account connected'}</p>
+              </div>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              className="rounded-xl text-destructive hover:text-destructive border-destructive/20 hover:bg-destructive/5 shrink-0"
+              disabled={disconnectingGithub}
+              onClick={handleDisconnectGithub}
+            >
+              {disconnectingGithub ? <Icon name="Loader" size={14} className="mr-1.5 animate-spin" /> : null}
+              {lang === 'ru' ? 'Отключить' : 'Disconnect'}
+            </Button>
+          </div>
+        ) : (
+          <div className="flex items-center justify-between gap-3">
+            <p className="text-sm text-muted-foreground">
+              {lang === 'ru' ? 'Аккаунт не подключён' : 'Account not connected'}
+            </p>
+            <Button variant="outline" size="sm" className="rounded-xl gap-1.5 shrink-0" asChild>
+              <a href="/login">
+                <Icon name="Github" size={14} />
+                {lang === 'ru' ? 'Подключить' : 'Connect'}
+              </a>
+            </Button>
+          </div>
+        )}
+        <p className="text-xs text-muted-foreground mt-3">
+          {lang === 'ru'
+            ? 'Чтобы сменить аккаунт — отключите текущий, затем войдите через GitHub на странице входа с нужным аккаунтом.'
+            : 'To switch accounts — disconnect the current one, then sign in with GitHub on the login page using the account you want.'}
+        </p>
       </div>
 
       {/* История платежей */}
