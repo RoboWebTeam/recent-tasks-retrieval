@@ -87,6 +87,40 @@ def send_plan_activated_email(to_email: str, plan_code: str, requests_limit: int
         pass
 
 
+def send_energy_purchased_email(to_email: str, energy_amount: int, new_balance: int):
+    """Отправляет пользователю письмо с подтверждением покупки энергии (доп. AI-запросов)."""
+    smtp_password = os.environ.get('SMTP_PASSWORD')
+    if not smtp_password or not to_email:
+        return
+
+    smtp_user = 'roboweb.site@yandex.ru'
+
+    msg = MIMEMultipart('alternative')
+    msg['Subject'] = f'⚡ Начислено {energy_amount} запросов к AI'
+    msg['From'] = smtp_user
+    msg['To'] = to_email
+
+    html = f"""
+    <div style="font-family: Arial, sans-serif; max-width: 560px; margin: 0 auto; background: #f8f9fa; padding: 32px; border-radius: 16px;">
+      <h2 style="color: #3b4cff; margin: 0 0 16px;">Оплата прошла успешно!</h2>
+      <p style="color: #444; font-size: 16px; margin: 0 0 8px;">На ваш аккаунт начислено <strong>+{energy_amount} запросов</strong> к AI (энергия).</p>
+      <div style="background: #fff; border-radius: 12px; padding: 20px; margin: 16px 0; border: 1px solid #e5e7eb;">
+        <p style="margin: 0; color: #111;"><strong>Текущий баланс энергии: {new_balance} запросов</strong></p>
+      </div>
+      <p style="color: #666; font-size: 14px; margin: 0 0 8px;">Энергия расходуется автоматически, когда заканчивается месячный лимит вашего тарифа.</p>
+      <p style="color: #888; font-size: 13px;">Письмо отправлено автоматически с сайта Roboweb</p>
+    </div>
+    """
+    msg.attach(MIMEText(html, 'html'))
+
+    try:
+        with smtplib.SMTP_SSL('smtp.yandex.ru', 465) as server:
+            server.login(smtp_user, smtp_password)
+            server.sendmail(smtp_user, to_email, msg.as_string())
+    except Exception:
+        pass
+
+
 # =============================================================================
 # SECURITY
 # =============================================================================
@@ -235,7 +269,11 @@ def handler(event, context):
                     # Начисляем купленную энергию (доп. AI-запросы)
                     cur.execute(f"""
                         UPDATE {S}users SET energy_balance = energy_balance + %s WHERE id = %s
+                        RETURNING energy_balance
                     """, (energy_amount, order_user_id))
+                    new_balance_row = cur.fetchone()
+                    new_balance = new_balance_row[0] if new_balance_row else energy_amount
+                    send_energy_purchased_email(order_email, energy_amount, new_balance)
                 elif order_user_id and order_plan:
                     # Активируем тариф пользователю после подтверждённой оплаты
                     # и сразу обновляем лимит AI-запросов под новый тариф
