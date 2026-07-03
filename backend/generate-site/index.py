@@ -21,6 +21,34 @@ SYSTEM_PROMPT = """Ты — профессиональный веб-разраб
 8. Не используй внешние JS-библиотеки кроме Google Fonts
 9. Сайт должен выглядеть профессионально и продающе"""
 
+def get_project_images(project_id, user_id: int, schema: str):
+    """Возвращает список изображений, загруженных пользователем в хранилище проекта (раздел Ядро)."""
+    if not project_id:
+        return []
+    conn = psycopg2.connect(os.environ['DATABASE_URL'])
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                f"""SELECT file_name, file_url FROM {schema}.site_files
+                    WHERE project_id = %s AND user_id = %s AND file_type = 'image'
+                    ORDER BY created_at DESC LIMIT 20""",
+                (int(project_id), user_id)
+            )
+            return [{'name': r[0], 'url': r[1]} for r in cur.fetchall()]
+    finally:
+        conn.close()
+
+def build_system_prompt(project_images: list) -> str:
+    if not project_images:
+        return SYSTEM_PROMPT
+    images_list = '\n'.join(f'- {img["name"]}: {img["url"]}' for img in project_images)
+    return SYSTEM_PROMPT + f"""
+
+В хранилище проекта уже загружены следующие изображения пользователя:
+{images_list}
+
+Если пользователь просит использовать своё изображение, логотип или фото — вставляй в <img src="..."> ТОЧНУЮ ссылку из списка выше, ничего не выдумывай. Если подходящего изображения в списке нет — используй заглушку или подходящую внешнюю картинку."""
+
 def cors():
     return {
         'Access-Control-Allow-Origin': '*',
@@ -203,7 +231,8 @@ def handler(event: dict, context) -> dict:
         return err('OpenAI API ключ не настроен')
 
     # Формируем запрос к OpenAI
-    chat_messages = [{'role': 'system', 'content': SYSTEM_PROMPT}]
+    project_images = get_project_images(project_id, user_id, schema)
+    chat_messages = [{'role': 'system', 'content': build_system_prompt(project_images)}]
     for m in messages:
         chat_messages.append({'role': m.get('role', 'user'), 'content': m.get('content', '')})
 

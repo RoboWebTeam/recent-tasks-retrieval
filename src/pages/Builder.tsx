@@ -171,16 +171,32 @@ export default function Builder() {
 
   const sendMessage = async (text?: string) => {
     const rawContent = (text || input).trim();
-    const imageNote = attachedImage ? `\n[Изображение прикреплено: ${attachedImage.name}]` : '';
-    const content = rawContent + imageNote;
-    if (!content.trim() || loading) return;
+    if (!rawContent.trim() && !attachedImage) return;
+    if (loading) return;
+
+    const pendingImage = attachedImage;
     setInput('');
     setAttachedImage(null);
     setShowQuickEdits(false);
+    setLoading(true);
+
+    // Если прикреплено изображение — загружаем его в хранилище проекта,
+    // чтобы AI мог вставить в сайт реальную ссылку, а не выдумывать путь
+    let imageNote = '';
+    if (pendingImage && session) {
+      try {
+        const base64 = pendingImage.url.split(',')[1] || '';
+        const uploaded = await apiUploadFile(session, pendingImage.name, base64, false, projectId ? Number(projectId) : undefined);
+        imageNote = `\n[Изображение загружено, используй эту ссылку в src: ${uploaded.file_url}]`;
+      } catch {
+        imageNote = `\n[Изображение прикреплено: ${pendingImage.name}]`;
+      }
+    }
+
+    const content = rawContent + imageNote;
 
     const newMessages: Message[] = [...messages, { role: 'user', content }];
     setMessages(newMessages);
-    setLoading(true);
     setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
 
     try {
