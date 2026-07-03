@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import { getLang, tr } from '@/lib/i18n';
+import DashboardHeader from '@/components/DashboardHeader';
 
 const VERIFY_DOMAIN_URL = 'https://functions.poehali.dev/4e58c982-1f99-4446-be9b-37c3c9fb7661';
 
@@ -98,24 +98,7 @@ export default function DomainSettings() {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-border bg-card shadow-sm">
-        <div className="container flex h-14 items-center gap-3">
-          <Link to="/dashboard" className="grid h-7 w-7 place-items-center rounded-xl hover:bg-secondary transition-colors text-muted-foreground">
-            <Icon name="ArrowLeft" size={16} />
-          </Link>
-          <Link to="/dashboard" className="flex items-center gap-2 font-display font-extrabold text-base">
-            <span className="grid h-7 w-7 place-items-center rounded-xl bg-primary text-primary-foreground shrink-0">
-              <Icon name="Bot" size={14} />
-            </span>
-            <span className="hidden sm:block">Roboweb</span>
-          </Link>
-          <span className="text-muted-foreground">/</span>
-          <span className="text-sm font-medium text-foreground">
-            {isRu ? 'Подключение домена' : 'Domain Settings'}
-          </span>
-        </div>
-      </header>
+      <DashboardHeader active="projects" />
 
       <main className="container max-w-2xl py-10 md:py-16">
 
