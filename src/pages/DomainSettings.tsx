@@ -5,6 +5,8 @@ import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import { getLang, tr } from '@/lib/i18n';
 
+const VERIFY_DOMAIN_URL = 'https://functions.poehali.dev/4e58c982-1f99-4446-be9b-37c3c9fb7661';
+
 type Step = 'input' | 'dns' | 'verify' | 'done';
 type DomainStatus = 'idle' | 'checking' | 'success' | 'error';
 
@@ -40,12 +42,24 @@ export default function DomainSettings() {
     setStep('dns');
   };
 
-  const handleVerify = () => {
+  const handleVerify = async () => {
     setStatus('checking');
-    setTimeout(() => {
-      setStatus('success');
-      setStep('done');
-    }, 2500);
+    try {
+      const res = await fetch(`${VERIFY_DOMAIN_URL}?domain=${encodeURIComponent(domain)}`);
+      const raw = await res.json();
+      const data = raw.body !== undefined
+        ? (typeof raw.body === 'string' ? JSON.parse(raw.body) : raw.body)
+        : raw;
+
+      if (data.verified) {
+        setStatus('success');
+        setStep('done');
+      } else {
+        setStatus('error');
+      }
+    } catch {
+      setStatus('error');
+    }
   };
 
   const copyToClipboard = (text: string, key: string) => {

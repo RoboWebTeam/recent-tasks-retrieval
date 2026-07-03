@@ -20,6 +20,7 @@ import Pricing from "./pages/Pricing";
 import Analytics from "./pages/Analytics";
 import Leads from "./pages/Leads";
 import Files from "./pages/Files";
+import PublicSite from "./pages/PublicSite";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -42,6 +43,7 @@ const App = () => (
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<Article />} />
           <Route path="/pricing" element={<Pricing />} />
+          <Route path="/site/:slug" element={<PublicSite />} />
           <Route path="/auth/github/callback" element={<GithubCallback />} />
           <Route path="/auth/yandex/callback" element={<YandexCallback />} />
           <Route path="/auth/telegram/callback" element={<TelegramCallback />} />

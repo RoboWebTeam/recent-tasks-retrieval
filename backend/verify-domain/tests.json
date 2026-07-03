@@ -1,0 +1,22 @@
+{
+  "tests": [
+    {
+      "name": "OPTIONS preflight",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "GET without domain returns 400",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 400
+    },
+    {
+      "name": "GET with real domain returns 200",
+      "method": "GET",
+      "path": "/?domain=google.com",
+      "expectedStatus": 200
+    }
+  ]
+}

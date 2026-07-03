@@ -1,6 +1,7 @@
 export const AUTH_URL = 'https://functions.poehali.dev/1c31dd39-a734-4b06-bc38-a2e25d8ad7cf';
 export const PROJECTS_URL = 'https://functions.poehali.dev/2b772da8-0a47-4371-97c7-b0a6834cdf0e';
 export const FILES_URL = 'https://functions.poehali.dev/86596285-1259-4cdb-8c8d-48a19c6f94df';
+export const PUBLIC_SITE_URL = 'https://functions.poehali.dev/2c23b134-6798-4837-b6b2-226e599051f9';
 
 export interface User {
   id: number;
@@ -16,6 +17,8 @@ export interface Project {
   description: string;
   status: string;
   url: string;
+  slug?: string | null;
+  html_content?: string;
   created_at: string;
   updated_at: string;
 }
@@ -166,6 +169,24 @@ export async function apiCreateProject(sessionId: string, title: string, descrip
   });
   if (!res.ok) throw new Error((data as {error?: string}).error || 'Ошибка создания проекта');
   return (data as {project: Project}).project;
+}
+
+export async function apiGetProject(sessionId: string, projectId: string | number): Promise<Project> {
+  const { res, data } = await apiFetch(`${PROJECTS_URL}?id=${projectId}`, {
+    headers: { 'x-session-id': sessionId },
+  });
+  if (!res.ok) throw new Error((data as {error?: string}).error || 'Ошибка загрузки проекта');
+  return (data as {project: Project}).project;
+}
+
+export async function apiPublishProject(sessionId: string, projectId: string | number, title: string): Promise<{ slug: string; status: string }> {
+  const { res, data } = await apiFetch(PROJECTS_URL, {
+    method: 'POST',
+    headers: { 'x-session-id': sessionId },
+    body: JSON.stringify({ action: 'publish', id: projectId, title }),
+  });
+  if (!res.ok) throw new Error((data as {error?: string}).error || 'Ошибка публикации сайта');
+  return data as { slug: string; status: string };
 }
 
 export async function apiGetFiles(sessionId: string): Promise<SiteFile[]> {

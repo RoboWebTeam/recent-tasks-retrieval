@@ -45,8 +45,8 @@ def save_html(project_id: int, html: str, schema: str):
     try:
         with conn.cursor() as cur:
             cur.execute(
-                f"UPDATE {schema}.projects SET description = %s, status = 'published', updated_at = NOW() WHERE id = %s",
-                (html[:4000], project_id)
+                f"UPDATE {schema}.projects SET html_content = %s, description = %s, updated_at = NOW() WHERE id = %s",
+                (html, html[:300], project_id)
             )
         conn.commit()
     finally:

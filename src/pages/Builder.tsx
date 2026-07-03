@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
-import { getSession, getStoredUser, apiUploadFile } from '@/lib/auth';
+import { getSession, getStoredUser, apiUploadFile, apiGetProject, apiPublishProject } from '@/lib/auth';
 import { getLang, tr } from '@/lib/i18n';
 import LangSwitcher from '@/components/LangSwitcher';
 
@@ -99,6 +99,12 @@ export default function Builder() {
   const [showExtensions, setShowExtensions] = useState(false);
   const [savingToFiles, setSavingToFiles] = useState(false);
   const [saveToFilesDone, setSaveToFilesDone] = useState(false);
+  const [projectTitle, setProjectTitle] = useState('');
+  const [loadingProject, setLoadingProject] = useState(false);
+  const [publishing, setPublishing] = useState(false);
+  const [publishedSlug, setPublishedSlug] = useState<string | null>(null);
+  const [showPublishModal, setShowPublishModal] = useState(false);
+  const [publishError, setPublishError] = useState('');
   const imageInputRef = useRef<HTMLInputElement>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const [editPopover, setEditPopover] = useState<{ x: number; y: number; text: string; path: string } | null>(null);
@@ -119,6 +125,26 @@ export default function Builder() {
   useEffect(() => {
     if (!session) { navigate('/login', { replace: true }); }
   }, [session, navigate]);
+
+  // Загрузка сохранённого проекта при открытии по ссылке /builder?project=ID
+  useEffect(() => {
+    if (!session || !projectId) return;
+    setLoadingProject(true);
+    apiGetProject(session, projectId)
+      .then(project => {
+        setProjectTitle(project.title);
+        if (project.html_content) {
+          setHtml(project.html_content);
+          setVersions([{ html: project.html_content, label: lang === 'ru' ? 'Сохранённая версия' : 'Saved version', ts: Date.now() }]);
+        }
+        if (project.status === 'published' && project.slug) {
+          setPublishedSlug(project.slug);
+        }
+      })
+      .catch(() => {/* проект не найден — начинаем с чистого листа */})
+      .finally(() => setLoadingProject(false));
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session, projectId]);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -237,6 +263,22 @@ export default function Builder() {
       /* тихо игнорируем — не критично для UX */
     }
     setSavingToFiles(false);
+  };
+
+  const handlePublish = async () => {
+    if (!html || !projectId) return;
+    const session = getSession();
+    if (!session) return;
+    setPublishing(true);
+    setPublishError('');
+    try {
+      const result = await apiPublishProject(session, projectId, projectTitle || 'site');
+      setPublishedSlug(result.slug);
+      setShowPublishModal(true);
+    } catch (e) {
+      setPublishError(e instanceof Error ? e.message : (lang === 'ru' ? 'Ошибка публикации' : 'Publish error'));
+    }
+    setPublishing(false);
   };
 
   const handleCopyCode = () => {
@@ -612,9 +654,11 @@ export default function Builder() {
             </span>
           </button>
 
-          <Button size="sm" disabled={!html} className="h-8 rounded-lg text-xs px-2.5 gap-1.5">
-            <Icon name="Globe" size={13} />
-            <span className="hidden md:inline">{tr('builderPublish', lang)}</span>
+          <Button size="sm" disabled={!html || publishing || !projectId} onClick={publishedSlug ? () => setShowPublishModal(true) : handlePublish} className="h-8 rounded-lg text-xs px-2.5 gap-1.5">
+            <Icon name={publishing ? 'Loader' : publishedSlug ? 'CheckCircle' : 'Globe'} size={13} className={publishing ? 'animate-spin' : ''} />
+            <span className="hidden md:inline">
+              {publishing ? (lang === 'ru' ? 'Публикуем…' : 'Publishing…') : publishedSlug ? (lang === 'ru' ? 'Опубликовано' : 'Published') : tr('builderPublish', lang)}
+            </span>
           </Button>
 
           <Link to="/settings/domain"
@@ -1298,6 +1342,53 @@ export default function Builder() {
 
       {/* Overlay to close dropdowns */}
       {showVersions && <div className="fixed inset-0 z-40" onClick={() => setShowVersions(false)} />}
+
+      {/* Publish success modal */}
+      {showPublishModal && publishedSlug && (
+        <div className="fixed inset-0 z-[60] bg-black/50 flex items-center justify-center p-4" onClick={() => setShowPublishModal(false)}>
+          <div className="bg-card rounded-2xl shadow-2xl p-6 max-w-md w-full" onClick={e => e.stopPropagation()}>
+            <div className="grid h-12 w-12 place-items-center rounded-2xl bg-emerald-100 text-emerald-600 mx-auto mb-4">
+              <Icon name="CheckCircle" size={24} />
+            </div>
+            <h3 className="font-display font-bold text-lg text-center mb-1">
+              {lang === 'ru' ? 'Сайт опубликован!' : 'Site published!'}
+            </h3>
+            <p className="text-sm text-muted-foreground text-center mb-4">
+              {lang === 'ru' ? 'Ваш сайт доступен по ссылке:' : 'Your site is available at:'}
+            </p>
+            <div className="flex items-center gap-2 bg-secondary rounded-xl px-3 py-2.5 mb-4">
+              <Icon name="Link" size={14} className="text-muted-foreground shrink-0" />
+              <span className="text-xs font-mono truncate flex-1">{window.location.origin}/site/{publishedSlug}</span>
+              <button
+                onClick={() => { navigator.clipboard.writeText(`${window.location.origin}/site/${publishedSlug}`); }}
+                className="shrink-0 text-muted-foreground hover:text-primary transition-colors"
+              >
+                <Icon name="Copy" size={14} />
+              </button>
+            </div>
+            <div className="flex gap-2">
+              <Button variant="outline" className="flex-1 rounded-xl" onClick={() => setShowPublishModal(false)}>
+                {lang === 'ru' ? 'Закрыть' : 'Close'}
+              </Button>
+              <Button asChild className="flex-1 rounded-xl">
+                <a href={`/site/${publishedSlug}`} target="_blank" rel="noopener noreferrer">
+                  <Icon name="ExternalLink" size={14} className="mr-1.5" />
+                  {lang === 'ru' ? 'Открыть' : 'Open'}
+                </a>
+              </Button>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Publish error toast */}
+      {publishError && (
+        <div className="fixed bottom-4 right-4 z-[60] bg-destructive text-destructive-foreground rounded-xl px-4 py-3 shadow-xl flex items-center gap-2 text-sm max-w-sm">
+          <Icon name="AlertCircle" size={15} className="shrink-0" />
+          <span className="flex-1">{publishError}</span>
+          <button onClick={() => setPublishError('')}><Icon name="X" size={14} /></button>
+        </div>
+      )}
     </div>
   );
 }
