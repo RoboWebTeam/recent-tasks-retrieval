@@ -9,7 +9,10 @@ from datetime import datetime, timedelta
 
 SCHEMA = None
 
-PLAN_LIMITS = {'free': 3, 'premium': 40, 'pro': 60}
+PLAN_LIMITS = {
+    'free': 10, 'premium': 40,
+    'pro_60': 60, 'pro_80': 80, 'pro_200': 200, 'pro_400': 400, 'pro_800': 800,
+}
 
 def get_schema():
     global SCHEMA

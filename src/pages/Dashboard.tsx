@@ -16,9 +16,13 @@ import DashboardProfileTab from '@/components/dashboard/DashboardProfileTab';
 const YOOKASSA_URL = 'https://functions.poehali.dev/4fec45e4-aaef-4bc4-ba3c-7a43dfc964bc';
 
 const getPlanLabels = (lang: ReturnType<typeof getLang>) => ({
-  free:    { label: tr('planFree', lang),    color: 'bg-secondary text-secondary-foreground', requests: '3' },
-  premium: { label: tr('planPremium', lang), color: 'bg-primary text-primary-foreground',     requests: '40' },
-  pro:     { label: tr('planPro', lang),     color: 'bg-foreground text-background',           requests: '60' },
+  free:     { label: tr('planFree', lang),    color: 'bg-secondary text-secondary-foreground', requests: '10' },
+  premium:  { label: tr('planPremium', lang), color: 'bg-primary text-primary-foreground',     requests: '40' },
+  pro_60:   { label: tr('planPro', lang),     color: 'bg-foreground text-background',           requests: '60' },
+  pro_80:   { label: tr('planPro', lang),     color: 'bg-foreground text-background',           requests: '80' },
+  pro_200:  { label: tr('planPro', lang),     color: 'bg-foreground text-background',           requests: '200' },
+  pro_400:  { label: tr('planPro', lang),     color: 'bg-foreground text-background',           requests: '400' },
+  pro_800:  { label: tr('planPro', lang),     color: 'bg-foreground text-background',           requests: '800' },
 });
 
 const getStatusConfig = (lang: ReturnType<typeof getLang>) => ({

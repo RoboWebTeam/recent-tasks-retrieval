@@ -40,7 +40,10 @@ def get_user_id(session_id: str, schema: str):
     finally:
         conn.close()
 
-PLAN_LIMITS = {'free': 3, 'premium': 40, 'pro': 60}
+PLAN_LIMITS = {
+    'free': 10, 'premium': 40,
+    'pro_60': 60, 'pro_80': 80, 'pro_200': 200, 'pro_400': 400, 'pro_800': 800,
+}
 
 def check_and_consume_quota(user_id: int, schema: str):
     """Проверяет лимит AI-запросов (тариф + энергия) и списывает один запрос.

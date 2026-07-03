@@ -161,11 +161,11 @@ export function UsersTab({
                             <button className="grid h-5 w-5 place-items-center rounded text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors" title="Изменить тариф">
                               <Icon name={planChanging === user.id ? 'Loader' : 'ChevronDown'} size={11} className={planChanging === user.id ? 'animate-spin' : ''} />
                             </button>
-                            <div className="absolute left-0 top-6 z-20 hidden group-hover:flex flex-col bg-card border border-border rounded-xl shadow-xl overflow-hidden min-w-[100px]">
-                              {(['free', 'premium', 'pro'] as const).map(p => (
+                            <div className="absolute left-0 top-6 z-20 hidden group-hover:flex flex-col bg-card border border-border rounded-xl shadow-xl overflow-hidden min-w-[130px]">
+                              {(['free', 'premium', 'pro_60', 'pro_80', 'pro_200', 'pro_400', 'pro_800'] as const).map(p => (
                                 <button key={p} onClick={() => manageUser(user.id, 'change_plan', p)}
-                                  className={`px-3 py-2 text-xs font-semibold text-left hover:bg-secondary transition-colors ${user.plan === p ? 'text-primary' : 'text-foreground'}`}>
-                                  {p === 'free' ? 'Пробный' : p === 'premium' ? 'Премиум' : 'Профи'}
+                                  className={`px-3 py-2 text-xs font-semibold text-left hover:bg-secondary transition-colors whitespace-nowrap ${user.plan === p ? 'text-primary' : 'text-foreground'}`}>
+                                  {PLAN_LABELS[p]?.label ?? p}
                                 </button>
                               ))}
                             </div>

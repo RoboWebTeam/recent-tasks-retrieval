@@ -146,8 +146,9 @@ def handler(event: dict, context) -> dict:
             # --- Смена тарифа ---
             if action == 'change_plan':
                 plan = body.get('plan', '')
-                if not user_id or plan not in ('free', 'premium', 'pro'):
-                    return err('user_id и plan (free/premium/pro) обязательны')
+                valid_plans = ('free', 'premium', 'pro_60', 'pro_80', 'pro_200', 'pro_400', 'pro_800')
+                if not user_id or plan not in valid_plans:
+                    return err(f'user_id и plan ({"/".join(valid_plans)}) обязательны')
                 cur.execute(f"SELECT name, plan FROM {schema}.users WHERE id = %s", (user_id,))
                 row = cur.fetchone()
                 if not row:

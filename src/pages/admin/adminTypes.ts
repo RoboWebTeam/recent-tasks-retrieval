@@ -80,9 +80,13 @@ export interface UserDetails {
 }
 
 export const PLAN_LABELS: Record<string, { label: string; color: string }> = {
-  free:    { label: 'Пробный',  color: 'bg-secondary text-muted-foreground' },
-  premium: { label: 'Премиум',  color: 'bg-primary/15 text-primary' },
-  pro:     { label: 'Профи',    color: 'bg-foreground/10 text-foreground' },
+  free:     { label: 'Пробный',        color: 'bg-secondary text-muted-foreground' },
+  premium:  { label: 'Премиум',        color: 'bg-primary/15 text-primary' },
+  pro_60:   { label: 'Профи 60',       color: 'bg-foreground/10 text-foreground' },
+  pro_80:   { label: 'Профи 80',       color: 'bg-foreground/10 text-foreground' },
+  pro_200:  { label: 'Профи 200',      color: 'bg-foreground/10 text-foreground' },
+  pro_400:  { label: 'Профи 400',      color: 'bg-foreground/10 text-foreground' },
+  pro_800:  { label: 'Профи 800',      color: 'bg-foreground/10 text-foreground' },
 };
 
 export const SITE_LEAD_STATUS = {

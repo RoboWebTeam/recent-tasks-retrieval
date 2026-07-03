@@ -10,9 +10,6 @@ const YOOKASSA_URL = 'https://functions.poehali.dev/4fec45e4-aaef-4bc4-ba3c-7a43
 const getLangData = (isRu: boolean) => ({
   title: isRu ? 'Тарифы' : 'Pricing',
   subtitle: isRu ? 'Выберите план, который подходит вашему бизнесу' : 'Choose the plan that fits your business',
-  monthly: isRu ? 'Месяц' : 'Monthly',
-  yearly: isRu ? 'Год' : 'Yearly',
-  save: isRu ? 'Экономия 30%' : 'Save 30%',
   popular: isRu ? 'Популярный' : 'Popular',
   cta: isRu ? 'Начать бесплатно' : 'Start free',
   ctaPaid: isRu ? 'Выбрать тариф' : 'Choose plan',
@@ -21,68 +18,148 @@ const getLangData = (isRu: boolean) => ({
     {
       id: 'free',
       name: isRu ? 'Пробный' : 'Free',
-      price: { monthly: 0, yearly: 0 },
+      price: 0,
       currency: isRu ? '₽' : '$',
+      tag: isRu ? '10 запросов разово' : '10 requests once',
       desc: isRu ? 'Попробуйте Roboweb бесплатно' : 'Try Roboweb for free',
       color: 'border-border',
       badge: null,
       features: [
-        isRu ? '3 AI-генерации в месяц' : '3 AI generations/month',
-        isRu ? '1 сайт' : '1 website',
-        isRu ? 'Публикация на roboweb.site' : 'Publish on roboweb.site',
-        isRu ? 'Скачать HTML' : 'Download HTML',
-        isRu ? 'Базовые шаблоны' : 'Basic templates',
+        isRu ? 'Облачный хостинг' : 'Cloud hosting',
+        isRu ? 'До 3 проектов' : 'Up to 3 projects',
+        isRu ? 'База данных 128 МБ' : '128 MB database',
+        isRu ? 'Хранилище 512 МБ' : '512 MB storage',
+        isRu ? '5 функций' : '5 functions',
+        isRu ? '8 ч вычислений' : '8h compute',
       ],
       disabled: [
-        isRu ? 'Свой домен' : 'Custom domain',
-        isRu ? 'Аналитика' : 'Analytics',
-        isRu ? 'Форма заявок' : 'Lead forms',
-        isRu ? 'Приоритетная поддержка' : 'Priority support',
+        isRu ? 'Подключение домена' : 'Custom domain',
+        isRu ? 'Скачивание кода' : 'Code download',
       ],
     },
     {
       id: 'premium',
       name: isRu ? 'Премиум' : 'Premium',
-      price: { monthly: 1490, yearly: 990 },
+      price: 999,
       currency: isRu ? '₽' : '$',
-      yearlyPrice: { monthly: 29, yearly: 19 },
+      tag: isRu ? '40 запросов ежемесячно' : '40 requests/month',
       desc: isRu ? 'Для малого бизнеса и фрилансеров' : 'For small business & freelancers',
       color: 'border-primary',
       badge: isRu ? 'Популярный' : 'Popular',
       features: [
-        isRu ? '40 AI-генераций в месяц' : '40 AI generations/month',
-        isRu ? '5 сайтов' : '5 websites',
-        isRu ? 'Свой домен + SSL' : 'Custom domain + SSL',
-        isRu ? 'Аналитика посещений' : 'Visit analytics',
-        isRu ? 'Форма заявок на почту' : 'Lead forms to email',
-        isRu ? 'История версий (10)' : 'Version history (10)',
-        isRu ? 'Быстрые правки' : 'Quick edits',
-        isRu ? 'Поддержка в Telegram' : 'Telegram support',
+        isRu ? 'Подключение домена' : 'Custom domain',
+        isRu ? 'Бесплатные расширения' : 'Free extensions',
+        isRu ? 'Облачный хостинг' : 'Cloud hosting',
+        isRu ? 'До 3 проектов' : 'Up to 3 projects',
+        isRu ? 'База данных 128 МБ' : '128 MB database',
+        isRu ? 'Хранилище 512 МБ' : '512 MB storage',
+        isRu ? '5 функций' : '5 functions',
+        isRu ? '8 ч вычислений' : '8h compute',
       ],
-      disabled: [
-        isRu ? 'Безлимитные сайты' : 'Unlimited sites',
-        isRu ? 'Белый лейбл' : 'White label',
-      ],
+      disabled: [],
     },
     {
-      id: 'pro',
+      id: 'pro_60',
       name: isRu ? 'Профи' : 'Pro',
-      price: { monthly: 3490, yearly: 2490 },
+      price: 2999,
       currency: isRu ? '₽' : '$',
-      yearlyPrice: { monthly: 69, yearly: 49 },
-      desc: isRu ? 'Для агентств и профессионалов' : 'For agencies & professionals',
+      tag: isRu ? '60 запросов в месяц' : '60 requests/month',
+      desc: isRu ? 'Для растущего бизнеса' : 'For growing business',
       color: 'border-foreground',
       badge: null,
       features: [
-        isRu ? '60 AI-генераций в месяц' : '60 AI generations/month',
-        isRu ? 'Безлимитные сайты' : 'Unlimited websites',
-        isRu ? 'Свой домен + SSL' : 'Custom domain + SSL',
-        isRu ? 'Продвинутая аналитика' : 'Advanced analytics',
-        isRu ? 'Форма заявок + CRM' : 'Lead forms + CRM',
-        isRu ? 'Безлимитная история версий' : 'Unlimited version history',
-        isRu ? 'Белый лейбл' : 'White label',
-        isRu ? 'Приоритетная поддержка 24/7' : 'Priority support 24/7',
-        isRu ? 'API-доступ' : 'API access',
+        isRu ? 'Приоритетная поддержка' : 'Priority support',
+        isRu ? 'Все возможности Премиум' : 'All Premium features',
+        isRu ? 'Облачный хостинг' : 'Cloud hosting',
+        isRu ? 'До 5 проектов' : 'Up to 5 projects',
+        isRu ? 'База данных 1 ГБ' : '1 GB database',
+        isRu ? 'Хранилище 5 ГБ' : '5 GB storage',
+        isRu ? '25 функций' : '25 functions',
+        isRu ? '250 ч вычислений' : '250h compute',
+      ],
+      disabled: [],
+    },
+    {
+      id: 'pro_80',
+      name: isRu ? 'Профи' : 'Pro',
+      price: 4999,
+      currency: isRu ? '₽' : '$',
+      tag: isRu ? '80 запросов в месяц' : '80 requests/month',
+      desc: isRu ? 'Для агентств' : 'For agencies',
+      color: 'border-foreground',
+      badge: null,
+      features: [
+        isRu ? 'Приоритетная поддержка' : 'Priority support',
+        isRu ? 'Все возможности Премиум' : 'All Premium features',
+        isRu ? 'Облачный хостинг' : 'Cloud hosting',
+        isRu ? 'До 8 проектов' : 'Up to 8 projects',
+        isRu ? 'База данных 1 ГБ' : '1 GB database',
+        isRu ? 'Хранилище 10 ГБ' : '10 GB storage',
+        isRu ? '50 функций' : '50 functions',
+        isRu ? '417 ч вычислений' : '417h compute',
+      ],
+      disabled: [],
+    },
+    {
+      id: 'pro_200',
+      name: isRu ? 'Профи' : 'Pro',
+      price: 9999,
+      currency: isRu ? '₽' : '$',
+      tag: isRu ? '200 запросов в месяц' : '200 requests/month',
+      desc: isRu ? 'Для крупных команд' : 'For larger teams',
+      color: 'border-foreground',
+      badge: null,
+      features: [
+        isRu ? 'Приоритетная поддержка' : 'Priority support',
+        isRu ? 'Все возможности Премиум' : 'All Premium features',
+        isRu ? 'Облачный хостинг' : 'Cloud hosting',
+        isRu ? 'До 10 проектов' : 'Up to 10 projects',
+        isRu ? 'База данных 2 ГБ' : '2 GB database',
+        isRu ? 'Хранилище 20 ГБ' : '20 GB storage',
+        isRu ? '100 функций' : '100 functions',
+        isRu ? '833 ч вычислений' : '833h compute',
+      ],
+      disabled: [],
+    },
+    {
+      id: 'pro_400',
+      name: isRu ? 'Профи' : 'Pro',
+      price: 19999,
+      currency: isRu ? '₽' : '$',
+      tag: isRu ? '400 запросов в месяц' : '400 requests/month',
+      desc: isRu ? 'Для активных студий' : 'For active studios',
+      color: 'border-foreground',
+      badge: null,
+      features: [
+        isRu ? 'Приоритетная поддержка' : 'Priority support',
+        isRu ? 'Все возможности Премиум' : 'All Premium features',
+        isRu ? 'Облачный хостинг' : 'Cloud hosting',
+        isRu ? 'До 20 проектов' : 'Up to 20 projects',
+        isRu ? 'База данных 4 ГБ' : '4 GB database',
+        isRu ? 'Хранилище 40 ГБ' : '40 GB storage',
+        isRu ? '200 функций' : '200 functions',
+        isRu ? '1667 ч вычислений' : '1667h compute',
+      ],
+      disabled: [],
+    },
+    {
+      id: 'pro_800',
+      name: isRu ? 'Профи' : 'Pro',
+      price: 49999,
+      currency: isRu ? '₽' : '$',
+      tag: isRu ? '800 запросов в месяц' : '800 requests/month',
+      desc: isRu ? 'Для крупного бизнеса' : 'For enterprise',
+      color: 'border-foreground',
+      badge: null,
+      features: [
+        isRu ? 'Приоритетная поддержка' : 'Priority support',
+        isRu ? 'Все возможности Премиум' : 'All Premium features',
+        isRu ? 'Облачный хостинг' : 'Cloud hosting',
+        isRu ? 'До 50 проектов' : 'Up to 50 projects',
+        isRu ? 'База данных 10 ГБ' : '10 GB database',
+        isRu ? 'Хранилище 100 ГБ' : '100 GB storage',
+        isRu ? '500 функций' : '500 functions',
+        isRu ? '4167 ч вычислений' : '4167h compute',
       ],
       disabled: [],
     },
@@ -112,22 +189,20 @@ export default function Pricing() {
   const isRu = lang === 'ru';
   const data = getLangData(isRu);
   const navigate = useNavigate();
-  const [billing, setBilling] = useState<'monthly' | 'yearly'>('monthly');
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [payingPlan, setPayingPlan] = useState<string | null>(null);
   const [payError, setPayError] = useState('');
   const session = getSession();
   const user = getStoredUser();
 
-  const handleSelectPlan = async (planId: string, priceRub: number) => {
+  const handleSelectPlan = async (planId: string, priceRub: number, planName: string) => {
     if (!session || !user) {
-      navigate(`/register?plan=${planId}&billing=${billing}`);
+      navigate(`/register?plan=${planId}`);
       return;
     }
     setPayingPlan(planId);
     setPayError('');
     try {
-      const planLabel = planId === 'premium' ? (isRu ? 'Премиум' : 'Premium') : (isRu ? 'Профи' : 'Pro');
       const res = await fetch(YOOKASSA_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -135,10 +210,10 @@ export default function Pricing() {
           amount: priceRub,
           user_email: user.email,
           user_name: user.name,
-          description: `Тариф «${planLabel}» (${billing === 'yearly' ? (isRu ? 'год' : 'yearly') : (isRu ? 'месяц' : 'monthly')})`,
+          description: `Тариф «${planName}» (${isRu ? 'месяц' : 'monthly'})`,
           return_url: `${window.location.origin}/pricing/status`,
           plan: planId,
-          billing_period: billing,
+          billing_period: 'monthly',
           user_id: user.id,
         }),
       });
@@ -178,7 +253,7 @@ export default function Pricing() {
         </div>
       </header>
 
-      <main className="container py-14 md:py-20 max-w-5xl">
+      <main className="container py-14 md:py-20 max-w-6xl">
         {/* Hero */}
         <div className="text-center mb-12">
           <span className="inline-block text-xs font-semibold uppercase tracking-widest text-primary mb-3">
@@ -187,32 +262,15 @@ export default function Pricing() {
           <h1 className="font-display font-black text-4xl sm:text-5xl tracking-tight mb-4">
             {data.subtitle}
           </h1>
-
-          {/* Billing toggle */}
-          <div className="inline-flex items-center gap-2 bg-secondary border border-border rounded-2xl p-1.5 mt-4">
-            {(['monthly', 'yearly'] as const).map(b => (
-              <button key={b} onClick={() => setBilling(b)}
-                className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold transition-all ${billing === b ? 'bg-card text-foreground shadow-sm border border-border' : 'text-muted-foreground hover:text-foreground'}`}>
-                {b === 'monthly' ? data.monthly : data.yearly}
-                {b === 'yearly' && (
-                  <span className="text-[10px] bg-emerald-100 text-emerald-700 font-bold px-1.5 py-0.5 rounded-full">
-                    {data.save}
-                  </span>
-                )}
-              </button>
-            ))}
-          </div>
         </div>
 
         {/* Plans */}
-        <div className="grid md:grid-cols-3 gap-5 mb-16">
+        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-16">
           {data.plans.map(plan => {
-            const price = isRu
-              ? plan.price[billing]
-              : (plan.yearlyPrice ? plan.yearlyPrice[billing] : plan.price[billing]);
+            const price = plan.price;
             const isPopular = !!plan.badge;
             const isFree = plan.id === 'free';
-            const isPro = plan.id === 'pro';
+            const isPro = plan.id.startsWith('pro_');
 
             return (
               <div key={plan.id} className={`relative flex flex-col rounded-3xl border-2 bg-card p-6 transition-all ${isPopular ? 'border-primary shadow-xl shadow-primary/10 scale-[1.02]' : plan.color}`}>
@@ -232,7 +290,7 @@ export default function Pricing() {
                     {plan.name}
                   </div>
                   <div className="flex items-baseline gap-1 mb-1">
-                    <span className="text-4xl font-black text-foreground">
+                    <span className="text-3xl font-black text-foreground">
                       {price === 0 ? (isRu ? 'Бесплатно' : 'Free') : price.toLocaleString()}
                     </span>
                     {price > 0 && (
@@ -242,6 +300,9 @@ export default function Pricing() {
                       </>
                     )}
                   </div>
+                  <span className="inline-block rounded-full bg-primary/10 text-primary text-xs font-semibold px-2.5 py-1 mb-2">
+                    {plan.tag}
+                  </span>
                   <p className="text-sm text-muted-foreground">{plan.desc}</p>
                 </div>
 
@@ -259,9 +320,8 @@ export default function Pricing() {
                 ) : (
                   <Button
                     className={`w-full h-11 rounded-xl font-semibold mb-6 ${isPro ? 'bg-foreground text-background hover:bg-foreground/90' : ''}`}
-                    variant={isPopular ? 'default' : 'default'}
                     disabled={payingPlan === plan.id}
-                    onClick={() => handleSelectPlan(plan.id, plan.price[billing])}
+                    onClick={() => handleSelectPlan(plan.id, plan.price, plan.name)}
                   >
                     {payingPlan === plan.id
                       ? <><Icon name="Loader" size={15} className="mr-1.5 animate-spin" />{isRu ? 'Переходим к оплате…' : 'Redirecting…'}</>

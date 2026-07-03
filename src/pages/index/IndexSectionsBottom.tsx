@@ -32,9 +32,9 @@ export function IndexSectionsBottom({ lang }: Props) {
               </p>
             </div>
           </Reveal>
-          <div className="mt-10 md:mt-14 grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 max-w-5xl mx-auto">
+          <div className="mt-10 md:mt-14 grid sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4 md:gap-6 max-w-7xl mx-auto">
             {PLANS.map((p, i) => (
-              <Reveal key={p.name} delay={i * 100}>
+              <Reveal key={`${p.name}-${p.tag}`} delay={i * 100}>
                 <div className={`relative h-full rounded-2xl md:rounded-3xl border p-6 md:p-8 transition-all duration-300 hover:shadow-xl flex flex-col ${
                   p.hot ? 'border-primary bg-card shadow-2xl shadow-primary/15' : 'border-border bg-card'
                 }`}>

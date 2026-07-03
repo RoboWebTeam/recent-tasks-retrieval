@@ -8,7 +8,11 @@ const ORDER_STATUS_URL = 'https://functions.poehali.dev/0883717d-f728-467e-b5d2-
 
 const PLAN_NAMES: Record<string, { ru: string; en: string }> = {
   premium: { ru: 'Премиум', en: 'Premium' },
-  pro: { ru: 'Профи', en: 'Pro' },
+  pro_60: { ru: 'Профи', en: 'Pro' },
+  pro_80: { ru: 'Профи', en: 'Pro' },
+  pro_200: { ru: 'Профи', en: 'Pro' },
+  pro_400: { ru: 'Профи', en: 'Pro' },
+  pro_800: { ru: 'Профи', en: 'Pro' },
 };
 
 export default function OrderStatus() {
