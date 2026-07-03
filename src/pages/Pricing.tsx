@@ -22,6 +22,29 @@ const FALLBACK_PRO_PLANS: ProPlanOption[] = [
   { plan_code: 'pro_800', requests: 800, price: 49999 },
 ];
 
+const PRO_PLAN_DETAILS: Record<string, { ru: string[]; en: string[] }> = {
+  pro_60: {
+    ru: ['До 5 проектов', 'База данных 1 ГБ', 'Хранилище 5 ГБ', '25 функций', '250 ч вычислений'],
+    en: ['Up to 5 projects', '1 GB database', '5 GB storage', '25 functions', '250h compute'],
+  },
+  pro_80: {
+    ru: ['До 8 проектов', 'База данных 1 ГБ', 'Хранилище 10 ГБ', '50 функций', '417 ч вычислений'],
+    en: ['Up to 8 projects', '1 GB database', '10 GB storage', '50 functions', '417h compute'],
+  },
+  pro_200: {
+    ru: ['До 10 проектов', 'База данных 2 ГБ', 'Хранилище 20 ГБ', '100 функций', '833 ч вычислений'],
+    en: ['Up to 10 projects', '2 GB database', '20 GB storage', '100 functions', '833h compute'],
+  },
+  pro_400: {
+    ru: ['До 20 проектов', 'База данных 4 ГБ', 'Хранилище 40 ГБ', '200 функций', '1667 ч вычислений'],
+    en: ['Up to 20 projects', '4 GB database', '40 GB storage', '200 functions', '1667h compute'],
+  },
+  pro_800: {
+    ru: ['До 50 проектов', 'База данных 10 ГБ', 'Хранилище 100 ГБ', '500 функций', '4167 ч вычислений'],
+    en: ['Up to 50 projects', '10 GB database', '100 GB storage', '500 functions', '4167h compute'],
+  },
+};
+
 const getLangData = (isRu: boolean) => ({
   title: isRu ? 'Тарифы' : 'Pricing',
   subtitle: isRu ? 'Выберите план, который подходит вашему бизнесу' : 'Choose the plan that fits your business',
@@ -288,6 +311,12 @@ export default function Pricing() {
                 ? ['Приоритетная поддержка', 'Все возможности Премиум', 'Облачный хостинг']
                 : ['Priority support', 'All Premium features', 'Cloud hosting']
               ).map(f => (
+                <div key={f} className="flex items-start gap-2.5 text-sm">
+                  <Icon name="CheckCircle" size={15} className="shrink-0 mt-0.5 text-foreground" />
+                  <span className="text-foreground">{f}</span>
+                </div>
+              ))}
+              {(PRO_PLAN_DETAILS[selectedPro.plan_code]?.[isRu ? 'ru' : 'en'] ?? []).map(f => (
                 <div key={f} className="flex items-start gap-2.5 text-sm">
                   <Icon name="CheckCircle" size={15} className="shrink-0 mt-0.5 text-foreground" />
                   <span className="text-foreground">{f}</span>
