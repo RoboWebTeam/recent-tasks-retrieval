@@ -102,19 +102,17 @@ export default function Pricing() {
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-border bg-card/80 backdrop-blur-xl shadow-sm">
-        <div className="container flex h-14 items-center justify-between">
-          <Link to="/" className="flex items-center gap-2 font-display font-extrabold text-base">
-            <span className="grid h-7 w-7 place-items-center rounded-xl bg-primary text-primary-foreground">
-              <Icon name="Bot" size={14} />
-            </span>
+      <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
+        <div className="container flex h-14 sm:h-16 items-center justify-between">
+          <Link to="/" className="flex items-center gap-2 font-display font-black text-lg sm:text-xl text-primary">
+            <Icon name="ArrowLeft" size={18} className="text-muted-foreground" />
             Roboweb
           </Link>
-          <div className="flex items-center gap-3">
-            <Link to="/login" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              {isRu ? 'Войти' : 'Sign in'}
-            </Link>
-            <Button size="sm" className="rounded-xl" asChild>
+          <div className="flex items-center gap-2 sm:gap-3">
+            <Button variant="ghost" size="sm" className="rounded-full font-semibold text-muted-foreground hover:text-foreground" asChild>
+              <Link to="/login">{isRu ? 'Войти' : 'Sign in'}</Link>
+            </Button>
+            <Button size="sm" className="rounded-full font-semibold" asChild>
               <Link to="/register">{isRu ? 'Начать бесплатно' : 'Start free'}</Link>
             </Button>
           </div>
