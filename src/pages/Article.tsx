@@ -72,15 +72,15 @@ export default function Article() {
       last = m.index + m[0].length;
     }
     if (last < text.length) parts.push(text.slice(last));
-    return <p key={key} className="mt-4 text-muted-foreground leading-relaxed">{parts}</p>;
+    return <p key={key} className="mt-4 text-muted-foreground leading-relaxed break-words">{parts}</p>;
   };
 
   const renderContent = (content: string) => {
     return content.split('\n').map((line, i) => {
-      if (line.startsWith('## ')) return <h2 key={i} className="mt-10 mb-4 font-display font-black text-2xl sm:text-3xl tracking-tight">{line.replace('## ', '')}</h2>;
-      if (line.startsWith('### ')) return <h3 key={i} className="mt-7 mb-3 font-display font-bold text-xl">{line.replace('### ', '')}</h3>;
+      if (line.startsWith('## ')) return <h2 key={i} className="mt-10 mb-4 font-display font-black text-xl sm:text-2xl md:text-3xl tracking-tight break-words">{line.replace('## ', '')}</h2>;
+      if (line.startsWith('### ')) return <h3 key={i} className="mt-7 mb-3 font-display font-bold text-lg sm:text-xl break-words">{line.replace('### ', '')}</h3>;
       if (line.startsWith('**') && line.endsWith('**')) return <p key={i} className="mt-4 font-semibold text-foreground">{line.replace(/\*\*/g, '')}</p>;
-      if (line.startsWith('- ')) return <li key={i} className="ml-5 mt-1 list-disc text-muted-foreground">{line.replace('- ', '')}</li>;
+      if (line.startsWith('- ')) return <li key={i} className="ml-5 mt-1 list-disc text-muted-foreground break-words">{line.replace('- ', '')}</li>;
       if (line.startsWith('| ') || line.startsWith('|---')) return null;
       if (line.trim() === '') return <div key={i} className="h-2" />;
       return renderInline(line, i);
@@ -130,7 +130,7 @@ export default function Article() {
         <div className="flex flex-wrap items-center gap-3 mb-6">
           <Link
             to={`/blog?cat=${encodeURIComponent(article.category)}`}
-            className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary hover:bg-primary/20 transition-colors"
+            className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary hover:bg-primary/20 transition-colors max-w-full truncate"
           >
             {article.category}
           </Link>
@@ -143,11 +143,11 @@ export default function Article() {
         </div>
 
         {/* Title */}
-        <h1 className="font-display font-black text-3xl sm:text-4xl md:text-5xl tracking-tight leading-tight mb-6">
+        <h1 className="font-display font-black text-2xl sm:text-3xl md:text-4xl lg:text-5xl tracking-tight leading-tight mb-6 break-words">
           {article.title}
         </h1>
 
-        <p className="text-lg text-muted-foreground mb-8 border-l-4 border-primary/40 pl-4">
+        <p className="text-base sm:text-lg text-muted-foreground mb-8 border-l-4 border-primary/40 pl-4 break-words">
           {article.description}
         </p>
 
@@ -203,7 +203,7 @@ export default function Article() {
                 <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
                   <Icon name="ArrowLeft" size={13} /> {lang === 'ru' ? 'Предыдущая' : 'Previous'}
                 </span>
-                <span className="font-display font-bold text-sm leading-snug group-hover:text-primary transition-colors line-clamp-2">{prevArticle.title}</span>
+                <span className="font-display font-bold text-sm leading-snug group-hover:text-primary transition-colors line-clamp-2 break-words">{prevArticle.title}</span>
               </Link>
             ) : <div />}
             {nextArticle && (
@@ -211,7 +211,7 @@ export default function Article() {
                 <span className="flex items-center gap-1.5 text-xs text-muted-foreground justify-end">
                   {lang === 'ru' ? 'Следующая' : 'Next'} <Icon name="ArrowRight" size={13} />
                 </span>
-                <span className="font-display font-bold text-sm leading-snug group-hover:text-primary transition-colors line-clamp-2">{nextArticle.title}</span>
+                <span className="font-display font-bold text-sm leading-snug group-hover:text-primary transition-colors line-clamp-2 break-words">{nextArticle.title}</span>
               </Link>
             )}
           </div>
@@ -232,8 +232,8 @@ export default function Article() {
                     <img src={a.cover} alt={a.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                   </div>
                   <div className="p-4">
-                    <span className="text-xs font-semibold text-primary">{a.category}</span>
-                    <h3 className="mt-1.5 font-display font-bold text-sm leading-snug group-hover:text-primary transition-colors line-clamp-2">{a.title}</h3>
+                    <span className="text-xs font-semibold text-primary truncate block">{a.category}</span>
+                    <h3 className="mt-1.5 font-display font-bold text-sm leading-snug group-hover:text-primary transition-colors line-clamp-2 break-words">{a.title}</h3>
                     <span className="mt-2 text-xs text-muted-foreground">{a.readTime} {tr('blogReadTime', lang)}</span>
                   </div>
                 </Link>

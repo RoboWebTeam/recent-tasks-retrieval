@@ -90,6 +90,14 @@
   }
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
+section[id] {
+  scroll-margin-top: 88px;
+}
+
 @keyframes msgIn {
   from {
     opacity: 0;
@@ -114,6 +122,30 @@
   margin-left: 1px;
   font-weight: 300;
   animation: blink 0.8s step-end infinite;
+}
+
+.prose-custom {
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.prose-custom p,
+.prose-custom li,
+.prose-custom h2,
+.prose-custom h3 {
+  overflow-wrap: break-word;
+  word-break: break-word;
+}
+
+.prose-custom ul {
+  margin-top: 0.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.prose-custom a {
+  color: hsl(var(--primary));
+  text-decoration: underline;
+  text-underline-offset: 2px;
 }
 
 @keyframes cardIn {

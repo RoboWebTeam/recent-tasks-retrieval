@@ -1,5 +1,5 @@
 import { useEffect, useState, useMemo } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { ARTICLES } from '@/data/blog';
 import Icon from '@/components/ui/icon';
 import { Button } from '@/components/ui/button';
@@ -11,9 +11,18 @@ export default function Blog() {
   const lang = getLang();
   const ALL = tr('blogAll', lang);
   const CATEGORIES = [ALL, ...Array.from(new Set(ARTICLES.map(a => a.category)))];
+  const [searchParams] = useSearchParams();
 
   const [search, setSearch] = useState('');
   const [category, setCategory] = useState(ALL);
+
+  useEffect(() => {
+    const catFromUrl = searchParams.get('cat');
+    if (catFromUrl && CATEGORIES.includes(catFromUrl)) {
+      setCategory(catFromUrl);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
 
   useEffect(() => {
     setSeo({
@@ -62,7 +71,7 @@ export default function Blog() {
             <Icon name="ArrowLeft" size={16} /> {tr('blogBackHome', lang)}
           </Link>
           <span className="inline-block text-xs font-semibold uppercase tracking-widest text-primary mb-3">{tr('blogLabel', lang)}</span>
-          <h1 className="font-display font-black text-4xl sm:text-5xl md:text-6xl tracking-tight leading-tight">
+          <h1 className="font-display font-black text-3xl sm:text-5xl md:text-6xl tracking-tight leading-tight break-words">
             {tr('blogTitle', lang)}
           </h1>
           <p className="mt-4 text-lg text-muted-foreground">
@@ -72,7 +81,7 @@ export default function Blog() {
 
         {/* Search + filters */}
         <div className="flex flex-col sm:flex-row gap-3 mb-8">
-          <div className="relative flex-1 max-w-sm">
+          <div className="relative flex-1 sm:max-w-sm">
             <Icon name="Search" size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
             <Input
               value={search}
@@ -91,7 +100,7 @@ export default function Blog() {
               <button
                 key={cat}
                 onClick={() => setCategory(cat)}
-                className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all ${category === cat ? 'bg-primary text-primary-foreground shadow-sm' : 'bg-card border border-border text-muted-foreground hover:text-foreground hover:border-primary/40'}`}
+                className={`px-3.5 py-2 rounded-xl text-xs font-semibold transition-all max-w-[180px] truncate ${category === cat ? 'bg-primary text-primary-foreground shadow-sm' : 'bg-card border border-border text-muted-foreground hover:text-foreground hover:border-primary/40'}`}
               >
                 {cat}
                 {cat !== ALL && (
@@ -142,8 +151,8 @@ export default function Blog() {
                   </span>
                 </div>
                 <div className="flex flex-col flex-1 p-5 sm:p-6">
-                  <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary w-fit mb-3">{article.category}</span>
-                  <h2 className="font-display font-bold text-base sm:text-lg leading-snug group-hover:text-primary transition-colors flex-1">
+                  <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary w-fit max-w-full truncate mb-3">{article.category}</span>
+                  <h2 className="font-display font-bold text-base sm:text-lg leading-snug group-hover:text-primary transition-colors flex-1 line-clamp-2 break-words">
                     {article.title}
                   </h2>
                   <p className="mt-3 text-sm text-muted-foreground line-clamp-2">{article.description}</p>
