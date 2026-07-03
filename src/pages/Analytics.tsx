@@ -95,7 +95,7 @@ export default function Analytics() {
           <Link to="/dashboard" className="grid h-7 w-7 place-items-center rounded-xl hover:bg-secondary transition-colors text-muted-foreground">
             <Icon name="ArrowLeft" size={16} />
           </Link>
-          <Link to="/" className="flex items-center gap-2 font-display font-extrabold text-base">
+          <Link to="/dashboard" className="flex items-center gap-2 font-display font-extrabold text-base">
             <span className="grid h-7 w-7 place-items-center rounded-xl bg-primary text-primary-foreground shrink-0">
               <Icon name="Bot" size={14} />
             </span>

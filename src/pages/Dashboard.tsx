@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
@@ -38,12 +38,15 @@ function Avatar({ user }: { user: User }) {
 const Dashboard = () => {
   const lang = getLang();
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const PLAN_LABELS = getPlanLabels(lang);
   const STATUS_CONFIG = getStatusConfig(lang);
   const [user, setUser] = useState<User | null>(getStoredUser());
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
-  const [tab, setTab] = useState<'projects' | 'profile' | 'plan'>('projects');
+  const tabParam = searchParams.get('tab');
+  const tab: 'projects' | 'profile' | 'plan' = tabParam === 'profile' || tabParam === 'plan' ? tabParam : 'projects';
+  const setTab = (t: 'projects' | 'profile' | 'plan') => setSearchParams(t === 'projects' ? {} : { tab: t });
   const [newTitle, setNewTitle] = useState('');
   const [newDesc, setNewDesc] = useState('');
   const [creating, setCreating] = useState(false);
@@ -125,15 +128,15 @@ const Dashboard = () => {
 
           <nav className="hidden sm:flex items-center gap-1">
             {([['projects', tr('myProjects', lang), 'Layers'], ['plan', tr('plan', lang), 'CreditCard'], ['profile', tr('profile', lang), 'User']] as const).map(([id, label, icon]) => (
-              <button
+              <Link
                 key={id}
-                onClick={() => setTab(id)}
+                to={id === 'projects' ? '/dashboard' : `/dashboard?tab=${id}`}
                 className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium transition-colors ${
                   tab === id ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
                 }`}
               >
                 <Icon name={icon} size={15} />{label}
-              </button>
+              </Link>
             ))}
             <Link to="/analytics" className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors">
               <Icon name="BarChart2" size={15} />{lang === 'ru' ? 'Аналитика' : 'Analytics'}
@@ -159,15 +162,15 @@ const Dashboard = () => {
         {/* Mobile nav */}
         <div className="sm:hidden flex border-t border-border overflow-x-auto">
           {([['projects', tr('myProjects', lang), 'Layers'], ['plan', tr('plan', lang), 'CreditCard'], ['profile', tr('profile', lang), 'User']] as const).map(([id, label, icon]) => (
-            <button
+            <Link
               key={id}
-              onClick={() => setTab(id)}
+              to={id === 'projects' ? '/dashboard' : `/dashboard?tab=${id}`}
               className={`flex-1 flex flex-col items-center gap-1 py-2.5 text-xs font-medium transition-colors shrink-0 ${
                 tab === id ? 'text-primary' : 'text-muted-foreground'
               }`}
             >
               <Icon name={icon} size={18} />{label}
-            </button>
+            </Link>
           ))}
           <Link to="/analytics" className="flex-1 flex flex-col items-center gap-1 py-2.5 text-xs font-medium text-muted-foreground shrink-0">
             <Icon name="BarChart2" size={18} />{lang === 'ru' ? 'Аналитика' : 'Stats'}
