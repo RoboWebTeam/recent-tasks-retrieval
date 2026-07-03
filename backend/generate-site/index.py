@@ -196,7 +196,7 @@ def save_html(project_id: int, html: str, schema: str):
         conn.close()
 
 def handler(event: dict, context) -> dict:
-    """Генерирует HTML-код сайта через OpenAI GPT-4 по описанию пользователя"""
+    """Генерирует HTML-код сайта через Claude Sonnet (Anthropic) по описанию пользователя"""
 
     if event.get('httpMethod') == 'OPTIONS':
         return {'statusCode': 200, 'headers': cors(), 'body': ''}
@@ -226,29 +226,30 @@ def handler(event: dict, context) -> dict:
     if not messages:
         return err('Нет сообщений')
 
-    api_key = os.environ.get('OPENAI_API_KEY', '')
+    api_key = os.environ.get('ANTHROPIC_API_KEY', '')
     if not api_key:
-        return err('OpenAI API ключ не настроен')
+        return err('Anthropic API ключ не настроен')
 
-    # Формируем запрос к OpenAI
+    # Формируем запрос к Claude Sonnet
     project_images = get_project_images(project_id, user_id, schema)
-    chat_messages = [{'role': 'system', 'content': build_system_prompt(project_images)}]
-    for m in messages:
-        chat_messages.append({'role': m.get('role', 'user'), 'content': m.get('content', '')})
+    system_prompt = build_system_prompt(project_images)
+    chat_messages = [{'role': m.get('role', 'user'), 'content': m.get('content', '')} for m in messages]
 
     payload = json.dumps({
-        'model': 'gpt-4o-mini',
+        'model': 'claude-sonnet-4-5-20250929',
+        'system': system_prompt,
         'messages': chat_messages,
         'max_tokens': 8000,
         'temperature': 0.7,
     }).encode('utf-8')
 
     req = urllib.request.Request(
-        'https://api.openai.com/v1/chat/completions',
+        'https://api.anthropic.com/v1/messages',
         data=payload,
         headers={
             'Content-Type': 'application/json',
-            'Authorization': f'Bearer {api_key}',
+            'x-api-key': api_key,
+            'anthropic-version': '2023-06-01',
         },
         method='POST'
     )
@@ -258,19 +259,19 @@ def handler(event: dict, context) -> dict:
             result = json.loads(response.read().decode('utf-8'))
     except urllib.error.HTTPError as e:
         body = e.read().decode('utf-8', errors='ignore')
-        return err(f'OpenAI API error {e.code}', 502)
+        return err(f'Anthropic API error {e.code}', 502)
     except urllib.error.URLError:
-        return err('OpenAI API недоступен. Попробуйте позже.', 503)
+        return err('Anthropic API недоступен. Попробуйте позже.', 503)
     except (json.JSONDecodeError, Exception):
-        return err('Неверный ответ от OpenAI.', 502)
+        return err('Неверный ответ от Anthropic.', 502)
 
-    choices = result.get('choices') or []
-    if not choices:
-        return err('OpenAI вернул пустой ответ.', 502)
+    content_blocks = result.get('content') or []
+    if not content_blocks:
+        return err('Claude вернул пустой ответ.', 502)
 
-    html = (choices[0].get('message') or {}).get('content', '').strip()
+    html = (content_blocks[0].get('text') or '').strip()
     if not html:
-        return err('OpenAI вернул пустой HTML.', 502)
+        return err('Claude вернул пустой HTML.', 502)
 
     # Убираем markdown-обёртку если есть
     if html.startswith('```'):
@@ -281,4 +282,7 @@ def handler(event: dict, context) -> dict:
     if project_id:
         save_html(int(project_id), html, schema)
 
-    return ok({'html': html, 'tokens': result.get('usage', {}).get('total_tokens', 0), 'remaining': remaining})
+    usage = result.get('usage', {})
+    tokens = usage.get('input_tokens', 0) + usage.get('output_tokens', 0)
+
+    return ok({'html': html, 'tokens': tokens, 'remaining': remaining})
