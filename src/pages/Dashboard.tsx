@@ -9,6 +9,7 @@ import {
 } from '@/lib/auth';
 import { getLang, tr } from '@/lib/i18n';
 import DashboardHeader from '@/components/DashboardHeader';
+import { DashboardFooter } from '@/components/DashboardFooter';
 import DashboardProjectsTab from '@/components/dashboard/DashboardProjectsTab';
 import DashboardPlanTab from '@/components/dashboard/DashboardPlanTab';
 import DashboardProfileTab from '@/components/dashboard/DashboardProfileTab';
@@ -240,10 +241,10 @@ const Dashboard = () => {
   }
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-background flex flex-col">
       <DashboardHeader active={tab} />
 
-      <div className="container py-6 md:py-8 max-w-5xl">
+      <div className="container py-6 md:py-8 max-w-5xl flex-1">
 
         {/* PROJECTS TAB */}
         {tab === 'projects' && (
@@ -310,6 +311,8 @@ const Dashboard = () => {
           />
         )}
       </div>
+
+      <DashboardFooter lang={lang} />
     </div>
   );
 };

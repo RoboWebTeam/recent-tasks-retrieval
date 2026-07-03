@@ -205,7 +205,7 @@ export default function DashboardProfileTab({
               {lang === 'ru' ? 'Аккаунт не подключён' : 'Account not connected'}
             </p>
             <Button variant="outline" size="sm" className="rounded-xl gap-1.5 shrink-0" asChild>
-              <a href="/login">
+              <a href={`https://github.com/login/oauth/authorize?client_id=Ov23linVfsQ0G4M2cWrd&scope=public_repo&state=connect&redirect_uri=${encodeURIComponent(window.location.origin + '/auth/github/callback')}`}>
                 <Icon name="Github" size={14} />
                 {lang === 'ru' ? 'Подключить' : 'Connect'}
               </a>
@@ -214,8 +214,8 @@ export default function DashboardProfileTab({
         )}
         <p className="text-xs text-muted-foreground mt-3">
           {lang === 'ru'
-            ? 'Чтобы сменить аккаунт — отключите текущий, затем войдите через GitHub на странице входа с нужным аккаунтом.'
-            : 'To switch accounts — disconnect the current one, then sign in with GitHub on the login page using the account you want.'}
+            ? 'Чтобы сменить аккаунт — отключите текущий и подключите нужный заново.'
+            : 'To switch accounts — disconnect the current one and connect the one you need.'}
         </p>
       </div>
 

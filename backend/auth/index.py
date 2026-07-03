@@ -262,6 +262,7 @@ def handler(event: dict, context) -> dict:
                 gh_email = primary['email'] if primary else f"github_{gh_user['id']}@roboweb.user"
 
             gh_name = gh_user.get('name') or gh_user.get('login') or 'GitHub User'
+            gh_login = gh_user.get('login') or ''
             gh_email = gh_email.strip().lower()
 
             conn = get_conn()
@@ -279,6 +280,12 @@ def handler(event: dict, context) -> dict:
                         user_id = cur.fetchone()[0]
                         name, plan = gh_name, 'free'
 
+                    # Сохраняем токен и логин GitHub — нужны для публикации сайтов в репозиторий
+                    cur.execute(
+                        f"UPDATE {schema}.users SET github_access_token = %s, github_login = %s WHERE id = %s",
+                        (access_token, gh_login, user_id)
+                    )
+
                     session_id = str(uuid.uuid4())
                     cur.execute(
                         f"INSERT INTO {schema}.sessions (id, user_id) VALUES (%s, %s)",
@@ -289,7 +296,62 @@ def handler(event: dict, context) -> dict:
             finally:
                 conn.close()
 
-            return ok({'session_id': session_id, 'user': {'id': user_id, 'email': gh_email, 'name': name, 'plan': plan, **(quota or {})}})
+            return ok({'session_id': session_id, 'user': {'id': user_id, 'email': gh_email, 'name': name, 'plan': plan, 'github_login': gh_login, **(quota or {})}})
+
+        # GITHUB CONNECT — привязка GitHub к уже авторизованному аккаунту (не меняет сессию/email)
+        if action == 'github_connect':
+            session_id = headers.get('x-session-id', '')
+            if not session_id:
+                return err('Не авторизован', 401)
+
+            code = body.get('code', '')
+            if not code:
+                return err('Нет кода авторизации')
+
+            client_id = os.environ.get('GITHUB_CLIENT_ID', '')
+            client_secret = os.environ.get('GITHUB_CLIENT_SECRET', '')
+
+            token_data = urllib.parse.urlencode({
+                'client_id': client_id,
+                'client_secret': client_secret,
+                'code': code,
+            }).encode()
+            req = urllib.request.Request(
+                'https://github.com/login/oauth/access_token',
+                data=token_data,
+                headers={'Accept': 'application/json'},
+            )
+            with urllib.request.urlopen(req) as resp:
+                token_resp = json.loads(resp.read())
+
+            access_token = token_resp.get('access_token', '')
+            if not access_token:
+                return err('Не удалось получить токен GitHub')
+
+            user_req = urllib.request.Request(
+                'https://api.github.com/user',
+                headers={'Authorization': f'Bearer {access_token}', 'Accept': 'application/json', 'User-Agent': 'Roboweb'},
+            )
+            with urllib.request.urlopen(user_req) as resp:
+                gh_user = json.loads(resp.read())
+
+            gh_login = gh_user.get('login') or ''
+
+            conn = get_conn()
+            try:
+                with conn.cursor() as cur:
+                    user_id = get_user_id_by_session(cur, schema, session_id)
+                    if not user_id:
+                        return err('Сессия истекла', 401)
+                    cur.execute(
+                        f"UPDATE {schema}.users SET github_access_token = %s, github_login = %s WHERE id = %s",
+                        (access_token, gh_login, user_id)
+                    )
+                conn.commit()
+            finally:
+                conn.close()
+
+            return ok({'ok': True, 'github_login': gh_login})
 
         # YANDEX OAUTH
         if action == 'yandex_oauth':
@@ -548,13 +610,13 @@ def handler(event: dict, context) -> dict:
                     return ok({'orders': orders})
 
                 cur.execute(
-                    f"""SELECT email, name, plan, created_at FROM {schema}.users WHERE id = %s""",
+                    f"""SELECT email, name, plan, created_at, github_login FROM {schema}.users WHERE id = %s""",
                     (user_id,)
                 )
                 row = cur.fetchone()
                 if not row:
                     return err('Пользователь не найден', 404)
-                email, name, plan, created_at = row
+                email, name, plan, created_at, github_login = row
                 quota = reset_requests_if_needed(cur, schema, user_id, plan)
                 conn.commit()
         finally:
@@ -562,7 +624,7 @@ def handler(event: dict, context) -> dict:
 
         return ok({'user': {
             'id': user_id, 'email': email, 'name': name, 'plan': plan,
-            'created_at': created_at.isoformat(), **(quota or {}),
+            'created_at': created_at.isoformat(), 'github_login': github_login, **(quota or {}),
         }})
 
     return err('Not found', 404)

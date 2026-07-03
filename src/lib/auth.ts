@@ -14,6 +14,7 @@ export interface User {
   requests_used?: number;
   requests_limit?: number;
   energy_balance?: number;
+  github_login?: string | null;
 }
 
 // Порог, при котором показываем предупреждение о низком балансе AI-запросов
@@ -174,6 +175,17 @@ export async function apiGithubOAuth(code: string) {
   });
   if (!res.ok) throw new Error((data as {error?: string}).error || 'Ошибка авторизации через GitHub');
   return data;
+}
+
+/** Привязывает GitHub-аккаунт к уже авторизованному пользователю (не создаёт новую сессию). */
+export async function apiGithubConnect(sessionId: string, code: string) {
+  const { res, data } = await apiFetch(AUTH_URL, {
+    method: 'POST',
+    headers: { 'x-session-id': sessionId },
+    body: JSON.stringify({ action: 'github_connect', code }),
+  });
+  if (!res.ok) throw new Error((data as {error?: string}).error || 'Ошибка подключения GitHub');
+  return data as { ok: boolean; github_login: string };
 }
 
 export async function apiYandexOAuth(code: string) {
