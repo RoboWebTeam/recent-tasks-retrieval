@@ -1,9 +1,9 @@
 import { useState, useEffect, useRef } from 'react';
-import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { getLang } from '@/lib/i18n';
 import { getSession, apiGetFiles, apiUploadFile, apiDeleteFile, type SiteFile } from '@/lib/auth';
+import DashboardHeader from '@/components/DashboardHeader';
 
 function formatSize(bytes: number, isRu: boolean): string {
   if (bytes < 1024) return `${bytes} B`;
@@ -85,21 +85,7 @@ export default function Files() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-50 border-b border-border bg-card shadow-sm">
-        <div className="container flex h-14 items-center gap-3">
-          <Link to="/dashboard" className="grid h-7 w-7 place-items-center rounded-xl hover:bg-secondary transition-colors text-muted-foreground">
-            <Icon name="ArrowLeft" size={16} />
-          </Link>
-          <Link to="/dashboard" className="flex items-center gap-2 font-display font-extrabold text-base">
-            <span className="grid h-7 w-7 place-items-center rounded-xl bg-primary text-primary-foreground shrink-0">
-              <Icon name="Bot" size={14} />
-            </span>
-            <span className="hidden sm:block">Roboweb</span>
-          </Link>
-          <span className="text-muted-foreground">/</span>
-          <span className="text-sm font-medium">{isRu ? 'Мои файлы' : 'My files'}</span>
-        </div>
-      </header>
+      <DashboardHeader active="files" />
 
       <main className="container py-8 max-w-4xl">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">

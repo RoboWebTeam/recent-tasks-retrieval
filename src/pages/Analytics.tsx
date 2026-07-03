@@ -1,9 +1,9 @@
 import { useState, useEffect } from 'react';
-import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { getLang, tr } from '@/lib/i18n';
 import { getSession } from '@/lib/auth';
+import DashboardHeader from '@/components/DashboardHeader';
 
 const ANALYTICS_URL = 'https://functions.poehali.dev/ee6777e6-59d0-4d5f-acb2-d292c72253d3';
 const SITE_LEADS_URL = 'https://functions.poehali.dev/96a428e9-25c5-47d2-83b1-bdc68f9f8010';
@@ -90,21 +90,7 @@ export default function Analytics() {
 
   return (
     <div className="min-h-screen bg-background">
-      <header className="sticky top-0 z-50 border-b border-border bg-card shadow-sm">
-        <div className="container flex h-14 items-center gap-3">
-          <Link to="/dashboard" className="grid h-7 w-7 place-items-center rounded-xl hover:bg-secondary transition-colors text-muted-foreground">
-            <Icon name="ArrowLeft" size={16} />
-          </Link>
-          <Link to="/dashboard" className="flex items-center gap-2 font-display font-extrabold text-base">
-            <span className="grid h-7 w-7 place-items-center rounded-xl bg-primary text-primary-foreground shrink-0">
-              <Icon name="Bot" size={14} />
-            </span>
-            <span className="hidden sm:block">Roboweb</span>
-          </Link>
-          <span className="text-muted-foreground">/</span>
-          <span className="text-sm font-medium">{isRu ? 'Аналитика' : 'Analytics'}</span>
-        </div>
-      </header>
+      <DashboardHeader active="analytics" />
 
       <main className="container py-8 max-w-6xl">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">

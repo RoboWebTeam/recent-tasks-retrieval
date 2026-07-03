@@ -12,7 +12,7 @@ import {
   type User, type Project,
 } from '@/lib/auth';
 import { getLang, tr } from '@/lib/i18n';
-import LangSwitcher from '@/components/LangSwitcher';
+import DashboardHeader from '@/components/DashboardHeader';
 
 const getPlanLabels = (lang: ReturnType<typeof getLang>) => ({
   free:    { label: tr('planFree', lang),    color: 'bg-secondary text-secondary-foreground', requests: '3' },
@@ -25,15 +25,6 @@ const getStatusConfig = (lang: ReturnType<typeof getLang>) => ({
   building:  { label: tr('building', lang),  color: 'text-amber-700 bg-amber-100',          icon: 'Loader' },
   published: { label: tr('published', lang), color: 'text-emerald-700 bg-emerald-100',      icon: 'Globe' },
 });
-
-function Avatar({ user }: { user: User }) {
-  const initials = user.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
-  return (
-    <div className="grid h-9 w-9 place-items-center rounded-xl bg-primary text-primary-foreground font-display font-bold text-sm shrink-0">
-      {initials}
-    </div>
-  );
-}
 
 const Dashboard = () => {
   const lang = getLang();
@@ -116,76 +107,7 @@ const Dashboard = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b border-border bg-card sticky top-0 z-10">
-        <div className="container flex items-center justify-between py-3.5">
-          <Link to="/" className="flex items-center gap-2 font-display font-extrabold text-lg">
-            <span className="grid h-8 w-8 place-items-center rounded-xl bg-primary text-primary-foreground shrink-0">
-              <Icon name="Bot" size={17} />
-            </span>
-            Roboweb
-          </Link>
-
-          <nav className="hidden sm:flex items-center gap-1">
-            {([['projects', tr('myProjects', lang), 'Layers'], ['plan', tr('plan', lang), 'CreditCard'], ['profile', tr('profile', lang), 'User']] as const).map(([id, label, icon]) => (
-              <Link
-                key={id}
-                to={id === 'projects' ? '/dashboard' : `/dashboard?tab=${id}`}
-                className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium transition-colors ${
-                  tab === id ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
-                }`}
-              >
-                <Icon name={icon} size={15} />{label}
-              </Link>
-            ))}
-            <Link to="/analytics" className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors">
-              <Icon name="BarChart2" size={15} />{lang === 'ru' ? 'Аналитика' : 'Analytics'}
-            </Link>
-            <Link to="/leads" className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors relative">
-              <Icon name="Inbox" size={15} />{lang === 'ru' ? 'Заявки' : 'Leads'}
-              <span className="absolute -top-0.5 -right-0.5 h-4 w-4 bg-primary text-primary-foreground text-[9px] font-bold rounded-full flex items-center justify-center">2</span>
-            </Link>
-            <Link to="/files" className="flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium text-muted-foreground hover:bg-secondary hover:text-foreground transition-colors">
-              <Icon name="FolderOpen" size={15} />{lang === 'ru' ? 'Мои файлы' : 'My files'}
-            </Link>
-          </nav>
-
-          <div className="flex items-center gap-2">
-            <LangSwitcher lang={lang} />
-            {user && <Avatar user={user} />}
-            <Button variant="ghost" size="sm" onClick={handleLogout} className="rounded-xl text-muted-foreground hover:text-foreground hidden sm:flex">
-              <Icon name="LogOut" size={16} />
-            </Button>
-          </div>
-        </div>
-
-        {/* Mobile nav */}
-        <div className="sm:hidden flex border-t border-border overflow-x-auto">
-          {([['projects', tr('myProjects', lang), 'Layers'], ['plan', tr('plan', lang), 'CreditCard'], ['profile', tr('profile', lang), 'User']] as const).map(([id, label, icon]) => (
-            <Link
-              key={id}
-              to={id === 'projects' ? '/dashboard' : `/dashboard?tab=${id}`}
-              className={`flex-1 flex flex-col items-center gap-1 py-2.5 text-xs font-medium transition-colors shrink-0 ${
-                tab === id ? 'text-primary' : 'text-muted-foreground'
-              }`}
-            >
-              <Icon name={icon} size={18} />{label}
-            </Link>
-          ))}
-          <Link to="/analytics" className="flex-1 flex flex-col items-center gap-1 py-2.5 text-xs font-medium text-muted-foreground shrink-0">
-            <Icon name="BarChart2" size={18} />{lang === 'ru' ? 'Аналитика' : 'Stats'}
-          </Link>
-          <Link to="/leads" className="flex-1 flex flex-col items-center gap-1 py-2.5 text-xs font-medium text-muted-foreground shrink-0 relative">
-            <Icon name="Inbox" size={18} />
-            <span className="absolute top-1.5 left-1/2 translate-x-1 -translate-y-0.5 h-3.5 w-3.5 bg-primary text-primary-foreground text-[8px] font-bold rounded-full flex items-center justify-center">2</span>
-            {lang === 'ru' ? 'Заявки' : 'Leads'}
-          </Link>
-          <Link to="/files" className="flex-1 flex flex-col items-center gap-1 py-2.5 text-xs font-medium text-muted-foreground shrink-0">
-            <Icon name="FolderOpen" size={18} />
-            {lang === 'ru' ? 'Файлы' : 'Files'}
-          </Link>
-        </div>
-      </header>
+      <DashboardHeader active={tab} />
 
       <div className="container py-6 md:py-8 max-w-5xl">
 
