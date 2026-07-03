@@ -40,10 +40,12 @@ const Admin = () => {
   const [expandedUserId, setExpandedUserId] = useState<number | null>(null);
   const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
   const [userDetailsLoading, setUserDetailsLoading] = useState(false);
+  const [userActionError, setUserActionError] = useState('');
 
   const manageUser = async (userId: number, action: 'block' | 'unblock' | 'delete' | 'change_plan', plan?: string) => {
     setActionLoading(userId);
     if (action === 'change_plan') setPlanChanging(userId);
+    setUserActionError('');
     try {
       const res = await fetch(MANAGE_USER_URL, {
         method: 'POST',
@@ -54,13 +56,18 @@ const Admin = () => {
       const data = unwrap(raw);
       if (data.ok) {
         if (action === 'delete') {
-          setUsers(prev => prev?.map(u => u.id === userId ? { ...u, name: 'Удалён', email: '', blocked: true } : u) ?? null);
+          setUsers(prev => prev?.filter(u => u.id !== userId) ?? null);
+          if (expandedUserId === userId) { setExpandedUserId(null); setUserDetails(null); }
         } else if (action === 'change_plan' && plan) {
           setUsers(prev => prev?.map(u => u.id === userId ? { ...u, plan } : u) ?? null);
         } else {
           setUsers(prev => prev?.map(u => u.id === userId ? { ...u, blocked: action === 'block' } : u) ?? null);
         }
+      } else {
+        setUserActionError((data.error as string) || 'Не удалось выполнить действие');
       }
+    } catch {
+      setUserActionError('Ошибка соединения. Попробуйте ещё раз.');
     } finally { setActionLoading(null); setConfirmDelete(null); setPlanChanging(null); }
   };
 
@@ -355,6 +362,8 @@ const Admin = () => {
             onToggleExpand={toggleUserExpand}
             userDetails={userDetails}
             userDetailsLoading={userDetailsLoading}
+            actionError={userActionError}
+            onDismissError={() => setUserActionError('')}
           />
         )}
         {tab === 'log' && (

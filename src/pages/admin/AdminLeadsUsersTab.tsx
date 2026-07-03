@@ -90,15 +90,27 @@ interface UsersTabProps {
   onToggleExpand: (userId: number) => void;
   userDetails: UserDetails | null;
   userDetailsLoading: boolean;
+  actionError?: string;
+  onDismissError?: () => void;
 }
 
 export function UsersTab({
   filteredUsers, search, setSearch, actionLoading, confirmDelete,
   setConfirmDelete, planChanging, manageUser, exportCSV,
   expandedUserId, onToggleExpand, userDetails, userDetailsLoading,
+  actionError, onDismissError,
 }: UsersTabProps) {
   return (
     <div>
+      {actionError && (
+        <div className="flex items-center gap-2 bg-destructive/10 text-destructive rounded-xl px-4 py-3 mb-4 text-sm">
+          <Icon name="AlertCircle" size={15} className="shrink-0" />
+          <span className="flex-1">{actionError}</span>
+          {onDismissError && (
+            <button onClick={onDismissError}><Icon name="X" size={14} /></button>
+          )}
+        </div>
+      )}
       <div className="flex flex-col sm:flex-row gap-3 mb-4">
         <div className="relative flex-1">
           <Icon name="Search" size={16} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
@@ -193,10 +205,10 @@ export function UsersTab({
                             <Icon name={isLoad ? 'Loader' : user.blocked ? 'Unlock' : 'Lock'} size={13} className={isLoad ? 'animate-spin' : ''} />
                           </button>
                           {isConf ? (
-                            <div className="flex items-center gap-1">
+                            <div className="flex items-center gap-1" title="Удаление безвозвратно: пользователь, его проекты и все данные будут удалены навсегда">
                               <button onClick={() => manageUser(user.id, 'delete')} disabled={isLoad}
-                                className="h-7 px-2 rounded-lg bg-destructive text-destructive-foreground text-xs font-semibold hover:bg-destructive/90 transition-colors">
-                                {isLoad ? '…' : 'Да'}
+                                className="h-7 px-2.5 rounded-lg bg-destructive text-destructive-foreground text-xs font-semibold hover:bg-destructive/90 transition-colors whitespace-nowrap">
+                                {isLoad ? '…' : 'Удалить навсегда'}
                               </button>
                               <button onClick={() => setConfirmDelete(null)}
                                 className="grid h-7 w-7 place-items-center rounded-lg hover:bg-secondary text-muted-foreground transition-colors">

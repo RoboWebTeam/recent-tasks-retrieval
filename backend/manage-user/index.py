@@ -187,7 +187,7 @@ def handler(event: dict, context) -> dict:
                 conn.commit()
                 return ok({'ok': True, 'message': 'Пользователь разблокирован'})
 
-            # --- Удаление ---
+            # --- Удаление (полное, безвозвратное) ---
             elif action == 'delete':
                 if not user_id:
                     return err('user_id обязателен')
@@ -196,12 +196,33 @@ def handler(event: dict, context) -> dict:
                 if not row:
                     return err('Пользователь не найден', 404)
                 meta = json.dumps({'user_id': user_id, 'name': row[0], 'email': row[1]})
+
+                # Записываем факт удаления в лог/уведомления ДО удаления,
+                # но сам activity_log должен пережить удаление пользователя —
+                # поэтому его строки не трогаем, только отвязываем user_id
                 log_action(cur, schema, f'Удалён: {row[0]} ({row[1]})', user_id, 'delete_user', meta)
-                cur.execute(f"UPDATE {schema}.sessions SET expires_at = NOW() WHERE user_id = %s", (user_id,))
-                cur.execute(f"UPDATE {schema}.projects SET user_id = NULL WHERE user_id = %s", (user_id,))
-                cur.execute(f"UPDATE {schema}.users SET email = 'deleted_' || id || '@deleted', name = 'Удалён', blocked = true WHERE id = %s", (user_id,))
+
+                # Удаляем/отвязываем все зависимые данные в правильном порядке
+                # (сначала дочерние таблицы, затем сами проекты и пользователя)
+                cur.execute(f"""
+                    DELETE FROM {schema}.project_db_rows
+                    WHERE table_id IN (SELECT id FROM {schema}.project_db_tables WHERE user_id = %s)
+                """, (user_id,))
+                cur.execute(f"DELETE FROM {schema}.project_db_tables WHERE user_id = %s", (user_id,))
+                cur.execute(f"DELETE FROM {schema}.project_secrets WHERE user_id = %s", (user_id,))
+                cur.execute(f"DELETE FROM {schema}.domains WHERE user_id = %s", (user_id,))
+                cur.execute(f"""
+                    DELETE FROM {schema}.site_leads
+                    WHERE project_id IN (SELECT id FROM {schema}.projects WHERE user_id = %s)
+                """, (user_id,))
+                cur.execute(f"DELETE FROM {schema}.site_files WHERE user_id = %s", (user_id,))
+                cur.execute(f"DELETE FROM {schema}.sessions WHERE user_id = %s", (user_id,))
+                cur.execute(f"UPDATE {schema}.activity_log SET user_id = NULL WHERE user_id = %s", (user_id,))
+                cur.execute(f"DELETE FROM {schema}.projects WHERE user_id = %s", (user_id,))
+                cur.execute(f"DELETE FROM {schema}.users WHERE id = %s", (user_id,))
+
                 conn.commit()
-                return ok({'ok': True, 'message': 'Пользователь удалён'})
+                return ok({'ok': True, 'message': 'Пользователь и все его данные удалены безвозвратно'})
 
             else:
                 return err(f'Неизвестный action: {action}')

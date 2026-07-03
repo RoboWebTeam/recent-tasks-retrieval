@@ -1,6 +1,20 @@
 import Icon from '@/components/ui/icon';
 import { type LogEntry, type Notification, ACTION_LABELS, NOTIF_ICONS } from './adminTypes';
 
+// Понятные подписи для типов уведомлений и их полей меты
+const NOTIF_TYPE_LABELS: Record<string, string> = {
+  delete_user: 'Пользователь удалён',
+  block_user: 'Пользователь заблокирован',
+  unblock_user: 'Пользователь разблокирован',
+  change_plan: 'Смена тарифа',
+  register: 'Новая регистрация',
+  submit_lead: 'Новая заявка с сайта',
+};
+
+const META_FIELD_LABELS: Record<string, string> = {
+  name: 'Имя', email: 'E-mail', old_plan: 'Было', new_plan: 'Стало',
+};
+
 // ── LOG ──────────────────────────────────────────────────────────────────────
 
 interface LogTabProps {
@@ -110,6 +124,12 @@ interface NotificationsTabProps {
 export function NotificationsTab({ notifications, notifsLoading, unreadCount, markAllRead, fetchNotifications, adminKey }: NotificationsTabProps) {
   return (
     <div>
+      <div className="mb-4">
+        <p className="text-sm text-foreground font-semibold">Важные события в системе</p>
+        <p className="text-xs text-muted-foreground mt-0.5">
+          Здесь появляются уведомления, когда администратор удаляет, блокирует пользователя или меняет ему тариф
+        </p>
+      </div>
       <div className="flex items-center justify-between mb-4">
         <p className="text-sm text-muted-foreground">
           {unreadCount > 0 ? `${unreadCount} непрочитанных` : 'Все прочитаны'}
@@ -145,6 +165,7 @@ export function NotificationsTab({ notifications, notifsLoading, unreadCount, ma
         <div className="space-y-2">
           {notifications.map(n => {
             const icon = NOTIF_ICONS[n.type] || 'Bell';
+            const typeLabel = NOTIF_TYPE_LABELS[n.type] || n.type;
             const isNew = !n.is_read;
             let meta: Record<string, unknown> = {};
             try { meta = JSON.parse(n.body); } catch { /* ok */ }
@@ -155,12 +176,15 @@ export function NotificationsTab({ notifications, notifsLoading, unreadCount, ma
                 </div>
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-2">
-                    <p className={`text-sm font-semibold ${isNew ? 'text-foreground' : 'text-muted-foreground'}`}>{n.title}</p>
+                    <div>
+                      <p className={`text-[10px] font-bold uppercase tracking-wide ${isNew ? 'text-primary' : 'text-muted-foreground'}`}>{typeLabel}</p>
+                      <p className={`text-sm font-semibold ${isNew ? 'text-foreground' : 'text-muted-foreground'}`}>{n.title}</p>
+                    </div>
                     {isNew && <span className="h-2 w-2 rounded-full bg-primary shrink-0 mt-1.5" />}
                   </div>
                   {meta && Object.keys(meta).length > 0 && (
-                    <p className="text-xs text-muted-foreground mt-1 font-mono">
-                      {Object.entries(meta).filter(([k]) => k !== 'user_id').slice(0, 3).map(([k, v]) => `${k}: ${v}`).join(' · ')}
+                    <p className="text-xs text-muted-foreground mt-1">
+                      {Object.entries(meta).filter(([k]) => k !== 'user_id').slice(0, 3).map(([k, v]) => `${META_FIELD_LABELS[k] || k}: ${v}`).join(' · ')}
                     </p>
                   )}
                   <p className="text-[10px] text-muted-foreground mt-1.5">
