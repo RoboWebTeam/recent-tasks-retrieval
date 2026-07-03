@@ -169,6 +169,14 @@ export default function Builder() {
     ta.style.height = Math.min(ta.scrollHeight, 160) + 'px';
   }, [input]);
 
+  const applyTemplate = (text: string) => {
+    setInput(text);
+    requestAnimationFrame(() => {
+      textareaRef.current?.focus();
+      textareaRef.current?.setSelectionRange(text.length, text.length);
+    });
+  };
+
   const sendMessage = async (text?: string) => {
     const rawContent = (text || input).trim();
     if (!rawContent.trim() && !attachedImage) return;
@@ -813,10 +821,10 @@ export default function Builder() {
                         <p className="text-[10px] text-muted-foreground/70 uppercase tracking-widest font-semibold px-1 mb-1.5">{group.cat}</p>
                         <div className="space-y-1">
                           {group.items.map(s => (
-                            <button key={s} onClick={() => sendMessage(s)}
+                            <button key={s} onClick={() => applyTemplate(s)}
                               className="w-full text-left text-sm font-medium text-muted-foreground hover:text-foreground bg-secondary hover:bg-secondary/70 border border-border hover:border-primary/50 rounded-xl px-3 py-2.5 transition-all group">
                               <span className="flex items-center gap-2">
-                                <Icon name="ArrowRight" size={11} className="text-primary shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
+                                <Icon name="Pencil" size={11} className="text-primary shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
                                 {s}
                               </span>
                             </button>
