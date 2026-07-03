@@ -5,7 +5,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
 } from '@/components/ui/dialog';
 import { tr, type Lang } from '@/lib/i18n';
-import { type User, type Order } from '@/lib/auth';
+import { type User, type Order, getRemainingRequests, LOW_BALANCE_THRESHOLD } from '@/lib/auth';
 
 interface PlanLabelItem {
   label: string;
@@ -60,9 +60,33 @@ export default function DashboardProfileTab({
   disconnectingGithub, handleDisconnectGithub,
   deleteOpen, setDeleteOpen, deletePassword, setDeletePassword, deleteError, deleting, handleDeleteAccount,
 }: DashboardProfileTabProps) {
+  const remaining = getRemainingRequests(user);
+  const lowBalance = remaining !== null && remaining <= LOW_BALANCE_THRESHOLD;
+
   return (
     <div className="max-w-lg">
       <h1 className="font-display font-black text-2xl mb-6">{tr('profile', lang)}</h1>
+
+      {lowBalance && (
+        <div className={`rounded-2xl px-4 py-3 mb-4 flex items-start gap-2.5 text-sm ${
+          remaining! <= 0 ? 'bg-destructive/10 text-destructive' : 'bg-amber-50 text-amber-800'
+        }`}>
+          <Icon name={remaining! <= 0 ? 'AlertCircle' : 'Zap'} size={16} className="shrink-0 mt-0.5" />
+          <div className="flex-1">
+            <p className="font-semibold">
+              {remaining! <= 0
+                ? (lang === 'ru' ? 'Лимит AI-запросов исчерпан' : 'AI request limit reached')
+                : (lang === 'ru' ? `Осталось ${remaining} запросов к AI` : `${remaining} AI requests left`)}
+            </p>
+            <p className="opacity-80 mt-0.5">
+              {lang === 'ru' ? 'Пополните энергию или смените тариф' : 'Top up energy or upgrade your plan'}
+            </p>
+          </div>
+          <button onClick={() => setTab('plan')} className="shrink-0 font-semibold underline hover:no-underline">
+            {lang === 'ru' ? 'Тарифы' : 'Plans'}
+          </button>
+        </div>
+      )}
 
       <div className="rounded-2xl border border-border bg-card p-6 mb-4">
         <div className="flex items-center gap-4 mb-6">

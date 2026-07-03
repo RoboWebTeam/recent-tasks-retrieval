@@ -1,7 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
-import { getStoredUser, clearSession, type User } from '@/lib/auth';
+import { getStoredUser, clearSession, getRemainingRequests, LOW_BALANCE_THRESHOLD, type User } from '@/lib/auth';
 import { getLang, tr, type Lang } from '@/lib/i18n';
 import LangSwitcher from '@/components/LangSwitcher';
 
@@ -25,6 +25,8 @@ export default function DashboardHeader({ active, leadsCount = 0 }: DashboardHea
   const lang: Lang = getLang();
   const user = getStoredUser();
   const handleLogout = () => { clearSession(); window.location.href = '/'; };
+  const remaining = getRemainingRequests(user);
+  const lowBalance = remaining !== null && remaining <= LOW_BALANCE_THRESHOLD;
 
   const mainNav = [
     ['projects', tr('myProjects', lang), 'Layers', '/dashboard'] as const,
@@ -53,11 +55,14 @@ export default function DashboardHeader({ active, leadsCount = 0 }: DashboardHea
             <Link
               key={id}
               to={href}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium transition-colors ${
+              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium transition-colors relative ${
                 active === id ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
               }`}
             >
               <Icon name={icon} size={15} />{label}
+              {id === 'plan' && lowBalance && (
+                <span className={`absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full ${remaining! <= 0 ? 'bg-destructive' : 'bg-amber-500'} ${active === id ? 'ring-2 ring-primary' : ''}`} />
+              )}
             </Link>
           ))}
           {extraNav.map(([id, label, icon, href, count]) => (
@@ -93,11 +98,15 @@ export default function DashboardHeader({ active, leadsCount = 0 }: DashboardHea
           <Link
             key={id}
             to={href}
-            className={`flex-1 flex flex-col items-center gap-1 py-2.5 text-xs font-medium transition-colors shrink-0 ${
+            className={`flex-1 flex flex-col items-center gap-1 py-2.5 text-xs font-medium transition-colors shrink-0 relative ${
               active === id ? 'text-primary' : 'text-muted-foreground'
             }`}
           >
-            <Icon name={icon} size={18} />{label}
+            <Icon name={icon} size={18} />
+            {id === 'plan' && lowBalance && (
+              <span className={`absolute top-1.5 left-1/2 translate-x-2 -translate-y-0.5 h-2.5 w-2.5 rounded-full ${remaining! <= 0 ? 'bg-destructive' : 'bg-amber-500'}`} />
+            )}
+            {label}
           </Link>
         ))}
         {extraNav.map(([id, label, icon, href, count]) => (

@@ -3,7 +3,7 @@ import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { tr, type Lang } from '@/lib/i18n';
-import { type User } from '@/lib/auth';
+import { type User, getRemainingRequests, LOW_BALANCE_THRESHOLD } from '@/lib/auth';
 import { PLAN_PRICING_URL, FALLBACK_PRO_PLANS, PRO_PLAN_DETAILS, getProRequestsLabel, type ProPlanOption } from '@/data/proPlans';
 
 const ENERGY_PACKAGES = [
@@ -33,6 +33,8 @@ export default function DashboardPlanTab({
   const [proPlans, setProPlans] = useState<ProPlanOption[]>(FALLBACK_PRO_PLANS);
   const [proIndex, setProIndex] = useState(0);
   const selectedPro = proPlans[proIndex] ?? proPlans[0];
+  const remaining = getRemainingRequests(user);
+  const lowBalance = remaining !== null && remaining <= LOW_BALANCE_THRESHOLD;
 
   useEffect(() => {
     fetch(PLAN_PRICING_URL)
@@ -47,6 +49,25 @@ export default function DashboardPlanTab({
   return (
     <div>
       <h1 className="font-display font-black text-2xl mb-6">{lang === 'ru' ? 'Тарифный план' : 'Pricing Plan'}</h1>
+
+      {lowBalance && (
+        <div className={`rounded-2xl px-4 py-3 mb-4 flex items-start gap-2.5 text-sm ${
+          remaining! <= 0 ? 'bg-destructive/10 text-destructive' : 'bg-amber-50 text-amber-800'
+        }`}>
+          <Icon name={remaining! <= 0 ? 'AlertCircle' : 'Zap'} size={16} className="shrink-0 mt-0.5" />
+          <div>
+            <p className="font-semibold">
+              {remaining! <= 0
+                ? (lang === 'ru' ? 'Лимит AI-запросов исчерпан' : 'AI request limit reached')
+                : (lang === 'ru' ? `Осталось ${remaining} запросов к AI` : `${remaining} AI requests left`)}
+            </p>
+            <p className="opacity-80 mt-0.5">
+              {lang === 'ru' ? 'Купите энергию ниже или смените тариф, чтобы не потерять доступ к AI.' : 'Buy energy below or upgrade your plan to keep AI access.'}
+            </p>
+          </div>
+        </div>
+      )}
+
       <div className="rounded-2xl border border-primary bg-card p-6 mb-4 flex flex-col sm:flex-row sm:items-center gap-4">
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-1">

@@ -2,9 +2,10 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
-import { getSession, getStoredUser, apiUploadFile, apiGetProject, apiPublishProject } from '@/lib/auth';
+import { getSession, getStoredUser, apiUploadFile, apiGetProject, apiPublishProject, LOW_BALANCE_THRESHOLD } from '@/lib/auth';
 import { getLang, tr } from '@/lib/i18n';
 import LangSwitcher from '@/components/LangSwitcher';
+import { useToast } from '@/hooks/use-toast';
 
 const GENERATE_URL = 'https://functions.poehali.dev/64b3e52e-6bb5-4d4e-b7ee-e3840af35990';
 
@@ -75,6 +76,7 @@ export default function Builder() {
   const SUGGESTIONS = lang === 'ru' ? SUGGESTIONS_RU : SUGGESTIONS_EN;
   const QUICK_EDITS = lang === 'ru' ? QUICK_EDITS_RU : QUICK_EDITS_EN;
   const navigate = useNavigate();
+  const { toast } = useToast();
   const [searchParams] = useSearchParams();
   const projectId = searchParams.get('project');
 
@@ -202,6 +204,13 @@ export default function Builder() {
         if (statusCode === 402) {
           setQuotaExceeded(true);
           setRemaining(0);
+          toast({
+            variant: 'destructive',
+            title: lang === 'ru' ? '🚫 Лимит AI-запросов исчерпан' : '🚫 AI request limit reached',
+            description: lang === 'ru'
+              ? 'Пополните энергию или смените тариф, чтобы продолжить генерацию сайта.'
+              : 'Top up energy or upgrade your plan to keep generating.',
+          });
         }
         setMessages(prev => {
           const updated = [...prev];
@@ -214,7 +223,16 @@ export default function Builder() {
       const generatedHtml = (data as { html?: string }).html || '';
       const tokens = (data as { tokens?: number }).tokens || 0;
       if (typeof (data as { remaining?: number }).remaining === 'number') {
-        setRemaining((data as { remaining?: number }).remaining!);
+        const newRemaining = (data as { remaining?: number }).remaining!;
+        if (newRemaining <= LOW_BALANCE_THRESHOLD && (remaining === null || remaining > LOW_BALANCE_THRESHOLD)) {
+          toast({
+            title: lang === 'ru' ? '⚡ Заканчиваются запросы к AI' : '⚡ AI requests running low',
+            description: lang === 'ru'
+              ? `Осталось ${newRemaining} запросов. Пополните энергию или смените тариф, чтобы не потерять доступ.`
+              : `${newRemaining} requests left. Top up energy or upgrade your plan to avoid losing access.`,
+          });
+        }
+        setRemaining(newRemaining);
       }
 
       // Сохраняем версию
@@ -862,6 +880,28 @@ export default function Builder() {
                     </button>
                   ))}
                 </div>
+              </div>
+            )}
+
+            {/* Low balance / quota banner */}
+            {remaining !== null && remaining <= LOW_BALANCE_THRESHOLD && (
+              <div className={`mx-3 mt-3 rounded-xl px-3 py-2.5 flex items-start gap-2 text-xs ${
+                remaining <= 0 ? 'bg-destructive/10 text-destructive' : 'bg-amber-50 text-amber-800'
+              }`}>
+                <Icon name={remaining <= 0 ? 'AlertCircle' : 'Zap'} size={14} className="shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <p className="font-semibold">
+                    {remaining <= 0
+                      ? (lang === 'ru' ? 'Лимит AI-запросов исчерпан' : 'AI request limit reached')
+                      : (lang === 'ru' ? `Осталось ${remaining} запросов к AI` : `${remaining} AI requests left`)}
+                  </p>
+                  <p className="opacity-80 mt-0.5">
+                    {lang === 'ru' ? 'Пополните энергию или смените тариф' : 'Top up energy or upgrade your plan'}
+                  </p>
+                </div>
+                <Link to="/dashboard?tab=plan" className="shrink-0 font-semibold underline hover:no-underline">
+                  {lang === 'ru' ? 'Тарифы' : 'Plans'}
+                </Link>
               </div>
             )}
 

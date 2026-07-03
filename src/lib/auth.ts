@@ -15,6 +15,15 @@ export interface User {
   energy_balance?: number;
 }
 
+// Порог, при котором показываем предупреждение о низком балансе AI-запросов
+export const LOW_BALANCE_THRESHOLD = 5;
+
+/** Считает остаток AI-запросов пользователя (лимит тарифа - использовано + энергия). */
+export function getRemainingRequests(user: User | null | undefined): number | null {
+  if (!user || typeof user.requests_limit !== 'number') return null;
+  return Math.max(0, user.requests_limit - (user.requests_used || 0)) + (user.energy_balance || 0);
+}
+
 export interface Order {
   order_number: string;
   order_type: 'plan' | 'energy';
