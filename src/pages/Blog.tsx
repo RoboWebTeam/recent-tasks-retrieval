@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { setSeo, setBlogJsonLd } from '@/lib/seo';
 import { getLang, tr } from '@/lib/i18n';
+import { SiteFooter } from '@/components/SiteFooter';
 
 export default function Blog() {
   const lang = getLang();
@@ -179,6 +180,8 @@ export default function Blog() {
           </Button>
         </div>
       </main>
+
+      <SiteFooter lang={lang} />
     </div>
   );
 }

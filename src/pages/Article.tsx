@@ -5,6 +5,7 @@ import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { setSeo, setArticleJsonLd } from '@/lib/seo';
 import { getLang, tr } from '@/lib/i18n';
+import { SiteFooter } from '@/components/SiteFooter';
 
 export default function Article() {
   const lang = getLang();
@@ -242,6 +243,8 @@ export default function Article() {
           </div>
         )}
       </main>
+
+      <SiteFooter lang={lang} />
     </div>
   );
 }
