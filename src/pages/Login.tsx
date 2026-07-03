@@ -6,6 +6,7 @@ import Icon from '@/components/ui/icon';
 import { apiLogin, setSession, storeUser } from '@/lib/auth';
 import { getLang, tr } from '@/lib/i18n';
 import LangSwitcher from '@/components/LangSwitcher';
+import TelegramLoginButton from '@/components/TelegramLoginButton';
 
 const Login = () => {
   const lang = getLang();
@@ -144,23 +145,16 @@ const Login = () => {
               <span className="text-xs text-muted-foreground shrink-0">{lang === 'ru' ? 'или войдите через' : 'or continue with'}</span>
               <div className="h-px flex-1 bg-border" />
             </div>
-            <div className="grid grid-cols-3 gap-3">
-              <button
-                type="button"
-                onClick={() => {
-                  const botUsername = 'roboweb_bot';
-                  const redirectUri = encodeURIComponent(window.location.origin + '/auth/telegram/callback');
-                  window.location.href = `https://oauth.telegram.org/auth?bot_id=${botUsername}&origin=${redirectUri}&return_to=${redirectUri}`;
-                }}
-                className="flex items-center justify-center gap-2 h-11 rounded-xl border border-border bg-card hover:bg-secondary transition-colors text-sm font-medium"
-                title="Telegram"
-              >
-                <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-                  <circle cx="12" cy="12" r="12" fill="#2AABEE"/>
-                  <path d="M5.5 11.5L17 7L14 18L10.5 14.5L8 16.5L8.5 13L14 9.5L8 12.5L5.5 11.5Z" fill="white"/>
-                </svg>
-                <span className="hidden sm:inline">Telegram</span>
-              </button>
+
+            {/* Telegram — официальный виджет */}
+            <div className="mb-3">
+              <TelegramLoginButton
+                botUsername="roboweb_bot"
+                authUrl={`${window.location.origin}/auth/telegram/callback`}
+              />
+            </div>
+
+            <div className="grid grid-cols-2 gap-3">
               <button
                 type="button"
                 onClick={() => {
