@@ -4,10 +4,7 @@ import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
 import { type Domain, type DnsCheckResult } from '@/lib/auth';
-import { REGISTRAR_LINKS } from './DomainInfoCards';
-
-const SERVER_IP = '185.230.209.10';
-const CNAME_VALUE = 'cname.roboweb.site';
+import { REGISTRAR_LINKS, SERVER_IP, CNAME_VALUE } from './DomainInfoCards';
 
 interface DomainListItemProps {
   d: Domain;
