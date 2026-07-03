@@ -3,7 +3,6 @@ import { Link, useSearchParams } from 'react-router-dom';
 import { ARTICLES } from '@/data/blog';
 import Icon from '@/components/ui/icon';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
 import { setSeo, setBlogJsonLd } from '@/lib/seo';
 import { getLang, tr } from '@/lib/i18n';
 import { SiteFooter } from '@/components/SiteFooter';
@@ -14,7 +13,6 @@ export default function Blog() {
   const CATEGORIES = [ALL, ...Array.from(new Set(ARTICLES.map(a => a.category)))];
   const [searchParams] = useSearchParams();
 
-  const [search, setSearch] = useState('');
   const [category, setCategory] = useState(ALL);
 
   useEffect(() => {
@@ -37,16 +35,11 @@ export default function Blog() {
     setBlogJsonLd();
   }, []);
 
-  const isFiltering = !!(search || category !== ALL);
+  const isFiltering = category !== ALL;
 
   const filtered = useMemo(() => {
-    return ARTICLES.filter(a => {
-      const matchCat = category === ALL || a.category === category;
-      const q = search.toLowerCase();
-      const matchSearch = !q || a.title.toLowerCase().includes(q) || a.description.toLowerCase().includes(q) || a.category.toLowerCase().includes(q);
-      return matchCat && matchSearch;
-    });
-  }, [search, category]);
+    return ARTICLES.filter(a => category === ALL || a.category === category);
+  }, [category]);
 
   const featured = !isFiltering ? filtered[0] : null;
   const rest = featured ? filtered.slice(1) : filtered;
@@ -94,46 +87,27 @@ export default function Blog() {
 
       <main className="container py-8 sm:py-12 md:py-16">
         {/* Search + filters */}
-        <div className="flex flex-col sm:flex-row gap-3 mb-8 sm:mb-10">
-          <div className="relative flex-1 sm:max-w-sm">
-            <Icon name="Search" size={15} className="absolute left-3.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
-            <Input
-              value={search}
-              onChange={e => setSearch(e.target.value)}
-              placeholder={tr('blogSearch', lang)}
-              className="pl-9 pr-9 h-11 rounded-2xl text-foreground"
-            />
-            {search && (
-              <button onClick={() => setSearch('')} className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground">
-                <Icon name="X" size={14} />
-              </button>
-            )}
-          </div>
-          <div className="flex gap-2 flex-wrap sm:overflow-visible overflow-x-auto pb-1 -mx-1 px-1 sm:mx-0 sm:px-0">
-            {CATEGORIES.map(cat => (
-              <button
-                key={cat}
-                onClick={() => setCategory(cat)}
-                className={`shrink-0 px-3.5 py-2 rounded-full text-xs font-semibold transition-all max-w-[180px] truncate ${category === cat ? 'bg-primary text-primary-foreground shadow-sm shadow-primary/30' : 'bg-card border border-border text-muted-foreground hover:text-foreground hover:border-primary/40'}`}
-              >
-                {cat}
-                {cat !== ALL && (
-                  <span className={`ml-1.5 text-[10px] font-bold ${category === cat ? 'opacity-70' : 'opacity-50'}`}>
-                    {ARTICLES.filter(a => a.category === cat).length}
-                  </span>
-                )}
-              </button>
-            ))}
-          </div>
+        <div className="flex gap-2 flex-wrap sm:overflow-visible overflow-x-auto pb-1 -mx-1 px-1 sm:mx-0 sm:px-0 mb-8 sm:mb-10">
+          {CATEGORIES.map(cat => (
+            <button
+              key={cat}
+              onClick={() => setCategory(cat)}
+              className={`shrink-0 px-3.5 py-2 rounded-full text-xs font-semibold transition-all max-w-[180px] truncate ${category === cat ? 'bg-primary text-primary-foreground shadow-sm shadow-primary/30' : 'bg-card border border-border text-muted-foreground hover:text-foreground hover:border-primary/40'}`}
+            >
+              {cat}
+              {cat !== ALL && (
+                <span className={`ml-1.5 text-[10px] font-bold ${category === cat ? 'opacity-70' : 'opacity-50'}`}>
+                  {ARTICLES.filter(a => a.category === cat).length}
+                </span>
+              )}
+            </button>
+          ))}
         </div>
 
         {/* Results count */}
-        {isFiltering && (
+        {isFiltering && filtered.length > 0 && (
           <p className="text-sm text-muted-foreground mb-5">
-            {filtered.length === 0
-              ? tr('blogNotFound', lang)
-              : getArticlesCount(filtered.length)}
-            {search && <span> {tr('blogQuery', lang)} «<span className="font-semibold text-foreground">{search}</span>»</span>}
+            {getArticlesCount(filtered.length)}
           </p>
         )}
 
@@ -145,7 +119,7 @@ export default function Blog() {
             </div>
             <p className="font-semibold text-foreground mb-2">{tr('blogEmpty', lang)}</p>
             <p className="text-sm text-muted-foreground mb-5">{tr('blogEmptyDesc', lang)}</p>
-            <button onClick={() => { setSearch(''); setCategory(ALL); }} className="text-sm text-primary hover:underline">
+            <button onClick={() => setCategory(ALL)} className="text-sm text-primary hover:underline">
               {tr('blogReset', lang)}
             </button>
           </div>
