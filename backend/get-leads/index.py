@@ -3,6 +3,46 @@ import json
 import psycopg2
 
 
+def is_rate_limited(conn, schema: str, key: str, max_attempts: int = 5, window_minutes: int = 15) -> bool:
+    """
+    Проверяет, не превышен ли лимит неудачных попыток. Возвращает True если лимит превышен (доступ запрещён).
+    Fail-closed: при ошибке БД — блокируем (безопаснее).
+    """
+    window_minutes = int(window_minutes)
+    max_attempts = int(max_attempts)
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                f"DELETE FROM {schema}.rate_limits WHERE key = %s AND created_at < NOW() - make_interval(mins => %s)",
+                (key, window_minutes)
+            )
+            cur.execute(
+                f"SELECT COUNT(*) FROM {schema}.rate_limits WHERE key = %s",
+                (key,)
+            )
+            count = cur.fetchone()[0]
+            conn.commit()
+            return count >= max_attempts
+    except Exception:
+        try:
+            conn.rollback()
+        except Exception:
+            pass
+        return True
+
+
+def record_failed_attempt(conn, schema: str, key: str):
+    try:
+        with conn.cursor() as cur:
+            cur.execute(f"INSERT INTO {schema}.rate_limits (key) VALUES (%s)", (key,))
+        conn.commit()
+    except Exception:
+        try:
+            conn.rollback()
+        except Exception:
+            pass
+
+
 def handler(event: dict, context) -> dict:
     """Возвращает список заявок из БД для страницы администратора"""
 
@@ -25,16 +65,32 @@ def handler(event: dict, context) -> dict:
         headers.get('X-ADMIN-KEY') or
         ''
     )
+    schema = os.environ.get('MAIN_DB_SCHEMA', 'public')
+    ip = ((event.get('requestContext') or {}).get('identity') or {}).get('sourceIp', 'unknown')
+
+    conn = psycopg2.connect(os.environ['DATABASE_URL'])
+
+    rate_key = f'admin_login:{ip}'
+
+    # Rate limit: не более 5 неудачных попыток входа в админку за 15 минут с одного IP
+    if is_rate_limited(conn, schema, rate_key, max_attempts=5, window_minutes=15):
+        conn.close()
+        return {
+            'statusCode': 429,
+            'headers': {'Access-Control-Allow-Origin': '*'},
+            'body': {'error': 'Слишком много попыток входа. Попробуйте через 15 минут.'}
+        }
+
     if admin_key != os.environ.get('ADMIN_KEY', ''):
+        record_failed_attempt(conn, schema, rate_key)
+        conn.close()
         return {
             'statusCode': 401,
             'headers': {'Access-Control-Allow-Origin': '*'},
             'body': {'error': 'Unauthorized'}
         }
 
-    conn = psycopg2.connect(os.environ['DATABASE_URL'])
     try:
-        schema = os.environ.get('MAIN_DB_SCHEMA', 'public')
         with conn.cursor() as cur:
             cur.execute(
                 f"SELECT id, email, created_at FROM {schema}.leads ORDER BY created_at DESC"

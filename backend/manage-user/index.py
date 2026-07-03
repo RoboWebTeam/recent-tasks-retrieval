@@ -4,7 +4,7 @@ import psycopg2
 
 CORS = {
     'Access-Control-Allow-Origin': '*',
-    'Access-Control-Allow-Methods': 'POST, OPTIONS',
+    'Access-Control-Allow-Methods': 'GET, POST, OPTIONS',
     'Access-Control-Allow-Headers': 'Content-Type, X-Admin-Key',
     'Access-Control-Max-Age': '86400',
 }
@@ -35,10 +35,90 @@ def handler(event: dict, context) -> dict:
     if admin_key != os.environ.get('ADMIN_KEY', ''):
         return err('Unauthorized', 401)
 
+    schema = os.environ.get('MAIN_DB_SCHEMA', 'public')
+    method = event.get('httpMethod', 'POST')
+
+    # --- GET: детали пользователя (проекты, домены, платежи, квота AI) ---
+    if method == 'GET':
+        params = event.get('queryStringParameters') or {}
+        user_id = params.get('user_id')
+        if not user_id:
+            return err('user_id обязателен')
+
+        conn = psycopg2.connect(os.environ['DATABASE_URL'])
+        try:
+            with conn.cursor() as cur:
+                cur.execute(
+                    f"""SELECT id, email, name, plan, created_at, blocked, blocked_at,
+                               requests_used, requests_limit, requests_reset_at, energy_balance
+                        FROM {schema}.users WHERE id = %s""",
+                    (user_id,)
+                )
+                row = cur.fetchone()
+                if not row:
+                    return err('Пользователь не найден', 404)
+
+                user_info = {
+                    'id': row[0], 'email': row[1], 'name': row[2], 'plan': row[3],
+                    'created_at': row[4].isoformat() if row[4] else None,
+                    'blocked': row[5], 'blocked_at': row[6].isoformat() if row[6] else None,
+                    'requests_used': row[7], 'requests_limit': row[8],
+                    'requests_reset_at': row[9].isoformat() if row[9] else None,
+                    'energy_balance': row[10],
+                }
+
+                cur.execute(
+                    f"""SELECT id, title, description, status, slug, created_at, updated_at
+                        FROM {schema}.projects WHERE user_id = %s ORDER BY updated_at DESC""",
+                    (user_id,)
+                )
+                projects = [
+                    {
+                        'id': r[0], 'title': r[1], 'description': r[2], 'status': r[3],
+                        'slug': r[4], 'created_at': r[5].isoformat() if r[5] else None,
+                        'updated_at': r[6].isoformat() if r[6] else None,
+                    }
+                    for r in cur.fetchall()
+                ]
+
+                cur.execute(
+                    f"""SELECT order_number, order_type, plan, energy_amount, billing_period,
+                               amount, status, created_at, paid_at
+                        FROM {schema}.orders WHERE user_id = %s ORDER BY created_at DESC""",
+                    (user_id,)
+                )
+                orders = [
+                    {
+                        'order_number': r[0], 'order_type': r[1], 'plan': r[2], 'energy_amount': r[3],
+                        'billing_period': r[4], 'amount': float(r[5]), 'status': r[6],
+                        'created_at': r[7].isoformat() if r[7] else None,
+                        'paid_at': r[8].isoformat() if r[8] else None,
+                    }
+                    for r in cur.fetchall()
+                ]
+
+                cur.execute(
+                    f"""SELECT id, domain, status, is_primary, ssl_status, project_id, created_at, verified_at
+                        FROM {schema}.domains WHERE user_id = %s ORDER BY created_at DESC""",
+                    (user_id,)
+                )
+                domains = [
+                    {
+                        'id': r[0], 'domain': r[1], 'status': r[2], 'is_primary': r[3],
+                        'ssl_status': r[4], 'project_id': r[5],
+                        'created_at': r[6].isoformat() if r[6] else None,
+                        'verified_at': r[7].isoformat() if r[7] else None,
+                    }
+                    for r in cur.fetchall()
+                ]
+
+            return ok({'user': user_info, 'projects': projects, 'orders': orders, 'domains': domains})
+        finally:
+            conn.close()
+
     body = json.loads(event.get('body') or '{}')
     action = body.get('action')
     user_id = body.get('user_id')
-    schema = os.environ.get('MAIN_DB_SCHEMA', 'public')
 
     if not action:
         return err('action обязателен')

@@ -5,7 +5,7 @@ import Icon from '@/components/ui/icon';
 import {
   GET_LEADS_URL, MANAGE_USER_URL, ANALYTICS_URL, SITE_LEADS_URL, ACTIVITY_LOG_URL,
   unwrap,
-  type Lead, type User, type SiteLead, type AnalyticsData, type LogEntry, type Notification,
+  type Lead, type User, type SiteLead, type AnalyticsData, type LogEntry, type Notification, type UserDetails,
 } from './admin/adminTypes';
 import { AdminAnalytics } from './admin/AdminAnalytics';
 import { SiteLeadsTab, LeadsTab, UsersTab, LogTab, NotificationsTab } from './admin/AdminTables';
@@ -36,6 +36,9 @@ const Admin = () => {
   const [analyticsPeriod, setAnalyticsPeriod] = useState<'7d' | '30d'>('7d');
   const [siteLeadFilter, setSiteLeadFilter] = useState<'all' | 'new' | 'processed' | 'rejected'>('all');
   const [logActionFilter, setLogActionFilter] = useState('');
+  const [expandedUserId, setExpandedUserId] = useState<number | null>(null);
+  const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
+  const [userDetailsLoading, setUserDetailsLoading] = useState(false);
 
   const manageUser = async (userId: number, action: 'block' | 'unblock' | 'delete' | 'change_plan', plan?: string) => {
     setActionLoading(userId);
@@ -58,6 +61,28 @@ const Admin = () => {
         }
       }
     } finally { setActionLoading(null); setConfirmDelete(null); setPlanChanging(null); }
+  };
+
+  const fetchUserDetails = (userId: number) => {
+    setUserDetailsLoading(true);
+    setUserDetails(null);
+    fetch(`${MANAGE_USER_URL}?user_id=${userId}`, { headers: { 'x-admin-key': key } })
+      .then(r => r.json())
+      .then(raw => {
+        const d = unwrap(raw);
+        if (!d.error) setUserDetails(d as unknown as UserDetails);
+      })
+      .finally(() => setUserDetailsLoading(false));
+  };
+
+  const toggleUserExpand = (userId: number) => {
+    if (expandedUserId === userId) {
+      setExpandedUserId(null);
+      setUserDetails(null);
+      return;
+    }
+    setExpandedUserId(userId);
+    fetchUserDetails(userId);
   };
 
   const fetchAnalytics = (adminKey: string, days: number) => {
@@ -129,6 +154,7 @@ const Admin = () => {
     setLoading(true); setError('');
     try {
       const res = await fetch(GET_LEADS_URL, { headers: { 'x-admin-key': adminKey } });
+      if (res.status === 429) { setError('Слишком много попыток входа. Попробуйте через 15 минут.'); setLoading(false); return; }
       if (res.status === 401) { setError('Неверный пароль'); setLoading(false); return; }
       const data = await res.json();
       setLeads(data.leads || []);
@@ -268,7 +294,7 @@ const Admin = () => {
             ['log',           'Лог действий', 'Activity',   null],
             ['notifications', 'Уведомления',  'Bell',       unreadCount],
           ] as const).map(([id, label, icon, count]) => (
-            <button key={id} onClick={() => { setTab(id); setSearch(''); }}
+            <button key={id} onClick={() => { setTab(id); setSearch(''); setExpandedUserId(null); setUserDetails(null); }}
               className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition-colors ${tab === id ? 'bg-primary text-primary-foreground' : 'bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-secondary'}`}>
               <Icon name={icon} size={15} />
               {label}
@@ -323,6 +349,10 @@ const Admin = () => {
             planChanging={planChanging}
             manageUser={manageUser}
             exportCSV={exportCSV}
+            expandedUserId={expandedUserId}
+            onToggleExpand={toggleUserExpand}
+            userDetails={userDetails}
+            userDetailsLoading={userDetailsLoading}
           />
         )}
         {tab === 'log' && (

@@ -43,6 +43,35 @@ export interface Notification {
   link: string; is_read: boolean; created_at: string;
 }
 
+export interface UserProject {
+  id: number; title: string; description: string; status: string;
+  slug: string | null; created_at: string | null; updated_at: string | null;
+}
+
+export interface UserOrder {
+  order_number: string; order_type: string; plan: string | null; energy_amount: number | null;
+  billing_period: string | null; amount: number; status: string;
+  created_at: string | null; paid_at: string | null;
+}
+
+export interface UserDomain {
+  id: number; domain: string; status: string; is_primary: boolean;
+  ssl_status: string; project_id: number | null;
+  created_at: string | null; verified_at: string | null;
+}
+
+export interface UserDetails {
+  user: {
+    id: number; email: string; name: string; plan: string;
+    created_at: string | null; blocked: boolean; blocked_at: string | null;
+    requests_used: number; requests_limit: number;
+    requests_reset_at: string | null; energy_balance: number;
+  };
+  projects: UserProject[];
+  orders: UserOrder[];
+  domains: UserDomain[];
+}
+
 export const PLAN_LABELS: Record<string, { label: string; color: string }> = {
   free:    { label: 'Пробный',  color: 'bg-secondary text-muted-foreground' },
   premium: { label: 'Премиум',  color: 'bg-primary/15 text-primary' },
@@ -53,6 +82,23 @@ export const SITE_LEAD_STATUS = {
   new:       { label: 'Новая',       color: 'bg-primary/10 text-primary',           dot: 'bg-primary' },
   processed: { label: 'Обработана',  color: 'bg-emerald-100 text-emerald-700',       dot: 'bg-emerald-500' },
   rejected:  { label: 'Отклонена',   color: 'bg-secondary text-muted-foreground',    dot: 'bg-muted-foreground' },
+};
+
+export const PROJECT_STATUS_LABELS: Record<string, { label: string; color: string }> = {
+  draft:     { label: 'Черновик',     color: 'text-muted-foreground bg-secondary' },
+  building:  { label: 'Строится',     color: 'text-amber-700 bg-amber-100' },
+  published: { label: 'Опубликован',  color: 'text-emerald-700 bg-emerald-100' },
+};
+
+export const ORDER_STATUS_LABELS: Record<string, { label: string; color: string }> = {
+  pending:  { label: 'В обработке', color: 'text-amber-600 bg-amber-100' },
+  paid:     { label: 'Оплачено',    color: 'text-emerald-600 bg-emerald-100' },
+  canceled: { label: 'Отменено',    color: 'text-destructive bg-destructive/10' },
+};
+
+export const DOMAIN_STATUS_LABELS: Record<string, { label: string; color: string }> = {
+  pending: { label: 'Ожидает DNS', color: 'text-amber-600 bg-amber-100' },
+  active:  { label: 'Подключён',   color: 'text-emerald-600 bg-emerald-100' },
 };
 
 export const SOURCE_COLORS = ['bg-primary', 'bg-violet-500', 'bg-emerald-500', 'bg-amber-500'];

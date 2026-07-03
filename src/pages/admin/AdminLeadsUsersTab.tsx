@@ -1,7 +1,9 @@
+import { Fragment } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
-import { type Lead, type User, PLAN_LABELS } from './adminTypes';
+import { type Lead, type User, type UserDetails, PLAN_LABELS } from './adminTypes';
+import { AdminUserDetailsPanel } from './AdminUserDetailsPanel';
 
 // ── EMAIL LEADS ──────────────────────────────────────────────────────────────
 
@@ -84,11 +86,16 @@ interface UsersTabProps {
   planChanging: number | null;
   manageUser: (userId: number, action: 'block' | 'unblock' | 'delete' | 'change_plan', plan?: string) => void;
   exportCSV: () => void;
+  expandedUserId: number | null;
+  onToggleExpand: (userId: number) => void;
+  userDetails: UserDetails | null;
+  userDetailsLoading: boolean;
 }
 
 export function UsersTab({
   filteredUsers, search, setSearch, actionLoading, confirmDelete,
   setConfirmDelete, planChanging, manageUser, exportCSV,
+  expandedUserId, onToggleExpand, userDetails, userDetailsLoading,
 }: UsersTabProps) {
   return (
     <div>
@@ -122,6 +129,7 @@ export function UsersTab({
                   <th className="text-left px-4 py-3 font-semibold text-muted-foreground hidden lg:table-cell">Дата</th>
                   <th className="text-left px-4 py-3 font-semibold text-muted-foreground hidden sm:table-cell">Статус</th>
                   <th className="px-4 py-3 text-right font-semibold text-muted-foreground">Действия</th>
+                  <th className="w-10 px-2 py-3" />
                 </tr>
               </thead>
               <tbody>
@@ -130,8 +138,10 @@ export function UsersTab({
                   const initials = user.name.split(' ').map((w: string) => w[0]).join('').toUpperCase().slice(0, 2);
                   const isLoad = actionLoading === user.id;
                   const isConf = confirmDelete === user.id;
+                  const isExpanded = expandedUserId === user.id;
                   return (
-                    <tr key={user.id} className={`border-b border-border last:border-0 transition-colors ${user.blocked ? 'bg-rose-50/50' : 'hover:bg-secondary/30'}`}>
+                    <Fragment key={user.id}>
+                    <tr onClick={() => onToggleExpand(user.id)} className={`border-b border-border last:border-0 transition-colors cursor-pointer ${user.blocked ? 'bg-rose-50/50' : 'hover:bg-secondary/30'} ${isExpanded ? 'bg-secondary/40' : ''}`}>
                       <td className="px-4 py-3 text-muted-foreground font-mono text-xs">{i + 1}</td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
@@ -140,7 +150,7 @@ export function UsersTab({
                           </div>
                           <div>
                             <div className="font-medium leading-tight">{user.name || '—'}</div>
-                            <a href={`mailto:${user.email}`} className="text-xs text-muted-foreground hover:text-primary">{user.email}</a>
+                            <a href={`mailto:${user.email}`} onClick={e => e.stopPropagation()} className="text-xs text-muted-foreground hover:text-primary">{user.email}</a>
                           </div>
                         </div>
                       </td>
@@ -201,7 +211,22 @@ export function UsersTab({
                           )}
                         </div>
                       </td>
+                      <td className="px-2 py-3 text-center" onClick={e => e.stopPropagation()}>
+                        <button onClick={() => onToggleExpand(user.id)}
+                          className="grid h-7 w-7 place-items-center rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors mx-auto"
+                          title={isExpanded ? 'Свернуть' : 'Подробнее'}>
+                          <Icon name={isExpanded ? 'ChevronUp' : 'ChevronDown'} size={15} />
+                        </button>
+                      </td>
                     </tr>
+                    {isExpanded && (
+                      <tr className="border-b border-border last:border-0 bg-secondary/20">
+                        <td colSpan={7} className="p-0">
+                          <AdminUserDetailsPanel details={userDetails} loading={userDetailsLoading} />
+                        </td>
+                      </tr>
+                    )}
+                    </Fragment>
                   );
                 })}
               </tbody>
