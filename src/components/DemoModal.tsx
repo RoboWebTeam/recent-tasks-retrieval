@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import Icon from '@/components/ui/icon';
+import { getSession } from '@/lib/auth';
 import { DemoChatPanel } from './demo/DemoChatPanel';
 import { DemoPreviewPanel } from './demo/DemoPreviewPanel';
 
@@ -161,7 +162,7 @@ export default function DemoModal({ open, onClose, lang }: Props) {
               <button onClick={reset} className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-600 transition-colors px-3 py-1.5 rounded-xl hover:bg-slate-100 shrink-0">
                 <Icon name="RotateCcw" size={13} /> {lang === 'ru' ? 'Ещё раз' : 'Replay'}
               </button>
-              <a href="/register" className="flex flex-1 sm:flex-none items-center justify-center gap-1.5 text-xs font-semibold bg-primary text-white rounded-full px-4 sm:px-5 py-2 hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20">
+              <a href={getSession() ? '/builder' : '/register'} className="flex flex-1 sm:flex-none items-center justify-center gap-1.5 text-xs font-semibold bg-primary text-white rounded-full px-4 sm:px-5 py-2 hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20">
                 {lang === 'ru' ? 'Создать свой сайт' : 'Create my site'}
                 <Icon name="ArrowRight" size={13} />
               </a>

@@ -177,6 +177,13 @@ export default function Builder() {
     });
   };
 
+  // Подхватываем промпт, переданный со страницы (например /builder?prompt=...)
+  useEffect(() => {
+    const promptFromUrl = searchParams.get('prompt');
+    if (promptFromUrl) applyTemplate(promptFromUrl);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const sendMessage = async (text?: string) => {
     const rawContent = (text || input).trim();
     if (!rawContent.trim() && !attachedImage) return;

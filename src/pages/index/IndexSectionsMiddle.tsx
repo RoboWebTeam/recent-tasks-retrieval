@@ -1,7 +1,9 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { type Lang } from '@/lib/i18n';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
+import { getSession } from '@/lib/auth';
 import { L, getPORTFOLIO, DEMO_CATEGORIES_RU, DEMO_CATEGORIES_EN, type DemoCategory } from './indexData';
 import { Reveal, EmailForm, useCounter, useReveal } from './IndexShared';
 
@@ -33,10 +35,20 @@ const PAGE_SIZE = 12;
 
 // --- Секция портфолио ---
 function PortfolioSection({ lang, portfolio }: { lang: Lang; portfolio: ReturnType<typeof getPORTFOLIO> }) {
+  const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState<DemoCategory>('all');
   const [page, setPage] = useState(1);
   const [prevCount, setPrevCount] = useState(0);
   const CATEGORIES = lang === 'ru' ? DEMO_CATEGORIES_RU : DEMO_CATEGORIES_EN;
+
+  const goToPrompt = (prompt: string) => {
+    const session = getSession();
+    if (session) {
+      navigate(`/builder?prompt=${encodeURIComponent(prompt)}`);
+    } else {
+      navigate(`/register?prompt=${encodeURIComponent(prompt)}`);
+    }
+  };
 
   const filtered = activeFilter === 'all' ? portfolio : portfolio.filter(p => p.category === activeFilter);
   const visible = filtered.slice(0, page * PAGE_SIZE);
@@ -124,14 +136,14 @@ function PortfolioSection({ lang, portfolio }: { lang: Lang; portfolio: ReturnTy
                 <h3 className="font-display font-bold text-sm text-foreground group-hover:text-primary transition-colors flex-1 mb-3">
                   {p.title}
                 </h3>
-                <a
-                  href={`/register?prompt=${encodeURIComponent(p.prompt)}`}
+                <button
+                  onClick={() => goToPrompt(p.prompt)}
                   className="flex items-center justify-center gap-2 w-full rounded-xl bg-primary/10 hover:bg-primary text-primary hover:text-primary-foreground text-xs font-semibold py-2.5 transition-all duration-200 group/btn"
                 >
                   <Icon name="Sparkles" size={13} />
                   {lang === 'ru' ? 'Попробовать промпт' : 'Try this prompt'}
                   <Icon name="ArrowRight" size={13} className="opacity-0 -ml-2 group-hover/btn:opacity-100 group-hover/btn:ml-0 transition-all" />
-                </a>
+                </button>
               </div>
             </div>
             );

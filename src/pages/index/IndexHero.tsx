@@ -146,6 +146,7 @@ interface IndexHeroProps {
 export function IndexHero({ lang, typedText, chatStep, isTyping, progress, chatSteps, onDemoOpen }: IndexHeroProps) {
   const chatEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
+  const heroCtaHref = getSession() ? '/builder' : '/register';
 
   return (
     <section className="relative pt-28 sm:pt-32 lg:pt-36 pb-16 md:pb-24" style={{clipPath: 'inset(0)'}}>
@@ -187,10 +188,10 @@ export function IndexHero({ lang, typedText, chatStep, isTyping, progress, chatS
           </p>
           <div className="mt-7 flex flex-col sm:flex-row flex-wrap gap-3 justify-center lg:justify-start">
             <Button size="lg" className="rounded-full text-base font-semibold px-8 shadow-xl shadow-primary/25 w-full sm:w-auto group" asChild>
-              <a href="/register">
+              <Link to={heroCtaHref}>
                 {L.hero.cta[lang]}
                 <Icon name="ArrowRight" size={18} className="ml-1 transition-transform group-hover:translate-x-1" />
-              </a>
+              </Link>
             </Button>
             <Button size="lg" variant="outline" className="rounded-full text-base font-semibold px-8 w-full sm:w-auto group"
               onClick={onDemoOpen}>
