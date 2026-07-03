@@ -19,7 +19,17 @@ SYSTEM_PROMPT = """Ты — профессиональный веб-разраб
 6. Используй CSS-переменные для цветов
 7. Добавляй плавные анимации появления элементов
 8. Не используй внешние JS-библиотеки кроме Google Fonts
-9. Сайт должен выглядеть профессионально и продающе"""
+9. Сайт должен выглядеть профессионально и продающе
+
+ОБЯЗАТЕЛЬНОЕ SEO-оформление <head> (важно для индексации в Яндекс и Google):
+10. <html lang="ru"> (или другой язык, если пользователь просит сайт на другом языке)
+11. <title> — конкретный, отражающий суть бизнеса/сайта (40-60 символов), без "Roboweb" и общих слов вроде "Главная"
+12. <meta name="description" content="..."> — продающее описание сути сайта (120-160 символов), без воды
+13. <meta name="viewport" content="width=device-width, initial-scale=1.0">
+14. <meta charset="UTF-8">
+15. <meta property="og:title">, <meta property="og:description">, <meta property="og:type" content="website"> — синхронизированы с title/description
+16. Если на сайте есть подходящее изображение (логотип, hero-картинка) — добавь <meta property="og:image" content="...">
+17. Один <h1> на странице, отражающий главный оффер, остальные заголовки — <h2>/<h3> по иерархии"""
 
 def get_project_images(project_id, user_id: int, schema: str):
     """Возвращает список изображений, загруженных пользователем в хранилище проекта (раздел Ядро)."""
@@ -183,13 +193,26 @@ def maybe_notify_low_balance(user_id: int, remaining: int, schema: str):
         conn.close()
 
 
+def extract_meta_description(html: str) -> str:
+    """Достаёт человекочитаемое описание сайта: сперва meta description, потом title, иначе — обрезок текста без тегов."""
+    import re
+    m = re.search(r'<meta[^>]+name=["\']description["\'][^>]+content=["\']([^"\']+)["\']', html, re.IGNORECASE)
+    if m and m.group(1).strip():
+        return m.group(1).strip()[:300]
+    t = re.search(r'<title[^>]*>([^<]+)</title>', html, re.IGNORECASE)
+    if t and t.group(1).strip():
+        return t.group(1).strip()[:300]
+    text = re.sub(r'<[^>]+>', ' ', html)
+    text = re.sub(r'\s+', ' ', text).strip()
+    return text[:300]
+
 def save_html(project_id: int, html: str, schema: str):
     conn = psycopg2.connect(os.environ['DATABASE_URL'])
     try:
         with conn.cursor() as cur:
             cur.execute(
                 f"UPDATE {schema}.projects SET html_content = %s, description = %s, updated_at = NOW() WHERE id = %s",
-                (html, html[:300], project_id)
+                (html, extract_meta_description(html), project_id)
             )
         conn.commit()
     finally:

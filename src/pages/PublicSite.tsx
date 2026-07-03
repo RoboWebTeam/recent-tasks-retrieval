@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import Icon from '@/components/ui/icon';
 import { PUBLIC_SITE_URL } from '@/lib/auth';
+import { setSeo, setNoIndex } from '@/lib/seo';
 
 export default function PublicSite() {
   const { slug } = useParams<{ slug: string }>();
@@ -27,7 +28,17 @@ export default function PublicSite() {
         }
         setHtml(data.html);
         setTitle(data.title || '');
-        document.title = data.title || 'Roboweb';
+        setSeo({
+          title: data.title || 'Roboweb',
+          description: data.description || 'Сайт создан с помощью Roboweb — AI-конструктора сайтов.',
+          image: data.image || undefined,
+          url: `/site/${slug}`,
+        });
+        // Если у сайта уже подключён собственный домен — там контент раздаётся
+        // напрямую (лучше для SEO), поэтому копию на /site/:slug скрываем от индексации,
+        // чтобы избежать дублей контента. Если своего домена нет — это единственный
+        // публичный адрес сайта, его индексируем как обычно.
+        if (data.has_custom_domain) setNoIndex();
       })
       .catch(() => setNotFound(true))
       .finally(() => setLoading(false));

@@ -54,6 +54,10 @@ function setTwitter(name: string, content: string) {
   el.content = content;
 }
 
+export function setNoIndex() {
+  setMeta('robots', 'noindex, nofollow');
+}
+
 function setLink(rel: string, href: string) {
   let el = document.querySelector<HTMLLinkElement>(`link[rel="${rel}"]`);
   if (!el) { el = document.createElement('link'); el.rel = rel; document.head.appendChild(el); }
