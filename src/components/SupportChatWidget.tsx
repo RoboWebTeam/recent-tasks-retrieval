@@ -12,6 +12,9 @@ interface ChatMessage {
   sender: 'visitor' | 'admin';
   text: string;
   created_at: string;
+  file_url?: string | null;
+  file_type?: string | null;
+  file_name?: string | null;
 }
 
 function getVisitorId(): string {
@@ -29,6 +32,29 @@ async function unwrap(res: Response) {
   return raw.body !== undefined ? (typeof raw.body === 'string' ? JSON.parse(raw.body) : raw.body) : raw;
 }
 
+function MessageBubble({ m }: { m: ChatMessage }) {
+  const isVisitor = m.sender === 'visitor';
+  return (
+    <div className={`flex ${isVisitor ? 'justify-end' : 'justify-start'}`}>
+      <div className={`max-w-[80%] text-sm leading-relaxed px-3.5 py-2.5 ${
+        isVisitor ? 'bg-primary text-white rounded-2xl rounded-br-sm' : 'bg-secondary border border-border text-foreground rounded-2xl rounded-bl-sm'
+      }`}>
+        {m.file_url && m.file_type === 'image' && (
+          <a href={m.file_url} target="_blank" rel="noopener noreferrer">
+            <img src={m.file_url} alt={m.file_name || ''} className="rounded-xl max-w-full max-h-48 mb-1.5 object-cover" />
+          </a>
+        )}
+        {m.file_url && m.file_type !== 'image' && (
+          <a href={m.file_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 mb-1.5 underline underline-offset-2">
+            <Icon name="Paperclip" size={13} /> {m.file_name}
+          </a>
+        )}
+        {m.text}
+      </div>
+    </div>
+  );
+}
+
 export default function SupportChatWidget() {
   const lang = getLang();
   const isRu = lang === 'ru';
@@ -44,7 +70,10 @@ export default function SupportChatWidget() {
   const [showNameForm, setShowNameForm] = useState(false);
   const [name, setName] = useState(user?.name || '');
   const [email, setEmail] = useState(user?.email || '');
+  const [attachedFile, setAttachedFile] = useState<{ url: string; name: string } | null>(null);
+  const [uploading, setUploading] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const lastMsgCountRef = useRef(0);
 
   const loadMessages = useCallback(async (silent = false) => {
@@ -83,9 +112,20 @@ export default function SupportChatWidget() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      setAttachedFile({ url: ev.target?.result as string, name: file.name });
+    };
+    reader.readAsDataURL(file);
+    e.target.value = '';
+  };
+
   const handleSend = async () => {
     const text = input.trim();
-    if (!text || sending) return;
+    if ((!text && !attachedFile) || sending) return;
 
     if (messages.length === 0 && !user && !name.trim()) {
       setShowNameForm(true);
@@ -93,17 +133,27 @@ export default function SupportChatWidget() {
     }
 
     setSending(true);
+    setUploading(!!attachedFile);
     setInput('');
-    setMessages(prev => [...prev, { id: Date.now(), sender: 'visitor', text, created_at: new Date().toISOString() }]);
+    const pendingFile = attachedFile;
+    setAttachedFile(null);
+    setMessages(prev => [...prev, {
+      id: Date.now(), sender: 'visitor', text, created_at: new Date().toISOString(),
+      file_url: pendingFile?.url, file_type: 'image', file_name: pendingFile?.name,
+    }]);
     try {
       await fetch(SUPPORT_CHAT_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', ...(session ? { 'x-session-id': session } : {}) },
-        body: JSON.stringify({ visitor_id: visitorId, text, name: name.trim(), email: email.trim() }),
+        body: JSON.stringify({
+          visitor_id: visitorId, text, name: name.trim(), email: email.trim(),
+          ...(pendingFile ? { file_name: pendingFile.name, file_content: pendingFile.url.split(',')[1] || '' } : {}),
+        }),
       });
       loadMessages();
     } catch { /* тихо */ }
     setSending(false);
+    setUploading(false);
   };
 
   const handleKeyDown = (e: React.KeyboardEvent) => {
@@ -156,17 +206,7 @@ export default function SupportChatWidget() {
                 </p>
               </div>
             ) : (
-              messages.map(m => (
-                <div key={m.id} className={`flex ${m.sender === 'visitor' ? 'justify-end' : 'justify-start'}`}>
-                  <div className={`max-w-[80%] text-sm leading-relaxed px-3.5 py-2.5 ${
-                    m.sender === 'visitor'
-                      ? 'bg-primary text-white rounded-2xl rounded-br-sm'
-                      : 'bg-secondary border border-border text-foreground rounded-2xl rounded-bl-sm'
-                  }`}>
-                    {m.text}
-                  </div>
-                </div>
-              ))
+              messages.map(m => <MessageBubble key={m.id} m={m} />)
             )}
             <div ref={messagesEndRef} />
           </div>
@@ -192,7 +232,20 @@ export default function SupportChatWidget() {
           {/* Input */}
           {!showNameForm && (
             <div className="p-3 border-t border-border bg-background shrink-0">
+              {attachedFile && (
+                <div className="flex items-center gap-2 mb-2 px-2 py-1.5 bg-secondary border border-border rounded-xl">
+                  <img src={attachedFile.url} alt="" className="h-8 w-8 rounded-lg object-cover shrink-0" />
+                  <span className="text-[11px] text-muted-foreground flex-1 truncate">{attachedFile.name}</span>
+                  <button onClick={() => setAttachedFile(null)} className="text-muted-foreground hover:text-destructive transition-colors">
+                    <Icon name="X" size={13} />
+                  </button>
+                </div>
+              )}
               <div className="flex items-end gap-2 bg-secondary/50 border border-border rounded-2xl px-3 py-2 focus-within:border-primary/50 transition-colors">
+                <button onClick={() => fileInputRef.current?.click()} className="text-muted-foreground hover:text-foreground transition-colors shrink-0 mb-0.5">
+                  <Icon name="Paperclip" size={16} />
+                </button>
+                <input ref={fileInputRef} type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
                 <textarea
                   value={input}
                   onChange={e => setInput(e.target.value)}
@@ -203,10 +256,10 @@ export default function SupportChatWidget() {
                 />
                 <button
                   onClick={handleSend}
-                  disabled={!input.trim() || sending}
+                  disabled={(!input.trim() && !attachedFile) || sending}
                   className="grid h-8 w-8 place-items-center rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground disabled:opacity-30 transition-all shrink-0"
                 >
-                  <Icon name={sending ? 'Loader' : 'Send'} size={14} className={sending ? 'animate-spin' : ''} />
+                  <Icon name={sending || uploading ? 'Loader' : 'Send'} size={14} className={sending || uploading ? 'animate-spin' : ''} />
                 </button>
               </div>
             </div>

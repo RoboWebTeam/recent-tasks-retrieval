@@ -55,6 +55,19 @@ export interface SupportConversation {
 
 export interface SupportMessage {
   id: number; sender: 'visitor' | 'admin'; text: string; created_at: string;
+  file_url?: string | null; file_type?: string | null; file_name?: string | null;
+}
+
+export interface QuickReply {
+  id: number; title: string; text: string;
+}
+
+export interface AutoReplySettings {
+  enabled: boolean; text: string; start_hour: number; end_hour: number;
+}
+
+export interface UserProjectSummary {
+  id: number; title: string; status: string; slug: string | null;
 }
 
 export interface UserProject {
