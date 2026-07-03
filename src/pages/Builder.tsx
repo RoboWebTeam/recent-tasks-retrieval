@@ -110,6 +110,8 @@ export default function Builder() {
   const [publishError, setPublishError] = useState('');
   const [remaining, setRemaining] = useState<number | null>(null);
   const [quotaExceeded, setQuotaExceeded] = useState(false);
+  const [aiModel, setAiModel] = useState<'claude' | 'gpt-4o'>('claude');
+  const [showModelMenu, setShowModelMenu] = useState(false);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const [editPopover, setEditPopover] = useState<{ x: number; y: number; text: string; path: string } | null>(null);
@@ -223,6 +225,7 @@ export default function Builder() {
         body: JSON.stringify({
           messages: newMessages.map(m => ({ role: m.role, content: m.content })),
           project_id: projectId,
+          model: aiModel,
         }),
       });
 
@@ -991,6 +994,36 @@ export default function Builder() {
                 </button>
                 <input ref={imageInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
 
+                {/* Модель AI */}
+                <div className="relative shrink-0 mb-0.5">
+                  <button onClick={() => setShowModelMenu(v => !v)}
+                    className="flex items-center gap-1 h-7 px-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary/70 transition-colors text-[11px] font-semibold"
+                    title={lang === 'ru' ? 'Модель AI' : 'AI model'}>
+                    <Icon name="Cpu" size={13} />
+                    {aiModel === 'gpt-4o' ? 'GPT-4o' : 'Claude'}
+                  </button>
+                  {showModelMenu && (
+                    <div className="absolute bottom-10 left-0 z-50 w-48 bg-secondary border border-border rounded-2xl shadow-2xl p-1.5">
+                      {[
+                        { id: 'claude' as const, label: 'Claude Sonnet', desc: lang === 'ru' ? 'Точный и качественный' : 'Precise & polished' },
+                        { id: 'gpt-4o' as const, label: 'GPT-4o', desc: lang === 'ru' ? 'Быстрый и креативный' : 'Fast & creative' },
+                      ].map(m => (
+                        <button key={m.id}
+                          onClick={() => { setAiModel(m.id); setShowModelMenu(false); }}
+                          className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl hover:bg-secondary/70 transition-colors text-left">
+                          <div className={`grid h-6 w-6 place-items-center rounded-lg shrink-0 ${aiModel === m.id ? 'bg-primary text-primary-foreground' : 'bg-background text-muted-foreground'}`}>
+                            <Icon name={aiModel === m.id ? 'Check' : 'Cpu'} size={12} />
+                          </div>
+                          <div>
+                            <div className="text-xs font-medium text-foreground">{m.label}</div>
+                            <div className="text-[10px] text-muted-foreground">{m.desc}</div>
+                          </div>
+                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
                 {/* Расширения */}
                 <div className="relative shrink-0 mb-0.5">
                   <button onClick={() => setShowExtensions(v => !v)}
@@ -1057,6 +1090,7 @@ export default function Builder() {
 
             {/* Overlay закрывает расширения */}
             {showExtensions && <div className="fixed inset-0 z-40" onClick={() => setShowExtensions(false)} />}
+            {showModelMenu && <div className="fixed inset-0 z-40" onClick={() => setShowModelMenu(false)} />}
           </div>
         )}
 

@@ -196,7 +196,7 @@ def save_html(project_id: int, html: str, schema: str):
         conn.close()
 
 def handler(event: dict, context) -> dict:
-    """Генерирует HTML-код сайта через Claude Sonnet (Anthropic) по описанию пользователя"""
+    """Генерирует HTML-код сайта через Claude Sonnet (Anthropic) или GPT-4o (OpenAI) по описанию пользователя"""
 
     if event.get('httpMethod') == 'OPTIONS':
         return {'statusCode': 200, 'headers': cors(), 'body': ''}
@@ -222,56 +222,101 @@ def handler(event: dict, context) -> dict:
     body = json.loads(event.get('body') or '{}')
     messages = body.get('messages', [])
     project_id = body.get('project_id')
+    model_choice = body.get('model', 'claude')
 
     if not messages:
         return err('Нет сообщений')
 
-    api_key = os.environ.get('ANTHROPIC_API_KEY', '')
-    if not api_key:
-        return err('Anthropic API ключ не настроен')
-
-    # Формируем запрос к Claude Sonnet
     project_images = get_project_images(project_id, user_id, schema)
     system_prompt = build_system_prompt(project_images)
     chat_messages = [{'role': m.get('role', 'user'), 'content': m.get('content', '')} for m in messages]
 
-    payload = json.dumps({
-        'model': 'claude-sonnet-4-5-20250929',
-        'system': system_prompt,
-        'messages': chat_messages,
-        'max_tokens': 8000,
-        'temperature': 0.7,
-    }).encode('utf-8')
+    if model_choice == 'gpt-4o':
+        api_key = os.environ.get('OPENAI_API_KEY', '')
+        if not api_key:
+            return err('OpenAI API ключ не настроен')
 
-    req = urllib.request.Request(
-        'https://api.anthropic.com/v1/messages',
-        data=payload,
-        headers={
-            'Content-Type': 'application/json',
-            'x-api-key': api_key,
-            'anthropic-version': '2023-06-01',
-        },
-        method='POST'
-    )
+        payload = json.dumps({
+            'model': 'gpt-4o',
+            'messages': [{'role': 'system', 'content': system_prompt}] + chat_messages,
+            'max_tokens': 8000,
+            'temperature': 0.7,
+        }).encode('utf-8')
 
-    try:
-        with urllib.request.urlopen(req, timeout=60) as response:
-            result = json.loads(response.read().decode('utf-8'))
-    except urllib.error.HTTPError as e:
-        body = e.read().decode('utf-8', errors='ignore')
-        return err(f'Anthropic API error {e.code}', 502)
-    except urllib.error.URLError:
-        return err('Anthropic API недоступен. Попробуйте позже.', 503)
-    except (json.JSONDecodeError, Exception):
-        return err('Неверный ответ от Anthropic.', 502)
+        req = urllib.request.Request(
+            'https://api.openai.com/v1/chat/completions',
+            data=payload,
+            headers={
+                'Content-Type': 'application/json',
+                'Authorization': f'Bearer {api_key}',
+            },
+            method='POST'
+        )
 
-    content_blocks = result.get('content') or []
-    if not content_blocks:
-        return err('Claude вернул пустой ответ.', 502)
+        try:
+            with urllib.request.urlopen(req, timeout=60) as response:
+                result = json.loads(response.read().decode('utf-8'))
+        except urllib.error.HTTPError as e:
+            return err(f'OpenAI API error {e.code}', 502)
+        except urllib.error.URLError:
+            return err('OpenAI API недоступен. Попробуйте позже.', 503)
+        except (json.JSONDecodeError, Exception):
+            return err('Неверный ответ от OpenAI.', 502)
 
-    html = (content_blocks[0].get('text') or '').strip()
-    if not html:
-        return err('Claude вернул пустой HTML.', 502)
+        choices = result.get('choices') or []
+        if not choices:
+            return err('GPT-4o вернул пустой ответ.', 502)
+
+        html = (choices[0].get('message', {}).get('content') or '').strip()
+        if not html:
+            return err('GPT-4o вернул пустой HTML.', 502)
+
+        usage = result.get('usage', {})
+        tokens = usage.get('prompt_tokens', 0) + usage.get('completion_tokens', 0)
+    else:
+        api_key = os.environ.get('ANTHROPIC_API_KEY', '')
+        if not api_key:
+            return err('Anthropic API ключ не настроен')
+
+        payload = json.dumps({
+            'model': 'claude-sonnet-4-5-20250929',
+            'system': system_prompt,
+            'messages': chat_messages,
+            'max_tokens': 8000,
+            'temperature': 0.7,
+        }).encode('utf-8')
+
+        req = urllib.request.Request(
+            'https://api.anthropic.com/v1/messages',
+            data=payload,
+            headers={
+                'Content-Type': 'application/json',
+                'x-api-key': api_key,
+                'anthropic-version': '2023-06-01',
+            },
+            method='POST'
+        )
+
+        try:
+            with urllib.request.urlopen(req, timeout=60) as response:
+                result = json.loads(response.read().decode('utf-8'))
+        except urllib.error.HTTPError as e:
+            return err(f'Anthropic API error {e.code}', 502)
+        except urllib.error.URLError:
+            return err('Anthropic API недоступен. Попробуйте позже.', 503)
+        except (json.JSONDecodeError, Exception):
+            return err('Неверный ответ от Anthropic.', 502)
+
+        content_blocks = result.get('content') or []
+        if not content_blocks:
+            return err('Claude вернул пустой ответ.', 502)
+
+        html = (content_blocks[0].get('text') or '').strip()
+        if not html:
+            return err('Claude вернул пустой HTML.', 502)
+
+        usage = result.get('usage', {})
+        tokens = usage.get('input_tokens', 0) + usage.get('output_tokens', 0)
 
     # Убираем markdown-обёртку если есть
     if html.startswith('```'):
@@ -281,8 +326,5 @@ def handler(event: dict, context) -> dict:
     # Сохраняем HTML в проект если передан project_id
     if project_id:
         save_html(int(project_id), html, schema)
-
-    usage = result.get('usage', {})
-    tokens = usage.get('input_tokens', 0) + usage.get('output_tokens', 0)
 
     return ok({'html': html, 'tokens': tokens, 'remaining': remaining})
