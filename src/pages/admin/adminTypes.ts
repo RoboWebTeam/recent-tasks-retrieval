@@ -60,6 +60,12 @@ export interface UserDomain {
   created_at: string | null; verified_at: string | null;
 }
 
+export interface UserSiteLead {
+  id: number; name: string; phone: string; email: string;
+  message: string; site: string; status: 'new' | 'processed' | 'rejected';
+  created_at: string | null;
+}
+
 export interface UserDetails {
   user: {
     id: number; email: string; name: string; plan: string;
@@ -70,6 +76,7 @@ export interface UserDetails {
   projects: UserProject[];
   orders: UserOrder[];
   domains: UserDomain[];
+  site_leads: UserSiteLead[];
 }
 
 export const PLAN_LABELS: Record<string, { label: string; color: string }> = {

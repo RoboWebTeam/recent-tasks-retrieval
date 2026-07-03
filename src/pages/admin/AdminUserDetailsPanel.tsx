@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import Icon from '@/components/ui/icon';
 import {
-  type UserDetails, type UserProject, type UserOrder, type UserDomain,
-  PROJECT_STATUS_LABELS, ORDER_STATUS_LABELS, DOMAIN_STATUS_LABELS,
+  type UserDetails, type UserProject, type UserOrder, type UserDomain, type UserSiteLead,
+  PROJECT_STATUS_LABELS, ORDER_STATUS_LABELS, DOMAIN_STATUS_LABELS, SITE_LEAD_STATUS,
 } from './adminTypes';
 
 interface AdminUserDetailsPanelProps {
@@ -10,7 +10,7 @@ interface AdminUserDetailsPanelProps {
   loading: boolean;
 }
 
-type DetailsTab = 'projects' | 'orders' | 'domains';
+type DetailsTab = 'projects' | 'orders' | 'domains' | 'leads';
 
 function fmtDate(d: string | null) {
   if (!d) return '—';
@@ -100,6 +100,34 @@ function DomainsList({ domains }: { domains: UserDomain[] }) {
   );
 }
 
+function SiteLeadsList({ leads }: { leads: UserSiteLead[] }) {
+  if (leads.length === 0) {
+    return <p className="text-sm text-muted-foreground py-6 text-center">Заявок пока нет</p>;
+  }
+  return (
+    <div className="space-y-2">
+      {leads.map(l => {
+        const s = SITE_LEAD_STATUS[l.status] ?? SITE_LEAD_STATUS.new;
+        return (
+          <div key={l.id} className="rounded-xl bg-secondary/50 px-3 py-2.5">
+            <div className="flex items-center justify-between gap-3 mb-1">
+              <p className="text-sm font-medium truncate">{l.name || 'Без имени'}</p>
+              <span className={`text-xs font-medium rounded-full px-2 py-0.5 shrink-0 ${s.color}`}>{s.label}</span>
+            </div>
+            <p className="text-xs text-muted-foreground truncate mb-1">{l.site}</p>
+            <div className="flex items-center gap-3 text-xs text-muted-foreground">
+              {l.phone && <a href={`tel:${l.phone}`} onClick={e => e.stopPropagation()} className="hover:text-primary">{l.phone}</a>}
+              {l.email && <a href={`mailto:${l.email}`} onClick={e => e.stopPropagation()} className="hover:text-primary">{l.email}</a>}
+              <span className="ml-auto">{fmtDate(l.created_at)}</span>
+            </div>
+            {l.message && <p className="text-xs text-foreground mt-1.5">{l.message}</p>}
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
 export function AdminUserDetailsPanel({ details, loading }: AdminUserDetailsPanelProps) {
   const [detailsTab, setDetailsTab] = useState<DetailsTab>('projects');
 
@@ -116,7 +144,7 @@ export function AdminUserDetailsPanel({ details, loading }: AdminUserDetailsPane
     return <p className="text-sm text-muted-foreground py-6 text-center">Не удалось загрузить данные</p>;
   }
 
-  const { user, projects, orders, domains } = details;
+  const { user, projects, orders, domains, site_leads } = details;
 
   return (
     <div className="p-4 space-y-4">
@@ -146,6 +174,7 @@ export function AdminUserDetailsPanel({ details, loading }: AdminUserDetailsPane
           ['projects', 'Проекты', 'Layers', projects.length],
           ['orders', 'Платежи', 'CreditCard', orders.length],
           ['domains', 'Домены', 'Globe', domains.length],
+          ['leads', 'Заявки', 'Inbox', site_leads.length],
         ] as const).map(([id, label, icon, count]) => (
           <button key={id} onClick={() => setDetailsTab(id)}
             className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${detailsTab === id ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground hover:text-foreground'}`}>
@@ -160,6 +189,7 @@ export function AdminUserDetailsPanel({ details, loading }: AdminUserDetailsPane
       {detailsTab === 'projects' && <ProjectsList projects={projects} />}
       {detailsTab === 'orders' && <OrdersList orders={orders} />}
       {detailsTab === 'domains' && <DomainsList domains={domains} />}
+      {detailsTab === 'leads' && <SiteLeadsList leads={site_leads} />}
     </div>
   );
 }

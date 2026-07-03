@@ -112,7 +112,23 @@ def handler(event: dict, context) -> dict:
                     for r in cur.fetchall()
                 ]
 
-            return ok({'user': user_info, 'projects': projects, 'orders': orders, 'domains': domains})
+                cur.execute(
+                    f"""SELECT sl.id, sl.name, sl.phone, sl.email, sl.message, sl.site_url, sl.status, sl.created_at
+                        FROM {schema}.site_leads sl
+                        JOIN {schema}.projects p ON p.id = sl.project_id
+                        WHERE p.user_id = %s ORDER BY sl.created_at DESC""",
+                    (user_id,)
+                )
+                site_leads = [
+                    {
+                        'id': r[0], 'name': r[1], 'phone': r[2], 'email': r[3],
+                        'message': r[4], 'site': r[5], 'status': r[6],
+                        'created_at': r[7].isoformat() if r[7] else None,
+                    }
+                    for r in cur.fetchall()
+                ]
+
+            return ok({'user': user_info, 'projects': projects, 'orders': orders, 'domains': domains, 'site_leads': site_leads})
         finally:
             conn.close()
 
