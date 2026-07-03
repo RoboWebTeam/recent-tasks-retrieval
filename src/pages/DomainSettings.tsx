@@ -98,7 +98,7 @@ export default function DomainSettings() {
 
   return (
     <div className="min-h-screen bg-background">
-      <DashboardHeader active="domain" />
+      <DashboardHeader active="projects" />
 
       <main className="container max-w-2xl py-10 md:py-16">
 
