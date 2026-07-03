@@ -3,6 +3,7 @@ export const PROJECTS_URL = 'https://functions.poehali.dev/2b772da8-0a47-4371-97
 export const FILES_URL = 'https://functions.poehali.dev/86596285-1259-4cdb-8c8d-48a19c6f94df';
 export const PUBLIC_SITE_URL = 'https://functions.poehali.dev/2c23b134-6798-4837-b6b2-226e599051f9';
 export const DOMAINS_URL = 'https://functions.poehali.dev/8e970c92-49ad-4f27-9b52-3572f6efc1f6';
+export const PROJECT_CORE_URL = 'https://functions.poehali.dev/7aaaa29f-7484-4295-83d3-fbc7eaf6e923';
 
 export interface User {
   id: number;
@@ -387,5 +388,124 @@ export async function apiDeleteDomain(sessionId: string, id: number) {
     headers: { 'x-session-id': sessionId },
   });
   if (!res.ok) throw new Error((data as {error?: string}).error || 'Ошибка удаления домена');
+  return data;
+}
+
+// ───────────────────────── PROJECT CORE (secrets, tables, rows) ─────────────────────────
+
+export interface ProjectSecret {
+  id: number;
+  key_name: string;
+  created_at: string;
+}
+
+export interface ProjectTableColumn {
+  name: string;
+  type: 'text' | 'number' | 'boolean';
+}
+
+export interface ProjectTable {
+  id: number;
+  table_name: string;
+  columns: ProjectTableColumn[];
+  created_at: string;
+  rows_count: number;
+}
+
+export interface ProjectRow {
+  id: number;
+  data: Record<string, unknown>;
+  created_at: string;
+  updated_at: string;
+}
+
+export async function apiGetProjectSecrets(sessionId: string, projectId: number): Promise<ProjectSecret[]> {
+  const { res, data } = await apiFetch(`${PROJECT_CORE_URL}?resource=secrets&project_id=${projectId}`, {
+    headers: { 'x-session-id': sessionId },
+  });
+  if (!res.ok) throw new Error((data as {error?: string}).error || 'Ошибка загрузки секретов');
+  return (data as {secrets: ProjectSecret[]}).secrets;
+}
+
+export async function apiAddProjectSecret(sessionId: string, projectId: number, keyName: string, keyValue: string): Promise<ProjectSecret> {
+  const { res, data } = await apiFetch(PROJECT_CORE_URL, {
+    method: 'POST',
+    headers: { 'x-session-id': sessionId },
+    body: JSON.stringify({ resource: 'secrets', project_id: projectId, key_name: keyName, key_value: keyValue }),
+  });
+  if (!res.ok) throw new Error((data as {error?: string}).error || 'Ошибка добавления секрета');
+  return (data as {secret: ProjectSecret}).secret;
+}
+
+export async function apiDeleteProjectSecret(sessionId: string, projectId: number, secretId: number) {
+  const { res, data } = await apiFetch(`${PROJECT_CORE_URL}?resource=secrets&project_id=${projectId}&id=${secretId}`, {
+    method: 'DELETE',
+    headers: { 'x-session-id': sessionId },
+  });
+  if (!res.ok) throw new Error((data as {error?: string}).error || 'Ошибка удаления секрета');
+  return data;
+}
+
+export async function apiGetProjectTables(sessionId: string, projectId: number): Promise<ProjectTable[]> {
+  const { res, data } = await apiFetch(`${PROJECT_CORE_URL}?resource=tables&project_id=${projectId}`, {
+    headers: { 'x-session-id': sessionId },
+  });
+  if (!res.ok) throw new Error((data as {error?: string}).error || 'Ошибка загрузки таблиц');
+  return (data as {tables: ProjectTable[]}).tables;
+}
+
+export async function apiCreateProjectTable(sessionId: string, projectId: number, tableName: string, columns: ProjectTableColumn[]): Promise<ProjectTable> {
+  const { res, data } = await apiFetch(PROJECT_CORE_URL, {
+    method: 'POST',
+    headers: { 'x-session-id': sessionId },
+    body: JSON.stringify({ resource: 'tables', project_id: projectId, table_name: tableName, columns }),
+  });
+  if (!res.ok) throw new Error((data as {error?: string}).error || 'Ошибка создания таблицы');
+  return (data as {table: ProjectTable}).table;
+}
+
+export async function apiDeleteProjectTable(sessionId: string, projectId: number, tableId: number) {
+  const { res, data } = await apiFetch(`${PROJECT_CORE_URL}?resource=tables&project_id=${projectId}&id=${tableId}`, {
+    method: 'DELETE',
+    headers: { 'x-session-id': sessionId },
+  });
+  if (!res.ok) throw new Error((data as {error?: string}).error || 'Ошибка удаления таблицы');
+  return data;
+}
+
+export async function apiGetProjectRows(sessionId: string, projectId: number, tableId: number): Promise<ProjectRow[]> {
+  const { res, data } = await apiFetch(`${PROJECT_CORE_URL}?resource=rows&project_id=${projectId}&table_id=${tableId}`, {
+    headers: { 'x-session-id': sessionId },
+  });
+  if (!res.ok) throw new Error((data as {error?: string}).error || 'Ошибка загрузки записей');
+  return (data as {rows: ProjectRow[]}).rows;
+}
+
+export async function apiAddProjectRow(sessionId: string, projectId: number, tableId: number, rowData: Record<string, unknown>): Promise<ProjectRow> {
+  const { res, data } = await apiFetch(`${PROJECT_CORE_URL}?resource=rows&project_id=${projectId}`, {
+    method: 'POST',
+    headers: { 'x-session-id': sessionId },
+    body: JSON.stringify({ table_id: tableId, data: rowData }),
+  });
+  if (!res.ok) throw new Error((data as {error?: string}).error || 'Ошибка добавления записи');
+  return (data as {row: ProjectRow}).row;
+}
+
+export async function apiUpdateProjectRow(sessionId: string, projectId: number, tableId: number, rowId: number, rowData: Record<string, unknown>): Promise<ProjectRow> {
+  const { res, data } = await apiFetch(`${PROJECT_CORE_URL}?resource=rows&project_id=${projectId}`, {
+    method: 'PUT',
+    headers: { 'x-session-id': sessionId },
+    body: JSON.stringify({ table_id: tableId, id: rowId, data: rowData }),
+  });
+  if (!res.ok) throw new Error((data as {error?: string}).error || 'Ошибка обновления записи');
+  return (data as {row: ProjectRow}).row;
+}
+
+export async function apiDeleteProjectRow(sessionId: string, projectId: number, tableId: number, rowId: number) {
+  const { res, data } = await apiFetch(`${PROJECT_CORE_URL}?resource=rows&project_id=${projectId}&table_id=${tableId}&id=${rowId}`, {
+    method: 'DELETE',
+    headers: { 'x-session-id': sessionId },
+  });
+  if (!res.ok) throw new Error((data as {error?: string}).error || 'Ошибка удаления записи');
   return data;
 }

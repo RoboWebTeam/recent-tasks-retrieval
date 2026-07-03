@@ -6,6 +6,7 @@ import { getSession, getStoredUser, apiUploadFile, apiGetProject, apiPublishProj
 import { getLang, tr } from '@/lib/i18n';
 import LangSwitcher from '@/components/LangSwitcher';
 import { useToast } from '@/hooks/use-toast';
+import BuilderCorePanel from '@/components/builder/BuilderCorePanel';
 
 const GENERATE_URL = 'https://functions.poehali.dev/64b3e52e-6bb5-4d4e-b7ee-e3840af35990';
 
@@ -22,7 +23,7 @@ interface Version {
   ts: number;
 }
 
-type RightTab = 'preview' | 'code';
+type RightTab = 'preview' | 'code' | 'core';
 type DeviceMode = 'desktop' | 'tablet' | 'mobile';
 
 const DEVICE_WIDTHS: Record<DeviceMode, string> = {
@@ -616,9 +617,9 @@ export default function Builder() {
             ))}
           </div>
 
-          {/* Preview / Code tabs */}
+          {/* Preview / Code / Core tabs */}
           <div className="flex items-center gap-0.5 bg-secondary rounded-lg p-1 border border-border">
-            {([['preview', 'Eye', tr('builderPreview', lang)], ['code', 'Code', tr('builderCode', lang)]] as const).map(([tab, icon, label]) => (
+            {([['preview', 'Eye', tr('builderPreview', lang)], ['code', 'Code', tr('builderCode', lang)], ['core', 'Database', lang === 'ru' ? 'Ядро' : 'Core']] as const).map(([tab, icon, label]) => (
               <button key={tab} onClick={() => { setRightTab(tab); if (tab === 'code') setCodeEditorValue(html); }}
                 className={`flex items-center gap-1.5 h-7 px-2.5 rounded-md text-xs font-medium transition-all ${rightTab === tab ? 'bg-card text-foreground border border-border shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-secondary/70'}`}>
                 <Icon name={icon} size={13} />
@@ -1014,9 +1015,27 @@ export default function Builder() {
           </div>
         )}
 
-        {/* RIGHT — PREVIEW / CODE */}
+        {/* RIGHT — PREVIEW / CODE / CORE */}
         <div className="flex-1 flex flex-col bg-secondary/50 overflow-hidden">
-          {rightTab === 'preview' ? (
+          {rightTab === 'core' ? (
+            projectId ? (
+              <BuilderCorePanel lang={lang} projectId={parseInt(projectId, 10)} />
+            ) : (
+              <div className="flex-1 flex flex-col items-center justify-center text-center px-8">
+                <div className="h-20 w-20 rounded-3xl bg-card border border-border grid place-items-center mx-auto mb-6">
+                  <Icon name="Database" size={32} className="text-muted-foreground/50" />
+                </div>
+                <h3 className="font-display font-bold text-foreground text-lg mb-2">
+                  {lang === 'ru' ? 'Сначала сохраните проект' : 'Save your project first'}
+                </h3>
+                <p className="text-muted-foreground text-sm max-w-xs leading-relaxed">
+                  {lang === 'ru'
+                    ? 'Ядро (база данных, секреты, хранилище) доступно только для сохранённых проектов'
+                    : 'Core (database, secrets, storage) is only available for saved projects'}
+                </p>
+              </div>
+            )
+          ) : rightTab === 'preview' ? (
             <div className="flex-1 flex flex-col items-center overflow-hidden">
               {html ? (
                 <>
