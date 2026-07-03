@@ -339,7 +339,7 @@ const Dashboard = () => {
               {[
                 { name: tr('planFree', lang), price: lang === 'ru' ? 'Бесплатно' : 'Free', requests: `3 ${tr('requestsMonthly', lang)}`, features: lang === 'ru' ? ['1 сайт', 'Публикация на roboweb.site', 'Скачать HTML'] : ['1 website', 'Publish on roboweb.site', 'Download HTML'], current: user?.plan === 'free' },
                 { name: tr('planPremium', lang), price: '1 490 ₽/мес', requests: `40 ${tr('requestsMonthly', lang)}`, features: lang === 'ru' ? ['5 сайтов', 'Свой домен + SSL', 'Аналитика посещений', 'Форма заявок'] : ['5 websites', 'Custom domain + SSL', 'Visit analytics', 'Lead forms'], current: user?.plan === 'premium', hot: true },
-                { name: tr('planPro', lang), price: '3 490 ₽/мес', requests: `60 ${tr('requestsMonthly', lang)}`, features: lang === 'ru' ? ['Безлимитные сайты', 'Продвинутая аналитика', 'Приоритетная поддержка', 'Белый лейбл'] : ['Unlimited websites', 'Advanced analytics', 'Priority support', 'White label'], current: user?.plan === 'pro' },
+                { name: tr('planPro', lang), price: '3 490 ₽/мес', requests: `60 ${tr('requestsMonthly', lang)}`, features: lang === 'ru' ? ['Безлимитные сайты', 'Продвинутая аналитика', 'Приоритетная поддержка 24/7', 'Белый лейбл'] : ['Unlimited websites', 'Advanced analytics', 'Priority support 24/7', 'White label'], current: user?.plan === 'pro' },
               ].map(p => (
                 <div key={p.name} className={`rounded-2xl border p-5 ${p.current ? 'border-primary bg-primary/5' : 'border-border bg-card'}`}>
                   {p.hot && <span className="inline-block bg-primary text-primary-foreground text-xs font-bold rounded-full px-2.5 py-0.5 mb-2">{lang === 'ru' ? 'Популярный' : 'Popular'}</span>}
