@@ -1003,20 +1003,35 @@ export default function Builder() {
                     {aiModel === 'gpt-4o' ? 'GPT-4o' : 'Claude'}
                   </button>
                   {showModelMenu && (
-                    <div className="absolute bottom-10 left-0 z-50 w-48 bg-secondary border border-border rounded-2xl shadow-2xl p-1.5">
+                    <div className="absolute bottom-10 left-0 z-50 w-60 bg-secondary border border-border rounded-2xl shadow-2xl p-1.5">
                       {[
-                        { id: 'claude' as const, label: 'Claude Sonnet', desc: lang === 'ru' ? 'Точный и качественный' : 'Precise & polished' },
-                        { id: 'gpt-4o' as const, label: 'GPT-4o', desc: lang === 'ru' ? 'Быстрый и креативный' : 'Fast & creative' },
+                        {
+                          id: 'claude' as const,
+                          label: 'Claude Sonnet',
+                          desc: lang === 'ru' ? 'Точный и качественный' : 'Precise & polished',
+                          hint: lang === 'ru'
+                            ? 'Лучше для бизнес-сайтов, лендингов и сложной структуры'
+                            : 'Best for business sites, landings & complex layouts',
+                        },
+                        {
+                          id: 'gpt-4o' as const,
+                          label: 'GPT-4o',
+                          desc: lang === 'ru' ? 'Быстрый и креативный' : 'Fast & creative',
+                          hint: lang === 'ru'
+                            ? 'Лучше для нестандартного дизайна и творческих идей'
+                            : 'Best for bold design and creative concepts',
+                        },
                       ].map(m => (
                         <button key={m.id}
                           onClick={() => { setAiModel(m.id); setShowModelMenu(false); }}
-                          className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl hover:bg-secondary/70 transition-colors text-left">
-                          <div className={`grid h-6 w-6 place-items-center rounded-lg shrink-0 ${aiModel === m.id ? 'bg-primary text-primary-foreground' : 'bg-background text-muted-foreground'}`}>
+                          className="w-full flex items-start gap-2.5 px-2.5 py-2 rounded-xl hover:bg-secondary/70 transition-colors text-left">
+                          <div className={`grid h-6 w-6 place-items-center rounded-lg shrink-0 mt-0.5 ${aiModel === m.id ? 'bg-primary text-primary-foreground' : 'bg-background text-muted-foreground'}`}>
                             <Icon name={aiModel === m.id ? 'Check' : 'Cpu'} size={12} />
                           </div>
                           <div>
                             <div className="text-xs font-medium text-foreground">{m.label}</div>
                             <div className="text-[10px] text-muted-foreground">{m.desc}</div>
+                            <div className="text-[10px] text-muted-foreground/70 mt-0.5 leading-snug">{m.hint}</div>
                           </div>
                         </button>
                       ))}
