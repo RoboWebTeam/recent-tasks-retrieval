@@ -811,7 +811,7 @@ export default function Builder() {
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-3 space-y-3 bg-background">
+            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-background">
               {messages.length === 0 ? (
                 <div className="pt-2">
                   <div className="text-center mb-6">
@@ -848,19 +848,19 @@ export default function Builder() {
                 messages.map((m, i) => {
                   const msgTime = new Date().toLocaleTimeString(lang === 'ru' ? 'ru' : 'en', { hour: '2-digit', minute: '2-digit' });
                   return (
-                    <div key={i} className={`flex gap-2 ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
+                    <div key={i} className={`flex gap-2.5 ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
                       {m.role === 'assistant' && (
-                        <div className="grid h-7 w-7 place-items-center rounded-xl bg-primary text-primary-foreground shrink-0 mt-0.5 shadow-sm">
-                          <Icon name="Bot" size={14} />
+                        <div className="grid h-8 w-8 place-items-center rounded-xl bg-primary text-primary-foreground shrink-0 mt-0.5 shadow-sm">
+                          <Icon name="Bot" size={15} />
                         </div>
                       )}
-                      <div className={`max-w-[88%] text-[15px] font-medium leading-relaxed ${
+                      <div className={`max-w-[85%] text-[15px] font-medium leading-[1.55] ${
                         m.role === 'user'
-                          ? 'bg-primary text-white rounded-2xl rounded-br-sm px-3.5 py-2.5 shadow-sm'
-                          : 'bg-secondary border border-border text-foreground rounded-2xl rounded-bl-sm px-3.5 py-2.5'
+                          ? 'bg-primary text-white rounded-2xl rounded-br-sm px-4 py-3 shadow-sm'
+                          : 'bg-secondary border border-border text-foreground rounded-2xl rounded-bl-sm px-4 py-3'
                       }`}>
                         {m.role === 'user' && (
-                          <div className="text-[10px] text-white/50 mb-1">{msgTime}</div>
+                          <div className="text-[10px] text-white/50 mb-1.5">{msgTime}</div>
                         )}
                         {m.role === 'assistant' && m.content === '' ? (
                           <div className="flex items-center gap-1.5 py-0.5">
@@ -872,7 +872,7 @@ export default function Builder() {
                             </span>
                           </div>
                         ) : m.isHtml ? (
-                          <div className="space-y-2">
+                          <div className="space-y-2.5">
                             <div className="flex items-center gap-2 text-emerald-400 text-xs font-semibold">
                               <Icon name="CheckCircle" size={13} /> {tr('builderReady', lang)}
                             </div>
@@ -880,17 +880,17 @@ export default function Builder() {
                             {m.tokens && m.tokens > 0 && (
                               <p className="text-[10px] text-muted-foreground">{m.tokens.toLocaleString()} tokens</p>
                             )}
-                            <div className="flex gap-2 mt-2.5 pt-2 border-t border-border">
+                            <div className="flex gap-2 mt-3 pt-2.5 border-t border-border">
                               <button onClick={() => setRightTab('preview')}
-                                className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 font-semibold bg-primary/10 hover:bg-primary/20 px-2.5 py-1 rounded-lg transition-colors">
+                                className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 font-semibold bg-primary/10 hover:bg-primary/20 px-2.5 py-1.5 rounded-lg transition-colors">
                                 <Icon name="Eye" size={11} /> {tr('builderPreview', lang)}
                               </button>
                               <button onClick={() => { setRightTab('code'); setCodeEditorValue(html); }}
-                                className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground bg-secondary hover:bg-secondary/70 px-2.5 py-1 rounded-lg transition-colors">
+                                className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground bg-secondary hover:bg-secondary/70 px-2.5 py-1.5 rounded-lg transition-colors">
                                 <Icon name="Code" size={11} /> {tr('builderCode', lang)}
                               </button>
                               <button onClick={handleDownload}
-                                className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground bg-secondary hover:bg-secondary/70 px-2.5 py-1 rounded-lg transition-colors">
+                                className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground bg-secondary hover:bg-secondary/70 px-2.5 py-1.5 rounded-lg transition-colors">
                                 <Icon name="Download" size={11} /> {tr('builderDownload', lang)}
                               </button>
                             </div>
@@ -898,7 +898,7 @@ export default function Builder() {
                         ) : m.content}
                       </div>
                       {m.role === 'user' && (
-                        <div className="grid h-7 w-7 place-items-center rounded-xl bg-primary text-primary-foreground text-xs font-bold shrink-0 mt-0.5 shadow-sm">
+                        <div className="grid h-8 w-8 place-items-center rounded-xl bg-primary text-primary-foreground text-xs font-bold shrink-0 mt-0.5 shadow-sm">
                           {initials}
                         </div>
                       )}
