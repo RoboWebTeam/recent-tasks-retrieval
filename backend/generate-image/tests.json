@@ -1,0 +1,17 @@
+{
+  "tests": [
+    {
+      "name": "OPTIONS preflight",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "Без сессии — 401",
+      "method": "POST",
+      "path": "/",
+      "body": {"prompt": "a cat"},
+      "expectedStatus": 401
+    }
+  ]
+}

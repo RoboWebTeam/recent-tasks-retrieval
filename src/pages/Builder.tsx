@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
-import { getSession, getStoredUser, apiUploadFile, apiGetProject, apiPublishProject, LOW_BALANCE_THRESHOLD } from '@/lib/auth';
+import { getSession, getStoredUser, apiUploadFile, apiGetProject, apiPublishProject, apiGenerateImage, LOW_BALANCE_THRESHOLD } from '@/lib/auth';
 import { getLang, tr } from '@/lib/i18n';
 import LangSwitcher from '@/components/LangSwitcher';
 import { useToast } from '@/hooks/use-toast';
@@ -112,6 +112,10 @@ export default function Builder() {
   const [quotaExceeded, setQuotaExceeded] = useState(false);
   const [aiModel, setAiModel] = useState<'claude' | 'gpt-4o'>('claude');
   const [showModelMenu, setShowModelMenu] = useState(false);
+  const [showImageGen, setShowImageGen] = useState(false);
+  const [imagePrompt, setImagePrompt] = useState('');
+  const [generatingImage, setGeneratingImage] = useState(false);
+  const [imageGenError, setImageGenError] = useState('');
   const imageInputRef = useRef<HTMLInputElement>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
   const [editPopover, setEditPopover] = useState<{ x: number; y: number; text: string; path: string } | null>(null);
@@ -594,6 +598,23 @@ export default function Builder() {
     e.target.value = '';
   };
 
+  const handleGenerateImage = async () => {
+    if (!imagePrompt.trim() || !session) return;
+    setGeneratingImage(true);
+    setImageGenError('');
+    try {
+      const result = await apiGenerateImage(session, imagePrompt.trim(), projectId ? Number(projectId) : undefined);
+      setAttachedImage({ url: result.url, name: result.file_name, alreadyUploaded: true });
+      setShowImageGen(false);
+      setImagePrompt('');
+      if (!input) setInput(lang === 'ru' ? 'Используй это изображение на сайте' : 'Use this image on the site');
+    } catch (e) {
+      setImageGenError(e instanceof Error ? e.message : tr('builderError', lang));
+    } finally {
+      setGeneratingImage(false);
+    }
+  };
+
   const handleUseFileInChat = (file: { file_url: string; file_name: string }) => {
     setAttachedImage({ url: file.file_url, name: file.file_name, alreadyUploaded: true });
     setRightTab('preview');
@@ -1005,6 +1026,13 @@ export default function Builder() {
                     <Icon name="Image" size={14} />
                   </button>
                   <input ref={imageInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
+
+                  {/* Сгенерировать изображение через DALL-E */}
+                  <button onClick={() => { setShowImageGen(true); setImageGenError(''); }}
+                    className="grid h-7 w-7 place-items-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors shrink-0"
+                    title={lang === 'ru' ? 'Сгенерировать изображение (DALL-E)' : 'Generate image (DALL-E)'}>
+                    <Icon name="ImagePlus" size={14} />
+                  </button>
 
                   {/* Модель AI */}
                   <div className="relative shrink-0">
@@ -1570,6 +1598,47 @@ export default function Builder() {
           <Icon name="AlertCircle" size={15} className="shrink-0" />
           <span className="flex-1">{publishError}</span>
           <button onClick={() => setPublishError('')}><Icon name="X" size={14} /></button>
+        </div>
+      )}
+
+      {/* Generate image (DALL-E) modal */}
+      {showImageGen && (
+        <div className="fixed inset-0 z-[60] bg-black/50 flex items-center justify-center p-4" onClick={() => !generatingImage && setShowImageGen(false)}>
+          <div className="bg-card rounded-2xl shadow-2xl p-6 max-w-md w-full" onClick={e => e.stopPropagation()}>
+            <div className="grid h-12 w-12 place-items-center rounded-2xl bg-primary/10 text-primary mx-auto mb-4">
+              <Icon name="ImagePlus" size={22} />
+            </div>
+            <h3 className="font-display font-bold text-lg text-center mb-1">
+              {lang === 'ru' ? 'Сгенерировать изображение' : 'Generate an image'}
+            </h3>
+            <p className="text-sm text-muted-foreground text-center mb-4">
+              {lang === 'ru' ? 'Опишите картинку словами — DALL-E создаст её и добавит в чат' : 'Describe the image in words — DALL-E will create it and attach it to chat'}
+            </p>
+            <textarea
+              value={imagePrompt}
+              onChange={e => setImagePrompt(e.target.value)}
+              placeholder={lang === 'ru' ? 'Например: минималистичный логотип кофейни с чашкой' : 'E.g.: minimalist coffee shop logo with a cup'}
+              rows={3}
+              disabled={generatingImage}
+              className="w-full bg-secondary border border-border rounded-xl px-3.5 py-2.5 text-sm resize-none outline-none focus:border-primary/50 mb-3 disabled:opacity-60"
+            />
+            {imageGenError && (
+              <div className="flex items-start gap-2 text-sm text-destructive bg-destructive/10 rounded-xl px-3 py-2.5 mb-3">
+                <Icon name="AlertCircle" size={15} className="shrink-0 mt-0.5" />
+                <span>{imageGenError}</span>
+              </div>
+            )}
+            <div className="flex gap-2">
+              <Button variant="outline" className="flex-1 rounded-xl" disabled={generatingImage} onClick={() => setShowImageGen(false)}>
+                {lang === 'ru' ? 'Отмена' : 'Cancel'}
+              </Button>
+              <Button className="flex-1 rounded-xl" disabled={generatingImage || !imagePrompt.trim()} onClick={handleGenerateImage}>
+                {generatingImage
+                  ? <><Icon name="Loader" size={14} className="mr-1.5 animate-spin" />{lang === 'ru' ? 'Создаём…' : 'Generating…'}</>
+                  : <><Icon name="Sparkles" size={14} className="mr-1.5" />{lang === 'ru' ? 'Создать' : 'Generate'}</>}
+              </Button>
+            </div>
+          </div>
         </div>
       )}
     </div>

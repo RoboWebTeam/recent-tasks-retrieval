@@ -4,6 +4,7 @@ export const FILES_URL = 'https://functions.poehali.dev/86596285-1259-4cdb-8c8d-
 export const PUBLIC_SITE_URL = 'https://functions.poehali.dev/2c23b134-6798-4837-b6b2-226e599051f9';
 export const DOMAINS_URL = 'https://functions.poehali.dev/8e970c92-49ad-4f27-9b52-3572f6efc1f6';
 export const PROJECT_CORE_URL = 'https://functions.poehali.dev/7aaaa29f-7484-4295-83d3-fbc7eaf6e923';
+export const GENERATE_IMAGE_URL = 'https://functions.poehali.dev/6a25f90e-ad5e-4f64-abf2-45b6b515b915';
 
 export interface User {
   id: number;
@@ -325,6 +326,21 @@ export async function apiUploadFile(
   });
   if (!res.ok) throw new Error((data as {error?: string}).error || 'Ошибка загрузки файла');
   return (data as {file: SiteFile}).file;
+}
+
+export async function apiGenerateImage(
+  sessionId: string,
+  prompt: string,
+  projectId?: number,
+  size?: '1024x1024' | '1792x1024' | '1024x1792',
+): Promise<{ url: string; file_name: string; revised_prompt: string }> {
+  const { res, data } = await apiFetch(GENERATE_IMAGE_URL, {
+    method: 'POST',
+    headers: { 'x-session-id': sessionId },
+    body: JSON.stringify({ prompt, project_id: projectId, size }),
+  });
+  if (!res.ok) throw new Error((data as {error?: string}).error || 'Ошибка генерации изображения');
+  return data as { url: string; file_name: string; revised_prompt: string };
 }
 
 export async function apiDeleteFile(sessionId: string, fileId: number) {
