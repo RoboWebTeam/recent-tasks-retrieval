@@ -1,4 +1,5 @@
 {
+  "domains": "https://functions.poehali.dev/8e970c92-49ad-4f27-9b52-3572f6efc1f6",
   "order-status": "https://functions.poehali.dev/0883717d-f728-467e-b5d2-c91fb10bf3e6",
   "yookassa-yookassa": "https://functions.poehali.dev/4fec45e4-aaef-4bc4-ba3c-7a43dfc964bc",
   "yookassa-yookassa-webhook": "https://functions.poehali.dev/b05b259f-7943-4095-b486-2085a7fb52bd",

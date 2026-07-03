@@ -2,6 +2,7 @@ export const AUTH_URL = 'https://functions.poehali.dev/1c31dd39-a734-4b06-bc38-a
 export const PROJECTS_URL = 'https://functions.poehali.dev/2b772da8-0a47-4371-97c7-b0a6834cdf0e';
 export const FILES_URL = 'https://functions.poehali.dev/86596285-1259-4cdb-8c8d-48a19c6f94df';
 export const PUBLIC_SITE_URL = 'https://functions.poehali.dev/2c23b134-6798-4837-b6b2-226e599051f9';
+export const DOMAINS_URL = 'https://functions.poehali.dev/8e970c92-49ad-4f27-9b52-3572f6efc1f6';
 
 export interface User {
   id: number;
@@ -46,6 +47,29 @@ export interface SiteFile {
   file_type: 'html' | 'zip';
   file_size: number;
   created_at: string;
+}
+
+export interface Domain {
+  id: number;
+  domain: string;
+  status: 'pending' | 'active';
+  is_primary: boolean;
+  redirect_mode: 'none' | 'www_to_root' | 'root_to_www';
+  ssl_status: 'pending' | 'active';
+  ssl_issued_at: string | null;
+  ssl_expires_at: string | null;
+  last_checked_at: string | null;
+  verified_at: string | null;
+  created_at: string | null;
+  project_id: number | null;
+  project_title: string | null;
+}
+
+export interface DnsCheckResult {
+  verified: boolean;
+  a_record: { expected: string; found: string[]; ok: boolean };
+  cname_record: { expected: string; found: string; ok: boolean };
+  registrar: string | null;
 }
 
 export function getSession(): string | null {
@@ -277,5 +301,72 @@ export async function apiDeleteFile(sessionId: string, fileId: number) {
     headers: { 'x-session-id': sessionId },
   });
   if (!res.ok) throw new Error((data as {error?: string}).error || 'Ошибка удаления файла');
+  return data;
+}
+
+export async function apiGetDomains(sessionId: string): Promise<{ domains: Domain[]; projects: { id: number; title: string }[] }> {
+  const { res, data } = await apiFetch(DOMAINS_URL, {
+    headers: { 'x-session-id': sessionId },
+  });
+  if (!res.ok) throw new Error((data as {error?: string}).error || 'Ошибка загрузки доменов');
+  return data as { domains: Domain[]; projects: { id: number; title: string }[] };
+}
+
+export async function apiAddDomain(sessionId: string, domain: string, projectId?: number): Promise<Domain> {
+  const { res, data } = await apiFetch(DOMAINS_URL, {
+    method: 'POST',
+    headers: { 'x-session-id': sessionId },
+    body: JSON.stringify({ action: 'add', domain, project_id: projectId }),
+  });
+  if (!res.ok) throw new Error((data as {error?: string}).error || 'Ошибка добавления домена');
+  return (data as { domain: Domain }).domain;
+}
+
+export async function apiVerifyDomain(sessionId: string, id: number): Promise<{ dns: DnsCheckResult; status: string }> {
+  const { res, data } = await apiFetch(DOMAINS_URL, {
+    method: 'POST',
+    headers: { 'x-session-id': sessionId },
+    body: JSON.stringify({ action: 'verify', id }),
+  });
+  if (!res.ok) throw new Error((data as {error?: string}).error || 'Ошибка проверки домена');
+  return data as { dns: DnsCheckResult; status: string };
+}
+
+export async function apiSetPrimaryDomain(sessionId: string, id: number) {
+  const { res, data } = await apiFetch(DOMAINS_URL, {
+    method: 'POST',
+    headers: { 'x-session-id': sessionId },
+    body: JSON.stringify({ action: 'set_primary', id }),
+  });
+  if (!res.ok) throw new Error((data as {error?: string}).error || 'Ошибка назначения основного домена');
+  return data;
+}
+
+export async function apiSetDomainRedirect(sessionId: string, id: number, redirectMode: string) {
+  const { res, data } = await apiFetch(DOMAINS_URL, {
+    method: 'POST',
+    headers: { 'x-session-id': sessionId },
+    body: JSON.stringify({ action: 'set_redirect', id, redirect_mode: redirectMode }),
+  });
+  if (!res.ok) throw new Error((data as {error?: string}).error || 'Ошибка настройки редиректа');
+  return data;
+}
+
+export async function apiAssignDomainProject(sessionId: string, id: number, projectId: number | null) {
+  const { res, data } = await apiFetch(DOMAINS_URL, {
+    method: 'POST',
+    headers: { 'x-session-id': sessionId },
+    body: JSON.stringify({ action: 'assign_project', id, project_id: projectId }),
+  });
+  if (!res.ok) throw new Error((data as {error?: string}).error || 'Ошибка привязки проекта');
+  return data;
+}
+
+export async function apiDeleteDomain(sessionId: string, id: number) {
+  const { res, data } = await apiFetch(`${DOMAINS_URL}?id=${id}`, {
+    method: 'DELETE',
+    headers: { 'x-session-id': sessionId },
+  });
+  if (!res.ok) throw new Error((data as {error?: string}).error || 'Ошибка удаления домена');
   return data;
 }
