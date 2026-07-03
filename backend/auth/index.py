@@ -48,7 +48,7 @@ def reset_requests_if_needed(cur, schema: str, user_id: int, plan: str):
         limit = PLAN_LIMITS.get(plan, limit)
         cur.execute(
             f"""UPDATE {schema}.users
-                SET requests_used = 0, requests_limit = %s, requests_reset_at = NOW() + INTERVAL '30 days'
+                SET requests_used = 0, requests_limit = %s, requests_reset_at = NOW() + INTERVAL '30 days', low_balance_notified = false
                 WHERE id = %s""",
             (limit, user_id)
         )

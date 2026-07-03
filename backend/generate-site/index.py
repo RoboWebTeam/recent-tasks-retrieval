@@ -1,7 +1,12 @@
 import os
 import json
+import smtplib
 import urllib.request
 import psycopg2
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
+
+LOW_BALANCE_THRESHOLD = 5
 
 SYSTEM_PROMPT = """Ты — профессиональный веб-разработчик. Создавай красивые, современные одностраничные сайты (HTML + CSS + JS) в одном файле.
 
@@ -67,7 +72,7 @@ def check_and_consume_quota(user_id: int, schema: str):
                 limit = PLAN_LIMITS.get(plan, limit)
                 cur.execute(
                     f"""UPDATE {schema}.users
-                        SET requests_used = 0, requests_limit = %s, requests_reset_at = NOW() + INTERVAL '30 days'
+                        SET requests_used = 0, requests_limit = %s, requests_reset_at = NOW() + INTERVAL '30 days', low_balance_notified = false
                         WHERE id = %s""",
                     (limit, user_id)
                 )
@@ -86,6 +91,69 @@ def check_and_consume_quota(user_id: int, schema: str):
             return False, 'Лимит AI-запросов исчерпан. Пополните энергию или смените тариф.', 0
     finally:
         conn.close()
+
+def send_low_balance_email(to_email: str, remaining: int):
+    """Отправляет предупреждение о заканчивающихся AI-запросах."""
+    smtp_password = os.environ.get('SMTP_PASSWORD')
+    if not smtp_password or not to_email:
+        return
+
+    smtp_user = 'roboweb.site@yandex.ru'
+    is_zero = remaining <= 0
+
+    msg = MIMEMultipart('alternative')
+    msg['Subject'] = '🚫 Лимит AI-запросов исчерпан' if is_zero else f'⚡ Осталось {remaining} запросов к AI'
+    msg['From'] = smtp_user
+    msg['To'] = to_email
+
+    text = (
+        'Лимит AI-запросов на вашем аккаунте исчерпан.'
+        if is_zero else
+        f'На вашем аккаунте осталось {remaining} запросов к AI.'
+    )
+
+    html = f"""
+    <div style="font-family: Arial, sans-serif; max-width: 560px; margin: 0 auto; background: #f8f9fa; padding: 32px; border-radius: 16px;">
+      <h2 style="color: #3b4cff; margin: 0 0 16px;">{'Лимит запросов исчерпан' if is_zero else 'Запросы заканчиваются'}</h2>
+      <p style="color: #444; font-size: 16px; margin: 0 0 16px;">{text}</p>
+      <p style="color: #666; font-size: 14px; margin: 0 0 20px;">Пополните энергию или смените тариф, чтобы продолжить создавать сайты с AI.</p>
+      <a href="https://roboweb.site/pricing" style="display:inline-block; background:#3b4cff; color:#fff; text-decoration:none; padding:10px 20px; border-radius:10px; font-weight:600;">Перейти к тарифам</a>
+      <p style="color: #888; font-size: 13px; margin-top: 24px;">Письмо отправлено автоматически с сайта Roboweb</p>
+    </div>
+    """
+    msg.attach(MIMEText(html, 'html'))
+
+    try:
+        with smtplib.SMTP_SSL('smtp.yandex.ru', 465) as server:
+            server.login(smtp_user, smtp_password)
+            server.sendmail(smtp_user, to_email, msg.as_string())
+    except Exception:
+        pass
+
+
+def maybe_notify_low_balance(user_id: int, remaining: int, schema: str):
+    """Если баланс низкий и уведомление ещё не отправлялось в этом цикле — шлём письмо и ставим флаг.
+    Если баланс восстановился выше порога — сбрасываем флаг, чтобы уведомить снова в следующий раз."""
+    conn = psycopg2.connect(os.environ['DATABASE_URL'])
+    try:
+        with conn.cursor() as cur:
+            cur.execute(f"SELECT email, low_balance_notified FROM {schema}.users WHERE id = %s", (user_id,))
+            row = cur.fetchone()
+            if not row:
+                return
+            email, already_notified = row
+
+            if remaining <= LOW_BALANCE_THRESHOLD:
+                if not already_notified:
+                    send_low_balance_email(email, remaining)
+                    cur.execute(f"UPDATE {schema}.users SET low_balance_notified = true WHERE id = %s", (user_id,))
+                    conn.commit()
+            elif already_notified:
+                cur.execute(f"UPDATE {schema}.users SET low_balance_notified = false WHERE id = %s", (user_id,))
+                conn.commit()
+    finally:
+        conn.close()
+
 
 def save_html(project_id: int, html: str, schema: str):
     conn = psycopg2.connect(os.environ['DATABASE_URL'])
@@ -118,7 +186,10 @@ def handler(event: dict, context) -> dict:
 
     allowed, quota_error, remaining = check_and_consume_quota(user_id, schema)
     if not allowed:
+        maybe_notify_low_balance(user_id, 0, schema)
         return err(quota_error, 402)
+
+    maybe_notify_low_balance(user_id, remaining, schema)
 
     body = json.loads(event.get('body') or '{}')
     messages = body.get('messages', [])

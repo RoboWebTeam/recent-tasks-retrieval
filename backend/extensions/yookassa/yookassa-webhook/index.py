@@ -268,7 +268,7 @@ def handler(event, context):
                 if order_type == 'energy' and order_user_id and energy_amount:
                     # Начисляем купленную энергию (доп. AI-запросы)
                     cur.execute(f"""
-                        UPDATE {S}users SET energy_balance = energy_balance + %s WHERE id = %s
+                        UPDATE {S}users SET energy_balance = energy_balance + %s, low_balance_notified = false WHERE id = %s
                         RETURNING energy_balance
                     """, (energy_amount, order_user_id))
                     new_balance_row = cur.fetchone()
@@ -281,12 +281,12 @@ def handler(event, context):
                     if new_limit is not None:
                         cur.execute(f"""
                             UPDATE {S}users
-                            SET plan = %s, requests_limit = %s, requests_used = 0, requests_reset_at = NOW() + INTERVAL '30 days'
+                            SET plan = %s, requests_limit = %s, requests_used = 0, requests_reset_at = NOW() + INTERVAL '30 days', low_balance_notified = false
                             WHERE id = %s
                         """, (order_plan, new_limit, order_user_id))
                     else:
                         cur.execute(f"""
-                            UPDATE {S}users SET plan = %s WHERE id = %s
+                            UPDATE {S}users SET plan = %s, low_balance_notified = false WHERE id = %s
                         """, (order_plan, order_user_id))
 
                     send_plan_activated_email(order_email, order_plan, new_limit or 0)
