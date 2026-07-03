@@ -14,7 +14,7 @@ function Avatar({ user }: { user: User }) {
   );
 }
 
-type NavId = 'projects' | 'plan' | 'profile' | 'analytics' | 'leads' | 'files';
+type NavId = 'projects' | 'plan' | 'profile' | 'analytics' | 'leads' | 'files' | 'domain';
 
 interface DashboardHeaderProps {
   active: NavId;
@@ -35,6 +35,7 @@ export default function DashboardHeader({ active, leadsCount = 0 }: DashboardHea
     ['analytics', lang === 'ru' ? 'Аналитика' : 'Analytics', 'BarChart2', '/analytics', 0] as const,
     ['leads', lang === 'ru' ? 'Заявки' : 'Leads', 'Inbox', '/leads', leadsCount] as const,
     ['files', lang === 'ru' ? 'Мои файлы' : 'My files', 'FolderOpen', '/files', 0] as const,
+    ['domain', lang === 'ru' ? 'Домен' : 'Domain', 'Link', '/settings/domain', 0] as const,
   ];
 
   return (
