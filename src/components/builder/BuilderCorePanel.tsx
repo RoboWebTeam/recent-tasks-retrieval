@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import Icon from '@/components/ui/icon';
 import { type Lang } from '@/lib/i18n';
+import { type SiteFile } from '@/lib/auth';
 import BuilderCoreDatabase from './BuilderCoreDatabase';
 import BuilderCoreSecrets from './BuilderCoreSecrets';
 import BuilderCoreStorage from './BuilderCoreStorage';
@@ -12,9 +13,10 @@ type CoreTab = 'database' | 'functions' | 'secrets' | 'storage';
 interface BuilderCorePanelProps {
   lang: Lang;
   projectId: number;
+  onUseFileInChat?: (file: SiteFile) => void;
 }
 
-export default function BuilderCorePanel({ lang, projectId }: BuilderCorePanelProps) {
+export default function BuilderCorePanel({ lang, projectId, onUseFileInChat }: BuilderCorePanelProps) {
   const [tab, setTab] = useState<CoreTab>('database');
 
   const tabs: { id: CoreTab; label: string; icon: string }[] = [
@@ -47,7 +49,7 @@ export default function BuilderCorePanel({ lang, projectId }: BuilderCorePanelPr
         {tab === 'database' && <BuilderCoreDatabase lang={lang} projectId={projectId} />}
         {tab === 'functions' && <BuilderCoreFunctions lang={lang} />}
         {tab === 'secrets' && <BuilderCoreSecrets lang={lang} projectId={projectId} />}
-        {tab === 'storage' && <BuilderCoreStorage lang={lang} projectId={projectId} />}
+        {tab === 'storage' && <BuilderCoreStorage lang={lang} projectId={projectId} onUseInChat={onUseFileInChat} />}
       </div>
     </div>
   );

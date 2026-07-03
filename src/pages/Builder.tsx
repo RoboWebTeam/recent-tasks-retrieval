@@ -98,7 +98,7 @@ export default function Builder() {
   const [codeApplied, setCodeApplied] = useState(false);
   const [editMode, setEditMode] = useState(false);
   const [isRecording, setIsRecording] = useState(false);
-  const [attachedImage, setAttachedImage] = useState<{ url: string; name: string } | null>(null);
+  const [attachedImage, setAttachedImage] = useState<{ url: string; name: string; alreadyUploaded?: boolean } | null>(null);
   const [showExtensions, setShowExtensions] = useState(false);
   const [savingToFiles, setSavingToFiles] = useState(false);
   const [saveToFilesDone, setSaveToFilesDone] = useState(false);
@@ -180,10 +180,12 @@ export default function Builder() {
     setShowQuickEdits(false);
     setLoading(true);
 
-    // Если прикреплено изображение — загружаем его в хранилище проекта,
-    // чтобы AI мог вставить в сайт реальную ссылку, а не выдумывать путь
+    // Если прикреплено изображение — используем готовую ссылку (если файл уже в хранилище)
+    // или загружаем его туда, чтобы AI мог вставить в сайт реальную ссылку, а не выдумывать путь
     let imageNote = '';
-    if (pendingImage && session) {
+    if (pendingImage?.alreadyUploaded) {
+      imageNote = `\n[Изображение из хранилища проекта, используй эту ссылку в src: ${pendingImage.url}]`;
+    } else if (pendingImage && session) {
       try {
         const base64 = pendingImage.url.split(',')[1] || '';
         const uploaded = await apiUploadFile(session, pendingImage.name, base64, false, projectId ? Number(projectId) : undefined);
@@ -574,6 +576,13 @@ export default function Builder() {
     e.target.value = '';
   };
 
+  const handleUseFileInChat = (file: { file_url: string; file_name: string }) => {
+    setAttachedImage({ url: file.file_url, name: file.file_name, alreadyUploaded: true });
+    setRightTab('preview');
+    setSidebarOpen(true);
+    if (!input) setInput(lang === 'ru' ? 'Используй это изображение на сайте' : 'Use this image on the site');
+  };
+
   const initials = user?.name?.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || 'U';
   const msgCount = messages.filter(m => m.role === 'user').length;
 
@@ -928,7 +937,12 @@ export default function Builder() {
               {attachedImage && (
                 <div className="flex items-center gap-2 mb-2 px-2 py-1.5 bg-secondary border border-border rounded-xl">
                   <img src={attachedImage.url} alt="" className="h-8 w-8 rounded-lg object-cover shrink-0" />
-                  <span className="text-[11px] text-muted-foreground flex-1 truncate">{attachedImage.name}</span>
+                  <span className="text-[11px] text-muted-foreground flex-1 truncate">
+                    {attachedImage.name}
+                    {attachedImage.alreadyUploaded && (
+                      <span className="text-primary ml-1.5">· {lang === 'ru' ? 'из хранилища' : 'from storage'}</span>
+                    )}
+                  </span>
                   <button onClick={() => setAttachedImage(null)} className="text-muted-foreground hover:text-red-400 transition-colors">
                     <Icon name="X" size={13} />
                   </button>
@@ -1035,7 +1049,7 @@ export default function Builder() {
         <div className="flex-1 flex flex-col bg-secondary/50 overflow-hidden">
           {rightTab === 'core' ? (
             projectId ? (
-              <BuilderCorePanel lang={lang} projectId={parseInt(projectId, 10)} />
+              <BuilderCorePanel lang={lang} projectId={parseInt(projectId, 10)} onUseFileInChat={handleUseFileInChat} />
             ) : (
               <div className="flex-1 flex flex-col items-center justify-center text-center px-8">
                 <div className="h-20 w-20 rounded-3xl bg-card border border-border grid place-items-center mx-auto mb-6">

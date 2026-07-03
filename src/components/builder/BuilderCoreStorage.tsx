@@ -7,6 +7,7 @@ import { getSession, apiGetFiles, apiUploadFile, apiDeleteFile, type SiteFile } 
 interface BuilderCoreStorageProps {
   lang: Lang;
   projectId: number;
+  onUseInChat?: (file: SiteFile) => void;
 }
 
 function formatSize(bytes: number): string {
@@ -17,7 +18,7 @@ function formatSize(bytes: number): string {
 
 const ACCEPTED_EXTENSIONS = ['.png', '.jpg', '.jpeg', '.webp', '.gif', '.svg', '.html', '.htm', '.zip'];
 
-export default function BuilderCoreStorage({ lang, projectId }: BuilderCoreStorageProps) {
+export default function BuilderCoreStorage({ lang, projectId, onUseInChat }: BuilderCoreStorageProps) {
   const isRu = lang === 'ru';
   const session = getSession();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -138,6 +139,11 @@ export default function BuilderCoreStorage({ lang, projectId }: BuilderCoreStora
                 <p className="text-sm font-medium truncate">{f.file_name}</p>
                 <p className="text-xs text-muted-foreground">{formatSize(f.file_size)} · {new Date(f.created_at).toLocaleDateString(isRu ? 'ru-RU' : 'en-US')}</p>
               </div>
+              {f.file_type === 'image' && onUseInChat && (
+                <button onClick={() => onUseInChat(f)} title={isRu ? 'Использовать в чате' : 'Use in chat'} className="shrink-0 grid h-8 w-8 place-items-center rounded-lg hover:bg-primary/10 text-muted-foreground hover:text-primary transition-colors">
+                  <Icon name="MessageSquarePlus" size={14} />
+                </button>
+              )}
               <button onClick={() => { navigator.clipboard.writeText(f.file_url); }} title={isRu ? 'Скопировать ссылку' : 'Copy link'} className="shrink-0 grid h-8 w-8 place-items-center rounded-lg hover:bg-secondary text-muted-foreground hover:text-foreground transition-colors">
                 <Icon name="Link" size={14} />
               </button>
