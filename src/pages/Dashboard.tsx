@@ -15,7 +15,7 @@ import { getLang, tr } from '@/lib/i18n';
 import LangSwitcher from '@/components/LangSwitcher';
 
 const getPlanLabels = (lang: ReturnType<typeof getLang>) => ({
-  free:    { label: tr('planFree', lang),    color: 'bg-secondary text-secondary-foreground', requests: '10' },
+  free:    { label: tr('planFree', lang),    color: 'bg-secondary text-secondary-foreground', requests: '3' },
   premium: { label: tr('planPremium', lang), color: 'bg-primary text-primary-foreground',     requests: '40' },
   pro:     { label: tr('planPro', lang),     color: 'bg-foreground text-background',           requests: '60' },
 });
@@ -337,9 +337,9 @@ const Dashboard = () => {
 
             <div className="grid sm:grid-cols-3 gap-4">
               {[
-                { name: tr('planFree', lang), price: lang === 'ru' ? 'Бесплатно' : 'Free', requests: `10 ${tr('requestsOnce', lang)}`, features: lang === 'ru' ? ['До 3 проектов', '512 МБ хранилища', 'Облачный хостинг'] : ['Up to 3 projects', '512 MB storage', 'Cloud hosting'], current: user?.plan === 'free' },
-                { name: tr('planPremium', lang), price: '999 ₽/мес', requests: `40 ${tr('requestsMonthly', lang)}`, features: lang === 'ru' ? ['До 3 проектов', '512 МБ хранилища', 'Подключение домена', 'Расширения'] : ['Up to 3 projects', '512 MB storage', 'Custom domain', 'Extensions'], current: user?.plan === 'premium', hot: true },
-                { name: tr('planPro', lang), price: lang === 'ru' ? 'По запросу' : 'On request', requests: `60 ${tr('requestsMonthly', lang)}`, features: lang === 'ru' ? ['До 5 проектов', '5 ГБ хранилища', 'Приоритетная поддержка', '25 функций'] : ['Up to 5 projects', '5 GB storage', 'Priority support', '25 functions'], current: user?.plan === 'pro' },
+                { name: tr('planFree', lang), price: lang === 'ru' ? 'Бесплатно' : 'Free', requests: `3 ${tr('requestsMonthly', lang)}`, features: lang === 'ru' ? ['1 сайт', 'Публикация на roboweb.site', 'Скачать HTML'] : ['1 website', 'Publish on roboweb.site', 'Download HTML'], current: user?.plan === 'free' },
+                { name: tr('planPremium', lang), price: '1 490 ₽/мес', requests: `40 ${tr('requestsMonthly', lang)}`, features: lang === 'ru' ? ['5 сайтов', 'Свой домен + SSL', 'Аналитика посещений', 'Форма заявок'] : ['5 websites', 'Custom domain + SSL', 'Visit analytics', 'Lead forms'], current: user?.plan === 'premium', hot: true },
+                { name: tr('planPro', lang), price: '3 490 ₽/мес', requests: `60 ${tr('requestsMonthly', lang)}`, features: lang === 'ru' ? ['Безлимитные сайты', 'Продвинутая аналитика', 'Приоритетная поддержка', 'Белый лейбл'] : ['Unlimited websites', 'Advanced analytics', 'Priority support', 'White label'], current: user?.plan === 'pro' },
               ].map(p => (
                 <div key={p.name} className={`rounded-2xl border p-5 ${p.current ? 'border-primary bg-primary/5' : 'border-border bg-card'}`}>
                   {p.hot && <span className="inline-block bg-primary text-primary-foreground text-xs font-bold rounded-full px-2.5 py-0.5 mb-2">{lang === 'ru' ? 'Популярный' : 'Popular'}</span>}

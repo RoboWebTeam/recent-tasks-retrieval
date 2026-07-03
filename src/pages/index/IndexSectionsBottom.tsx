@@ -63,8 +63,8 @@ export function IndexSectionsBottom({ lang }: Props) {
                       </li>
                     ))}
                   </ul>
-                  <Button className={`mt-6 w-full rounded-full font-semibold transition-all hover:scale-105 ${p.hot ? 'shadow-lg shadow-primary/20' : 'bg-foreground hover:bg-foreground/90'}`}>
-                    {p.cta}
+                  <Button asChild className={`mt-6 w-full rounded-full font-semibold transition-all hover:scale-105 ${p.hot ? 'shadow-lg shadow-primary/20' : 'bg-foreground hover:bg-foreground/90'}`}>
+                    <Link to="/pricing">{p.cta}</Link>
                   </Button>
                 </div>
               </Reveal>

@@ -367,13 +367,13 @@ const DEMO_ITEMS_EN: DemoItem[] = DEMO_ITEMS_RU.map((item, i) => ({
 export const getPORTFOLIO = (lang: Lang) => lang === 'ru' ? DEMO_ITEMS_RU : DEMO_ITEMS_EN;
 
 export const getPLANS = (lang: Lang) => lang === 'ru' ? [
-  { name: 'Пробный', badge: 'сейчас', price: 'Бесплатно', note: '', tag: '10 запросов разово', features: ['Без подключения домена','Без скачивания кода','Облачный хостинг','До 3 проектов','База данных 128 МБ','Хранилище 512 МБ','5 функций','8 ч вычислений'], cta: 'Начать бесплатно', hot: false },
-  { name: 'Премиум', badge: 'популярный', price: '999 ₽', note: 'в месяц', tag: '40 запросов ежемесячно', features: ['Подключение домена','Бесплатные расширения','Облачный хостинг','До 3 проектов','База данных 128 МБ','Хранилище 512 МБ','5 функций','8 ч вычислений'], cta: 'Выбрать Премиум', hot: true },
-  { name: 'Профи', badge: '', price: 'Выберите тариф', note: '', tag: '60 запросов ежемесячно', features: ['Приоритетная поддержка','Все возможности Премиум','Облачный хостинг','До 5 проектов','База данных 1 ГБ','Хранилище 5 ГБ','25 функций','250 ч вычислений'], cta: 'Обсудить тариф', hot: false },
+  { name: 'Пробный', badge: 'сейчас', price: 'Бесплатно', note: '', tag: '3 AI-генерации в месяц', features: ['3 AI-генерации в месяц','1 сайт','Публикация на roboweb.site','Скачать HTML','Базовые шаблоны'], cta: 'Начать бесплатно', hot: false },
+  { name: 'Премиум', badge: 'популярный', price: '1 490 ₽', note: 'в месяц', tag: '40 AI-генераций в месяц', features: ['40 AI-генераций в месяц','5 сайтов','Свой домен + SSL','Аналитика посещений','Форма заявок на почту','История версий (10)','Быстрые правки','Поддержка в Telegram'], cta: 'Выбрать Премиум', hot: true },
+  { name: 'Профи', badge: '', price: '3 490 ₽', note: 'в месяц', tag: '60 AI-генераций в месяц', features: ['60 AI-генераций в месяц','Безлимитные сайты','Свой домен + SSL','Продвинутая аналитика','Форма заявок + CRM','Безлимитная история версий','Белый лейбл','Приоритетная поддержка 24/7'], cta: 'Выбрать Профи', hot: false },
 ] : [
-  { name: 'Free', badge: 'now', price: 'Free', note: '', tag: '10 requests once', features: ['No custom domain','No code download','Cloud hosting','Up to 3 projects','128 MB database','512 MB storage','5 functions','8h compute'], cta: 'Start free', hot: false },
-  { name: 'Premium', badge: 'popular', price: '999 ₽', note: 'per month', tag: '40 requests/month', features: ['Custom domain','Free extensions','Cloud hosting','Up to 3 projects','128 MB database','512 MB storage','5 functions','8h compute'], cta: 'Choose Premium', hot: true },
-  { name: 'Pro', badge: '', price: 'Custom', note: '', tag: '60 requests/month', features: ['Priority support','All Premium features','Cloud hosting','Up to 5 projects','1 GB database','5 GB storage','25 functions','250h compute'], cta: 'Discuss plan', hot: false },
+  { name: 'Free', badge: 'now', price: 'Free', note: '', tag: '3 AI generations/month', features: ['3 AI generations/month','1 website','Publish on roboweb.site','Download HTML','Basic templates'], cta: 'Start free', hot: false },
+  { name: 'Premium', badge: 'popular', price: '1 490 ₽', note: 'per month', tag: '40 AI generations/month', features: ['40 AI generations/month','5 websites','Custom domain + SSL','Visit analytics','Lead forms to email','Version history (10)','Quick edits','Telegram support'], cta: 'Choose Premium', hot: true },
+  { name: 'Pro', badge: '', price: '3 490 ₽', note: 'per month', tag: '60 AI generations/month', features: ['60 AI generations/month','Unlimited websites','Custom domain + SSL','Advanced analytics','Lead forms + CRM','Unlimited version history','White label','Priority support 24/7'], cta: 'Choose Pro', hot: false },
 ];
 
 export const getFAQ = (lang: Lang) => lang === 'ru' ? [
