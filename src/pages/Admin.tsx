@@ -9,6 +9,7 @@ import {
 } from './admin/adminTypes';
 import { AdminAnalytics } from './admin/AdminAnalytics';
 import { SiteLeadsTab, LeadsTab, UsersTab, LogTab, NotificationsTab } from './admin/AdminTables';
+import { AdminPricingTab } from './admin/AdminPricingTab';
 
 const Admin = () => {
   const [key, setKey] = useState('');
@@ -29,7 +30,7 @@ const Admin = () => {
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
   const [authed, setAuthed] = useState(false);
-  const [tab, setTab] = useState<'analytics' | 'site-leads' | 'leads' | 'users' | 'log' | 'notifications'>('analytics');
+  const [tab, setTab] = useState<'analytics' | 'site-leads' | 'leads' | 'users' | 'log' | 'notifications' | 'pricing'>('analytics');
   const [actionLoading, setActionLoading] = useState<number | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<number | null>(null);
   const [selectedLead, setSelectedLead] = useState<SiteLead | null>(null);
@@ -293,6 +294,7 @@ const Admin = () => {
             ['users',         'Пользователи', 'Users',      users?.length ?? null],
             ['log',           'Лог действий', 'Activity',   null],
             ['notifications', 'Уведомления',  'Bell',       unreadCount],
+            ['pricing',       'Тарифы',       'CreditCard', null],
           ] as const).map(([id, label, icon, count]) => (
             <button key={id} onClick={() => { setTab(id); setSearch(''); setExpandedUserId(null); setUserDetails(null); }}
               className={`flex items-center gap-2 px-4 py-2 rounded-xl text-sm font-semibold whitespace-nowrap transition-colors ${tab === id ? 'bg-primary text-primary-foreground' : 'bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-secondary'}`}>
@@ -374,6 +376,9 @@ const Admin = () => {
             fetchNotifications={fetchNotifications}
             adminKey={key}
           />
+        )}
+        {tab === 'pricing' && (
+          <AdminPricingTab adminKey={key} />
         )}
       </div>
     </div>

@@ -91,15 +91,11 @@ export default function DashboardPlanTab({
         )}
       </div>
 
-      <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid sm:grid-cols-3 gap-4">
         {[
           { id: 'free', name: tr('planFree', lang), price: lang === 'ru' ? 'Бесплатно' : 'Free', requests: lang === 'ru' ? '10 запросов разово' : '10 requests once', features: lang === 'ru' ? ['Облачный хостинг', 'До 3 проектов', 'БД 128 МБ', 'Хранилище 512 МБ'] : ['Cloud hosting', 'Up to 3 projects', '128 MB DB', '512 MB storage'], current: user?.plan === 'free' },
           { id: 'premium', name: tr('planPremium', lang), price: '999 ₽/мес', requests: `40 ${tr('requestsMonthly', lang)}`, features: lang === 'ru' ? ['Подключение домена', 'До 3 проектов', 'БД 128 МБ', 'Хранилище 512 МБ'] : ['Custom domain', 'Up to 3 projects', '128 MB DB', '512 MB storage'], current: user?.plan === 'premium', hot: true },
-          { id: 'pro_60', name: tr('planPro', lang), price: '2 999 ₽/мес', requests: `60 ${tr('requestsMonthly', lang)}`, features: lang === 'ru' ? ['До 5 проектов', 'БД 1 ГБ', 'Хранилище 5 ГБ', '25 функций'] : ['Up to 5 projects', '1 GB DB', '5 GB storage', '25 functions'], current: user?.plan === 'pro_60' },
-          { id: 'pro_80', name: tr('planPro', lang), price: '4 999 ₽/мес', requests: `80 ${tr('requestsMonthly', lang)}`, features: lang === 'ru' ? ['До 8 проектов', 'БД 1 ГБ', 'Хранилище 10 ГБ', '50 функций'] : ['Up to 8 projects', '1 GB DB', '10 GB storage', '50 functions'], current: user?.plan === 'pro_80' },
-          { id: 'pro_200', name: tr('planPro', lang), price: '9 999 ₽/мес', requests: `200 ${tr('requestsMonthly', lang)}`, features: lang === 'ru' ? ['До 10 проектов', 'БД 2 ГБ', 'Хранилище 20 ГБ', '100 функций'] : ['Up to 10 projects', '2 GB DB', '20 GB storage', '100 functions'], current: user?.plan === 'pro_200' },
-          { id: 'pro_400', name: tr('planPro', lang), price: '19 999 ₽/мес', requests: `400 ${tr('requestsMonthly', lang)}`, features: lang === 'ru' ? ['До 20 проектов', 'БД 4 ГБ', 'Хранилище 40 ГБ', '200 функций'] : ['Up to 20 projects', '4 GB DB', '40 GB storage', '200 functions'], current: user?.plan === 'pro_400' },
-          { id: 'pro_800', name: tr('planPro', lang), price: '49 999 ₽/мес', requests: `800 ${tr('requestsMonthly', lang)}`, features: lang === 'ru' ? ['До 50 проектов', 'БД 10 ГБ', 'Хранилище 100 ГБ', '500 функций'] : ['Up to 50 projects', '10 GB DB', '100 GB storage', '500 functions'], current: user?.plan === 'pro_800' },
+          { id: 'pro', name: tr('planPro', lang), price: lang === 'ru' ? 'от 2 999 ₽/мес' : 'from 2 999 ₽/mo', requests: lang === 'ru' ? '60–800 запросов на выбор' : '60–800 requests, your pick', features: lang === 'ru' ? ['Приоритетная поддержка', 'До 50 проектов', 'БД до 10 ГБ', 'Хранилище до 100 ГБ'] : ['Priority support', 'Up to 50 projects', 'Up to 10 GB DB', 'Up to 100 GB storage'], current: (user?.plan ?? '').startsWith('pro_') },
         ].map(p => (
           <div key={p.id} className={`rounded-2xl border p-5 ${p.current ? 'border-primary bg-primary/5' : 'border-border bg-card'}`}>
             {p.hot && <span className="inline-block bg-primary text-primary-foreground text-xs font-bold rounded-full px-2.5 py-0.5 mb-2">{lang === 'ru' ? 'Популярный' : 'Popular'}</span>}

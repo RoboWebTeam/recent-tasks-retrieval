@@ -1,0 +1,23 @@
+{
+  "tests": [
+    {
+      "name": "OPTIONS preflight",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "GET публичный доступ",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "PUT без ключа — 401",
+      "method": "PUT",
+      "path": "/",
+      "body": {"plans": [{"plan_code": "pro_60", "price": 3000}]},
+      "expectedStatus": 401
+    }
+  ]
+}

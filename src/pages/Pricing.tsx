@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
@@ -6,164 +6,28 @@ import { getLang } from '@/lib/i18n';
 import { getSession, getStoredUser } from '@/lib/auth';
 
 const YOOKASSA_URL = 'https://functions.poehali.dev/4fec45e4-aaef-4bc4-ba3c-7a43dfc964bc';
+const PLAN_PRICING_URL = 'https://functions.poehali.dev/b66b5f92-bcdf-4605-87e2-b42e3d90e6ff';
+
+interface ProPlanOption {
+  plan_code: string;
+  requests: number;
+  price: number;
+}
+
+const FALLBACK_PRO_PLANS: ProPlanOption[] = [
+  { plan_code: 'pro_60', requests: 60, price: 2999 },
+  { plan_code: 'pro_80', requests: 80, price: 4999 },
+  { plan_code: 'pro_200', requests: 200, price: 9999 },
+  { plan_code: 'pro_400', requests: 400, price: 19999 },
+  { plan_code: 'pro_800', requests: 800, price: 49999 },
+];
 
 const getLangData = (isRu: boolean) => ({
   title: isRu ? 'Тарифы' : 'Pricing',
   subtitle: isRu ? 'Выберите план, который подходит вашему бизнесу' : 'Choose the plan that fits your business',
-  popular: isRu ? 'Популярный' : 'Popular',
   cta: isRu ? 'Начать бесплатно' : 'Start free',
   ctaPaid: isRu ? 'Выбрать тариф' : 'Choose plan',
   faq: isRu ? 'Частые вопросы' : 'FAQ',
-  plans: [
-    {
-      id: 'free',
-      name: isRu ? 'Пробный' : 'Free',
-      price: 0,
-      currency: isRu ? '₽' : '$',
-      tag: isRu ? '10 запросов разово' : '10 requests once',
-      desc: isRu ? 'Попробуйте Roboweb бесплатно' : 'Try Roboweb for free',
-      color: 'border-border',
-      badge: null,
-      features: [
-        isRu ? 'Облачный хостинг' : 'Cloud hosting',
-        isRu ? 'До 3 проектов' : 'Up to 3 projects',
-        isRu ? 'База данных 128 МБ' : '128 MB database',
-        isRu ? 'Хранилище 512 МБ' : '512 MB storage',
-        isRu ? '5 функций' : '5 functions',
-        isRu ? '8 ч вычислений' : '8h compute',
-      ],
-      disabled: [
-        isRu ? 'Подключение домена' : 'Custom domain',
-        isRu ? 'Скачивание кода' : 'Code download',
-      ],
-    },
-    {
-      id: 'premium',
-      name: isRu ? 'Премиум' : 'Premium',
-      price: 999,
-      currency: isRu ? '₽' : '$',
-      tag: isRu ? '40 запросов ежемесячно' : '40 requests/month',
-      desc: isRu ? 'Для малого бизнеса и фрилансеров' : 'For small business & freelancers',
-      color: 'border-primary',
-      badge: isRu ? 'Популярный' : 'Popular',
-      features: [
-        isRu ? 'Подключение домена' : 'Custom domain',
-        isRu ? 'Бесплатные расширения' : 'Free extensions',
-        isRu ? 'Облачный хостинг' : 'Cloud hosting',
-        isRu ? 'До 3 проектов' : 'Up to 3 projects',
-        isRu ? 'База данных 128 МБ' : '128 MB database',
-        isRu ? 'Хранилище 512 МБ' : '512 MB storage',
-        isRu ? '5 функций' : '5 functions',
-        isRu ? '8 ч вычислений' : '8h compute',
-      ],
-      disabled: [],
-    },
-    {
-      id: 'pro_60',
-      name: isRu ? 'Профи' : 'Pro',
-      price: 2999,
-      currency: isRu ? '₽' : '$',
-      tag: isRu ? '60 запросов в месяц' : '60 requests/month',
-      desc: isRu ? 'Для растущего бизнеса' : 'For growing business',
-      color: 'border-foreground',
-      badge: null,
-      features: [
-        isRu ? 'Приоритетная поддержка' : 'Priority support',
-        isRu ? 'Все возможности Премиум' : 'All Premium features',
-        isRu ? 'Облачный хостинг' : 'Cloud hosting',
-        isRu ? 'До 5 проектов' : 'Up to 5 projects',
-        isRu ? 'База данных 1 ГБ' : '1 GB database',
-        isRu ? 'Хранилище 5 ГБ' : '5 GB storage',
-        isRu ? '25 функций' : '25 functions',
-        isRu ? '250 ч вычислений' : '250h compute',
-      ],
-      disabled: [],
-    },
-    {
-      id: 'pro_80',
-      name: isRu ? 'Профи' : 'Pro',
-      price: 4999,
-      currency: isRu ? '₽' : '$',
-      tag: isRu ? '80 запросов в месяц' : '80 requests/month',
-      desc: isRu ? 'Для агентств' : 'For agencies',
-      color: 'border-foreground',
-      badge: null,
-      features: [
-        isRu ? 'Приоритетная поддержка' : 'Priority support',
-        isRu ? 'Все возможности Премиум' : 'All Premium features',
-        isRu ? 'Облачный хостинг' : 'Cloud hosting',
-        isRu ? 'До 8 проектов' : 'Up to 8 projects',
-        isRu ? 'База данных 1 ГБ' : '1 GB database',
-        isRu ? 'Хранилище 10 ГБ' : '10 GB storage',
-        isRu ? '50 функций' : '50 functions',
-        isRu ? '417 ч вычислений' : '417h compute',
-      ],
-      disabled: [],
-    },
-    {
-      id: 'pro_200',
-      name: isRu ? 'Профи' : 'Pro',
-      price: 9999,
-      currency: isRu ? '₽' : '$',
-      tag: isRu ? '200 запросов в месяц' : '200 requests/month',
-      desc: isRu ? 'Для крупных команд' : 'For larger teams',
-      color: 'border-foreground',
-      badge: null,
-      features: [
-        isRu ? 'Приоритетная поддержка' : 'Priority support',
-        isRu ? 'Все возможности Премиум' : 'All Premium features',
-        isRu ? 'Облачный хостинг' : 'Cloud hosting',
-        isRu ? 'До 10 проектов' : 'Up to 10 projects',
-        isRu ? 'База данных 2 ГБ' : '2 GB database',
-        isRu ? 'Хранилище 20 ГБ' : '20 GB storage',
-        isRu ? '100 функций' : '100 functions',
-        isRu ? '833 ч вычислений' : '833h compute',
-      ],
-      disabled: [],
-    },
-    {
-      id: 'pro_400',
-      name: isRu ? 'Профи' : 'Pro',
-      price: 19999,
-      currency: isRu ? '₽' : '$',
-      tag: isRu ? '400 запросов в месяц' : '400 requests/month',
-      desc: isRu ? 'Для активных студий' : 'For active studios',
-      color: 'border-foreground',
-      badge: null,
-      features: [
-        isRu ? 'Приоритетная поддержка' : 'Priority support',
-        isRu ? 'Все возможности Премиум' : 'All Premium features',
-        isRu ? 'Облачный хостинг' : 'Cloud hosting',
-        isRu ? 'До 20 проектов' : 'Up to 20 projects',
-        isRu ? 'База данных 4 ГБ' : '4 GB database',
-        isRu ? 'Хранилище 40 ГБ' : '40 GB storage',
-        isRu ? '200 функций' : '200 functions',
-        isRu ? '1667 ч вычислений' : '1667h compute',
-      ],
-      disabled: [],
-    },
-    {
-      id: 'pro_800',
-      name: isRu ? 'Профи' : 'Pro',
-      price: 49999,
-      currency: isRu ? '₽' : '$',
-      tag: isRu ? '800 запросов в месяц' : '800 requests/month',
-      desc: isRu ? 'Для крупного бизнеса' : 'For enterprise',
-      color: 'border-foreground',
-      badge: null,
-      features: [
-        isRu ? 'Приоритетная поддержка' : 'Priority support',
-        isRu ? 'Все возможности Премиум' : 'All Premium features',
-        isRu ? 'Облачный хостинг' : 'Cloud hosting',
-        isRu ? 'До 50 проектов' : 'Up to 50 projects',
-        isRu ? 'База данных 10 ГБ' : '10 GB database',
-        isRu ? 'Хранилище 100 ГБ' : '100 GB storage',
-        isRu ? '500 функций' : '500 functions',
-        isRu ? '4167 ч вычислений' : '4167h compute',
-      ],
-      disabled: [],
-    },
-  ],
   faqs: [
     {
       q: isRu ? 'Могу ли я отменить подписку в любой момент?' : 'Can I cancel my subscription anytime?',
@@ -192,8 +56,24 @@ export default function Pricing() {
   const [openFaq, setOpenFaq] = useState<number | null>(null);
   const [payingPlan, setPayingPlan] = useState<string | null>(null);
   const [payError, setPayError] = useState('');
+  const [proPlans, setProPlans] = useState<ProPlanOption[]>(FALLBACK_PRO_PLANS);
+  const [proIndex, setProIndex] = useState(0);
   const session = getSession();
   const user = getStoredUser();
+
+  useEffect(() => {
+    fetch(PLAN_PRICING_URL)
+      .then(r => r.json())
+      .then(raw => {
+        const d = raw.body !== undefined ? (typeof raw.body === 'string' ? JSON.parse(raw.body) : raw.body) : raw;
+        if (Array.isArray(d.plans) && d.plans.length > 0) {
+          setProPlans(d.plans);
+        }
+      })
+      .catch(() => {/* остаёмся на резервных ценах */});
+  }, []);
+
+  const selectedPro = proPlans[proIndex] ?? proPlans[0];
 
   const handleSelectPlan = async (planId: string, priceRub: number, planName: string) => {
     if (!session || !user) {
@@ -265,87 +145,156 @@ export default function Pricing() {
         </div>
 
         {/* Plans */}
-        <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-5 mb-16">
-          {data.plans.map(plan => {
-            const price = plan.price;
-            const isPopular = !!plan.badge;
-            const isFree = plan.id === 'free';
-            const isPro = plan.id.startsWith('pro_');
-
-            return (
-              <div key={plan.id} className={`relative flex flex-col rounded-3xl border-2 bg-card p-6 transition-all ${isPopular ? 'border-primary shadow-xl shadow-primary/10 scale-[1.02]' : plan.color}`}>
-                {plan.badge && (
-                  <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
-                    <span className="bg-primary text-primary-foreground text-xs font-bold px-4 py-1 rounded-full shadow-lg">
-                      {plan.badge}
-                    </span>
-                  </div>
-                )}
-
-                <div className="mb-5">
-                  <div className={`inline-flex items-center gap-2 text-sm font-bold mb-2 ${isPro ? 'text-foreground' : isPopular ? 'text-primary' : 'text-muted-foreground'}`}>
-                    <div className={`grid h-7 w-7 place-items-center rounded-xl text-xs ${isPro ? 'bg-foreground text-background' : isPopular ? 'bg-primary text-primary-foreground' : 'bg-secondary border border-border'}`}>
-                      <Icon name={isFree ? 'Gift' : isPopular ? 'Zap' : 'Crown'} size={14} />
-                    </div>
-                    {plan.name}
-                  </div>
-                  <div className="flex items-baseline gap-1 mb-1">
-                    <span className="text-3xl font-black text-foreground">
-                      {price === 0 ? (isRu ? 'Бесплатно' : 'Free') : price.toLocaleString()}
-                    </span>
-                    {price > 0 && (
-                      <>
-                        <span className="text-lg font-bold text-muted-foreground">{plan.currency}</span>
-                        <span className="text-sm text-muted-foreground">/{isRu ? 'мес' : 'mo'}</span>
-                      </>
-                    )}
-                  </div>
-                  <span className="inline-block rounded-full bg-primary/10 text-primary text-xs font-semibold px-2.5 py-1 mb-2">
-                    {plan.tag}
-                  </span>
-                  <p className="text-sm text-muted-foreground">{plan.desc}</p>
+        <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-5 mb-16 items-stretch">
+          {/* Free */}
+          <div className="relative flex flex-col rounded-3xl border-2 border-border bg-card p-6">
+            <div className="mb-5">
+              <div className="inline-flex items-center gap-2 text-sm font-bold mb-2 text-muted-foreground">
+                <div className="grid h-7 w-7 place-items-center rounded-xl text-xs bg-secondary border border-border">
+                  <Icon name="Gift" size={14} />
                 </div>
-
-                {isFree ? (
-                  <Button
-                    className="w-full h-11 rounded-xl font-semibold mb-6"
-                    variant="outline"
-                    asChild
-                  >
-                    <Link to="/register">
-                      {data.cta}
-                      <Icon name="ArrowRight" size={15} className="ml-1.5" />
-                    </Link>
-                  </Button>
-                ) : (
-                  <Button
-                    className={`w-full h-11 rounded-xl font-semibold mb-6 ${isPro ? 'bg-foreground text-background hover:bg-foreground/90' : ''}`}
-                    disabled={payingPlan === plan.id}
-                    onClick={() => handleSelectPlan(plan.id, plan.price, plan.name)}
-                  >
-                    {payingPlan === plan.id
-                      ? <><Icon name="Loader" size={15} className="mr-1.5 animate-spin" />{isRu ? 'Переходим к оплате…' : 'Redirecting…'}</>
-                      : <>{data.ctaPaid}<Icon name="ArrowRight" size={15} className="ml-1.5" /></>}
-                  </Button>
-                )}
-
-                <div className="space-y-2.5 flex-1">
-                  {plan.features.map(f => (
-                    <div key={f} className="flex items-start gap-2.5 text-sm">
-                      <Icon name="CheckCircle" size={15} className={`shrink-0 mt-0.5 ${isPopular ? 'text-primary' : isPro ? 'text-foreground' : 'text-emerald-500'}`} />
-                      <span className="text-foreground">{f}</span>
-                    </div>
-                  ))}
-                  {plan.disabled.map(f => (
-                    <div key={f} className="flex items-start gap-2.5 text-sm opacity-40">
-                      <Icon name="X" size={15} className="shrink-0 mt-0.5 text-muted-foreground" />
-                      <span className="text-muted-foreground line-through">{f}</span>
-                    </div>
-                  ))}
-                </div>
+                {isRu ? 'Пробный' : 'Free'}
               </div>
-            );
-          })}
+              <div className="flex items-baseline gap-1 mb-1">
+                <span className="text-3xl font-black text-foreground">{isRu ? 'Бесплатно' : 'Free'}</span>
+              </div>
+              <span className="inline-block rounded-full bg-primary/10 text-primary text-xs font-semibold px-2.5 py-1 mb-2">
+                {isRu ? '10 запросов разово' : '10 requests once'}
+              </span>
+              <p className="text-sm text-muted-foreground">{isRu ? 'Попробуйте Roboweb бесплатно' : 'Try Roboweb for free'}</p>
+            </div>
+
+            <Button className="w-full h-11 rounded-xl font-semibold mb-6" variant="outline" asChild>
+              <Link to="/register">
+                {data.cta}
+                <Icon name="ArrowRight" size={15} className="ml-1.5" />
+              </Link>
+            </Button>
+
+            <div className="space-y-2.5 flex-1">
+              {(isRu
+                ? ['Облачный хостинг', 'До 3 проектов', 'База данных 128 МБ', 'Хранилище 512 МБ', '5 функций', '8 ч вычислений']
+                : ['Cloud hosting', 'Up to 3 projects', '128 MB database', '512 MB storage', '5 functions', '8h compute']
+              ).map(f => (
+                <div key={f} className="flex items-start gap-2.5 text-sm">
+                  <Icon name="CheckCircle" size={15} className="shrink-0 mt-0.5 text-emerald-500" />
+                  <span className="text-foreground">{f}</span>
+                </div>
+              ))}
+              {(isRu ? ['Подключение домена', 'Скачивание кода'] : ['Custom domain', 'Code download']).map(f => (
+                <div key={f} className="flex items-start gap-2.5 text-sm opacity-40">
+                  <Icon name="X" size={15} className="shrink-0 mt-0.5 text-muted-foreground" />
+                  <span className="text-muted-foreground line-through">{f}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Premium */}
+          <div className="relative flex flex-col rounded-3xl border-2 border-primary bg-card p-6 shadow-xl shadow-primary/10 scale-[1.02]">
+            <div className="absolute -top-3.5 left-1/2 -translate-x-1/2">
+              <span className="bg-primary text-primary-foreground text-xs font-bold px-4 py-1 rounded-full shadow-lg">
+                {isRu ? 'Популярный' : 'Popular'}
+              </span>
+            </div>
+            <div className="mb-5">
+              <div className="inline-flex items-center gap-2 text-sm font-bold mb-2 text-primary">
+                <div className="grid h-7 w-7 place-items-center rounded-xl text-xs bg-primary text-primary-foreground">
+                  <Icon name="Zap" size={14} />
+                </div>
+                {isRu ? 'Премиум' : 'Premium'}
+              </div>
+              <div className="flex items-baseline gap-1 mb-1">
+                <span className="text-3xl font-black text-foreground">999</span>
+                <span className="text-lg font-bold text-muted-foreground">₽</span>
+                <span className="text-sm text-muted-foreground">/{isRu ? 'мес' : 'mo'}</span>
+              </div>
+              <span className="inline-block rounded-full bg-primary/10 text-primary text-xs font-semibold px-2.5 py-1 mb-2">
+                {isRu ? '40 запросов ежемесячно' : '40 requests/month'}
+              </span>
+              <p className="text-sm text-muted-foreground">{isRu ? 'Для малого бизнеса и фрилансеров' : 'For small business & freelancers'}</p>
+            </div>
+
+            <Button
+              className="w-full h-11 rounded-xl font-semibold mb-6"
+              disabled={payingPlan === 'premium'}
+              onClick={() => handleSelectPlan('premium', 999, isRu ? 'Премиум' : 'Premium')}
+            >
+              {payingPlan === 'premium'
+                ? <><Icon name="Loader" size={15} className="mr-1.5 animate-spin" />{isRu ? 'Переходим к оплате…' : 'Redirecting…'}</>
+                : <>{data.ctaPaid}<Icon name="ArrowRight" size={15} className="ml-1.5" /></>}
+            </Button>
+
+            <div className="space-y-2.5 flex-1">
+              {(isRu
+                ? ['Подключение домена', 'Бесплатные расширения', 'Облачный хостинг', 'До 3 проектов', 'База данных 128 МБ', 'Хранилище 512 МБ', '5 функций', '8 ч вычислений']
+                : ['Custom domain', 'Free extensions', 'Cloud hosting', 'Up to 3 projects', '128 MB database', '512 MB storage', '5 functions', '8h compute']
+              ).map(f => (
+                <div key={f} className="flex items-start gap-2.5 text-sm">
+                  <Icon name="CheckCircle" size={15} className="shrink-0 mt-0.5 text-primary" />
+                  <span className="text-foreground">{f}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
+          {/* Pro — объединённая карточка с выбором количества запросов */}
+          <div className="relative flex flex-col rounded-3xl border-2 border-foreground bg-card p-6">
+            <div className="mb-5">
+              <div className="inline-flex items-center gap-2 text-sm font-bold mb-2 text-foreground">
+                <div className="grid h-7 w-7 place-items-center rounded-xl text-xs bg-foreground text-background">
+                  <Icon name="Crown" size={14} />
+                </div>
+                {isRu ? 'Профи' : 'Pro'}
+              </div>
+              <div className="flex items-baseline gap-1 mb-1">
+                <span className="text-3xl font-black text-foreground">{selectedPro.price.toLocaleString()}</span>
+                <span className="text-lg font-bold text-muted-foreground">₽</span>
+                <span className="text-sm text-muted-foreground">/{isRu ? 'мес' : 'mo'}</span>
+              </div>
+              <p className="text-sm text-muted-foreground mb-3">{isRu ? 'Для агентств и профессионалов' : 'For agencies & professionals'}</p>
+
+              {/* Выбор количества запросов */}
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5 block">
+                {isRu ? 'Запросов в месяц' : 'Requests per month'}
+              </label>
+              <div className="flex flex-wrap gap-1.5 mb-2">
+                {proPlans.map((p, i) => (
+                  <button
+                    key={p.plan_code}
+                    onClick={() => setProIndex(i)}
+                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                      proIndex === i ? 'bg-foreground text-background' : 'bg-secondary text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    {p.requests}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <Button
+              className="w-full h-11 rounded-xl font-semibold mb-6 bg-foreground text-background hover:bg-foreground/90"
+              disabled={payingPlan === selectedPro.plan_code}
+              onClick={() => handleSelectPlan(selectedPro.plan_code, selectedPro.price, isRu ? 'Профи' : 'Pro')}
+            >
+              {payingPlan === selectedPro.plan_code
+                ? <><Icon name="Loader" size={15} className="mr-1.5 animate-spin" />{isRu ? 'Переходим к оплате…' : 'Redirecting…'}</>
+                : <>{data.ctaPaid}<Icon name="ArrowRight" size={15} className="ml-1.5" /></>}
+            </Button>
+
+            <div className="space-y-2.5 flex-1">
+              {(isRu
+                ? ['Приоритетная поддержка', 'Все возможности Премиум', 'Облачный хостинг']
+                : ['Priority support', 'All Premium features', 'Cloud hosting']
+              ).map(f => (
+                <div key={f} className="flex items-start gap-2.5 text-sm">
+                  <Icon name="CheckCircle" size={15} className="shrink-0 mt-0.5 text-foreground" />
+                  <span className="text-foreground">{f}</span>
+                </div>
+              ))}
+            </div>
+          </div>
         </div>
 
         {payError && (
