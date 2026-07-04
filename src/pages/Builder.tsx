@@ -51,6 +51,17 @@ const DEVICE_WIDTHS: Record<DeviceMode, string> = {
   mobile: '375px',
 };
 
+// Ключевые слова, при которых стоит предложить Gemini — модель лучше справляется
+// со сложной логикой, интерактивом и насыщенными интерфейсами
+const GEMINI_HINT_KEYWORDS_RU = ['сложн', 'интерактив', 'калькулятор', 'фильтр', 'анимаци', 'игр', 'квиз', 'викторин'];
+const GEMINI_HINT_KEYWORDS_EN = ['complex', 'interactive', 'calculator', 'filter', 'animation', 'game', 'quiz'];
+
+function shouldSuggestGemini(text: string, lang: 'ru' | 'en'): boolean {
+  const lower = text.toLowerCase();
+  const keywords = lang === 'ru' ? GEMINI_HINT_KEYWORDS_RU : GEMINI_HINT_KEYWORDS_EN;
+  return keywords.some(kw => lower.includes(kw));
+}
+
 const QUICK_EDITS_RU = [
   { icon: 'Palette', label: 'Тёмная тема', prompt: 'Сделай тёмную цветовую схему' },
   { icon: 'Sun', label: 'Светлая тема', prompt: 'Сделай светлую цветовую схему' },
@@ -131,6 +142,7 @@ export default function Builder() {
   const [quotaExceeded, setQuotaExceeded] = useState(false);
   const [aiModel, setAiModel] = useState<'claude' | 'gpt-4o' | 'gemini'>('claude');
   const [showModelMenu, setShowModelMenu] = useState(false);
+  const [dismissedModelHint, setDismissedModelHint] = useState(false);
   const [showImageGen, setShowImageGen] = useState(false);
   const [imagePrompt, setImagePrompt] = useState('');
   const [generatingImage, setGeneratingImage] = useState(false);
@@ -195,6 +207,12 @@ export default function Builder() {
     ta.style.height = 'auto';
     ta.style.height = Math.min(ta.scrollHeight, 160) + 'px';
   }, [input]);
+
+  useEffect(() => {
+    if (!input.trim()) setDismissedModelHint(false);
+  }, [input]);
+
+  const showGeminiHint = aiModel !== 'gemini' && !dismissedModelHint && shouldSuggestGemini(input, lang);
 
   const applyTemplate = (text: string) => {
     setInput(text);
@@ -1014,6 +1032,26 @@ export default function Builder() {
                 <Link to="/dashboard?tab=plan" className="shrink-0 font-semibold underline hover:no-underline">
                   {lang === 'ru' ? 'Тарифы' : 'Plans'}
                 </Link>
+              </div>
+            )}
+
+            {/* Подсказка: предложить Gemini для сложных/интерактивных запросов */}
+            {showGeminiHint && (
+              <div className="mx-3 mt-3 rounded-xl px-3 py-2.5 flex items-center gap-2 text-xs bg-primary/10 text-primary">
+                <Icon name="Sparkles" size={14} className="shrink-0" />
+                <p className="flex-1">
+                  {lang === 'ru'
+                    ? 'Для сложного и интерактивного сайта лучше подойдёт Gemini 2.5 Pro'
+                    : 'Gemini 2.5 Pro is better suited for complex, interactive sites'}
+                </p>
+                <button
+                  onClick={() => { setAiModel('gemini'); setDismissedModelHint(true); }}
+                  className="shrink-0 font-semibold underline hover:no-underline">
+                  {lang === 'ru' ? 'Переключить' : 'Switch'}
+                </button>
+                <button onClick={() => setDismissedModelHint(true)} className="shrink-0 text-primary/60 hover:text-primary">
+                  <Icon name="X" size={13} />
+                </button>
               </div>
             )}
 
