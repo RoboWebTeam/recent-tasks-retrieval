@@ -40,6 +40,29 @@ export default function DashboardProjectsTab({
   const [deleteId, setDeleteId] = useState<number | null>(null);
   const projectToDelete = projects.find(p => p.id === deleteId);
 
+  // Яркая цветовая тема карточки по статусу проекта: свой градиент шапки,
+  // цвет иконки и бейджа. gradient — фон верхней плашки, accent — акцентный текст/иконка.
+  const THEME: Record<string, { gradient: string; iconBg: string; badge: string; ring: string }> = {
+    draft: {
+      gradient: 'from-amber-400 via-orange-400 to-orange-500',
+      iconBg: 'bg-orange-500',
+      badge: 'bg-orange-100 text-orange-700',
+      ring: 'hover:border-orange-300 hover:shadow-orange-500/10',
+    },
+    building: {
+      gradient: 'from-sky-400 via-blue-400 to-indigo-500',
+      iconBg: 'bg-blue-500',
+      badge: 'bg-blue-100 text-blue-700',
+      ring: 'hover:border-blue-300 hover:shadow-blue-500/10',
+    },
+    published: {
+      gradient: 'from-emerald-400 via-green-400 to-teal-500',
+      iconBg: 'bg-emerald-500',
+      badge: 'bg-emerald-100 text-emerald-700',
+      ring: 'hover:border-emerald-300 hover:shadow-emerald-500/10',
+    },
+  };
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6 gap-3 flex-wrap">
@@ -116,21 +139,31 @@ export default function DashboardProjectsTab({
         <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
           {projects.map(p => {
             const s = STATUS_CONFIG[p.status] ?? STATUS_CONFIG.draft;
+            const t = THEME[p.status] ?? THEME.draft;
             return (
               <div
                 key={p.id}
-                className="group relative flex flex-col rounded-2xl border border-border bg-card overflow-hidden hover:border-primary/40 hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-0.5 transition-all duration-200"
+                className={`group relative flex flex-col rounded-3xl border border-border bg-card overflow-hidden shadow-sm hover:shadow-2xl hover:-translate-y-1 transition-all duration-200 ${t.ring}`}
               >
-                {/* Декоративная градиентная шапка */}
-                <div className="relative h-20 bg-gradient-to-br from-primary/15 via-primary/5 to-transparent">
-                  <div className="absolute inset-0 opacity-40" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, hsl(var(--primary)/0.25) 1px, transparent 0)', backgroundSize: '16px 16px' }} />
-                  <div className="absolute -bottom-5 left-5 grid h-12 w-12 place-items-center rounded-2xl bg-card border border-border shadow-sm text-primary group-hover:bg-primary group-hover:text-primary-foreground group-hover:border-primary transition-colors">
-                    <Icon name="Globe" size={20} />
+                {/* Яркая цветная шапка с крупной иконкой */}
+                <div className={`relative h-28 bg-gradient-to-br ${t.gradient} overflow-hidden`}>
+                  {/* Декоративные круги для «живого» современного вида */}
+                  <div className="absolute -top-8 -right-6 h-24 w-24 rounded-full bg-white/20 blur-xl" />
+                  <div className="absolute -bottom-10 -left-4 h-24 w-24 rounded-full bg-black/10 blur-xl" />
+                  <div className="absolute top-4 left-5">
+                    <div className="grid h-14 w-14 place-items-center rounded-2xl bg-white/25 backdrop-blur-sm border border-white/40 text-white shadow-lg">
+                      <Icon name="Globe" size={28} />
+                    </div>
                   </div>
+                  {/* Статус-бейдж поверх шапки */}
+                  <span className="absolute top-4 right-4 inline-flex items-center gap-1.5 rounded-full bg-white/90 backdrop-blur px-2.5 py-1 text-xs font-bold text-foreground shadow-sm">
+                    <Icon name={s.icon} size={11} className={p.status === 'building' ? 'animate-spin' : ''} />
+                    {s.label}
+                  </span>
                   {/* Кнопка удаления */}
                   <button
                     onClick={() => setDeleteId(p.id)}
-                    className="absolute top-3 right-3 grid h-8 w-8 place-items-center rounded-lg bg-card/70 backdrop-blur text-muted-foreground hover:bg-destructive hover:text-white transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
+                    className="absolute bottom-3 right-3 grid h-8 w-8 place-items-center rounded-xl bg-white/25 backdrop-blur text-white hover:bg-destructive hover:text-white transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
                     title={lang === 'ru' ? 'Удалить проект' : 'Delete project'}
                     aria-label={lang === 'ru' ? 'Удалить проект' : 'Delete project'}
                   >
@@ -138,15 +171,12 @@ export default function DashboardProjectsTab({
                   </button>
                 </div>
 
-                <div className="flex flex-col flex-1 px-5 pt-7 pb-4">
-                  <div className="flex items-center gap-1.5 flex-wrap mb-2.5">
-                    <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${s.color}`}>
-                      <Icon name={s.icon} size={11} className={p.status === 'building' ? 'animate-spin' : ''} />
-                      {s.label}
-                    </span>
+                <div className="flex flex-col flex-1 px-5 pt-4 pb-4">
+                  <div className="flex items-center gap-2 mb-1.5">
+                    <h3 className="font-display font-bold text-base line-clamp-1 flex-1">{p.title}</h3>
                     {(p.chat_count ?? 0) > 0 && (
                       <span
-                        className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-semibold bg-primary/10 text-primary"
+                        className={`inline-flex items-center gap-1 rounded-full px-2 py-0.5 text-xs font-semibold shrink-0 ${t.badge}`}
                         title={lang === 'ru' ? 'Есть история переписки с ассистентом' : 'Has chat history with assistant'}
                       >
                         <Icon name="MessageSquare" size={11} />
@@ -155,7 +185,6 @@ export default function DashboardProjectsTab({
                     )}
                   </div>
 
-                  <h3 className="font-display font-bold text-base mb-1 line-clamp-1">{p.title}</h3>
                   <p className="text-muted-foreground text-xs mb-4 line-clamp-2 min-h-[2rem]">
                     {p.description || (lang === 'ru' ? 'Без описания' : 'No description')}
                   </p>
@@ -167,7 +196,7 @@ export default function DashboardProjectsTab({
                     </span>
                     <Link
                       to={`/builder?project=${p.id}`}
-                      className="inline-flex items-center gap-1 rounded-lg bg-primary/10 text-primary px-2.5 py-1.5 text-xs font-semibold hover:bg-primary hover:text-primary-foreground transition-colors"
+                      className={`inline-flex items-center gap-1 rounded-xl text-white px-3 py-1.5 text-xs font-bold shadow-sm hover:opacity-90 transition-opacity ${t.iconBg}`}
                     >
                       <Icon name="Sparkles" size={12} /> {tr('openInEditor', lang)}
                     </Link>
@@ -180,10 +209,12 @@ export default function DashboardProjectsTab({
           {/* New project card */}
           <button
             onClick={() => setDialogOpen(true)}
-            className="rounded-2xl border border-dashed border-border p-5 flex flex-col items-center justify-center gap-2 text-muted-foreground hover:border-primary hover:text-primary hover:bg-primary/5 transition-all min-h-[160px]"
+            className="group rounded-3xl border-2 border-dashed border-border flex flex-col items-center justify-center gap-3 text-muted-foreground hover:border-primary hover:text-primary hover:bg-primary/5 transition-all min-h-[240px]"
           >
-            <Icon name="Plus" size={24} />
-            <span className="text-sm font-medium">{tr('newProject', lang)}</span>
+            <span className="grid h-14 w-14 place-items-center rounded-2xl bg-gradient-to-br from-primary/80 to-primary text-white shadow-lg group-hover:scale-110 transition-transform">
+              <Icon name="Plus" size={28} />
+            </span>
+            <span className="text-sm font-semibold">{tr('newProject', lang)}</span>
           </button>
         </div>
       )}
