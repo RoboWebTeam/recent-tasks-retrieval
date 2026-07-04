@@ -237,6 +237,10 @@ export default function Builder() {
   } | null>(null);
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const messagesContainerRef = useRef<HTMLDivElement>(null);
+  // Автопрокрутка чата вниз включена, пока пользователь сам не проскроллил вверх.
+  // Хранится в ref (а не state), чтобы не пересоздавать колбэки печати на каждый тик.
+  const autoScrollRef = useRef(true);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
   const session = getSession();
   const user = getStoredUser();
@@ -294,9 +298,27 @@ export default function Builder() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session, projectId]);
 
+  // Прокручиваем вниз только если пользователь не увёл скролл вверх сам.
+  const scrollChatToBottom = (behavior: ScrollBehavior = 'smooth') => {
+    if (autoScrollRef.current) {
+      messagesEndRef.current?.scrollIntoView({ behavior });
+    }
+  };
+
+  // Следим за ручным скроллом: если пользователь у самого низа — автоскролл включён,
+  // если проскроллил вверх — выключаем, чтобы печать ИИ не тянула его обратно вниз.
+  const handleChatScroll = () => {
+    const el = messagesContainerRef.current;
+    if (!el) return;
+    const nearBottom = el.scrollHeight - el.scrollTop - el.clientHeight < 80;
+    autoScrollRef.current = nearBottom;
+  };
+
   useEffect(() => {
+    // Новое сообщение отправлено пользователем — всегда возвращаем автоскролл и едем вниз.
+    autoScrollRef.current = true;
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages]);
+  }, [messages.length]);
 
   // Изменение ширины панели чата мышкой за разделитель
   useEffect(() => {
@@ -671,6 +693,29 @@ export default function Builder() {
   var highlighted = null;
   var selected = null;
   var ANY = '*';
+
+  // ЗАЩИТА ОТ БИТЫХ КАРТИНОК: если <img> не загрузился (модель могла указать несуществующий
+  // URL), подменяем его на гарантированно рабочую заглушку по размеру — вместо сломанного значка.
+  function fixBrokenImage(img) {
+    if (img.getAttribute('data-roboweb-fixed')) return;
+    img.setAttribute('data-roboweb-fixed', '1');
+    var w = img.getAttribute('width') || img.naturalWidth || img.clientWidth || 800;
+    var h = img.getAttribute('height') || img.naturalHeight || img.clientHeight || 600;
+    w = parseInt(w, 10) || 800; h = parseInt(h, 10) || 600;
+    var seed = encodeURIComponent((img.getAttribute('alt') || 'photo').slice(0, 20));
+    img.src = 'https://picsum.photos/seed/' + seed + '/' + w + '/' + h;
+  }
+  document.addEventListener('error', function(e) {
+    var t = e.target;
+    if (t && t.tagName === 'IMG') fixBrokenImage(t);
+  }, true);
+  // Проверяем уже загруженные к моменту старта скрипта картинки (могли сломаться до подписки).
+  document.addEventListener('DOMContentLoaded', function() {
+    var imgs = document.getElementsByTagName('img');
+    for (var i = 0; i < imgs.length; i++) {
+      if (imgs[i].complete && imgs[i].naturalWidth === 0) fixBrokenImage(imgs[i]);
+    }
+  });
 
   // В превью ссылки не должны навигировать внутри iframe. Из-за <base href="..."> на
   // фиктивный домен (см. PREVIEW_BASE в Builder.tsx) даже клик по "#section" браузер может
@@ -1221,7 +1266,7 @@ export default function Builder() {
             </div>
 
             {/* Messages */}
-            <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-background">
+            <div ref={messagesContainerRef} onScroll={handleChatScroll} className="flex-1 overflow-y-auto p-4 space-y-4 bg-background">
               {messages.length === 0 ? (
                 <div className="pt-2">
                   {showEnergyBonus && (
@@ -1284,7 +1329,7 @@ export default function Builder() {
                             suggestions={m.suggestions}
                             isEdit={m.isEdit}
                             animate={!!m.justGenerated && i === messages.length - 1 && !loading}
-                            onTick={() => messagesEndRef.current?.scrollIntoView({ behavior: 'auto' })}
+                            onTick={() => scrollChatToBottom('auto')}
                             onSuggestion={(prompt) => sendMessage(prompt)}
                           />
                         ) : m.content}
