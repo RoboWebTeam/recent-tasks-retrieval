@@ -188,11 +188,14 @@ def handler(event: dict, context) -> dict:
                 # У проекта есть связанные записи в других таблицах (заявки, домены, файлы,
                 # секреты, пользовательские таблицы, аналитика). В БД нет ON DELETE CASCADE,
                 # поэтому сначала удаляем зависимые записи в правильном порядке, затем сам проект.
-                # Проверяем существование каждой таблицы через to_regclass — так не порождаем
-                # ошибок в транзакции (savepoint-подход ломался на несуществующих таблицах).
+                # Проверяем существование таблицы через information_schema (разрешённый способ),
+                # чтобы не выполнять DELETE по несуществующей таблице и не порождать ошибок.
                 def table_exists(name: str) -> bool:
-                    cur.execute("SELECT to_regclass(%s)", (f"{schema}.{name}",))
-                    return cur.fetchone()[0] is not None
+                    cur.execute(
+                        "SELECT 1 FROM information_schema.tables WHERE table_schema = %s AND table_name = %s",
+                        (schema, name)
+                    )
+                    return cur.fetchone() is not None
 
                 # (имя таблицы, SQL удаления по project_id) — в порядке зависимостей.
                 cleanup = [
