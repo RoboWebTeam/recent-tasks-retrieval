@@ -341,7 +341,10 @@ export async function apiGenerateImage(
     headers: { 'x-session-id': sessionId },
     body: JSON.stringify({ prompt, project_id: projectId, size }),
   });
-  if (!res.ok) throw new Error((data as {error?: string}).error || 'Ошибка генерации изображения');
+  if (!res.ok) {
+    if (res.status === 502 || res.status === 503) throw new Error('AI_SERVICE_UNAVAILABLE');
+    throw new Error((data as {error?: string}).error || 'Ошибка генерации изображения');
+  }
   return data as { url: string; file_name: string; revised_prompt: string; remaining?: number };
 }
 

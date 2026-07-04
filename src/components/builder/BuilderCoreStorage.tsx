@@ -93,7 +93,10 @@ export default function BuilderCoreStorage({ lang, projectId, onUseInChat, onFil
       await loadFiles();
       onFilesChanged?.();
     } catch (err) {
-      setError(err instanceof Error ? err.message : (isRu ? 'Ошибка генерации' : 'Generation error'));
+      const rawMessage = err instanceof Error ? err.message : (isRu ? 'Ошибка генерации' : 'Generation error');
+      setError(rawMessage === 'AI_SERVICE_UNAVAILABLE'
+        ? (isRu ? 'AI-сервис временно недоступен. Попробуйте через минуту.' : 'AI service is temporarily unavailable. Try again in a minute.')
+        : rawMessage);
     }
     setGenerating(false);
   };

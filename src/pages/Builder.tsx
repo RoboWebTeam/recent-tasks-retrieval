@@ -635,9 +635,10 @@ export default function Builder() {
       setImagePrompt('');
       if (!input) setInput(lang === 'ru' ? 'Используй это изображение на сайте' : 'Use this image on the site');
     } catch (e) {
-      const message = e instanceof Error ? e.message : tr('builderError', lang);
+      const rawMessage = e instanceof Error ? e.message : tr('builderError', lang);
+      const message = rawMessage === 'AI_SERVICE_UNAVAILABLE' ? tr('builderAiUnavailable', lang) : rawMessage;
       setImageGenError(message);
-      if (message.includes('Лимит') || message.includes('limit')) {
+      if (rawMessage.includes('Лимит') || rawMessage.includes('limit')) {
         setQuotaExceeded(true);
         setRemaining(0);
       }
