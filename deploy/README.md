@@ -194,8 +194,7 @@ sudo certbot --nginx -d roboweb.site -d www.roboweb.site
 - [ ] PostgreSQL установлен, база восстановлена из дампа
 - [ ] Backend запущен через gunicorn + systemd, отвечает на `/api/health`
 - [ ] Все секреты прописаны в `.env`
-- [ ] Ссылки на backend во фронтенде заменены с `functions.poehali.dev` на `/api/...`
-- [ ] Фронтенд собран (`npm run build`) и отдаётся через nginx
+- [ ] Фронтенд собран с `VITE_API_BASE_URL=https://ваш-домен` и отдаётся через nginx
 - [ ] HTTPS настроен через certbot
 - [ ] OAuth redirect URI обновлены при необходимости
 - [ ] Проверена регистрация, вход, генерация сайта, публикация, оплата
