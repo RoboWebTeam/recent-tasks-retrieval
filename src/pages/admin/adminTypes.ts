@@ -7,6 +7,7 @@ export const SITE_LEADS_URL   = apiUrl('site-leads');
 export const ACTIVITY_LOG_URL = apiUrl('activity-log');
 export const PLAN_PRICING_URL = apiUrl('plan-pricing');
 export const SUPPORT_CHAT_URL = apiUrl('support-chat');
+export const AI_BALANCE_URL   = apiUrl('ai-balance');
 
 export function unwrap(raw: Record<string, unknown>): Record<string, unknown> {
   if (raw.body !== undefined) {
@@ -27,6 +28,10 @@ export interface User {
 export interface SiteLead {
   id: number; name: string; phone: string; email: string;
   message: string; site: string; date: string; status: 'new' | 'processed' | 'rejected';
+}
+
+export interface AiBalance {
+  total_credits: number; total_usage: number; remaining: number; low_balance: boolean;
 }
 
 export interface AnalyticsData {
