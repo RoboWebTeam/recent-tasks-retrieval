@@ -73,7 +73,18 @@ export function SiteFooter({ lang }: Props) {
           </div>
         </div>
       </div>
-      <div className="border-t border-border py-5 text-center text-xs sm:text-sm text-muted-foreground px-4 space-y-1">
+      <div className="border-t border-border py-5 text-center text-xs sm:text-sm text-muted-foreground px-4 space-y-2.5">
+        <div className="flex flex-wrap justify-center gap-x-4 gap-y-1.5">
+          <Link to="/oferta" className="hover:text-foreground transition-colors">
+            {lang === 'ru' ? 'Публичная оферта' : 'Public Offer'}
+          </Link>
+          <Link to="/privacy" className="hover:text-foreground transition-colors">
+            {lang === 'ru' ? 'Политика конфиденциальности' : 'Privacy Policy'}
+          </Link>
+          <Link to="/personal-data" className="hover:text-foreground transition-colors">
+            {lang === 'ru' ? 'Согласие на обработку ПД' : 'Personal Data Consent'}
+          </Link>
+        </div>
         <p>© 2026 Roboweb. {L.footer.copy[lang]}</p>
         <p className="text-[11px] sm:text-xs text-muted-foreground/70">
           ИП Аракелов Станислав Владиславович · ОГРНИП 324508100357892 · ИНН 501210007760

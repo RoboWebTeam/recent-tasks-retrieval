@@ -172,7 +172,15 @@ const Register = () => {
 
             <p className="text-xs text-center text-muted-foreground">
               {tr('termsAgree', lang)}{' '}
-              <span className="text-primary cursor-pointer hover:underline">{tr('termsLink', lang)}</span>
+              <Link to="/oferta" className="text-primary hover:underline">{tr('termsLink', lang)}</Link>
+              {', '}
+              <Link to="/privacy" className="text-primary hover:underline">
+                {lang === 'ru' ? 'политикой конфиденциальности' : 'privacy policy'}
+              </Link>
+              {' '}{lang === 'ru' ? 'и' : 'and'}{' '}
+              <Link to="/personal-data" className="text-primary hover:underline">
+                {lang === 'ru' ? 'согласием на обработку персональных данных' : 'personal data consent'}
+              </Link>
             </p>
           </form>
 

@@ -30,6 +30,9 @@ const Leads = lazy(() => import("./pages/Leads"));
 const Files = lazy(() => import("./pages/Files"));
 const PublicSite = lazy(() => import("./pages/PublicSite"));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const Offer = lazy(() => import("./pages/legal/Offer"));
+const Privacy = lazy(() => import("./pages/legal/Privacy"));
+const PersonalData = lazy(() => import("./pages/legal/PersonalData"));
 
 const queryClient = new QueryClient();
 
@@ -71,6 +74,9 @@ const App = () => (
             <Route path="/pricing" element={<Pricing />} />
             <Route path="/pricing/status" element={<OrderStatus />} />
             <Route path="/site/:slug" element={<PublicSite />} />
+            <Route path="/oferta" element={<Offer />} />
+            <Route path="/privacy" element={<Privacy />} />
+            <Route path="/personal-data" element={<PersonalData />} />
             <Route path="/auth/github/callback" element={<GithubCallback />} />
             <Route path="/auth/yandex/callback" element={<YandexCallback />} />
             <Route path="/auth/telegram/callback" element={<TelegramCallback />} />
