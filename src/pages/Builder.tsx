@@ -135,7 +135,17 @@ export default function Builder() {
     if (typeof window === 'undefined') return [];
     try {
       const saved = localStorage.getItem(`builder_chat_${new URLSearchParams(window.location.search).get('project') || 'new'}`);
-      return saved ? JSON.parse(saved) : [];
+      if (!saved) return [];
+      const parsed = JSON.parse(saved);
+      // Валидируем структуру: должен быть массив объектов с корректными role/content,
+      // иначе рендер сломается на битых данных из localStorage
+      if (!Array.isArray(parsed)) return [];
+      return parsed
+        .filter((m): m is Message =>
+          m && typeof m === 'object' &&
+          (m.role === 'user' || m.role === 'assistant') &&
+          typeof m.content === 'string'
+        );
     } catch {
       return [];
     }

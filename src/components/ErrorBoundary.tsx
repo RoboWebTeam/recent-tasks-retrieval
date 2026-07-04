@@ -6,6 +6,7 @@ interface Props {
 
 interface State {
   hasError: boolean;
+  errorMessage: string;
 }
 
 /**
@@ -14,10 +15,11 @@ interface State {
  * работе с очень большим сгенерированным HTML) обрушивает весь интерфейс в пустоту.
  */
 export default class ErrorBoundary extends Component<Props, State> {
-  state: State = { hasError: false };
+  state: State = { hasError: false, errorMessage: '' };
 
-  static getDerivedStateFromError(): State {
-    return { hasError: true };
+  static getDerivedStateFromError(error: unknown): State {
+    const msg = error instanceof Error ? `${error.message}` : String(error);
+    return { hasError: true, errorMessage: msg };
   }
 
   componentDidCatch(error: unknown) {
@@ -26,7 +28,7 @@ export default class ErrorBoundary extends Component<Props, State> {
   }
 
   handleReload = () => {
-    this.setState({ hasError: false });
+    this.setState({ hasError: false, errorMessage: '' });
     window.location.reload();
   };
 
@@ -58,6 +60,11 @@ export default class ErrorBoundary extends Component<Props, State> {
           >
             {isRu ? 'Перезагрузить' : 'Reload'}
           </button>
+          {this.state.errorMessage && (
+            <pre className="max-w-lg text-left text-[11px] text-muted-foreground/70 bg-secondary rounded-lg p-3 overflow-auto whitespace-pre-wrap break-words">
+              {this.state.errorMessage}
+            </pre>
+          )}
         </div>
       );
     }
