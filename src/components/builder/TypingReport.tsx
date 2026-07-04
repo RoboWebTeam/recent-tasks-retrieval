@@ -25,6 +25,8 @@ interface Props {
   isEdit?: boolean;
   /** Клик по предложению улучшения — отправляет его как новую команду в чат */
   onSuggestion?: (prompt: string) => void;
+  /** Блокировать кнопки предложений (во время генерации), чтобы не запустить второй запрос */
+  suggestionsDisabled?: boolean;
 }
 
 /**
@@ -67,7 +69,7 @@ export default function TypingReport(props: Props) {
   const {
     lang, intro, summary, steps = [], design,
     sections = [], suggestions = [],
-    animate, onTick, isEdit, onSuggestion,
+    animate, onTick, isEdit, onSuggestion, suggestionsDisabled,
   } = props;
 
   // Диалог отправляется частями (фазами), появляющимися по очереди с паузой:
@@ -154,7 +156,7 @@ export default function TypingReport(props: Props) {
       {/* Шаги — по одному */}
       {phase >= 2 && steps.length > 0 && stage > stepStages[0] - 1 && (
         <div className="space-y-1.5">
-          <p className="text-[11px] text-muted-foreground uppercase tracking-wider font-semibold">
+          <p className="text-[15px] text-foreground font-semibold">
             {lang === 'ru' ? 'Что я сделал' : 'What I did'}
           </p>
           <div className="space-y-1.5">
@@ -190,7 +192,7 @@ export default function TypingReport(props: Props) {
       {/* Секции сайта — теги с блоками, которые получились */}
       {phase >= 2 && stage >= finalStage && sections.length > 0 && (
         <div className="space-y-1.5">
-          <p className="text-[11px] text-muted-foreground uppercase tracking-wider font-semibold">
+          <p className="text-[15px] text-foreground font-semibold">
             {lang === 'ru' ? 'Секции сайта' : 'Site sections'}
           </p>
           <div className="flex flex-wrap gap-1.5">
@@ -207,7 +209,7 @@ export default function TypingReport(props: Props) {
       {/* Идеи улучшений — кликабельные кнопки, запускающие правку */}
       {phase >= 2 && stage >= finalStage && suggestions.length > 0 && (
         <div className="space-y-1.5 pt-0.5">
-          <p className="text-[11px] text-muted-foreground uppercase tracking-wider font-semibold">
+          <p className="text-[15px] text-foreground font-semibold">
             {lang === 'ru' ? 'Что ещё можно улучшить' : 'What else to improve'}
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
@@ -215,7 +217,8 @@ export default function TypingReport(props: Props) {
               <button
                 key={i}
                 onClick={() => onSuggestion?.(sg.prompt)}
-                className="group flex items-center gap-2 text-left text-[13px] font-medium text-foreground bg-secondary hover:bg-primary hover:text-primary-foreground border border-border hover:border-primary rounded-xl px-2.5 py-2 transition-colors"
+                disabled={suggestionsDisabled}
+                className="group flex items-center gap-2 text-left text-[13px] font-medium text-foreground bg-secondary hover:bg-primary hover:text-primary-foreground border border-border hover:border-primary rounded-xl px-2.5 py-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-secondary disabled:hover:text-foreground"
                 title={sg.prompt}
               >
                 <span className="grid h-6 w-6 place-items-center rounded-lg bg-primary/10 text-primary group-hover:bg-white/20 group-hover:text-primary-foreground shrink-0 transition-colors">

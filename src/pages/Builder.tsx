@@ -699,12 +699,21 @@ export default function Builder() {
     if (t && t.tagName === 'IMG') fixBrokenImage(t);
   }, true);
   // Проверяем уже загруженные к моменту старта скрипта картинки (могли сломаться до подписки).
-  document.addEventListener('DOMContentLoaded', function() {
+  function scanBrokenImages() {
     var imgs = document.getElementsByTagName('img');
     for (var i = 0; i < imgs.length; i++) {
       if (imgs[i].complete && imgs[i].naturalWidth === 0) fixBrokenImage(imgs[i]);
     }
-  });
+  }
+  // srcdoc-документ часто уже готов к моменту запуска скрипта — DOMContentLoaded не сработает,
+  // поэтому проверяем сразу по состоянию документа.
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', scanBrokenImages);
+  } else {
+    scanBrokenImages();
+  }
+  // Подстраховка для медленно грузящихся картинок — повторная проверка чуть позже.
+  setTimeout(scanBrokenImages, 1500);
 
   // В превью ссылки не должны навигировать внутри iframe. Из-за <base href="..."> на
   // фиктивный домен (см. PREVIEW_BASE в Builder.tsx) даже клик по "#section" браузер может
@@ -1320,6 +1329,7 @@ export default function Builder() {
                             animate={!!m.justGenerated && i === messages.length - 1 && !loading}
                             onTick={() => scrollChatToBottom('auto')}
                             onSuggestion={(prompt) => sendMessage(prompt)}
+                            suggestionsDisabled={loading}
                           />
                         ) : m.content}
                       </div>
