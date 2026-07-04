@@ -240,10 +240,17 @@ def extract_meta_block(html: str):
     Возвращает (html_без_блока, dict_метаданных). Если блока нет или он битый — вернёт пустой dict."""
     import re
     meta = {}
-    m = re.search(r'<!--\s*ROBOWEB_META:(\{.*?\})\s*-->', html, re.DOTALL)
+    # Ищем комментарий и берём его содержимое нежадно ДО "-->" (а не до первой }).
+    # Затем внутри вырезаем JSON от первой { до последней } — так корректно ловим
+    # вложенные объекты suggestions, не обрываясь на их закрывающих скобках.
+    m = re.search(r'<!--\s*ROBOWEB_META:(.*?)-->', html, re.DOTALL)
     if m:
+        raw = m.group(1).strip()
+        start = raw.find('{')
+        end = raw.rfind('}')
+        json_str = raw[start:end + 1] if start != -1 and end != -1 else ''
         try:
-            parsed = json.loads(m.group(1))
+            parsed = json.loads(json_str)
             if isinstance(parsed, dict):
                 meta = {
                     'intro': str(parsed.get('intro', ''))[:300],
