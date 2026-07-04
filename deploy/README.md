@@ -17,6 +17,13 @@
 | `server.py` | Flask-обёртка, которая запускает ВСЕ backend-функции (`/backend/*/index.py`) как обычные HTTP-роуты `/api/<имя-функции>`, без переписывания самого кода функций |
 | `requirements.txt` | Единый список Python-зависимостей для всех функций |
 | `export_db.sh` | Скрипт экспорта текущей базы данных в `db_dump.sql` |
+| `Dockerfile` | Образ backend-сервера |
+| `frontend.Dockerfile` | Сборка фронтенда + nginx для раздачи статики |
+| `nginx.conf` | Конфиг nginx с проксированием `/api/` на backend |
+| `docker-compose.yml` | Весь стек (PostgreSQL + backend + фронтенд) одной командой |
+| `.env.example` | Шаблон переменных окружения |
+
+Есть два способа развернуть проект: **вручную** (шаги 1–7 ниже, полный контроль) или **через Docker Compose** (быстрее, см. раздел "Способ Б" в конце файла).
 
 ---
 
@@ -186,6 +193,57 @@ sudo certbot --nginx -d roboweb.site -d www.roboweb.site
 - Яндекс OAuth → Redirect URI
 - Telegram @BotFather → `/setdomain`
 - ЮKassa → URL уведомлений (webhook)
+
+---
+
+## Способ Б: развернуть всё через Docker Compose (быстрее)
+
+Вместо ручной установки PostgreSQL, nginx, systemd — можно поднять весь стек тремя командами.
+Требуется только Docker и Docker Compose на сервере:
+
+```bash
+sudo apt update && sudo apt install -y docker.io docker-compose-plugin git
+git clone <ваш-репозиторий> /var/www/roboweb
+cd /var/www/roboweb/deploy
+cp .env.example .env
+nano .env   # заполните все секреты и SITE_URL
+docker compose up -d --build
+```
+
+Это поднимет 3 контейнера:
+- `db` — PostgreSQL 16 с volume для хранения данных
+- `backend` — все Cloud Functions через `deploy/server.py`
+- `frontend` — собранный React-фронтенд + nginx, слушает порт 80
+
+### Восстановление базы данных
+Экспортируйте дамп текущей БД (см. Шаг 2 выше — `export_db.sh`), скопируйте `db_dump.sql`
+в `/var/www/roboweb/deploy/` и загрузите внутрь контейнера:
+```bash
+docker compose exec -T db psql -U roboweb_user -d roboweb < db_dump.sql
+```
+
+### Проверка
+```bash
+docker compose ps                 # все 3 сервиса должны быть Up
+curl http://localhost/api/health  # список backend-функций
+```
+
+### HTTPS для Docker-варианта
+Проще всего поставить Certbot прямо на хост-машину и получить сертификат для порта 80,
+либо добавить контейнер `nginx-proxy` + `acme-companion` — но для старта достаточно
+базового HTTP, а HTTPS настроить отдельно, когда домен привязан к серверу.
+
+### Обновление после изменений в коде
+```bash
+git pull
+docker compose up -d --build
+```
+
+### Логи
+```bash
+docker compose logs -f backend
+docker compose logs -f frontend
+```
 
 ---
 

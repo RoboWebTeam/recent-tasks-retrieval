@@ -1,0 +1,55 @@
+# Полный стек проекта одной командой: PostgreSQL + backend (все Cloud Functions) + nginx с фронтендом.
+#
+# Использование (из корня проекта):
+#   cd deploy
+#   cp .env.example .env      # заполните секретами
+#   docker compose up -d --build
+#
+# После первого запуска один раз восстановите базу данных из дампа:
+#   docker compose exec -T db psql -U roboweb_user -d roboweb < db_dump.sql
+#
+# Сайт будет доступен на http://<ip-сервера> (порт 80).
+# Для HTTPS — поставьте перед nginx-контейнером certbot или Traefik/Caddy отдельно.
+
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - roboweb_pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  backend:
+    build:
+      context: ..
+      dockerfile: deploy/Dockerfile
+    restart: unless-stopped
+    env_file: .env
+    depends_on:
+      db:
+        condition: service_healthy
+    expose:
+      - "8000"
+
+  frontend:
+    build:
+      context: ..
+      dockerfile: deploy/frontend.Dockerfile
+      args:
+        VITE_API_BASE_URL: ${SITE_URL}
+    restart: unless-stopped
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+
+volumes:
+  roboweb_pgdata:
