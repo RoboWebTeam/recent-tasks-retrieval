@@ -103,6 +103,7 @@ export const t = {
   builderProject: { ru: 'Проект', en: 'Project' },
   builderError: { ru: 'Произошла ошибка. Попробуйте ещё раз.', en: 'An error occurred. Please try again.' },
   builderNoConnection: { ru: 'Ошибка соединения. Проверьте интернет.', en: 'Connection error. Check your internet.' },
+  builderAiUnavailable: { ru: 'AI-сервис временно недоступен. Попробуйте через минуту или выберите другую модель.', en: 'AI service is temporarily unavailable. Try again in a minute or switch the model.' },
 
   // --- BLOG ---
   blogLabel:          { ru: 'Блог', en: 'Blog' },

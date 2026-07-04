@@ -258,9 +258,12 @@ export default function Builder() {
               : 'Top up energy or upgrade your plan to keep generating.',
           });
         }
+        const friendlyError = statusCode === 502 || statusCode === 503
+          ? tr('builderAiUnavailable', lang)
+          : (data as { error?: string }).error || tr('builderError', lang);
         setMessages(prev => {
           const updated = [...prev];
-          updated[updated.length - 1] = { role: 'assistant', content: (data as { error?: string }).error || tr('builderError', lang) };
+          updated[updated.length - 1] = { role: 'assistant', content: friendlyError };
           return updated;
         });
         return;
