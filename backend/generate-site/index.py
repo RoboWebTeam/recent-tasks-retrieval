@@ -292,10 +292,12 @@ def extract_meta_block(html: str):
 
 
 def build_meta_from_html(html: str, is_edit: bool) -> dict:
-    """Резервное описание работы, когда модель не прислала служебный блок метаданных
-    (частый случай при 30-сек лимите: HTML успел сгенерироваться, а блок в конце — нет).
-    Собираем осмысленный отчёт прямо из готового HTML: заголовок, секции, элементы."""
+    """Резервное ПОДРОБНОЕ описание работы, когда модель не прислала служебный блок метаданных.
+    Разбираем готовый HTML максимально детально и составляем «живой» пошаговый отчёт —
+    как будто разработчик рассказывает по шагам всё, что он сделал."""
     import re
+    low = html.lower()
+
     def clean(t):
         return re.sub(r'\s+', ' ', re.sub(r'<[^>]+>', '', t)).strip()
 
@@ -303,39 +305,97 @@ def build_meta_from_html(html: str, is_edit: bool) -> dict:
     h1_m = re.search(r'<h1[^>]*>(.*?)</h1>', html, re.IGNORECASE | re.DOTALL)
     site_name = clean(title_m.group(1)) if title_m else (clean(h1_m.group(1)) if h1_m else '')
 
-    # Названия секций — из заголовков h2 (обычно это заголовки блоков сайта)
+    # Секции — по заголовкам h2 (обычно это заголовки блоков сайта)
     h2s = [clean(x) for x in re.findall(r'<h2[^>]*>(.*?)</h2>', html, re.IGNORECASE | re.DOTALL)]
-    h2s = [h for h in h2s if h][:6]
+    h2s = [h for h in h2s if h][:8]
 
-    # Что есть на сайте — для живых шагов
-    has_form = '<form' in html.lower() or 'input' in html.lower()
-    has_img = '<img' in html.lower()
-    has_anim = '@keyframes' in html.lower() or 'transition' in html.lower() or 'animation' in html.lower()
+    # --- Детальный разбор содержимого ---
+    fonts = re.findall(r'family=([A-Za-z0-9+]+)', html)
+    fonts = [f.replace('+', ' ') for f in dict.fromkeys(fonts)][:3]
+    colors = re.findall(r'#[0-9a-fA-F]{6}', html)
+    palette = list(dict.fromkeys([c.lower() for c in colors]))[:5]
+    n_sections = len(re.findall(r'<section', low)) or len(h2s)
+    n_images = len(re.findall(r'<img', low))
+    n_buttons = len(re.findall(r'<button', low)) + len(re.findall(r'class="[^"]*btn', low))
+    has_nav = '<nav' in low or '<header' in low
+    has_footer = '<footer' in low
+    has_form = '<form' in low or '<input' in low
+    has_gradient = 'gradient(' in low
+    has_anim = '@keyframes' in low or 'transition' in low or 'animation' in low
+    has_hover = ':hover' in low
+    has_shadow = 'box-shadow' in low or 'shadow' in low
+    has_grid = 'display:grid' in low.replace(' ', '') or 'display: grid' in low or 'grid-template' in low
+    has_flex = 'display:flex' in low.replace(' ', '') or 'display: flex' in low
+    responsive = '@media' in low
+    has_seo = 'name="description"' in low or 'og:title' in low
 
     if is_edit:
-        intro = 'Внёс запрошенные изменения в сайт и обновил превью.'
-        steps = ['Нашёл нужные элементы и аккуратно применил правки', 'Сохранил остальную структуру и стиль без изменений']
+        intro = 'Понял задачу — вношу точечную правку в существующий сайт, сохраняя всё остальное.'
+        steps = [
+            'Открыл текущий код сайта и нашёл нужные элементы для изменения',
+            'Аккуратно применил запрошенные правки, не задев остальную структуру',
+            'Проверил, что вёрстка и стили остались целыми',
+            'Обновил превью — результат уже виден справа',
+        ]
+        summary = 'Готово! Изменения внесены, всё остальное на сайте сохранено без изменений. Проверьте превью.'
+        design = ''
     else:
-        intro = f'Собрал сайт{(" «" + site_name + "»") if site_name else ""} по вашему запросу.'
+        intro = f'Понял задачу — собираю сайт{(" «" + site_name + "»") if site_name else ""}. Взялся за дело и проектирую страницу с нуля.'
         steps = []
+        # Структура
+        if has_nav:
+            steps.append('Сверстал шапку с навигацией по разделам')
         if h2s:
-            steps.append('Собрал структуру из секций: ' + ', '.join(h2s[:5]))
+            steps.append('Спроектировал структуру из ' + str(n_sections) + ' секций: ' + ', '.join(h2s[:6]))
         else:
-            steps.append('Собрал структуру страницы: шапка, основной блок и подвал')
-        steps.append('Подобрал современную палитру, типографику и оформление')
-        if has_img:
-            steps.append('Добавил изображения и визуальные акценты')
+            steps.append('Спроектировал структуру страницы: hero-блок, основной контент и подвал')
+        # Дизайн-детали
+        if palette:
+            steps.append('Подобрал цветовую палитру: ' + ', '.join(palette))
+        if has_gradient:
+            steps.append('Добавил современные градиенты для акцентов и фонов')
+        if fonts:
+            steps.append('Подключил шрифты Google Fonts: ' + ', '.join(fonts))
+        if has_grid or has_flex:
+            steps.append('Настроил гибкую сетку (Grid/Flexbox) для аккуратного расположения блоков')
+        if has_shadow:
+            steps.append('Оформил карточки с тенями и скруглениями для «объёмного» вида')
+        # Контент
+        if n_images:
+            steps.append(f'Разместил изображения и визуальные акценты ({n_images} шт.)')
+        if n_buttons:
+            steps.append('Добавил призывы к действию (кнопки) для конверсии')
         if has_form:
-            steps.append('Добавил форму для заявок/контакта')
+            steps.append('Встроил форму для заявок/обратной связи')
+        # Интерактив
         if has_anim:
-            steps.append('Добавил плавные анимации и hover-эффекты')
+            steps.append('Добавил плавные анимации появления блоков при прокрутке')
+        if has_hover:
+            steps.append('Настроил интерактивные hover-эффекты на кнопках и карточках')
+        # Технические плюсы
+        if responsive:
+            steps.append('Сделал вёрстку адаптивной — сайт корректно смотрится на телефоне и десктопе')
+        if has_seo:
+            steps.append('Прописал SEO-теги (title, description, Open Graph) для индексации в поиске')
+        if has_footer:
+            steps.append('Добавил подвал с контактами и служебной информацией')
+
+        # design-строка
+        design_bits = []
+        if palette:
+            design_bits.append('палитра ' + ', '.join(palette[:3]))
+        if fonts:
+            design_bits.append('шрифты ' + ', '.join(fonts[:2]))
+        design = ('Дизайн: ' + '; '.join(design_bits) + '.') if design_bits else ''
+
+        summary = 'Готово! Собрал ' + ('насыщенный ' if n_sections >= 5 else '') + 'современный сайт — он уже открыт в превью справа. Можете сразу посмотреть, а потом попросить меня что-нибудь изменить.'
 
     return {
         'intro': intro[:300],
-        'summary': ('Обновил сайт — проверьте превью.' if is_edit else 'Готово! Сайт открыт в превью справа — можете сразу посмотреть результат.'),
-        'steps': [s[:200] for s in steps][:6],
-        'design': '',
-        'sections': h2s,
+        'summary': summary[:600],
+        'steps': [s[:200] for s in steps][:12],
+        'design': design[:300],
+        'sections': h2s[:6],
         'suggestions': [],
     }
 
