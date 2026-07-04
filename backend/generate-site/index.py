@@ -255,23 +255,25 @@ def handler(event: dict, context) -> dict:
     chat_messages = [{'role': m.get('role', 'user'), 'content': m.get('content', '')} for m in messages]
 
     if model_choice == 'gpt-4o':
-        api_key = os.environ.get('OPENAI_API_KEY', '')
+        api_key = os.environ.get('OPENROUTER_API_KEY', '')
         if not api_key:
-            return err('OpenAI API ключ не настроен')
+            return err('OpenRouter API ключ не настроен')
 
         payload = json.dumps({
-            'model': 'gpt-4o',
+            'model': 'openai/gpt-4o',
             'messages': [{'role': 'system', 'content': system_prompt}] + chat_messages,
             'max_tokens': 8000,
             'temperature': 0.7,
         }).encode('utf-8')
 
         req = urllib.request.Request(
-            'https://api.openai.com/v1/chat/completions',
+            'https://openrouter.ai/api/v1/chat/completions',
             data=payload,
             headers={
                 'Content-Type': 'application/json',
                 'Authorization': f'Bearer {api_key}',
+                'HTTP-Referer': 'https://roboweb.site',
+                'X-Title': 'Roboweb',
             },
             method='POST'
         )
@@ -280,11 +282,11 @@ def handler(event: dict, context) -> dict:
             with urllib.request.urlopen(req, timeout=60) as response:
                 result = json.loads(response.read().decode('utf-8'))
         except urllib.error.HTTPError as e:
-            return err(f'OpenAI API error {e.code}', 502)
+            return err(f'OpenRouter API error {e.code}', 502)
         except urllib.error.URLError:
-            return err('OpenAI API недоступен. Попробуйте позже.', 503)
+            return err('OpenRouter API недоступен. Попробуйте позже.', 503)
         except (json.JSONDecodeError, Exception):
-            return err('Неверный ответ от OpenAI.', 502)
+            return err('Неверный ответ от OpenRouter.', 502)
 
         choices = result.get('choices') or []
         if not choices:
