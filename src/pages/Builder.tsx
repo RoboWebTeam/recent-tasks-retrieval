@@ -131,6 +131,10 @@ export default function Builder() {
     if (typeof window === 'undefined') return 'light';
     return (localStorage.getItem('builder_theme') as 'light' | 'dark') || 'light';
   });
+  const [showEnergyBonus, setShowEnergyBonus] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return localStorage.getItem('show_energy_bonus') === '1';
+  });
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [versions, setVersions] = useState<Version[]>([]);
   const [showVersions, setShowVersions] = useState(false);
@@ -220,6 +224,11 @@ export default function Builder() {
   }, [builderTheme]);
 
   const toggleBuilderTheme = () => setBuilderTheme(t => t === 'light' ? 'dark' : 'light');
+
+  const dismissEnergyBonus = () => {
+    setShowEnergyBonus(false);
+    localStorage.removeItem('show_energy_bonus');
+  };
 
   useEffect(() => {
     const ta = textareaRef.current;
@@ -928,6 +937,25 @@ export default function Builder() {
             <div className="flex-1 overflow-y-auto p-4 space-y-4 bg-background">
               {messages.length === 0 ? (
                 <div className="pt-2">
+                  {showEnergyBonus && (
+                    <div className="flex items-start gap-2.5 bg-primary/10 border border-primary/20 rounded-xl px-3.5 py-3 mb-5 text-left">
+                      <Icon name="Gift" size={16} className="text-primary shrink-0 mt-0.5" />
+                      <div className="flex-1">
+                        <p className="text-sm font-semibold text-foreground">
+                          {lang === 'ru' ? 'Дарим 10 энергии на старт!' : 'You got 10 free energy!'}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-0.5">
+                          {lang === 'ru'
+                            ? 'Попробуйте разные модели ИИ — Claude, GPT-4o и Gemini — на выбор.'
+                            : 'Try different AI models — Claude, GPT-4o and Gemini — your choice.'}
+                        </p>
+                      </div>
+                      <button onClick={dismissEnergyBonus} className="shrink-0 text-primary/60 hover:text-primary">
+                        <Icon name="X" size={13} />
+                      </button>
+                    </div>
+                  )}
+
                   <div className="text-center mb-6">
                     <div className="grid h-14 w-14 place-items-center rounded-2xl bg-primary/10 text-primary mx-auto mb-3 border border-primary/20">
                       <Icon name="Sparkles" size={24} />

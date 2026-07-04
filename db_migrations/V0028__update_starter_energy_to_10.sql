@@ -1,0 +1,1 @@
+ALTER TABLE users ALTER COLUMN energy_balance SET DEFAULT 10;

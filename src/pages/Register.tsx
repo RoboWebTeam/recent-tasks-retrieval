@@ -40,6 +40,7 @@ const Register = () => {
       setSession(data.session_id as string);
       storeUser(data.user as Parameters<typeof storeUser>[0]);
       trackGoal(GOALS.REGISTRATION_SUCCESS);
+      localStorage.setItem('show_energy_bonus', '1');
       window.location.href = '/dashboard';
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : tr('builderError', lang));

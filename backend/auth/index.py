@@ -16,7 +16,7 @@ PLAN_LIMITS = {
 
 # Стартовый бонус энергии для новых пользователей — чтобы можно было протестировать
 # AI-редактор чуть дольше, чем базовый лимит тарифа Free
-STARTER_ENERGY = 5
+STARTER_ENERGY = 10
 
 def get_schema():
     global SCHEMA
