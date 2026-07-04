@@ -4,8 +4,9 @@ import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { getLang } from '@/lib/i18n';
 import { trackGoal, GOALS } from '@/lib/analytics';
+import { apiUrl } from '@/lib/apiConfig';
 
-const ORDER_STATUS_URL = 'https://functions.poehali.dev/0883717d-f728-467e-b5d2-c91fb10bf3e6';
+const ORDER_STATUS_URL = apiUrl('order-status');
 
 const PLAN_NAMES: Record<string, { ru: string; en: string }> = {
   premium: { ru: 'Премиум', en: 'Premium' },

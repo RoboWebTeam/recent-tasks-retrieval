@@ -1,10 +1,12 @@
-export const GET_LEADS_URL    = 'https://functions.poehali.dev/30e5ede9-3024-46d5-ad27-eae4b46b0056';
-export const MANAGE_USER_URL  = 'https://functions.poehali.dev/f00990ba-30f7-4fe5-9cb2-974518f45564';
-export const ANALYTICS_URL    = 'https://functions.poehali.dev/ee6777e6-59d0-4d5f-acb2-d292c72253d3';
-export const SITE_LEADS_URL   = 'https://functions.poehali.dev/96a428e9-25c5-47d2-83b1-bdc68f9f8010';
-export const ACTIVITY_LOG_URL = 'https://functions.poehali.dev/fa0bbc9f-ff34-4d08-877f-41fdf35d0dee';
-export const PLAN_PRICING_URL = 'https://functions.poehali.dev/b66b5f92-bcdf-4605-87e2-b42e3d90e6ff';
-export const SUPPORT_CHAT_URL = 'https://functions.poehali.dev/0ddd7998-ad2d-433a-a6ef-5801b4ed059b';
+import { apiUrl } from '@/lib/apiConfig';
+
+export const GET_LEADS_URL    = apiUrl('get-leads');
+export const MANAGE_USER_URL  = apiUrl('manage-user');
+export const ANALYTICS_URL    = apiUrl('analytics');
+export const SITE_LEADS_URL   = apiUrl('site-leads');
+export const ACTIVITY_LOG_URL = apiUrl('activity-log');
+export const PLAN_PRICING_URL = apiUrl('plan-pricing');
+export const SUPPORT_CHAT_URL = apiUrl('support-chat');
 
 export function unwrap(raw: Record<string, unknown>): Record<string, unknown> {
   if (raw.body !== undefined) {

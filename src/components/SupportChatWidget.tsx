@@ -3,8 +3,9 @@ import Icon from '@/components/ui/icon';
 import { Input } from '@/components/ui/input';
 import { getSession, getStoredUser } from '@/lib/auth';
 import { getLang } from '@/lib/i18n';
+import { apiUrl } from '@/lib/apiConfig';
 
-const SUPPORT_CHAT_URL = 'https://functions.poehali.dev/0ddd7998-ad2d-433a-a6ef-5801b4ed059b';
+const SUPPORT_CHAT_URL = apiUrl('support-chat');
 const POLL_INTERVAL = 7000;
 
 interface ChatMessage {

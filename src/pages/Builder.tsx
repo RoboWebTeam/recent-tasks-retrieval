@@ -9,8 +9,9 @@ import { useToast } from '@/hooks/use-toast';
 import BuilderCorePanel from '@/components/builder/BuilderCorePanel';
 import BuilderDomainModal from '@/components/builder/BuilderDomainModal';
 import { trackGoal, GOALS } from '@/lib/analytics';
+import { apiUrl } from '@/lib/apiConfig';
 
-const GENERATE_URL = 'https://functions.poehali.dev/64b3e52e-6bb5-4d4e-b7ee-e3840af35990';
+const GENERATE_URL = apiUrl('generate-site');
 
 interface Message {
   role: 'user' | 'assistant';

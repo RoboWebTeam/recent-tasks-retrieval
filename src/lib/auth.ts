@@ -1,10 +1,12 @@
-export const AUTH_URL = 'https://functions.poehali.dev/1c31dd39-a734-4b06-bc38-a2e25d8ad7cf';
-export const PROJECTS_URL = 'https://functions.poehali.dev/2b772da8-0a47-4371-97c7-b0a6834cdf0e';
-export const FILES_URL = 'https://functions.poehali.dev/86596285-1259-4cdb-8c8d-48a19c6f94df';
-export const PUBLIC_SITE_URL = 'https://functions.poehali.dev/2c23b134-6798-4837-b6b2-226e599051f9';
-export const DOMAINS_URL = 'https://functions.poehali.dev/8e970c92-49ad-4f27-9b52-3572f6efc1f6';
-export const PROJECT_CORE_URL = 'https://functions.poehali.dev/7aaaa29f-7484-4295-83d3-fbc7eaf6e923';
-export const GENERATE_IMAGE_URL = 'https://functions.poehali.dev/6a25f90e-ad5e-4f64-abf2-45b6b515b915';
+import { apiUrl } from './apiConfig';
+
+export const AUTH_URL = apiUrl('auth');
+export const PROJECTS_URL = apiUrl('user-projects');
+export const FILES_URL = apiUrl('site-files');
+export const PUBLIC_SITE_URL = apiUrl('public-site');
+export const DOMAINS_URL = apiUrl('domains');
+export const PROJECT_CORE_URL = apiUrl('project-core');
+export const GENERATE_IMAGE_URL = apiUrl('generate-image');
 
 export interface User {
   id: number;

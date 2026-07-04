@@ -4,8 +4,9 @@ import Icon from '@/components/ui/icon';
 import { getLang, tr } from '@/lib/i18n';
 import { getSession } from '@/lib/auth';
 import DashboardHeader from '@/components/DashboardHeader';
+import { apiUrl } from '@/lib/apiConfig';
 
-const SITE_LEADS_URL = 'https://functions.poehali.dev/96a428e9-25c5-47d2-83b1-bdc68f9f8010';
+const SITE_LEADS_URL = apiUrl('site-leads');
 
 interface Lead {
   id: number;

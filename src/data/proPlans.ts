@@ -1,10 +1,12 @@
+import { apiUrl } from '@/lib/apiConfig';
+
 export interface ProPlanOption {
   plan_code: string;
   requests: number;
   price: number;
 }
 
-export const PLAN_PRICING_URL = 'https://functions.poehali.dev/b66b5f92-bcdf-4605-87e2-b42e3d90e6ff';
+export const PLAN_PRICING_URL = apiUrl('plan-pricing');
 
 export const FALLBACK_PRO_PLANS: ProPlanOption[] = [
   { plan_code: 'pro_60', requests: 60, price: 2999 },

@@ -1,4 +1,5 @@
 import type { Lang } from '@/lib/i18n';
+import { apiUrl } from '@/lib/apiConfig';
 
 export const L = {
   nav: {
@@ -98,7 +99,7 @@ export const L = {
 export const ROBO_IMG =
   'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/2704f2a7-0e24-4881-a393-b234ab436538.jpg';
 
-export const SEND_EMAIL_URL = 'https://functions.poehali.dev/4272fc80-99e8-4abe-8f09-7dce2b50bc57';
+export const SEND_EMAIL_URL = apiUrl('send-email');
 
 export const getNAV = (lang: Lang) => [
   { label: L.nav.features[lang], href: '#features' },

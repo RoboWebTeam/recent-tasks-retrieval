@@ -14,8 +14,9 @@ import DashboardProjectsTab from '@/components/dashboard/DashboardProjectsTab';
 import DashboardPlanTab from '@/components/dashboard/DashboardPlanTab';
 import DashboardProfileTab from '@/components/dashboard/DashboardProfileTab';
 import { trackGoal, GOALS } from '@/lib/analytics';
+import { apiUrl } from '@/lib/apiConfig';
 
-const YOOKASSA_URL = 'https://functions.poehali.dev/4fec45e4-aaef-4bc4-ba3c-7a43dfc964bc';
+const YOOKASSA_URL = apiUrl('yookassa-yookassa');
 
 const getPlanLabels = (lang: ReturnType<typeof getLang>) => ({
   free:     { label: tr('planFree', lang),    color: 'bg-secondary text-secondary-foreground', requests: '10' },

@@ -7,8 +7,9 @@ import { getSession, getStoredUser } from '@/lib/auth';
 import { PLAN_PRICING_URL, FALLBACK_PRO_PLANS, PRO_PLAN_DETAILS, type ProPlanOption } from '@/data/proPlans';
 import { SiteFooter } from '@/components/SiteFooter';
 import { trackGoal, GOALS } from '@/lib/analytics';
+import { apiUrl } from '@/lib/apiConfig';
 
-const YOOKASSA_URL = 'https://functions.poehali.dev/4fec45e4-aaef-4bc4-ba3c-7a43dfc964bc';
+const YOOKASSA_URL = apiUrl('yookassa-yookassa');
 
 const getLangData = (isRu: boolean) => ({
   title: isRu ? 'Тарифы' : 'Pricing',

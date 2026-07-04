@@ -115,23 +115,29 @@ sudo systemctl daemon-reload
 sudo systemctl enable --now roboweb-backend
 ```
 
-## Шаг 4. Frontend — сборка и важные правки в коде
+## Шаг 4. Frontend — сборка
 
-Backend-функции сейчас вызываются с фронтенда по **абсолютным ссылкам** вида
-`https://functions.poehali.dev/<uuid>`. Их нужно заменить на адрес вашего домена, например `https://roboweb.site/api/<имя-функции>`.
+Все адреса backend-функций теперь берутся из единого файла `src/lib/apiConfig.ts`.
+По умолчанию (без дополнительных настроек) фронтенд обращается к облачным функциям
+poehali.dev — это значит, что **текущий сайт на poehali.dev продолжает работать
+без изменений**.
 
-Такие ссылки заданы в двух местах:
-1. **`src/lib/auth.ts`** — константы `AUTH_URL`, `PROJECTS_URL`, `FILES_URL` и т.д.
-2. Отдельные страницы, где URL прописан прямо в файле: `src/pages/Analytics.tsx`, `src/pages/Pricing.tsx`, `src/pages/Dashboard.tsx`, `src/pages/OrderStatus.tsx`, `src/pages/Builder.tsx`, `src/pages/Leads.tsx`, `src/components/SupportChatWidget.tsx`.
+Чтобы при сборке для VPS фронтенд обращался к вашему серверу вместо облака,
+задайте переменную окружения `VITE_API_BASE_URL` перед сборкой:
 
-Проще всего — сделать глобальную замену: каждый `https://functions.poehali.dev/<uuid>` → `/api/<имя-функции>` (имя функции = имя папки в `/backend`, соответствие уже видно в файле `backend/func2url.json`).
-
-После правки соберите фронтенд:
 ```bash
 npm install
-npm run build
+VITE_API_BASE_URL=https://roboweb.site npm run build
 ```
-Получится папка `dist/` — это готовая статика.
+
+Тогда все запросы автоматически пойдут на `https://roboweb.site/api/<имя-функции>`
+(соответствие имён функций и путей — в `backend/func2url.json`, роутинг настроен
+в `deploy/server.py`).
+
+Получится папка `dist/` — это готовая статика для nginx.
+
+⚠️ Один и тот же билд не может одновременно работать и на poehali.dev, и на VPS —
+переменная задаётся один раз перед конкретной сборкой.
 
 ## Шаг 5. Nginx
 
