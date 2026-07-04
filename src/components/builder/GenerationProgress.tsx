@@ -23,6 +23,7 @@ const EDIT_STEPS: TranslationKey[] = [
 export default function GenerationProgress({ lang, isEdit }: Props) {
   const steps = isEdit ? EDIT_STEPS : NEW_STEPS;
   const [active, setActive] = useState(0);
+  const [elapsed, setElapsed] = useState(0);
 
   useEffect(() => {
     // Каждый этап держится примерно одинаковое время; последний остаётся активным
@@ -33,6 +34,11 @@ export default function GenerationProgress({ lang, isEdit }: Props) {
     }, perStep);
     return () => clearInterval(timer);
   }, [steps.length, isEdit]);
+
+  useEffect(() => {
+    const timer = setInterval(() => setElapsed(prev => prev + 1), 1000);
+    return () => clearInterval(timer);
+  }, []);
 
   return (
     <div className="space-y-2 py-0.5">
@@ -61,6 +67,11 @@ export default function GenerationProgress({ lang, isEdit }: Props) {
           </div>
         );
       })}
+      <div className="flex items-center gap-1.5 pt-1 mt-1 border-t border-border text-[11px] text-muted-foreground/70">
+        <Icon name="Clock" size={11} className="shrink-0" />
+        <span>{tr(isEdit ? 'builderEtaEdit' : 'builderEta', lang)}</span>
+        <span className="text-muted-foreground/50">· {elapsed}{lang === 'ru' ? 'с' : 's'} {tr('builderElapsed', lang)}</span>
+      </div>
     </div>
   );
 }
