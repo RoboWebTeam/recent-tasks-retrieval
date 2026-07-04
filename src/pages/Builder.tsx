@@ -63,6 +63,9 @@ interface Message {
   sections?: string[];
   /** Персональные предложения улучшений именно для этого сайта */
   suggestions?: Suggestion[];
+  /** true — сообщение только что сгенерировано в этой сессии (нужно проиграть анимацию печати).
+   * У сообщений, восстановленных из истории при повторном входе, флага нет — они не анимируются. */
+  justGenerated?: boolean;
 }
 
 interface Version {
@@ -328,7 +331,9 @@ export default function Builder() {
     if (loading) return;
     try {
       if (messages.length > 0) {
-        localStorage.setItem(chatStorageKey, JSON.stringify(messages.slice(-50)));
+        // Без флага justGenerated — восстановленные из кеша сообщения не должны перепечатываться.
+        const toStore = messages.slice(-50).map(({ justGenerated, ...rest }) => rest);
+        localStorage.setItem(chatStorageKey, JSON.stringify(toStore));
       } else {
         localStorage.removeItem(chatStorageKey);
       }
@@ -343,7 +348,10 @@ export default function Builder() {
   useEffect(() => {
     if (loading || !session || !projectId || !chatLoaded) return;
     const timer = setTimeout(() => {
-      apiSaveChatHistory(session, projectId, messages.slice(-100)).catch(() => {/* не критично */});
+      // Убираем флаг justGenerated перед сохранением — иначе при повторном входе
+      // восстановленное сообщение снова начнёт печататься с анимацией.
+      const toSave = messages.slice(-100).map(({ justGenerated, ...rest }) => rest);
+      apiSaveChatHistory(session, projectId, toSave).catch(() => {/* не критично */});
     }, 1200);
     return () => clearTimeout(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -507,9 +515,14 @@ export default function Builder() {
         setTotalTokens(t => t + tokens);
       }
 
-      setHtml(generatedHtml);
-      setRightTab('preview');
-      setIframeKey(k => k + 1);
+      // Обновляем превью ТОЛЬКО если пришёл новый HTML — иначе не трогаем состояние,
+      // чтобы случайный пустой ответ не стирал уже показанный сайт.
+      if (generatedHtml) {
+        setHtml(generatedHtml);
+        setCodeEditorValue(generatedHtml); // держим редактор кода в синхроне с превью
+        setRightTab('preview');
+        setIframeKey(k => k + 1);          // принудительно пересобираем iframe с новым содержимым
+      }
 
       const intro = (data as { intro?: string }).intro || '';
       const summary = (data as { summary?: string }).summary || '';
@@ -531,6 +544,7 @@ export default function Builder() {
           design,
           sections,
           suggestions,
+          justGenerated: true,
         };
         return updated;
       });
@@ -1232,7 +1246,7 @@ export default function Builder() {
                             steps={m.steps}
                             design={m.design}
                             isEdit={m.isEdit}
-                            animate={i === messages.length - 1 && !loading}
+                            animate={!!m.justGenerated && i === messages.length - 1 && !loading}
                             onTick={() => messagesEndRef.current?.scrollIntoView({ behavior: 'auto' })}
                           />
                         ) : m.content}
