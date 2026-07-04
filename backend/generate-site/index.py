@@ -130,6 +130,32 @@ def check_and_consume_quota(user_id: int, schema: str):
     finally:
         conn.close()
 
+def refund_quota(user_id: int, schema: str):
+    """Возвращает списанный запрос, если обращение к AI не удалось (таймаут, ошибка модели и т.п.).
+    Пользователь не должен терять запрос из своего лимита, если сайт не был сгенерирован.
+    Порядок восстановления зеркален списанию: сначала энергия, затем лимит тарифа —
+    так же, как FILO/LIFO для check_and_consume_quota (energy списывается только когда лимит уже исчерпан)."""
+    conn = psycopg2.connect(os.environ['DATABASE_URL'])
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                f"SELECT requests_used, requests_limit FROM {schema}.users WHERE id = %s FOR UPDATE",
+                (user_id,)
+            )
+            row = cur.fetchone()
+            if not row:
+                return
+            used, limit = row
+            if used > 0:
+                cur.execute(f"UPDATE {schema}.users SET requests_used = requests_used - 1 WHERE id = %s", (user_id,))
+            else:
+                cur.execute(f"UPDATE {schema}.users SET energy_balance = energy_balance + 1 WHERE id = %s", (user_id,))
+            conn.commit()
+    except Exception:
+        pass
+    finally:
+        conn.close()
+
 def send_low_balance_email(to_email: str, remaining: int):
     """Отправляет предупреждение о заканчивающихся AI-запросах."""
     smtp_password = os.environ.get('SMTP_PASSWORD')
@@ -246,13 +272,46 @@ def handler(event: dict, context) -> dict:
     messages = body.get('messages', [])
     project_id = body.get('project_id')
     model_choice = body.get('model', 'claude')
+    current_html = body.get('current_html', '')
 
     if not messages:
         return err('Нет сообщений')
 
     project_images = get_project_images(project_id, user_id, schema)
     system_prompt = build_system_prompt(project_images)
-    chat_messages = [{'role': m.get('role', 'user'), 'content': m.get('content', '')} for m in messages]
+
+    # Обрезаем последнюю команду пользователя на случай, если вставлен огромный текст/код
+    MAX_MESSAGE_CHARS = 6000
+    last_user_content = (messages[-1].get('content', '') or '')[:MAX_MESSAGE_CHARS]
+
+    # КЛЮЧЕВОЙ МОМЕНТ: если сайт уже сгенерирован ранее — это ПРАВКА существующего кода.
+    # Передаём модели текущий HTML напрямую + только новую команду, вместо всей истории чата.
+    # Это одинаково важно для всех моделей (Claude/GPT-4o/Gemini):
+    #   1) Модель видит реальный текущий код и точно знает, что менять — правки не "теряются"
+    #      и не переписывают весь сайт заново по догадке
+    #   2) Запрос остаётся компактным независимо от длины переписки — не растёт с каждой правкой,
+    #      что радикально снижает время ответа и риск таймаута на длинных диалогах
+    MAX_HTML_CHARS = 40000
+    if current_html:
+        html_for_prompt = current_html[:MAX_HTML_CHARS]
+        edit_instruction = f"""Вот текущий HTML-код сайта:
+```html
+{html_for_prompt}
+```
+
+Задача пользователя: {last_user_content}
+
+Внеси только запрошенное изменение, сохрани всё остальное содержимое и структуру без изменений. Верни ПОЛНЫЙ обновлённый HTML-документ целиком (не фрагмент, не diff)."""
+        chat_messages = [{'role': 'user', 'content': edit_instruction}]
+    else:
+        # Первая генерация — ограничиваем историю на случай, если пользователь уже писал
+        # несколько сообщений до получения первого сайта (редкий случай, но подстрахуемся)
+        MAX_HISTORY_MESSAGES = 8
+        trimmed = messages if len(messages) <= MAX_HISTORY_MESSAGES else [messages[0]] + messages[-(MAX_HISTORY_MESSAGES - 1):]
+        chat_messages = [
+            {'role': m.get('role', 'user'), 'content': (m.get('content', '') or '')[:MAX_MESSAGE_CHARS]}
+            for m in trimmed
+        ]
 
     OPENROUTER_MODELS = {
         'gpt-4o': 'openai/gpt-4o',
@@ -284,22 +343,30 @@ def handler(event: dict, context) -> dict:
         method='POST'
     )
 
+    # Таймаут внутреннего запроса к OpenRouter выставлен с запасом под лимит самой облачной
+    # функции: если функция обрывается раньше (например на 30-й секунде), важно хотя бы
+    # успеть вернуть пользователю списанный запрос при следующем обращении — см. refund_quota ниже.
     try:
-        with urllib.request.urlopen(req, timeout=60) as response:
+        with urllib.request.urlopen(req, timeout=25) as response:
             result = json.loads(response.read().decode('utf-8'))
     except urllib.error.HTTPError as e:
+        refund_quota(user_id, schema)
         return err(f'OpenRouter API error {e.code}', 502)
     except urllib.error.URLError:
+        refund_quota(user_id, schema)
         return err('OpenRouter API недоступен. Попробуйте позже.', 503)
     except (json.JSONDecodeError, Exception):
+        refund_quota(user_id, schema)
         return err('Неверный ответ от OpenRouter.', 502)
 
     choices = result.get('choices') or []
     if not choices:
+        refund_quota(user_id, schema)
         return err('AI вернул пустой ответ.', 502)
 
     html = (choices[0].get('message', {}).get('content') or '').strip()
     if not html:
+        refund_quota(user_id, schema)
         return err('AI вернул пустой HTML.', 502)
 
     usage = result.get('usage', {})

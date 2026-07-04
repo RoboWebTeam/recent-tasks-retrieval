@@ -99,6 +99,30 @@ def check_and_consume_quota(user_id: int, schema: str):
         conn.close()
 
 
+def refund_quota(user_id: int, schema: str):
+    """Возвращает списанный запрос, если генерация изображения не удалась."""
+    conn = get_conn()
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                f"SELECT requests_used FROM {schema}.users WHERE id = %s FOR UPDATE",
+                (user_id,)
+            )
+            row = cur.fetchone()
+            if not row:
+                return
+            used = row[0]
+            if used > 0:
+                cur.execute(f"UPDATE {schema}.users SET requests_used = requests_used - 1 WHERE id = %s", (user_id,))
+            else:
+                cur.execute(f"UPDATE {schema}.users SET energy_balance = energy_balance + 1 WHERE id = %s", (user_id,))
+            conn.commit()
+    except Exception:
+        pass
+    finally:
+        conn.close()
+
+
 def save_file(user_id: int, project_id, file_name: str, file_key: str, cdn_url: str, size: int, schema: str):
     conn = get_conn()
     try:
@@ -172,23 +196,28 @@ def handler(event: dict, context) -> dict:
     )
 
     try:
-        with urllib.request.urlopen(req, timeout=60) as response:
+        with urllib.request.urlopen(req, timeout=25) as response:
             result = json.loads(response.read().decode('utf-8'))
     except urllib.error.HTTPError as e:
         detail = e.read().decode('utf-8', errors='ignore')
+        refund_quota(user_id, schema)
         return err(f'Ошибка OpenRouter: {detail[:200]}', 502)
     except urllib.error.URLError:
+        refund_quota(user_id, schema)
         return err('OpenRouter API недоступен. Попробуйте позже.', 503)
     except (json.JSONDecodeError, Exception):
+        refund_quota(user_id, schema)
         return err('Неверный ответ от OpenRouter.', 502)
 
     choices = result.get('choices') or []
     images = choices[0].get('message', {}).get('images') if choices else None
     if not images or not images[0].get('image_url', {}).get('url'):
+        refund_quota(user_id, schema)
         return err('Модель не вернула изображение.', 502)
 
     data_url = images[0]['image_url']['url']
     if ',' not in data_url:
+        refund_quota(user_id, schema)
         return err('Некорректный формат изображения от модели.', 502)
 
     img_bytes = base64.b64decode(data_url.split(',', 1)[1])

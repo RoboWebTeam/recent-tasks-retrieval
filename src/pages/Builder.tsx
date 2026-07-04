@@ -306,6 +306,9 @@ export default function Builder() {
           messages: newMessages.map(m => ({ role: m.role, content: m.content })),
           project_id: projectId,
           model: aiModel,
+          // Передаём текущий HTML сайта — модель правит именно его, а не пытается
+          // восстановить состояние сайта по истории текстовых команд
+          current_html: html || undefined,
         }),
       });
 
