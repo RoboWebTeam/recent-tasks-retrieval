@@ -14,13 +14,20 @@ import { apiUrl } from '@/lib/apiConfig';
 const GENERATE_URL = apiUrl('generate-site');
 
 /** Повторяет запрос генерации при временной недоступности AI-сервиса (502/503), с нарастающей паузой.
- * Реальный статус может быть внутри JSON-тела (raw.statusCode), а не только в res.status. */
+ * Реальный статус может быть внутри JSON-тела (raw.statusCode), а не только в res.status.
+ * Таймаут (504) НЕ повторяем — повторный запрос с тем же сложным промптом, скорее всего, снова упрётся
+ * в лимит времени, а пользователь будет ждать без результата. Вместо этого сразу показываем понятную ошибку.
+ * Ответ 504 от прокси-сервера может не быть валидным JSON — обрабатываем это безопасно. */
 async function fetchWithAiRetry(url: string, options: RequestInit, maxRetries = 2, delayMs = 1500): Promise<{ res: Response; raw: Record<string, unknown> }> {
   let res: Response;
   let raw: Record<string, unknown>;
   for (let attempt = 0; attempt <= maxRetries; attempt++) {
     res = await fetch(url, options);
-    raw = await res.json();
+    try {
+      raw = await res.json();
+    } catch {
+      raw = { statusCode: res.status, error: 'TIMEOUT_OR_INVALID_RESPONSE' };
+    }
     const statusCode = typeof raw.statusCode === 'number' ? raw.statusCode : res.status;
     const isRetryable = statusCode === 502 || statusCode === 503;
     if (!isRetryable || attempt === maxRetries) return { res, raw };
@@ -321,7 +328,9 @@ export default function Builder() {
               : 'Top up energy or upgrade your plan to keep generating.',
           });
         }
-        const friendlyError = statusCode === 502 || statusCode === 503
+        const friendlyError = statusCode === 504
+          ? tr('builderTimeout', lang)
+          : statusCode === 502 || statusCode === 503
           ? tr('builderAiUnavailable', lang)
           : (data as { error?: string }).error || tr('builderError', lang);
         setMessages(prev => {
