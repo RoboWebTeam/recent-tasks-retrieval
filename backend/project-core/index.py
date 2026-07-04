@@ -56,7 +56,11 @@ def handler(event: dict, context) -> dict:
     params = event.get('queryStringParameters') or {}
     resource = params.get('resource', '')
     project_id = params.get('project_id')
-    body = json.loads(event.get('body') or '{}')
+    # Тело парсим безопасно — битый JSON не должен ронять функцию с 500-й ошибкой.
+    try:
+        body = json.loads(event.get('body') or '{}')
+    except (json.JSONDecodeError, TypeError):
+        return err('Некорректный формат данных запроса', 400)
 
     if not project_id:
         project_id = body.get('project_id')
@@ -92,6 +96,9 @@ def handler(event: dict, context) -> dict:
                         return err('Имя ключа: только латинские буквы, цифры и подчёркивание')
                     if not key_value:
                         return err('Укажите значение секрета')
+                    # Ограничение длины — защита от перегрузки БД слишком большим значением.
+                    if len(str(key_value)) > 10000:
+                        return err('Значение секрета слишком длинное (макс. 10000 символов)')
                     cur.execute(
                         f"""INSERT INTO {schema}.project_secrets (project_id, user_id, key_name, key_value)
                             VALUES (%s, %s, %s, %s)
@@ -139,6 +146,8 @@ def handler(event: dict, context) -> dict:
                         return err('Имя таблицы: только латинские буквы, цифры и подчёркивание')
                     if not isinstance(columns, list) or not columns:
                         return err('Укажите хотя бы одну колонку')
+                    if len(columns) > 50:
+                        return err('Слишком много колонок (макс. 50)')
                     for c in columns:
                         if not isinstance(c, dict) or not valid_identifier(c.get('name', '')):
                             return err(f'Некорректное имя колонки: {c}')
@@ -208,6 +217,8 @@ def handler(event: dict, context) -> dict:
                     data = body.get('data') or {}
                     if not row_id:
                         return err('Укажите id строки')
+                    if not isinstance(data, dict):
+                        return err('data должно быть объектом')
                     cur.execute(
                         f"""UPDATE {schema}.project_db_rows SET data = %s, updated_at = NOW()
                             WHERE id = %s AND table_id = %s RETURNING id, data, created_at, updated_at""",
@@ -234,5 +245,10 @@ def handler(event: dict, context) -> dict:
 
             return err('Неизвестный resource. Ожидается: secrets, tables, rows')
 
+    except Exception:
+        # Любая ошибка БД/логики — откатываем транзакцию, чтобы не оставить её «битой»,
+        # и возвращаем понятный ответ вместо голого 500.
+        conn.rollback()
+        return err('Ошибка обработки запроса. Попробуйте ещё раз.', 500)
     finally:
         conn.close()
