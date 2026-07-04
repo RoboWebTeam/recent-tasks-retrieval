@@ -1,11 +1,17 @@
 import os
 import json
 import uuid
+import secrets
 import bcrypt
 import psycopg2
 import urllib.request
 import urllib.parse
 from datetime import datetime, timedelta
+
+
+def new_session_id() -> str:
+    """Криптостойкий сессионный токен (256 бит энтропии) — надёжнее uuid4 для токенов доступа."""
+    return secrets.token_urlsafe(32)
 
 SCHEMA = None
 
@@ -133,7 +139,10 @@ def handler(event: dict, context) -> dict:
         return {'statusCode': 200, 'headers': cors_headers(), 'body': ''}
 
     method = event.get('httpMethod', 'GET')
-    body = json.loads(event.get('body') or '{}')
+    try:
+        body = json.loads(event.get('body') or '{}')
+    except (json.JSONDecodeError, TypeError):
+        return err('Некорректный формат данных запроса', 400)
     headers = {k.lower(): v for k, v in (event.get('headers') or {}).items()}
     schema = get_schema()
     ip = ((event.get('requestContext') or {}).get('identity') or {}).get('sourceIp', 'unknown')
@@ -169,7 +178,7 @@ def handler(event: dict, context) -> dict:
                         (email, hash_password(password), name, PLAN_LIMITS['free'], STARTER_ENERGY)
                     )
                     user_id = cur.fetchone()[0]
-                    session_id = str(uuid.uuid4())
+                    session_id = new_session_id()
                     cur.execute(
                         f"INSERT INTO {schema}.sessions (id, user_id) VALUES (%s, %s)",
                         (session_id, user_id)
@@ -211,7 +220,7 @@ def handler(event: dict, context) -> dict:
                             (new_hash, user_id)
                         )
 
-                    session_id = str(uuid.uuid4())
+                    session_id = new_session_id()
                     cur.execute(
                         f"INSERT INTO {schema}.sessions (id, user_id) VALUES (%s, %s)",
                         (session_id, user_id)
@@ -293,7 +302,7 @@ def handler(event: dict, context) -> dict:
                         (access_token, gh_login, user_id)
                     )
 
-                    session_id = str(uuid.uuid4())
+                    session_id = new_session_id()
                     cur.execute(
                         f"INSERT INTO {schema}.sessions (id, user_id) VALUES (%s, %s)",
                         (session_id, user_id)
@@ -418,7 +427,7 @@ def handler(event: dict, context) -> dict:
                         user_id = cur.fetchone()[0]
                         name, plan = ya_name, 'free'
 
-                    session_id = str(uuid.uuid4())
+                    session_id = new_session_id()
                     cur.execute(
                         f"INSERT INTO {schema}.sessions (id, user_id) VALUES (%s, %s)",
                         (session_id, user_id)
@@ -437,6 +446,8 @@ def handler(event: dict, context) -> dict:
                 return err('Не авторизован', 401)
             old_password = body.get('old_password', '')
             new_password = body.get('new_password', '')
+            if not old_password:
+                return err('Укажите текущий пароль')
             if len(new_password) < 6:
                 return err('Новый пароль должен быть не менее 6 символов')
 
@@ -453,6 +464,12 @@ def handler(event: dict, context) -> dict:
                     cur.execute(
                         f"UPDATE {schema}.users SET password_hash = %s WHERE id = %s",
                         (hash_password(new_password), user_id)
+                    )
+                    # Безопасность: после смены пароля завершаем ВСЕ остальные сессии пользователя
+                    # (кроме текущей) — если аккаунт был скомпрометирован, чужие входы отключатся.
+                    cur.execute(
+                        f"DELETE FROM {schema}.sessions WHERE user_id = %s AND id != %s",
+                        (user_id, session_id)
                     )
                 conn.commit()
             finally:
