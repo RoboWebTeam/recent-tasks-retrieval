@@ -49,10 +49,11 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return getSession() ? <>{children}</> : <Navigate to="/login" replace />;
 }
 
-// Виджет чата виден везде, кроме админ-панели (там своя вкладка чата)
+// Виджет чата виден везде, кроме админ-панели (там своя вкладка чата) и редактора сайтов
+// (там уже есть чат с AI-ассистентом, второй виджет поддержки только мешает и накладывается)
 function GlobalSupportChat() {
   const location = useLocation();
-  if (location.pathname.startsWith('/admin')) return null;
+  if (location.pathname.startsWith('/admin') || location.pathname.startsWith('/builder')) return null;
   return <SupportChatWidget />;
 }
 
