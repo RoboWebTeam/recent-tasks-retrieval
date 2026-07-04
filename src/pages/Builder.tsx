@@ -553,16 +553,24 @@ export default function Builder() {
   var selected = null;
   var ANY = '*';
 
-  // В превью ссылки не должны навигировать внутри iframe — иначе при клике по ссылке,
-  // ведущей на "/" или другой путь, внутрь превью загружается весь редактор проекта.
-  // Якоря (#section) оставляем рабочими для плавной прокрутки по самому сайту.
+  // В превью ссылки не должны навигировать внутри iframe. Из-за <base href="..."> на
+  // фиктивный домен (см. PREVIEW_BASE в Builder.tsx) даже клик по "#section" браузер может
+  // попытаться резолвить как переход на другой адрес — поэтому обрабатываем якоря вручную
+  // через scrollIntoView, не полагаясь на встроенную навигацию по фрагменту.
   document.addEventListener('click', function(e) {
     var a = e.target && e.target.closest ? e.target.closest('a') : null;
     if (!a) return;
     var href = a.getAttribute('href') || '';
-    if (href.indexOf('#') === 0) return; // якорь — скроллим внутри превью
     e.preventDefault();
     e.stopPropagation();
+    if (href.indexOf('#') === 0 && href.length > 1) {
+      try {
+        var target = document.getElementById(href.slice(1)) || document.querySelector(href);
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } catch(err) {}
+      return;
+    }
+    if (href === '#') return; // ссылка-заглушка ("#") — ничего не делаем
     // Внешние ссылки открываем в новой вкладке родителя, внутренние переходы игнорируем
     if (/^https?:/i.test(href)) {
       try { window.parent.postMessage({ type: 'ROBOWEB_OPEN_LINK', href: href }, '*'); } catch(err) {}
@@ -665,20 +673,29 @@ export default function Builder() {
 })();
 </` + `script>`;
 
+  // КЛЮЧЕВАЯ ЗАЩИТА: <base> с несуществующим доменом. Без него ЛЮБАЯ относительная ссылка
+  // в сгенерированном сайте (href="/", href="/about", переход через форму или JS window.location)
+  // резолвится браузером относительно текущей страницы редактора — то есть в корень roboweb.site —
+  // и iframe (у которого есть allow-same-origin) послушно загружает туда весь проект целиком.
+  // Перехват кликов по <a> отдельно НЕ спасает от переходов через формы/скрипты, поэтому <base>
+  // обязателен: он делает так, что относительный путь ведёт в никуда, а не на настоящий сайт.
+  const PREVIEW_BASE = '<base href="https://preview-sandbox.invalid/">';
+
   // HTML с внедрённым скриптом для режима редактирования
   const htmlWithEditScript = (rawHtml: string) => {
     if (!rawHtml) return rawHtml;
+    const inject = PREVIEW_BASE + EDIT_SCRIPT;
     // Скрипт лучше вставлять внутрь <head> или в начало <body>. Вставка ПЕРЕД <!DOCTYPE>
     // переводит браузер в quirks mode и ломает вёрстку превью — поэтому так не делаем.
     if (/<head[\s>]/i.test(rawHtml)) {
-      return rawHtml.replace(/<head([^>]*)>/i, `<head$1>${EDIT_SCRIPT}`);
+      return rawHtml.replace(/<head([^>]*)>/i, `<head$1>${inject}`);
     }
     if (/<body[\s>]/i.test(rawHtml)) {
-      return rawHtml.replace(/<body([^>]*)>/i, `<body$1>${EDIT_SCRIPT}`);
+      return rawHtml.replace(/<body([^>]*)>/i, `<body$1>${inject}`);
     }
     // Нет ни head, ни body (обрезанный/невалидный HTML) — оборачиваем в корректный документ,
     // чтобы браузер не пытался достроить структуру сам и не показывал артефакты.
-    return `<!DOCTYPE html><html><head>${EDIT_SCRIPT}</head><body>${rawHtml}</body></html>`;
+    return `<!DOCTYPE html><html><head>${inject}</head><body>${rawHtml}</body></html>`;
   };
 
   // Слушаем сообщения от iframe
