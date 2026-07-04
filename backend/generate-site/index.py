@@ -507,16 +507,25 @@ def handler(event: dict, context) -> dict:
     project_id = body.get('project_id')
     model_choice = body.get('model', 'claude')
     current_html = body.get('current_html', '')
+    premium = bool(body.get('premium', False))  # премиум-режим: макс. качество за 50 энергии
 
     if not messages:
         return err('Нет сообщений')
 
-    # Определяем стоимость запроса ДО списания: крупная задача (новый насыщенный сайт —
-    # магазин, лендинг с множеством секций, подробное ТЗ) стоит дороже и генерируется детальнее.
+    # Стоимость запроса ДО списания:
+    #  - обычный: 1 единица
+    #  - крупная задача (магазин, лендинг с множеством секций): 3 единицы
+    #  - ПРЕМИУМ (пользователь явно выбрал макс. качество): 50 единиц — модель получает
+    #    максимум токенов и усиленный промпт на дизайн студийного уровня.
     is_edit = bool(current_html)
     last_user_text = (messages[-1].get('content', '') or '') if messages else ''
     is_large_task = detect_large_task(last_user_text, is_edit)
-    request_cost = 3 if is_large_task else 1
+    if premium:
+        request_cost = 50
+    elif is_large_task:
+        request_cost = 3
+    else:
+        request_cost = 1
 
     allowed, quota_error, remaining = check_and_consume_quota(user_id, schema, request_cost)
     if not allowed:
@@ -607,6 +616,10 @@ def handler(event: dict, context) -> dict:
     # Усиленная генерация (крупная задача): даём модели больше места на детальный сайт.
     if is_large_task:
         max_tokens = 6500 if function_timeout <= 35 else 14000
+    # ПРЕМИУМ: максимум места на детальный дизайн. При 30-сек лимите держим потолок,
+    # чтобы HTML успел дописаться; при увеличенном таймауте — по-настоящему большой сайт.
+    if premium:
+        max_tokens = 7000 if function_timeout <= 35 else 16000
 
     # Установка на КРАСИВЫЙ дизайн для ЛЮБОГО сайта (не только крупного) — чтобы даже простые
     # запросы давали современный «вау»-результат, а не скудную страницу.
@@ -622,6 +635,17 @@ def handler(event: dict, context) -> dict:
             "\n\nЭто КРУПНАЯ задача — сделай максимально насыщенный, детальный и продающий сайт: "
             "больше содержательных секций (6-8), проработанные блоки (преимущества, отзывы, тарифы/каталог, FAQ, форма), "
             "богатая, но аккуратная вёрстка. Всё равно ОБЯЗАТЕЛЬНО закрой все теги и заверши документ на </body></html>."
+        )
+    # ПРЕМИУМ-режим: максимальный упор на премиальный дизайн студийного уровня.
+    if premium:
+        effective_system_prompt += (
+            "\n\nПРЕМИУМ-РЕЖИМ (пользователь выбрал максимальное качество). Сделай сайт уровня "
+            "дорогой дизайн-студии: продуманная фирменная палитра с 2-3 акцентами и градиентами, "
+            "премиальная типографика (пара сочетающихся шрифтов, крупные выразительные заголовки), "
+            "мощная hero-секция с сильным оффером, карточки с мягкими тенями и скруглениями, "
+            "иконки, микроанимации и hover-эффекты, аккуратные отступы и визуальный ритм, "
+            "продуманные CTA-кнопки. Сайт должен выглядеть дорого и вызывать 'вау'. "
+            "Приоритет — красота и завершённость CSS. ОБЯЗАТЕЛЬНО заверши документ на </body></html>."
         )
 
     def call_openrouter(model_id: str):
@@ -753,6 +777,7 @@ def handler(event: dict, context) -> dict:
         'tokens': tokens,
         'remaining': remaining,
         'large_task': is_large_task,
+        'premium': premium,
         'cost': request_cost,
         'intro': meta.get('intro', ''),
         'summary': meta.get('summary', ''),
