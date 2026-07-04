@@ -11,7 +11,7 @@ interface Props {
 export default function GenerationProgress({ lang }: Props) {
   return (
     <div className="flex items-center gap-1.5 py-0.5">
-      <span className="text-muted-foreground text-xs">{tr('builderGenerating', lang)}</span>
+      <span className="text-muted-foreground text-[14px] font-medium">{tr('builderGenerating', lang)}</span>
       <span className="flex gap-1">
         {[0, 1, 2].map(j => (
           <span key={j} className="h-1.5 w-1.5 rounded-full bg-primary animate-bounce" style={{ animationDelay: `${j * 0.15}s` }} />
