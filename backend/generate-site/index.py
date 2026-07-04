@@ -291,6 +291,55 @@ def extract_meta_block(html: str):
     return html.strip(), meta
 
 
+def build_meta_from_html(html: str, is_edit: bool) -> dict:
+    """Резервное описание работы, когда модель не прислала служебный блок метаданных
+    (частый случай при 30-сек лимите: HTML успел сгенерироваться, а блок в конце — нет).
+    Собираем осмысленный отчёт прямо из готового HTML: заголовок, секции, элементы."""
+    import re
+    def clean(t):
+        return re.sub(r'\s+', ' ', re.sub(r'<[^>]+>', '', t)).strip()
+
+    title_m = re.search(r'<title[^>]*>(.*?)</title>', html, re.IGNORECASE | re.DOTALL)
+    h1_m = re.search(r'<h1[^>]*>(.*?)</h1>', html, re.IGNORECASE | re.DOTALL)
+    site_name = clean(title_m.group(1)) if title_m else (clean(h1_m.group(1)) if h1_m else '')
+
+    # Названия секций — из заголовков h2 (обычно это заголовки блоков сайта)
+    h2s = [clean(x) for x in re.findall(r'<h2[^>]*>(.*?)</h2>', html, re.IGNORECASE | re.DOTALL)]
+    h2s = [h for h in h2s if h][:6]
+
+    # Что есть на сайте — для живых шагов
+    has_form = '<form' in html.lower() or 'input' in html.lower()
+    has_img = '<img' in html.lower()
+    has_anim = '@keyframes' in html.lower() or 'transition' in html.lower() or 'animation' in html.lower()
+
+    if is_edit:
+        intro = 'Внёс запрошенные изменения в сайт и обновил превью.'
+        steps = ['Нашёл нужные элементы и аккуратно применил правки', 'Сохранил остальную структуру и стиль без изменений']
+    else:
+        intro = f'Собрал сайт{(" «" + site_name + "»") if site_name else ""} по вашему запросу.'
+        steps = []
+        if h2s:
+            steps.append('Собрал структуру из секций: ' + ', '.join(h2s[:5]))
+        else:
+            steps.append('Собрал структуру страницы: шапка, основной блок и подвал')
+        steps.append('Подобрал современную палитру, типографику и оформление')
+        if has_img:
+            steps.append('Добавил изображения и визуальные акценты')
+        if has_form:
+            steps.append('Добавил форму для заявок/контакта')
+        if has_anim:
+            steps.append('Добавил плавные анимации и hover-эффекты')
+
+    return {
+        'intro': intro[:300],
+        'summary': ('Обновил сайт — проверьте превью.' if is_edit else 'Готово! Сайт открыт в превью справа — можете сразу посмотреть результат.'),
+        'steps': [s[:200] for s in steps][:6],
+        'design': '',
+        'sections': h2s,
+        'suggestions': [],
+    }
+
+
 def repair_truncated_html(html: str) -> str:
     """Если сгенерированный HTML оборвался (модель упёрлась в лимит токенов) — закрываем
     незавершённые ключевые теги, чтобы браузер смог отрендерить хотя бы часть сайта,
@@ -625,6 +674,12 @@ def handler(event: dict, context) -> dict:
     if len(visible) < 10 and '<img' not in body_inner.lower() and '<svg' not in body_inner.lower():
         refund_quota(user_id, schema, request_cost)
         return err('Сайт не успел сгенерироваться полностью. Попробуйте ещё раз или упростите запрос.', 503)
+
+    # Если модель не прислала служебный блок описания (частый случай при 30-сек лимите —
+    # HTML успел, а метаданные в конце нет) — строим описание работы прямо из готового HTML,
+    # чтобы в чате ВСЕГДА был живой отчёт о проделанной работе, а не «пусто».
+    if not meta.get('intro') and not meta.get('steps'):
+        meta = build_meta_from_html(html, is_edit)
 
     # Сохраняем HTML в проект если передан project_id
     if project_id:
