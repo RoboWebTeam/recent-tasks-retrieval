@@ -464,7 +464,7 @@ def handler(event: dict, context) -> dict:
         'gpt-4o': 'openai/gpt-4o-mini',
         'claude': 'anthropic/claude-haiku-4.5',
         'gemini': 'google/gemini-2.5-flash',
-        'opus': 'anthropic/claude-opus-4.8',
+        'opus': 'anthropic/claude-opus-4-8',
         'sonnet': 'anthropic/claude-sonnet-5',
     }
     model_name = OPENROUTER_MODELS.get(model_choice, OPENROUTER_MODELS['gemini'])
@@ -515,52 +515,79 @@ def handler(event: dict, context) -> dict:
             "богатая, но аккуратная вёрстка. Всё равно ОБЯЗАТЕЛЬНО закрой все теги и заверши документ на </body></html>."
         )
 
-    payload = json.dumps({
-        'model': model_name,
-        'messages': [{'role': 'system', 'content': effective_system_prompt}] + chat_messages,
-        'max_tokens': max_tokens,
-        'temperature': 0.7,
-        # Отключаем режим "рассуждения" (reasoning/thinking) — у Gemini 2.5 Flash он включён
-        # по умолчанию и тратит много времени на размышления ДО ответа. Для генерации HTML
-        # он не нужен — важна скорость выдачи кода. effort=low минимизирует задержку.
-        'reasoning': {'effort': 'low', 'exclude': True},
-    }).encode('utf-8')
+    def call_openrouter(model_id: str):
+        """Один вызов OpenRouter. Возвращает (result_dict | None, error_info).
+        error_info = None при успехе, иначе (http_code, текст_причины)."""
+        payload = json.dumps({
+            'model': model_id,
+            'messages': [{'role': 'system', 'content': effective_system_prompt}] + chat_messages,
+            'max_tokens': max_tokens,
+            'temperature': 0.7,
+            'reasoning': {'effort': 'low', 'exclude': True},
+        }).encode('utf-8')
+        req = urllib.request.Request(
+            'https://openrouter.ai/api/v1/chat/completions',
+            data=payload,
+            headers={
+                'Content-Type': 'application/json',
+                'Authorization': f'Bearer {api_key}',
+                'HTTP-Referer': 'https://roboweb.site',
+                'X-Title': 'Roboweb',
+            },
+            method='POST'
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=ai_timeout) as response:
+                res = json.loads(response.read().decode('utf-8'))
+        except urllib.error.HTTPError as e:
+            try:
+                body = e.read().decode('utf-8')
+            except Exception:
+                body = ''
+            print(f'OpenRouter HTTPError {e.code} for model={model_id}: {body[:500]}')
+            return None, (e.code, body)
+        except (urllib.error.URLError, TimeoutError, socket.timeout) as e:
+            print(f'OpenRouter network error for model={model_id}: {repr(e)[:200]}')
+            return None, ('network', repr(e))
+        except (json.JSONDecodeError, Exception) as e:
+            print(f'OpenRouter parse error for model={model_id}: {repr(e)[:200]}')
+            return None, ('parse', repr(e))
+        # HTTP 200, но с ошибкой в теле (модель упала на стороне провайдера)
+        if isinstance(res, dict) and res.get('error'):
+            api_err = res.get('error')
+            msg = api_err.get('message') if isinstance(api_err, dict) else str(api_err)
+            print(f'OpenRouter body error for model={model_id}: {str(msg)[:500]}')
+            return None, ('body', str(msg))
+        return res, None
 
-    req = urllib.request.Request(
-        'https://openrouter.ai/api/v1/chat/completions',
-        data=payload,
-        headers={
-            'Content-Type': 'application/json',
-            'Authorization': f'Bearer {api_key}',
-            'HTTP-Referer': 'https://roboweb.site',
-            'X-Title': 'Roboweb',
-        },
-        method='POST'
-    )
+    # Основной вызов. Если выбранная модель упала из-за проблемы С МОДЕЛЬЮ (недоступна/битый ответ) —
+    # автоматически повторяем на быстром Gemini, чтобы пользователь всё равно получил сайт.
+    result, error_info = call_openrouter(model_name)
 
-    # Таймаут внутреннего запроса к OpenRouter вычислен из бюджета функции (ai_timeout).
-    # Он ГАРАНТИРОВАННО меньше лимита функции — поэтому если AI отвечает слишком долго,
-    # мы САМИ прерываем ожидание, возвращаем списанный запрос (refund_quota) и отдаём
-    # понятную ошибку 504, а не получаем жёсткий обрыв функции платформой.
-    try:
-        with urllib.request.urlopen(req, timeout=ai_timeout) as response:
-            result = json.loads(response.read().decode('utf-8'))
-    except urllib.error.HTTPError as e:
-        refund_quota(user_id, schema, request_cost)
-        return err(f'OpenRouter API error {e.code}', 502)
-    except (urllib.error.URLError, TimeoutError, socket.timeout) as e:
-        refund_quota(user_id, schema, request_cost)
-        # Таймаут ожидания ответа от AI — отдаём 504, фронтенд покажет понятный текст.
-        if isinstance(e, urllib.error.URLError) and not isinstance(getattr(e, 'reason', None), (TimeoutError, socket.timeout)):
-            return err('OpenRouter API недоступен. Попробуйте позже.', 503)
-        return err('AI не успел ответить вовремя. Упростите запрос или выберите другую модель.', 504)
-    except (json.JSONDecodeError, Exception):
-        refund_quota(user_id, schema, request_cost)
-        return err('Неверный ответ от OpenRouter.', 502)
+    if error_info is not None:
+        code, detail = error_info
+        # Сетевой таймаут — не тот случай для фолбэка, честно сообщаем.
+        if code == 'network':
+            refund_quota(user_id, schema, request_cost)
+            return err('AI не успел ответить вовремя. Упростите запрос или выберите другую модель.', 504)
+        # Нет средств на OpenRouter — фолбэк не поможет.
+        if code == 402:
+            refund_quota(user_id, schema, request_cost)
+            return err('На балансе OpenRouter закончились средства. Пополните счёт OpenRouter.', 502)
+        # Проблема с моделью или её ответом — пробуем запасной Gemini (если ещё не он).
+        fallback = OPENROUTER_MODELS['gemini']
+        if model_name != fallback:
+            print(f'Fallback to {fallback} after error {code} on {model_name}')
+            result, error_info = call_openrouter(fallback)
+
+        if error_info is not None:
+            refund_quota(user_id, schema, request_cost)
+            return err('AI-сервис временно недоступен. Попробуйте через минуту или выберите другую модель.', 502)
 
     choices = result.get('choices') or []
     if not choices:
         refund_quota(user_id, schema, request_cost)
+        print(f'OpenRouter empty choices: {json.dumps(result)[:500]}')
         return err('AI вернул пустой ответ.', 502)
 
     html = (choices[0].get('message', {}).get('content') or '').strip()
