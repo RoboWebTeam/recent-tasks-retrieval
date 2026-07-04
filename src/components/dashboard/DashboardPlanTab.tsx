@@ -10,6 +10,8 @@ const ENERGY_PACKAGES = [
   { code: 'small', requests: 10, price: 290 },
   { code: 'medium', requests: 30, price: 690 },
   { code: 'large', requests: 100, price: 1990 },
+  { code: 'xlarge', requests: 200, price: 0 },
+  { code: 'xxlarge', requests: 400, price: 0 },
 ];
 
 interface PlanLabelItem {
@@ -103,7 +105,7 @@ export default function DashboardPlanTab({
             ? 'Когда лимит тарифа заканчивается, дополнительные обращения к AI списываются из энергии.'
             : 'When your plan limit runs out, extra AI requests are deducted from energy.'}
         </p>
-        <div className="grid sm:grid-cols-3 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
           {ENERGY_PACKAGES.map(pkg => (
             <div key={pkg.code} className="rounded-xl border border-border p-4 flex flex-col items-center text-center gap-2">
               <div className="font-display font-black text-xl">{pkg.requests}</div>
