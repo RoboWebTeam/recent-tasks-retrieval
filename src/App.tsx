@@ -21,7 +21,6 @@ const Blog = lazy(() => import("./pages/Blog"));
 const Article = lazy(() => import("./pages/Article"));
 const GithubCallback = lazy(() => import("./pages/GithubCallback"));
 const YandexCallback = lazy(() => import("./pages/YandexCallback"));
-const TelegramCallback = lazy(() => import("./pages/TelegramCallback"));
 const DomainSettings = lazy(() => import("./pages/DomainSettings"));
 const Pricing = lazy(() => import("./pages/Pricing"));
 const OrderStatus = lazy(() => import("./pages/OrderStatus"));
@@ -79,7 +78,6 @@ const App = () => (
             <Route path="/personal-data" element={<PersonalData />} />
             <Route path="/auth/github/callback" element={<GithubCallback />} />
             <Route path="/auth/yandex/callback" element={<YandexCallback />} />
-            <Route path="/auth/telegram/callback" element={<TelegramCallback />} />
 
             {/* Защищённые роуты */}
             <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />

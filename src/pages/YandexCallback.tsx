@@ -22,6 +22,7 @@ export default function YandexCallback() {
         setSession(data.session_id as string);
         storeUser(data.user as Parameters<typeof storeUser>[0]);
         trackGoal(GOALS.OAUTH_YANDEX_SUCCESS);
+        if (data.is_new_user) localStorage.setItem('show_energy_bonus', '1');
         navigate('/dashboard');
       })
       .catch((err: Error) => {

@@ -21,7 +21,6 @@ export const GOALS = {
   LOGIN_SUCCESS: 'login_success',
   OAUTH_GITHUB_SUCCESS: 'oauth_github_success',
   OAUTH_YANDEX_SUCCESS: 'oauth_yandex_success',
-  OAUTH_TELEGRAM_SUCCESS: 'oauth_telegram_success',
   PROJECT_CREATED: 'project_created',
   WEBSITE_GENERATED_FIRST: 'website_generated_first',
   WEBSITE_PUBLISHED: 'website_published',

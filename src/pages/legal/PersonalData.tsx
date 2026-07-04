@@ -32,7 +32,7 @@ export default function PersonalData() {
           <li>full name;</li>
           <li>email address;</li>
           <li>phone number (if provided during payment);</li>
-          <li>data received from third-party authorization services (GitHub, Yandex ID, Telegram): name, email, unique account identifiers, OAuth access tokens;</li>
+          <li>data received from third-party authorization services (GitHub, Yandex ID): name, email, unique account identifiers, OAuth access tokens;</li>
           <li>payment data processed through YooKassa (payment amount, plan, transaction status);</li>
           <li>technical data: IP address, browser and device information, cookies and usage statistics.</li>
         </ul>
@@ -95,7 +95,7 @@ export default function PersonalData() {
         <li>фамилия, имя;</li>
         <li>адрес электронной почты;</li>
         <li>номер телефона (при указании во время оплаты);</li>
-        <li>данные, полученные от сторонних сервисов авторизации (GitHub, Яндекс ID, Telegram): имя, email,
+        <li>данные, полученные от сторонних сервисов авторизации (GitHub, Яндекс ID): имя, email,
           уникальные идентификаторы аккаунта, токены доступа OAuth;</li>
         <li>данные об оплате, обрабатываемые через ЮKassa (сумма платежа, тариф, статус транзакции);</li>
         <li>технические данные: IP-адрес, информация о браузере и устройстве, cookies и статистика использования.</li>

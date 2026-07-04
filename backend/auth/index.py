@@ -275,6 +275,7 @@ def handler(event: dict, context) -> dict:
                 with conn.cursor() as cur:
                     cur.execute(f"SELECT id, name, plan FROM {schema}.users WHERE email = %s", (gh_email,))
                     row = cur.fetchone()
+                    is_new_user = not row
                     if row:
                         user_id, name, plan = row
                     else:
@@ -302,7 +303,7 @@ def handler(event: dict, context) -> dict:
             finally:
                 conn.close()
 
-            return ok({'session_id': session_id, 'user': {'id': user_id, 'email': gh_email, 'name': name, 'plan': plan, 'github_login': gh_login, **(quota or {})}})
+            return ok({'session_id': session_id, 'user': {'id': user_id, 'email': gh_email, 'name': name, 'plan': plan, 'github_login': gh_login, **(quota or {})}, 'is_new_user': is_new_user})
 
         # GITHUB CONNECT — привязка GitHub к уже авторизованному аккаунту (не меняет сессию/email)
         if action == 'github_connect':
@@ -405,6 +406,7 @@ def handler(event: dict, context) -> dict:
                 with conn.cursor() as cur:
                     cur.execute(f"SELECT id, name, plan FROM {schema}.users WHERE email = %s", (ya_email,))
                     row = cur.fetchone()
+                    is_new_user = not row
                     if row:
                         user_id, name, plan = row
                     else:
@@ -426,65 +428,7 @@ def handler(event: dict, context) -> dict:
             finally:
                 conn.close()
 
-            return ok({'session_id': session_id, 'user': {'id': user_id, 'email': ya_email, 'name': name, 'plan': plan, **(quota or {})}})
-
-        # TELEGRAM OAUTH
-        if action == 'telegram_oauth':
-            import hashlib
-            import hmac
-
-            tg_data = body.get('tg_data', {})
-            bot_token = os.environ.get('TELEGRAM_BOT_TOKEN', '')
-
-            # Верификация подписи от Telegram
-            check_hash = tg_data.pop('hash', '')
-            data_check_arr = sorted([f"{k}={v}" for k, v in tg_data.items()])
-            data_check_string = '\n'.join(data_check_arr)
-            secret_key = hashlib.sha256(bot_token.encode()).digest()
-            computed_hash = hmac.new(secret_key, data_check_string.encode(), hashlib.sha256).hexdigest()
-
-            if computed_hash != check_hash:
-                return err('Неверная подпись Telegram', 403)
-
-            # Проверка актуальности данных (не старше 1 часа)
-            auth_date = int(tg_data.get('auth_date', 0))
-            if datetime.utcnow().timestamp() - auth_date > 3600:
-                return err('Данные авторизации устарели', 403)
-
-            tg_id = tg_data.get('id')
-            tg_first = tg_data.get('first_name', '')
-            tg_last = tg_data.get('last_name', '')
-            tg_username = tg_data.get('username', '')
-            tg_name = f"{tg_first} {tg_last}".strip() or tg_username or 'Telegram User'
-            tg_email = f"tg_{tg_id}@roboweb.user"
-
-            conn = get_conn()
-            try:
-                with conn.cursor() as cur:
-                    cur.execute(f"SELECT id, name, plan FROM {schema}.users WHERE email = %s", (tg_email,))
-                    row = cur.fetchone()
-                    if row:
-                        user_id, name, plan = row
-                    else:
-                        cur.execute(
-                            f"""INSERT INTO {schema}.users (email, password_hash, name, requests_limit, energy_balance)
-                                VALUES (%s, %s, %s, %s, %s) RETURNING id""",
-                            (tg_email, hash_password(str(uuid.uuid4())), tg_name, PLAN_LIMITS['free'], STARTER_ENERGY)
-                        )
-                        user_id = cur.fetchone()[0]
-                        name, plan = tg_name, 'free'
-
-                    session_id = str(uuid.uuid4())
-                    cur.execute(
-                        f"INSERT INTO {schema}.sessions (id, user_id) VALUES (%s, %s)",
-                        (session_id, user_id)
-                    )
-                    quota = reset_requests_if_needed(cur, schema, user_id, plan)
-                conn.commit()
-            finally:
-                conn.close()
-
-            return ok({'session_id': session_id, 'user': {'id': user_id, 'email': tg_email, 'name': name, 'plan': plan, **(quota or {})}})
+            return ok({'session_id': session_id, 'user': {'id': user_id, 'email': ya_email, 'name': name, 'plan': plan, **(quota or {})}, 'is_new_user': is_new_user})
 
         # CHANGE PASSWORD
         if action == 'change_password':
