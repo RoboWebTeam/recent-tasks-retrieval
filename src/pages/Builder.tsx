@@ -914,24 +914,6 @@ export default function Builder() {
               #{projectId}
             </span>
           )}
-          {msgCount > 0 && (
-            <span
-              className="hidden md:flex items-center gap-1 text-xs text-muted-foreground shrink-0 whitespace-nowrap"
-              title={lang === 'ru' ? `${msgCount} запросов к AI` : `${msgCount} AI requests`}
-            >
-              <Icon name="MessageSquare" size={11} className="shrink-0" />
-              <span>{msgCount}</span>
-            </span>
-          )}
-          {totalTokens > 0 && (
-            <span
-              className="hidden lg:flex items-center gap-1 text-xs text-muted-foreground shrink-0 whitespace-nowrap"
-              title={lang === 'ru' ? `Использовано ${(totalTokens / 1000).toFixed(1)}k токенов` : `${(totalTokens / 1000).toFixed(1)}k tokens used`}
-            >
-              <Icon name="Cpu" size={11} className="shrink-0" />
-              <span>{(totalTokens / 1000).toFixed(1)}k</span>
-            </span>
-          )}
           {remaining !== null && (
             <Link
               to="/dashboard?tab=plan"
@@ -1096,18 +1078,6 @@ export default function Builder() {
                 <div className="text-sm font-bold text-foreground">Roboweb AI</div>
                 <div className="flex items-center gap-2 mt-0.5">
                   <span className="text-[11px] text-emerald-500 font-medium">● {lang === 'ru' ? 'онлайн' : 'online'}</span>
-                  {msgCount > 0 && (
-                    <>
-                      <span className="text-muted-foreground/50">·</span>
-                      <span className="text-[10px] text-muted-foreground">{msgCount} {lang === 'ru' ? 'сообщ.' : 'msg'}</span>
-                    </>
-                  )}
-                  {totalTokens > 0 && (
-                    <>
-                      <span className="text-muted-foreground/50">·</span>
-                      <span className="text-[10px] text-muted-foreground">{(totalTokens / 1000).toFixed(1)}k tok</span>
-                    </>
-                  )}
                 </div>
               </div>
               {messages.length > 0 && (
