@@ -29,6 +29,7 @@ function TypingLine({ text, animate, onDone, onTick, className }: {
     if (!animate) { onDone(); return; }
     let i = 0;
     const speed = 1;
+    // Скорость печати снижена в 2 раза (интервал 16 → 32 мс) — текст печатается плавнее.
     const timer = setInterval(() => {
       i = Math.min(i + speed, text.length);
       setShown(text.slice(0, i));
@@ -37,7 +38,7 @@ function TypingLine({ text, animate, onDone, onTick, className }: {
         clearInterval(timer);
         if (!doneRef.current) { doneRef.current = true; onDone(); }
       }
-    }, 16);
+    }, 32);
     return () => clearInterval(timer);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -56,9 +57,23 @@ export default function TypingReport(props: Props) {
     animate, onTick, isEdit,
   } = props;
 
-  // Собираем последовательность «этапов» — сколько блоков нужно раскрыть по очереди.
-  // Каждый шаг steps — отдельный этап, чтобы они появлялись один за другим.
-  // stage = индекс текущего раскрываемого блока. Если !animate — показываем всё сразу.
+  // Диалог отправляется частями (фазами), появляющимися по очереди с паузой:
+  //   phase 0 — «Жду ответов...» (короткое ожидание перед показом)
+  //   phase 1 — какой файл читается/создаётся
+  //   phase 2 — подробное описание работы (intro / шаги / итог / дизайн)
+  // Если !animate (старое сообщение из истории) — сразу показываем всё (phase 2).
+  const [phase, setPhase] = useState(animate ? 0 : 2);
+
+  useEffect(() => {
+    if (!animate) return;
+    // Пауза перед показом файла, затем пауза перед подробным описанием.
+    const t1 = setTimeout(() => { setPhase(1); onTick(); }, 700);
+    const t2 = setTimeout(() => { setPhase(2); onTick(); }, 1600);
+    return () => { clearTimeout(t1); clearTimeout(t2); };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  // Собираем последовательность «этапов» подробного описания — блоки раскрываются по очереди.
   const totalStages =
     (intro ? 1 : 0) + steps.length + (summary ? 1 : 0) + (design ? 1 : 0) + 1; // +1 = финальный
 
@@ -73,30 +88,58 @@ export default function TypingReport(props: Props) {
   const designStage = design ? cursor++ : -1;
   const finalStage = cursor;
 
+  // Подробное описание печатается только на 2-й фазе.
+  const detailsAnimate = animate && phase >= 2;
+
+  // ФАЗА 0 — ждём ответов
+  if (phase === 0) {
+    return (
+      <div className="flex items-center gap-2 text-muted-foreground text-[14px] font-medium py-0.5">
+        <span>{lang === 'ru' ? 'Жду ответов' : 'Waiting for response'}</span>
+        <span className="flex gap-1">
+          {[0, 1, 2].map(j => (
+            <span key={j} className="h-1.5 w-1.5 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: `${j * 0.15}s` }} />
+          ))}
+        </span>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-3">
       <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 text-xs font-semibold">
         <Icon name="CheckCircle" size={13} /> {tr('builderReady', lang)}
       </div>
 
-      {/* Файл, с которым работал ИИ — показываем какой именно код был изменён */}
+      {/* ФАЗА 1 — какой файл читается/создаётся */}
       <div className="flex items-center gap-2 text-[12px] text-muted-foreground bg-secondary/60 border border-border rounded-lg px-2.5 py-1.5 w-fit">
         <Icon name={isEdit ? 'FilePenLine' : 'FilePlus2'} fallback="FileCode" size={13} className="text-primary shrink-0" />
         <span className="font-mono">index.html</span>
         <span className="text-muted-foreground/60">
-          {isEdit ? (lang === 'ru' ? 'обновлён' : 'updated') : (lang === 'ru' ? 'создан' : 'created')}
+          {phase < 2
+            ? (lang === 'ru' ? 'читаю…' : 'reading…')
+            : isEdit ? (lang === 'ru' ? 'обновлён' : 'updated') : (lang === 'ru' ? 'создан' : 'created')}
         </span>
       </div>
 
+      {/* ФАЗА 2 — подробное описание работы. До неё показываем индикатор ожидания. */}
+      {phase < 2 && (
+        <div className="flex gap-1 pt-0.5">
+          {[0, 1, 2].map(j => (
+            <span key={j} className="h-1.5 w-1.5 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: `${j * 0.15}s` }} />
+          ))}
+        </div>
+      )}
+
       {/* Вступление */}
-      {intro && stage >= introStage && (
+      {phase >= 2 && intro && stage >= introStage && (
         <p className="text-foreground text-[14px] font-semibold leading-relaxed">
-          <TypingLine text={intro} animate={animate && stage === introStage} onDone={next} onTick={onTick} />
+          <TypingLine text={intro} animate={detailsAnimate && stage === introStage} onDone={next} onTick={onTick} />
         </p>
       )}
 
       {/* Шаги — по одному */}
-      {steps.length > 0 && stage > stepStages[0] - 1 && (
+      {phase >= 2 && steps.length > 0 && stage > stepStages[0] - 1 && (
         <div className="space-y-1.5">
           <p className="text-[11px] text-muted-foreground uppercase tracking-wider font-semibold">
             {lang === 'ru' ? 'Что я сделал' : 'What I did'}
@@ -108,7 +151,7 @@ export default function TypingReport(props: Props) {
                   <span className="grid place-items-center h-4 w-4 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5">
                     <Icon name="Check" size={10} />
                   </span>
-                  <TypingLine text={step} animate={animate && stage === stepStages[i]} onDone={next} onTick={onTick} />
+                  <TypingLine text={step} animate={detailsAnimate && stage === stepStages[i]} onDone={next} onTick={onTick} />
                 </div>
               )
             ))}
@@ -117,27 +160,27 @@ export default function TypingReport(props: Props) {
       )}
 
       {/* Итог */}
-      {summary && stage >= summaryStage && (
+      {phase >= 2 && summary && stage >= summaryStage && (
         <p className="text-foreground text-[14px] font-semibold leading-relaxed">
-          <TypingLine text={summary} animate={animate && stage === summaryStage} onDone={next} onTick={onTick} />
+          <TypingLine text={summary} animate={detailsAnimate && stage === summaryStage} onDone={next} onTick={onTick} />
         </p>
       )}
 
       {/* Дизайн */}
-      {design && stage >= designStage && (
+      {phase >= 2 && design && stage >= designStage && (
         <div className="flex items-start gap-2 text-[14px] font-semibold text-foreground bg-primary/5 border border-primary/15 rounded-lg px-2.5 py-2 leading-relaxed">
           <Icon name="Palette" size={13} className="text-primary shrink-0 mt-0.5" />
-          <TypingLine text={design} animate={animate && stage === designStage} onDone={next} onTick={onTick} />
+          <TypingLine text={design} animate={detailsAnimate && stage === designStage} onDone={next} onTick={onTick} />
         </div>
       )}
 
       {/* Финальный этап */}
-      {stage >= finalStage && !intro && !summary && steps.length === 0 && (
+      {phase >= 2 && stage >= finalStage && !intro && !summary && steps.length === 0 && (
         <p className="text-muted-foreground text-[14px]">{tr('builderReadyDesc', lang)}</p>
       )}
 
-      {/* Индикатор «печатает», пока не дошли до финала */}
-      {animate && stage < finalStage && (
+      {/* Индикатор «печатает», пока не дошли до финала (только на фазе подробного описания) */}
+      {detailsAnimate && stage < finalStage && (
         <div className="flex gap-1 pt-0.5">
           {[0, 1, 2].map(j => (
             <span key={j} className="h-1.5 w-1.5 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: `${j * 0.15}s` }} />
