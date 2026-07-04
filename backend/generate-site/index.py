@@ -401,16 +401,21 @@ def build_meta_from_html(html: str, is_edit: bool) -> dict:
 
         summary = 'Готово! Собрал ' + ('насыщенный ' if n_sections >= 5 else '') + 'современный сайт — он уже открыт в превью справа. Посмотрите, а потом можем вместе его докрутить 🚀'
 
-    # Резервные идеи развития — предлагаем то, чего на сайте ещё НЕТ (для правок не предлагаем,
-    # чтобы не отвлекать от текущей задачи).
-    suggestions = []
-    if not is_edit:
-        if not has_form:
-            suggestions.append({'icon': 'Mail', 'label': 'Форма заявки', 'prompt': 'Добавь форму заявки с полями имя, телефон и кнопкой отправки'})
-        suggestions.append({'icon': 'Star', 'label': 'Блок отзывов', 'prompt': 'Добавь секцию с отзывами клиентов и звёздным рейтингом'})
-        suggestions.append({'icon': 'CreditCard', 'label': 'Цены/тарифы', 'prompt': 'Добавь блок с ценами или тарифами в виде карточек'})
-        suggestions.append({'icon': 'MessageSquare', 'label': 'Раздел FAQ', 'prompt': 'Добавь раздел с частыми вопросами и ответами (FAQ)'})
-        suggestions = suggestions[:4]
+    # Резервные идеи развития — анализируем ГОТОВЫЙ HTML и предлагаем только то, чего в нём
+    # ещё НЕТ. Работает и для создания, и для правок: после каждой правки список подстраивается
+    # под актуальное состояние сайта (уже добавленное больше не предлагается).
+    section_text = ' '.join(h2s).lower() + ' ' + low
+    candidates = [
+        (not has_form, {'icon': 'Mail', 'label': 'Форма заявки', 'prompt': 'Добавь форму заявки с полями имя, телефон и кнопкой отправки'}),
+        (not any(w in section_text for w in ('отзыв', 'review', 'testimonial')), {'icon': 'Star', 'label': 'Блок отзывов', 'prompt': 'Добавь секцию с отзывами клиентов и звёздным рейтингом'}),
+        (not any(w in section_text for w in ('цен', 'тариф', 'price', 'pricing', 'план')), {'icon': 'CreditCard', 'label': 'Цены/тарифы', 'prompt': 'Добавь блок с ценами или тарифами в виде карточек'}),
+        (not any(w in section_text for w in ('faq', 'вопрос', 'question')), {'icon': 'MessageSquare', 'label': 'Раздел FAQ', 'prompt': 'Добавь раздел с частыми вопросами и ответами (FAQ)'}),
+        (n_images == 0, {'icon': 'Image', 'label': 'Галерея фото', 'prompt': 'Добавь красивую галерею изображений в виде сетки'}),
+        (not any(w in section_text for w in ('карт', 'map', 'адрес', 'контакт', 'contact')), {'icon': 'MapPin', 'label': 'Карта и адрес', 'prompt': 'Добавь блок с адресом, картой и контактами'}),
+        (not any(w in section_text for w in ('преимущ', 'benefit', 'почему', 'feature')), {'icon': 'Award', 'label': 'Преимущества', 'prompt': 'Добавь блок с ключевыми преимуществами (4-6 пунктов с иконками)'}),
+        (not any(w in section_text for w in ('команд', 'team', 'о нас', 'about')), {'icon': 'Users', 'label': 'О команде', 'prompt': 'Добавь секцию «О нас» с рассказом о команде'}),
+    ]
+    suggestions = [item for cond, item in candidates if cond][:4]
 
     return {
         'intro': intro[:300],
