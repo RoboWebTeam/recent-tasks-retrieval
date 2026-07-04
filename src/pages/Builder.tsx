@@ -129,7 +129,7 @@ export default function Builder() {
   const [publishError, setPublishError] = useState('');
   const [remaining, setRemaining] = useState<number | null>(null);
   const [quotaExceeded, setQuotaExceeded] = useState(false);
-  const [aiModel, setAiModel] = useState<'claude' | 'gpt-4o'>('claude');
+  const [aiModel, setAiModel] = useState<'claude' | 'gpt-4o' | 'gemini'>('claude');
   const [showModelMenu, setShowModelMenu] = useState(false);
   const [showImageGen, setShowImageGen] = useState(false);
   const [imagePrompt, setImagePrompt] = useState('');
@@ -1087,7 +1087,7 @@ export default function Builder() {
                       className="flex items-center gap-1 h-7 px-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors text-[11px] font-semibold"
                       title={lang === 'ru' ? 'Модель AI' : 'AI model'}>
                       <Icon name="Cpu" size={13} />
-                      <span className="hidden sm:inline">{aiModel === 'gpt-4o' ? 'GPT-4o' : 'Claude'}</span>
+                      <span className="hidden sm:inline">{aiModel === 'gpt-4o' ? 'GPT-4o' : aiModel === 'gemini' ? 'Gemini' : 'Claude'}</span>
                     </button>
                     {showModelMenu && (
                       <div className="absolute bottom-10 left-0 z-50 w-60 bg-secondary border border-border rounded-2xl shadow-2xl p-1.5">
@@ -1107,6 +1107,14 @@ export default function Builder() {
                             hint: lang === 'ru'
                               ? 'Лучше для нестандартного дизайна и творческих идей'
                               : 'Best for bold design and creative concepts',
+                          },
+                          {
+                            id: 'gemini' as const,
+                            label: 'Gemini 2.5 Pro',
+                            desc: lang === 'ru' ? 'Мощный и универсальный' : 'Powerful & versatile',
+                            hint: lang === 'ru'
+                              ? 'Лучше для сложной логики и насыщенных интерфейсов'
+                              : 'Best for complex logic and rich interfaces',
                           },
                         ].map(m => (
                           <button key={m.id}

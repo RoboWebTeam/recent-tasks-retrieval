@@ -257,6 +257,7 @@ def handler(event: dict, context) -> dict:
     OPENROUTER_MODELS = {
         'gpt-4o': 'openai/gpt-4o',
         'claude': 'anthropic/claude-sonnet-4.5',
+        'gemini': 'google/gemini-2.5-pro',
     }
     model_name = OPENROUTER_MODELS.get(model_choice, OPENROUTER_MODELS['claude'])
 
