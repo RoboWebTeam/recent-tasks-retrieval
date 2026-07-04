@@ -6,7 +6,6 @@ import Icon from '@/components/ui/icon';
 import { apiLogin, setSession, storeUser } from '@/lib/auth';
 import { getLang, tr } from '@/lib/i18n';
 import LangSwitcher from '@/components/LangSwitcher';
-import TelegramLoginButton from '@/components/TelegramLoginButton';
 import { trackGoal, GOALS } from '@/lib/analytics';
 
 const Login = () => {
@@ -146,14 +145,6 @@ const Login = () => {
               <div className="h-px flex-1 bg-border" />
               <span className="text-xs text-muted-foreground shrink-0">{lang === 'ru' ? 'или войдите через' : 'or continue with'}</span>
               <div className="h-px flex-1 bg-border" />
-            </div>
-
-            {/* Telegram — официальный виджет */}
-            <div className="mb-3">
-              <TelegramLoginButton
-                botUsername="roboweb_bot"
-                authUrl={`${window.location.origin}/auth/telegram/callback`}
-              />
             </div>
 
             <div className="grid grid-cols-2 gap-3">
