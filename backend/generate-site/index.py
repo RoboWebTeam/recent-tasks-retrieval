@@ -30,7 +30,15 @@ SYSTEM_PROMPT = """Ты — профессиональный веб-разраб
 14. <meta charset="UTF-8">
 15. <meta property="og:title">, <meta property="og:description">, <meta property="og:type" content="website"> — синхронизированы с title/description
 16. Если на сайте есть подходящее изображение (логотип, hero-картинка) — добавь <meta property="og:image" content="...">
-17. Один <h1> на странице, отражающий главный оффер, остальные заголовки — <h2>/<h3> по иерархии"""
+17. Один <h1> на странице, отражающий главный оффер, остальные заголовки — <h2>/<h3> по иерархии
+
+ОБЯЗАТЕЛЬНО: В САМОМ НАЧАЛЕ ответа, ПЕРЕД <!DOCTYPE html>, добавь ОДНУ строку — служебный блок метаданных строго в таком формате (валидный JSON внутри):
+<!--ROBOWEB_META:{"summary":"...","sections":["...","..."],"suggestions":[{"icon":"Star","label":"...","prompt":"..."}]}-->
+Где:
+- summary — 1-2 живых предложения от первого лица о том, что ты сделал (например: "Собрал лендинг для кофейни с меню, галереей и формой заказа. Использовал тёплую бежевую палитру и крупные фото."). Пиши на языке пользователя, дружелюбно, конкретно.
+- sections — массив из 3-5 коротких названий секций/блоков, которые есть на созданном сайте (например: "Шапка с меню", "Hero-баннер", "Услуги", "Отзывы", "Контакты").
+- suggestions — массив из 3-4 УМЕСТНЫХ именно для этого сайта идей улучшений. Каждая: icon (имя иконки lucide: Star, Phone, Calendar, MessageSquare, MapPin, ShoppingCart, Image, Users, Award, Mail, CreditCard, Clock), label (2-4 слова, что добавить), prompt (готовая команда для меня, чтобы это добавить). Предлагай функциональные вещи: онлайн-запись, форма заявки, галерея, блок цен, отзывы, карта, FAQ и т.п. — в зависимости от типа сайта.
+Сразу после этой строки идёт <!DOCTYPE html> и далее полный HTML-документ. Этот блок — служебный, НЕ часть видимой страницы. Больше никакого текста и markdown."""
 
 def get_project_images(project_id, user_id: int, schema: str):
     """Возвращает список изображений, загруженных пользователем в хранилище проекта (раздел Ядро)."""
@@ -220,6 +228,36 @@ def maybe_notify_low_balance(user_id: int, remaining: int, schema: str):
         conn.close()
 
 
+def extract_meta_block(html: str):
+    """Извлекает служебный блок <!--ROBOWEB_META:{...}--> с описанием и предложениями улучшений.
+    Возвращает (html_без_блока, dict_метаданных). Если блока нет или он битый — вернёт пустой dict."""
+    import re
+    meta = {}
+    m = re.search(r'<!--\s*ROBOWEB_META:(\{.*?\})\s*-->', html, re.DOTALL)
+    if m:
+        try:
+            parsed = json.loads(m.group(1))
+            if isinstance(parsed, dict):
+                meta = {
+                    'summary': str(parsed.get('summary', ''))[:500],
+                    'sections': [str(s)[:60] for s in (parsed.get('sections') or [])][:6],
+                    'suggestions': [
+                        {
+                            'icon': str(s.get('icon', 'Sparkles'))[:30],
+                            'label': str(s.get('label', ''))[:40],
+                            'prompt': str(s.get('prompt', ''))[:300],
+                        }
+                        for s in (parsed.get('suggestions') or [])
+                        if isinstance(s, dict) and s.get('label') and s.get('prompt')
+                    ][:4],
+                }
+        except (json.JSONDecodeError, Exception):
+            meta = {}
+        # Убираем блок из HTML в любом случае, чтобы он не отображался
+        html = html[:m.start()] + html[m.end():]
+    return html.strip(), meta
+
+
 def extract_meta_description(html: str) -> str:
     """Достаёт человекочитаемое описание сайта: сперва meta description, потом title, иначе — обрезок текста без тегов."""
     import re
@@ -384,7 +422,12 @@ def handler(event: dict, context) -> dict:
     usage = result.get('usage', {})
     tokens = usage.get('prompt_tokens', 0) + usage.get('completion_tokens', 0)
 
+    # Сначала извлекаем служебный блок метаданных (описание + предложения) и убираем его из HTML.
+    # Делаем это ДО очистки markdown, т.к. блок стоит в начале ответа и не должен пострадать.
+    html, meta = extract_meta_block(html)
+
     # Убираем markdown-обёртку если есть
+    html = html.strip()
     if html.startswith('```'):
         lines = html.split('\n')
         html = '\n'.join(lines[1:-1] if lines[-1] == '```' else lines[1:])
@@ -393,4 +436,11 @@ def handler(event: dict, context) -> dict:
     if project_id:
         save_html(int(project_id), html, schema)
 
-    return ok({'html': html, 'tokens': tokens, 'remaining': remaining})
+    return ok({
+        'html': html,
+        'tokens': tokens,
+        'remaining': remaining,
+        'summary': meta.get('summary', ''),
+        'sections': meta.get('sections', []),
+        'suggestions': meta.get('suggestions', []),
+    })

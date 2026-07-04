@@ -37,6 +37,12 @@ async function fetchWithAiRetry(url: string, options: RequestInit, maxRetries = 
   return { res: res!, raw: raw! };
 }
 
+interface Suggestion {
+  icon: string;
+  label: string;
+  prompt: string;
+}
+
 interface Message {
   role: 'user' | 'assistant';
   content: string;
@@ -44,6 +50,12 @@ interface Message {
   tokens?: number;
   /** true — этот пустой ответ ассистента относится к правке существующего сайта, а не к генерации с нуля */
   isEdit?: boolean;
+  /** Живое описание от ИИ: что именно он сделал */
+  summary?: string;
+  /** Список секций/блоков, которые есть на созданном сайте */
+  sections?: string[];
+  /** Персональные предложения улучшений именно для этого сайта */
+  suggestions?: Suggestion[];
 }
 
 interface Version {
@@ -414,6 +426,10 @@ export default function Builder() {
       setRightTab('preview');
       setIframeKey(k => k + 1);
 
+      const summary = (data as { summary?: string }).summary || '';
+      const sections = Array.isArray((data as { sections?: string[] }).sections) ? (data as { sections: string[] }).sections : [];
+      const suggestions = Array.isArray((data as { suggestions?: Suggestion[] }).suggestions) ? (data as { suggestions: Suggestion[] }).suggestions : [];
+
       setMessages(prev => {
         const updated = [...prev];
         updated[updated.length - 1] = {
@@ -421,6 +437,9 @@ export default function Builder() {
           content: generatedHtml ? tr('builderDone', lang) : (data as { message?: string }).message || tr('builderError', lang),
           isHtml: !!generatedHtml,
           tokens,
+          summary,
+          sections,
+          suggestions,
         };
         return updated;
       });
@@ -1061,15 +1080,36 @@ export default function Builder() {
                         {m.role === 'assistant' && m.content === '' ? (
                           <GenerationProgress lang={lang} isEdit={!!m.isEdit} />
                         ) : m.isHtml ? (
-                          <div className="space-y-2.5">
+                          <div className="space-y-3">
                             <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 text-xs font-semibold">
                               <Icon name="CheckCircle" size={13} /> {tr('builderReady', lang)}
                             </div>
-                            <p className="text-muted-foreground text-xs">{tr('builderReadyDesc', lang)}</p>
-                            {m.tokens && m.tokens > 0 && (
-                              <p className="text-[10px] text-muted-foreground">{m.tokens.toLocaleString()} tokens</p>
+
+                            {/* Живое описание от ИИ: что именно сделано */}
+                            {m.summary ? (
+                              <p className="text-foreground text-[13px] leading-relaxed">{m.summary}</p>
+                            ) : (
+                              <p className="text-muted-foreground text-xs">{tr('builderReadyDesc', lang)}</p>
                             )}
-                            <div className="flex gap-2 mt-3 pt-2.5 border-t border-border">
+
+                            {/* Список секций на сайте */}
+                            {m.sections && m.sections.length > 0 && (
+                              <div>
+                                <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold mb-1.5">
+                                  {lang === 'ru' ? 'На сайте есть' : 'On the site'}
+                                </p>
+                                <div className="flex flex-wrap gap-1.5">
+                                  {m.sections.map((s, si) => (
+                                    <span key={si} className="flex items-center gap-1 text-[11px] text-foreground bg-background border border-border px-2 py-1 rounded-lg">
+                                      <Icon name="Check" size={10} className="text-emerald-500 shrink-0" />
+                                      {s}
+                                    </span>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            <div className="flex gap-2 pt-2.5 border-t border-border">
                               <button onClick={() => setRightTab('preview')}
                                 className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 font-semibold bg-primary/10 hover:bg-primary/20 px-2.5 py-1.5 rounded-lg transition-colors">
                                 <Icon name="Eye" size={11} /> {tr('builderPreview', lang)}
@@ -1083,23 +1123,33 @@ export default function Builder() {
                                 <Icon name="Download" size={11} /> {tr('builderDownload', lang)}
                               </button>
                             </div>
-                            {/* Подсказки: что можно доработать дальше — показываем только у последнего ответа */}
-                            {i === messages.length - 1 && !loading && (
-                              <div className="pt-2.5 border-t border-border">
-                                <p className="text-[10px] text-muted-foreground mb-1.5">
-                                  {lang === 'ru' ? '💡 Что дальше? Попробуйте:' : '💡 What next? Try:'}
-                                </p>
-                                <div className="flex flex-wrap gap-1.5">
-                                  {QUICK_EDITS.slice(0, 4).map(e => (
-                                    <button key={e.label} onClick={() => sendMessage(e.prompt)}
-                                      className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-primary bg-background hover:bg-primary/5 border border-border hover:border-primary/40 px-2 py-1 rounded-lg transition-all">
-                                      <Icon name={e.icon} size={10} className="text-primary shrink-0" />
-                                      {e.label}
-                                    </button>
-                                  ))}
+
+                            {/* Персональные предложения улучшений — показываем только у последнего ответа */}
+                            {i === messages.length - 1 && !loading && (() => {
+                              const ideas = (m.suggestions && m.suggestions.length > 0)
+                                ? m.suggestions
+                                : QUICK_EDITS.slice(0, 4).map(e => ({ icon: e.icon, label: e.label, prompt: e.prompt }));
+                              return (
+                                <div className="pt-2.5 border-t border-border">
+                                  <p className="text-[11px] text-foreground font-semibold mb-2 flex items-center gap-1">
+                                    <Icon name="Sparkles" size={12} className="text-primary" />
+                                    {lang === 'ru' ? 'Идеи, чтобы сделать сайт лучше' : 'Ideas to improve the site'}
+                                  </p>
+                                  <div className="space-y-1.5">
+                                    {ideas.map((s, sgi) => (
+                                      <button key={sgi} onClick={() => sendMessage(s.prompt)}
+                                        className="w-full flex items-center gap-2 text-left text-[12px] text-foreground bg-background hover:bg-primary/5 border border-border hover:border-primary/40 px-2.5 py-2 rounded-lg transition-all group">
+                                        <span className="grid place-items-center h-6 w-6 rounded-md bg-primary/10 text-primary shrink-0">
+                                          <Icon name={s.icon} size={13} fallback="Sparkles" />
+                                        </span>
+                                        <span className="flex-1 font-medium">{s.label}</span>
+                                        <Icon name="Plus" size={13} className="text-muted-foreground group-hover:text-primary shrink-0" />
+                                      </button>
+                                    ))}
+                                  </div>
                                 </div>
-                              </div>
-                            )}
+                              );
+                            })()}
                           </div>
                         ) : m.content}
                       </div>
