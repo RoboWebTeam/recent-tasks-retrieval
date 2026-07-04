@@ -1,0 +1,1 @@
+UPDATE users SET energy_balance = energy_balance + 2 WHERE id = 1;

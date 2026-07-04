@@ -114,7 +114,7 @@ def save_file(user_id: int, project_id, file_name: str, file_key: str, cdn_url: 
 
 
 def handler(event: dict, context) -> dict:
-    """Генерирует изображение через OpenAI DALL-E по текстовому описанию и сохраняет его в хранилище проекта"""
+    """Генерирует изображение через Gemini (OpenRouter) по текстовому описанию и сохраняет его в хранилище проекта"""
 
     if event.get('httpMethod') == 'OPTIONS':
         return {'statusCode': 200, 'headers': cors(), 'body': ''}
@@ -142,25 +142,31 @@ def handler(event: dict, context) -> dict:
     if not allowed:
         return err(quota_error, 402)
 
-    api_key = os.environ.get('OPENAI_API_KEY', '')
+    api_key = os.environ.get('OPENROUTER_API_KEY', '')
     if not api_key:
-        return err('OpenAI API ключ не настроен')
+        return err('OpenRouter API ключ не настроен')
+
+    aspect_ratio = '1:1'
+    if size == '1792x1024':
+        aspect_ratio = '16:9'
+    elif size == '1024x1792':
+        aspect_ratio = '9:16'
 
     payload = json.dumps({
-        'model': 'dall-e-3',
-        'prompt': prompt,
-        'n': 1,
-        'size': size if size in ('1024x1024', '1792x1024', '1024x1792') else '1024x1024',
-        'quality': 'standard',
-        'response_format': 'b64_json',
+        'model': 'google/gemini-2.5-flash-image-preview',
+        'messages': [{'role': 'user', 'content': prompt}],
+        'modalities': ['image', 'text'],
+        'image_config': {'aspect_ratio': aspect_ratio},
     }).encode('utf-8')
 
     req = urllib.request.Request(
-        'https://api.openai.com/v1/images/generations',
+        'https://openrouter.ai/api/v1/chat/completions',
         data=payload,
         headers={
             'Content-Type': 'application/json',
             'Authorization': f'Bearer {api_key}',
+            'HTTP-Referer': 'https://roboweb.site',
+            'X-Title': 'Roboweb',
         },
         method='POST'
     )
@@ -170,20 +176,25 @@ def handler(event: dict, context) -> dict:
             result = json.loads(response.read().decode('utf-8'))
     except urllib.error.HTTPError as e:
         detail = e.read().decode('utf-8', errors='ignore')
-        return err(f'Ошибка OpenAI: {detail[:200]}', 502)
+        return err(f'Ошибка OpenRouter: {detail[:200]}', 502)
     except urllib.error.URLError:
-        return err('OpenAI API недоступен. Попробуйте позже.', 503)
+        return err('OpenRouter API недоступен. Попробуйте позже.', 503)
     except (json.JSONDecodeError, Exception):
-        return err('Неверный ответ от OpenAI.', 502)
+        return err('Неверный ответ от OpenRouter.', 502)
 
-    data_list = result.get('data') or []
-    if not data_list or not data_list[0].get('b64_json'):
-        return err('DALL-E не вернул изображение.', 502)
+    choices = result.get('choices') or []
+    images = choices[0].get('message', {}).get('images') if choices else None
+    if not images or not images[0].get('image_url', {}).get('url'):
+        return err('Модель не вернула изображение.', 502)
 
-    img_bytes = base64.b64decode(data_list[0]['b64_json'])
-    revised_prompt = data_list[0].get('revised_prompt', prompt)
+    data_url = images[0]['image_url']['url']
+    if ',' not in data_url:
+        return err('Некорректный формат изображения от модели.', 502)
 
-    file_name = f"dalle_{context.request_id}.png"
+    img_bytes = base64.b64decode(data_url.split(',', 1)[1])
+    revised_prompt = prompt
+
+    file_name = f"ai_image_{context.request_id}.png"
     key = f"sites/{user_id}/{file_name}"
 
     s3 = get_s3()
