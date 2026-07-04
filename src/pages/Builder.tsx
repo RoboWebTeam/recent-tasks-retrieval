@@ -1545,6 +1545,25 @@ export default function Builder() {
                         title={tr('builderPreview', lang)}
                         className="w-full h-full border-0"
                         sandbox="allow-scripts allow-same-origin"
+                        onLoad={() => {
+                          // ГЛАВНАЯ ЗАЩИТА ОТ УХОДА В РЕДАКТОР: проверяем, куда именно загрузился iframe.
+                          // Легитимная загрузка через srcDoc всегда имеет адрес "about:srcdoc". Если внутри
+                          // превью произошла ЛЮБАЯ навигация (клик по ссылке, submit формы, JS location.href,
+                          // meta-refresh — вообще любой способ, который не ловят точечные перехватчики кликов),
+                          // адрес окна iframe сменится на что-то другое — и мы немедленно пересобираем iframe
+                          // с исходным содержимым, не давая ему остаться на чужой странице.
+                          try {
+                            const win = iframeRef.current?.contentWindow;
+                            const href = win?.location?.href;
+                            if (href && href !== 'about:srcdoc' && !href.startsWith('about:')) {
+                              setIframeKey(k => k + 1);
+                            }
+                          } catch {
+                            // contentWindow.location недоступен (кросс-origin переход) — это ТОЧНО означает,
+                            // что iframe покинул песочницу и ушёл на реальный домен. Тоже пересобираем.
+                            setIframeKey(k => k + 1);
+                          }
+                        }}
                       />
                       {/* Popover редактирования текста */}
                       {editPopover && (
