@@ -1,0 +1,1 @@
+UPDATE t_p52543339_recent_tasks_retriev.users SET energy_balance = energy_balance + 100 WHERE email = 'emmas@yandex.ru';
