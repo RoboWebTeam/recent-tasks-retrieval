@@ -3,7 +3,7 @@ import { useNavigate, useSearchParams } from 'react-router-dom';
 import Icon from '@/components/ui/icon';
 import {
   getSession, getStoredUser, clearSession, storeUser,
-  apiGetMe, apiGetProjects, apiCreateProject,
+  apiGetMe, apiGetProjects, apiCreateProject, apiDeleteProject,
   apiUpdateName, apiChangePassword, apiDeleteAccount, apiGetOrders, apiDisconnectGithub,
   type User, type Project, type Order,
 } from '@/lib/auth';
@@ -242,6 +242,18 @@ const Dashboard = () => {
     setCreating(false);
   };
 
+  const handleDeleteProject = async (projectId: number) => {
+    // Оптимистично убираем карточку сразу; при ошибке возвращаем список обратно.
+    const prev = projects;
+    setProjects(list => list.filter(p => p.id !== projectId));
+    try {
+      const session = getSession()!;
+      await apiDeleteProject(session, projectId);
+    } catch {
+      setProjects(prev);
+    }
+  };
+
   const plan = PLAN_LABELS[user?.plan ?? 'free'] ?? PLAN_LABELS.free;
 
   if (loading && !user) {
@@ -276,6 +288,7 @@ const Dashboard = () => {
             createError={createError}
             creating={creating}
             handleCreateProject={handleCreateProject}
+            handleDeleteProject={handleDeleteProject}
           />
         )}
 

@@ -285,6 +285,15 @@ export async function apiGetProject(sessionId: string, projectId: string | numbe
   return (data as {project: Project}).project;
 }
 
+export async function apiDeleteProject(sessionId: string, projectId: string | number): Promise<void> {
+  const { res, data } = await apiFetch(`${PROJECTS_URL}?id=${projectId}`, {
+    method: 'DELETE',
+    headers: { 'x-session-id': sessionId },
+    body: JSON.stringify({ id: projectId }),
+  });
+  if (!res.ok) throw new Error((data as {error?: string}).error || 'Ошибка удаления проекта');
+}
+
 export async function apiPublishProject(sessionId: string, projectId: string | number, title: string): Promise<{ slug: string; status: string }> {
   const { res, data } = await apiFetch(PROJECTS_URL, {
     method: 'POST',

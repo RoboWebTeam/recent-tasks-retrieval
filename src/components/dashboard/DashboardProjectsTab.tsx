@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -27,13 +28,18 @@ interface DashboardProjectsTabProps {
   createError: string;
   creating: boolean;
   handleCreateProject: (e: React.FormEvent) => void;
+  handleDeleteProject: (projectId: number) => void;
 }
 
 export default function DashboardProjectsTab({
   lang, projects, STATUS_CONFIG,
   dialogOpen, setDialogOpen, newTitle, setNewTitle, newDesc, setNewDesc,
-  createError, creating, handleCreateProject,
+  createError, creating, handleCreateProject, handleDeleteProject,
 }: DashboardProjectsTabProps) {
+  // id проекта, для которого открыт диалог подтверждения удаления
+  const [deleteId, setDeleteId] = useState<number | null>(null);
+  const projectToDelete = projects.find(p => p.id === deleteId);
+
   return (
     <div>
       <div className="flex items-center justify-between mb-6 gap-3 flex-wrap">
@@ -111,12 +117,33 @@ export default function DashboardProjectsTab({
           {projects.map(p => {
             const s = STATUS_CONFIG[p.status] ?? STATUS_CONFIG.draft;
             return (
-              <div key={p.id} className="rounded-2xl border border-border bg-card p-5 hover:shadow-md transition-shadow group">
-                <div className="flex items-start justify-between gap-2 mb-3">
-                  <div className="grid h-10 w-10 place-items-center rounded-xl bg-primary/10 text-primary shrink-0 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
-                    <Icon name="Globe" size={18} />
+              <div
+                key={p.id}
+                className="group relative flex flex-col rounded-2xl border border-border bg-card overflow-hidden hover:border-primary/40 hover:shadow-xl hover:shadow-primary/5 hover:-translate-y-0.5 transition-all duration-200"
+              >
+                {/* Декоративная градиентная шапка */}
+                <div className="relative h-20 bg-gradient-to-br from-primary/15 via-primary/5 to-transparent">
+                  <div className="absolute inset-0 opacity-40" style={{ backgroundImage: 'radial-gradient(circle at 1px 1px, hsl(var(--primary)/0.25) 1px, transparent 0)', backgroundSize: '16px 16px' }} />
+                  <div className="absolute -bottom-5 left-5 grid h-12 w-12 place-items-center rounded-2xl bg-card border border-border shadow-sm text-primary group-hover:bg-primary group-hover:text-primary-foreground group-hover:border-primary transition-colors">
+                    <Icon name="Globe" size={20} />
                   </div>
-                  <div className="flex items-center gap-1.5 flex-wrap justify-end">
+                  {/* Кнопка удаления */}
+                  <button
+                    onClick={() => setDeleteId(p.id)}
+                    className="absolute top-3 right-3 grid h-8 w-8 place-items-center rounded-lg bg-card/70 backdrop-blur text-muted-foreground hover:bg-destructive hover:text-white transition-colors opacity-0 group-hover:opacity-100 focus:opacity-100"
+                    title={lang === 'ru' ? 'Удалить проект' : 'Delete project'}
+                    aria-label={lang === 'ru' ? 'Удалить проект' : 'Delete project'}
+                  >
+                    <Icon name="Trash2" size={15} />
+                  </button>
+                </div>
+
+                <div className="flex flex-col flex-1 px-5 pt-7 pb-4">
+                  <div className="flex items-center gap-1.5 flex-wrap mb-2.5">
+                    <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${s.color}`}>
+                      <Icon name={s.icon} size={11} className={p.status === 'building' ? 'animate-spin' : ''} />
+                      {s.label}
+                    </span>
                     {(p.chat_count ?? 0) > 0 && (
                       <span
                         className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-semibold bg-primary/10 text-primary"
@@ -126,30 +153,21 @@ export default function DashboardProjectsTab({
                         {p.chat_count}
                       </span>
                     )}
-                    <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${s.color}`}>
-                      <Icon name={s.icon} size={11} className={p.status === 'building' ? 'animate-spin' : ''} />
-                      {s.label}
-                    </span>
                   </div>
-                </div>
-                <h3 className="font-display font-bold text-base mb-1 line-clamp-1">{p.title}</h3>
-                {p.description && (
-                  <p className="text-muted-foreground text-xs mb-3 line-clamp-2">{p.description}</p>
-                )}
-                <div className="flex items-center justify-between mt-auto pt-3 border-t border-border">
-                  <span className="text-xs text-muted-foreground">
-                    {new Date(p.created_at).toLocaleDateString(lang === 'ru' ? 'ru-RU' : 'en-US')}
-                  </span>
-                  <div className="flex items-center gap-2">
-                    <Link
-                      to="/settings/domain"
-                      className="text-xs text-muted-foreground hover:text-foreground inline-flex items-center gap-1 hover:underline"
-                    >
-                      <Icon name="Link" size={11} /> {lang === 'ru' ? 'Домен' : 'Domain'}
-                    </Link>
+
+                  <h3 className="font-display font-bold text-base mb-1 line-clamp-1">{p.title}</h3>
+                  <p className="text-muted-foreground text-xs mb-4 line-clamp-2 min-h-[2rem]">
+                    {p.description || (lang === 'ru' ? 'Без описания' : 'No description')}
+                  </p>
+
+                  <div className="flex items-center justify-between mt-auto pt-3 border-t border-border">
+                    <span className="text-xs text-muted-foreground inline-flex items-center gap-1">
+                      <Icon name="Calendar" size={11} />
+                      {new Date(p.created_at).toLocaleDateString(lang === 'ru' ? 'ru-RU' : 'en-US')}
+                    </span>
                     <Link
                       to={`/builder?project=${p.id}`}
-                      className="text-xs text-primary font-semibold hover:underline inline-flex items-center gap-1"
+                      className="inline-flex items-center gap-1 rounded-lg bg-primary/10 text-primary px-2.5 py-1.5 text-xs font-semibold hover:bg-primary hover:text-primary-foreground transition-colors"
                     >
                       <Icon name="Sparkles" size={12} /> {tr('openInEditor', lang)}
                     </Link>
@@ -169,6 +187,37 @@ export default function DashboardProjectsTab({
           </button>
         </div>
       )}
+
+      {/* Диалог подтверждения удаления проекта */}
+      <Dialog open={deleteId !== null} onOpenChange={(o) => { if (!o) setDeleteId(null); }}>
+        <DialogContent className="rounded-2xl max-w-sm">
+          <DialogHeader>
+            <DialogTitle className="font-display font-bold flex items-center gap-2">
+              <span className="grid h-8 w-8 place-items-center rounded-lg bg-destructive/10 text-destructive">
+                <Icon name="Trash2" size={16} />
+              </span>
+              {lang === 'ru' ? 'Удалить проект?' : 'Delete project?'}
+            </DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground mt-1">
+            {lang === 'ru'
+              ? <>Проект <span className="font-semibold text-foreground">«{projectToDelete?.title}»</span> и вся история переписки будут удалены безвозвратно.</>
+              : <>Project <span className="font-semibold text-foreground">"{projectToDelete?.title}"</span> and all chat history will be permanently deleted.</>}
+          </p>
+          <div className="flex gap-2 mt-4">
+            <Button variant="outline" className="flex-1 rounded-xl font-semibold" onClick={() => setDeleteId(null)}>
+              {lang === 'ru' ? 'Отмена' : 'Cancel'}
+            </Button>
+            <Button
+              className="flex-1 rounded-xl font-semibold bg-destructive text-white hover:bg-destructive/90"
+              onClick={() => { if (deleteId !== null) handleDeleteProject(deleteId); setDeleteId(null); }}
+            >
+              <Icon name="Trash2" size={15} className="mr-1.5" />
+              {lang === 'ru' ? 'Удалить' : 'Delete'}
+            </Button>
+          </div>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }

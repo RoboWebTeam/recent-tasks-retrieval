@@ -11,6 +11,12 @@
       "method": "GET",
       "path": "/",
       "expectedStatus": 401
+    },
+    {
+      "name": "DELETE без сессии — 401",
+      "method": "DELETE",
+      "path": "/?id=1",
+      "expectedStatus": 401
     }
   ]
 }

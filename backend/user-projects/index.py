@@ -11,7 +11,7 @@ def get_conn():
 def cors_headers():
     return {
         'Access-Control-Allow-Origin': '*',
-        'Access-Control-Allow-Methods': 'GET, POST, PUT, OPTIONS',
+        'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
         'Access-Control-Allow-Headers': 'Content-Type, X-Session-Id',
     }
 
@@ -169,6 +169,21 @@ def handler(event: dict, context) -> dict:
                     (body.get('title', ''), body.get('description', ''), body.get('status', 'draft'), body.get('url', ''), project_id, user_id)
                 )
                 conn.commit()
+                return ok({'ok': True})
+
+            # DELETE — удалить проект (id из тела или query-параметров, у DELETE тела может не быть)
+            if method == 'DELETE':
+                project_id = body.get('id') or params.get('id')
+                if not project_id:
+                    return err('Укажите id проекта')
+                cur.execute(
+                    f"DELETE FROM {schema}.projects WHERE id = %s AND user_id = %s",
+                    (project_id, user_id)
+                )
+                deleted = cur.rowcount
+                conn.commit()
+                if deleted == 0:
+                    return err('Проект не найден', 404)
                 return ok({'ok': True})
 
     finally:
