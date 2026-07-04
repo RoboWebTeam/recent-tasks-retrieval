@@ -16,12 +16,19 @@ const Register = () => {
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [agreed, setAgreed] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     if (password.length < 6) {
       setError(tr('errorPassword', lang));
+      return;
+    }
+    if (!agreed) {
+      setError(lang === 'ru'
+        ? 'Необходимо принять условия оферты и политику конфиденциальности'
+        : 'You must accept the offer terms and privacy policy');
       return;
     }
     setLoading(true);
@@ -164,24 +171,32 @@ const Register = () => {
               </div>
             )}
 
-            <Button type="submit" className="w-full h-11 rounded-xl font-semibold shadow-lg shadow-primary/20" disabled={loading}>
+            <label className="flex items-start gap-2.5 text-xs text-muted-foreground cursor-pointer select-none">
+              <input
+                type="checkbox"
+                checked={agreed}
+                onChange={e => { setAgreed(e.target.checked); if (error) setError(''); }}
+                className="mt-0.5 h-4 w-4 shrink-0 rounded border-border text-primary focus:ring-primary/50 cursor-pointer"
+              />
+              <span>
+                {tr('termsAgree', lang)}{' '}
+                <Link to="/oferta" className="text-primary hover:underline" onClick={e => e.stopPropagation()}>{tr('termsLink', lang)}</Link>
+                {', '}
+                <Link to="/privacy" className="text-primary hover:underline" onClick={e => e.stopPropagation()}>
+                  {lang === 'ru' ? 'политикой конфиденциальности' : 'privacy policy'}
+                </Link>
+                {' '}{lang === 'ru' ? 'и' : 'and'}{' '}
+                <Link to="/personal-data" className="text-primary hover:underline" onClick={e => e.stopPropagation()}>
+                  {lang === 'ru' ? 'согласием на обработку персональных данных' : 'personal data consent'}
+                </Link>
+              </span>
+            </label>
+
+            <Button type="submit" className="w-full h-11 rounded-xl font-semibold shadow-lg shadow-primary/20" disabled={loading || !agreed}>
               {loading
                 ? <><Icon name="Loader" size={16} className="mr-2 animate-spin" />{tr('creatingAccount', lang)}</>
                 : <><Icon name="Sparkles" size={15} className="mr-1.5" />{tr('createAccount', lang)}</>}
             </Button>
-
-            <p className="text-xs text-center text-muted-foreground">
-              {tr('termsAgree', lang)}{' '}
-              <Link to="/oferta" className="text-primary hover:underline">{tr('termsLink', lang)}</Link>
-              {', '}
-              <Link to="/privacy" className="text-primary hover:underline">
-                {lang === 'ru' ? 'политикой конфиденциальности' : 'privacy policy'}
-              </Link>
-              {' '}{lang === 'ru' ? 'и' : 'and'}{' '}
-              <Link to="/personal-data" className="text-primary hover:underline">
-                {lang === 'ru' ? 'согласием на обработку персональных данных' : 'personal data consent'}
-              </Link>
-            </p>
           </form>
 
           {/* Social auth */}
