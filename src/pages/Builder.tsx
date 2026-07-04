@@ -1160,7 +1160,7 @@ export default function Builder() {
                 <span className="hidden sm:inline">{versions.length}</span>
               </button>
               {showVersions && (
-                <div className="absolute right-0 top-10 z-50 w-72 bg-card border border-border rounded-xl shadow-2xl p-2">
+                <div className="absolute right-0 top-10 z-50 w-72 max-w-[calc(100vw-2rem)] bg-card border border-border rounded-xl shadow-2xl p-2">
                   <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest px-2 py-1.5 mb-1">
                     {lang === 'ru' ? 'История версий' : 'Version history'}
                   </div>
@@ -1529,7 +1529,7 @@ export default function Builder() {
                 />
 
                 {/* Toolbar */}
-                <div className="flex items-center gap-1 px-2 pb-2 pt-0.5">
+                <div className="flex items-center flex-wrap gap-1 px-2 pb-2 pt-0.5">
                   {/* Быстрые правки */}
                   {html && (
                     <button onClick={() => { setShowQuickEdits(v => !v); setShowSectionLibrary(false); }}
@@ -1581,7 +1581,7 @@ export default function Builder() {
                       <span className="hidden sm:inline">{aiModel === 'gpt-4o' ? 'GPT-4o' : aiModel === 'gemini' ? 'Gemini' : aiModel === 'opus' ? 'Opus 4.8' : aiModel === 'sonnet' ? 'Sonnet 5' : 'Claude'}</span>
                     </button>
                     {showModelMenu && (
-                      <div className="absolute bottom-10 left-0 z-50 w-60 bg-secondary border border-border rounded-2xl shadow-2xl p-1.5">
+                      <div className="absolute bottom-10 left-0 z-50 w-60 max-w-[calc(100vw-2rem)] bg-secondary border border-border rounded-2xl shadow-2xl p-1.5">
                         {[
                           {
                             id: 'gemini' as const,
@@ -1664,7 +1664,7 @@ export default function Builder() {
                         </span>
                       </button>
                       {showStyleMenu && (
-                        <div className="absolute bottom-10 left-0 z-50 w-56 bg-secondary border border-border rounded-2xl shadow-2xl p-1.5">
+                        <div className="absolute bottom-10 left-0 z-50 w-56 max-w-[calc(100vw-2rem)] bg-secondary border border-border rounded-2xl shadow-2xl p-1.5">
                           {[
                             { id: '' as const, icon: 'Wand2', label: lang === 'ru' ? 'Авто (под нишу)' : 'Auto', desc: lang === 'ru' ? 'ИИ подберёт стиль сам' : 'AI picks the style' },
                             { id: 'minimal' as const, icon: 'Minus', label: lang === 'ru' ? 'Минимализм' : 'Minimal', desc: lang === 'ru' ? 'Чисто, светло, воздушно' : 'Clean & airy' },
@@ -1837,8 +1837,8 @@ export default function Builder() {
                       {/* Popover редактирования текста */}
                       {editPopover && (
                         <div
-                          className="absolute z-50 bg-card border border-border rounded-2xl shadow-2xl p-3 w-64"
-                          style={{ left: Math.min(editPopover.x - 128, 9999), top: Math.min(editPopover.y + 8, 9999) }}
+                          className="absolute z-50 bg-card border border-border rounded-2xl shadow-2xl p-3 w-64 max-w-[calc(100vw-2rem)]"
+                          style={{ left: Math.max(8, Math.min(editPopover.x - 128, 9999)), top: Math.min(editPopover.y + 8, 9999) }}
                         >
                           <div className="flex items-center justify-between mb-2">
                             <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
@@ -1875,7 +1875,7 @@ export default function Builder() {
 
                     {/* Панель свойств элемента */}
                     {propsPanel && editMode && (
-                      <div className="w-56 shrink-0 border-l border-border bg-card overflow-y-auto flex flex-col">
+                      <div className="w-44 sm:w-56 shrink-0 border-l border-border bg-card overflow-y-auto flex flex-col">
                         {/* Заголовок */}
                         <div className="flex items-center justify-between px-3 py-2.5 border-b border-border shrink-0 bg-background">
                           <span className="text-xs font-semibold flex items-center gap-1.5">

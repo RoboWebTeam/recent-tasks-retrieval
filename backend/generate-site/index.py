@@ -846,9 +846,10 @@ def handler(event: dict, context) -> dict:
     # реально остался запас времени. Проверяем фактически прошедшее время: если первый проход
     # был долгим, второй НЕ запускаем — иначе функция упрётся в таймаут и сломает результат.
     elapsed = _time.monotonic() - started_at
-    remaining_time = function_timeout - elapsed - 10  # -10 сек на завершение и запись в БД
-    second_pass_tokens = min(max_tokens, int(remaining_time * 140)) if remaining_time > 0 else 0
-    if function_timeout >= 60 and not is_edit and 1500 < len(html) < 55000 and remaining_time >= 25 and second_pass_tokens >= 1500:
+    remaining_time = function_timeout - elapsed - 15  # -15 сек буфер на завершение и запись в БД
+    second_pass_tokens = min(max_tokens, int(remaining_time * 130)) if remaining_time > 0 else 0
+    # Запас времени должен быть большим (>=35 сек), иначе 2-й проход рискует упереться в таймаут.
+    if function_timeout >= 60 and not is_edit and 1500 < len(html) < 50000 and remaining_time >= 35 and second_pass_tokens >= 2000:
         improve_prompt = (
             "Ты — придирчивый арт-директор и копирайтер. Вот готовый HTML-сайт. "
             "Критически улучши его как финальную версию: усиль дизайн (контраст, отступы, единый визуальный ритм, "
