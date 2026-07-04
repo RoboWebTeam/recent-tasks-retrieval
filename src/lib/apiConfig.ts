@@ -25,6 +25,7 @@ const FUNCTION_IDS = {
   'support-chat': '0ddd7998-ad2d-433a-a6ef-5801b4ed059b',
   'yookassa-yookassa': '4fec45e4-aaef-4bc4-ba3c-7a43dfc964bc',
   'order-status': '0883717d-f728-467e-b5d2-c91fb10bf3e6',
+  'ai-balance': '6c9f46a5-6772-44a1-92bb-278ae6386b19',
 } as const;
 
 export type FunctionName = keyof typeof FUNCTION_IDS;
