@@ -7,6 +7,7 @@ import { apiRegister, setSession, storeUser } from '@/lib/auth';
 import { getLang, tr } from '@/lib/i18n';
 import LangSwitcher from '@/components/LangSwitcher';
 import TelegramLoginButton from '@/components/TelegramLoginButton';
+import { trackGoal, GOALS } from '@/lib/analytics';
 
 const Register = () => {
   const lang = getLang();
@@ -39,6 +40,7 @@ const Register = () => {
       }
       setSession(data.session_id as string);
       storeUser(data.user as Parameters<typeof storeUser>[0]);
+      trackGoal(GOALS.REGISTRATION_SUCCESS);
       window.location.href = '/dashboard';
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : tr('builderError', lang));

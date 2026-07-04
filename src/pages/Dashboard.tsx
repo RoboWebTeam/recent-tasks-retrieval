@@ -13,6 +13,7 @@ import { DashboardFooter } from '@/components/DashboardFooter';
 import DashboardProjectsTab from '@/components/dashboard/DashboardProjectsTab';
 import DashboardPlanTab from '@/components/dashboard/DashboardPlanTab';
 import DashboardProfileTab from '@/components/dashboard/DashboardProfileTab';
+import { trackGoal, GOALS } from '@/lib/analytics';
 
 const YOOKASSA_URL = 'https://functions.poehali.dev/4fec45e4-aaef-4bc4-ba3c-7a43dfc964bc';
 
@@ -200,6 +201,7 @@ const Dashboard = () => {
         throw new Error(data.error || (lang === 'ru' ? 'Ошибка создания платежа' : 'Payment creation error'));
       }
       if (data.payment_url) {
+        trackGoal(GOALS.ENERGY_PURCHASE_INITIATED, { requests });
         window.location.href = data.payment_url;
       }
     } catch (err: unknown) {
@@ -216,6 +218,7 @@ const Dashboard = () => {
     try {
       const session = getSession()!;
       const project = await apiCreateProject(session, newTitle.trim(), newDesc.trim());
+      trackGoal(GOALS.PROJECT_CREATED);
       setProjects(prev => [project, ...prev]);
       setNewTitle('');
       setNewDesc('');

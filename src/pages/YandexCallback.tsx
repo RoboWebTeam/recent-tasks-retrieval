@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiYandexOAuth, setSession, storeUser } from '@/lib/auth';
 import Icon from '@/components/ui/icon';
+import { trackGoal, GOALS } from '@/lib/analytics';
 
 export default function YandexCallback() {
   const navigate = useNavigate();
@@ -20,6 +21,7 @@ export default function YandexCallback() {
       .then((data: Record<string, unknown>) => {
         setSession(data.session_id as string);
         storeUser(data.user as Parameters<typeof storeUser>[0]);
+        trackGoal(GOALS.OAUTH_YANDEX_SUCCESS);
         navigate('/dashboard');
       })
       .catch((err: Error) => {

@@ -8,6 +8,7 @@ import LangSwitcher from '@/components/LangSwitcher';
 import { useToast } from '@/hooks/use-toast';
 import BuilderCorePanel from '@/components/builder/BuilderCorePanel';
 import BuilderDomainModal from '@/components/builder/BuilderDomainModal';
+import { trackGoal, GOALS } from '@/lib/analytics';
 
 const GENERATE_URL = 'https://functions.poehali.dev/64b3e52e-6bb5-4d4e-b7ee-e3840af35990';
 
@@ -282,6 +283,7 @@ export default function Builder() {
 
       // Сохраняем версию
       if (generatedHtml) {
+        if (versions.length === 0) trackGoal(GOALS.WEBSITE_GENERATED_FIRST);
         setVersions(prev => [
           { html: generatedHtml, label: content.slice(0, 40) + (content.length > 40 ? '…' : ''), ts: Date.now() },
           ...prev.slice(0, 9),
@@ -352,6 +354,7 @@ export default function Builder() {
     setPublishError('');
     try {
       const result = await apiPublishProject(session, projectId, projectTitle || 'site');
+      trackGoal(GOALS.WEBSITE_PUBLISHED);
       setPublishedSlug(result.slug);
       setShowPublishModal(true);
     } catch (e) {

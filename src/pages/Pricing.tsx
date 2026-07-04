@@ -6,6 +6,7 @@ import { getLang } from '@/lib/i18n';
 import { getSession, getStoredUser } from '@/lib/auth';
 import { PLAN_PRICING_URL, FALLBACK_PRO_PLANS, PRO_PLAN_DETAILS, type ProPlanOption } from '@/data/proPlans';
 import { SiteFooter } from '@/components/SiteFooter';
+import { trackGoal, GOALS } from '@/lib/analytics';
 
 const YOOKASSA_URL = 'https://functions.poehali.dev/4fec45e4-aaef-4bc4-ba3c-7a43dfc964bc';
 
@@ -91,6 +92,7 @@ export default function Pricing() {
         throw new Error(dataRes.error || (isRu ? 'Ошибка создания платежа' : 'Payment creation error'));
       }
       if (dataRes.payment_url) {
+        trackGoal(GOALS.PAYMENT_INITIATED, { plan: planId });
         window.location.href = dataRes.payment_url;
       }
     } catch (e) {

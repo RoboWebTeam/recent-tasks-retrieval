@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { apiTelegramOAuth, setSession, storeUser } from '@/lib/auth';
 import Icon from '@/components/ui/icon';
+import { trackGoal, GOALS } from '@/lib/analytics';
 
 export default function TelegramCallback() {
   const navigate = useNavigate();
@@ -25,6 +26,7 @@ export default function TelegramCallback() {
       .then((data: Record<string, unknown>) => {
         setSession(data.session_id as string);
         storeUser(data.user as Parameters<typeof storeUser>[0]);
+        trackGoal(GOALS.OAUTH_TELEGRAM_SUCCESS);
         navigate('/dashboard');
       })
       .catch((err: Error) => {

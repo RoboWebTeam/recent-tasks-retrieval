@@ -1,8 +1,9 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { getLang } from '@/lib/i18n';
+import { trackGoal, GOALS } from '@/lib/analytics';
 
 const ORDER_STATUS_URL = 'https://functions.poehali.dev/0883717d-f728-467e-b5d2-c91fb10bf3e6';
 
@@ -25,6 +26,7 @@ export default function OrderStatus() {
   const [plan, setPlan] = useState('');
   const [orderType, setOrderType] = useState('plan');
   const [energyAmount, setEnergyAmount] = useState(0);
+  const trackedRef = useRef(false);
 
   useEffect(() => {
     if (!orderNumber) {
@@ -53,6 +55,10 @@ export default function OrderStatus() {
           setEnergyAmount(data.energy_amount || 0);
 
           if (data.status === 'paid') {
+            if (!trackedRef.current) {
+              trackedRef.current = true;
+              trackGoal(GOALS.PAYMENT_SUCCESS, { order_type: data.order_type || 'plan' });
+            }
             setStatus('paid');
           } else if (data.status === 'canceled') {
             setStatus('canceled');
