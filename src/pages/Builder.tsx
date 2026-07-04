@@ -553,6 +553,22 @@ export default function Builder() {
   var selected = null;
   var ANY = '*';
 
+  // В превью ссылки не должны навигировать внутри iframe — иначе при клике по ссылке,
+  // ведущей на "/" или другой путь, внутрь превью загружается весь редактор проекта.
+  // Якоря (#section) оставляем рабочими для плавной прокрутки по самому сайту.
+  document.addEventListener('click', function(e) {
+    var a = e.target && e.target.closest ? e.target.closest('a') : null;
+    if (!a) return;
+    var href = a.getAttribute('href') || '';
+    if (href.indexOf('#') === 0) return; // якорь — скроллим внутри превью
+    e.preventDefault();
+    e.stopPropagation();
+    // Внешние ссылки открываем в новой вкладке родителя, внутренние переходы игнорируем
+    if (/^https?:/i.test(href)) {
+      try { window.parent.postMessage({ type: 'ROBOWEB_OPEN_LINK', href: href }, '*'); } catch(err) {}
+    }
+  }, true);
+
   function getPath(el) {
     var path = [];
     var cur = el;
@@ -668,7 +684,13 @@ export default function Builder() {
   // Слушаем сообщения от iframe
   useEffect(() => {
     const handler = (e: MessageEvent) => {
-      if (!e.data || e.data.type !== 'ROBOWEB_CLICK') return;
+      if (!e.data) return;
+      // Внешняя ссылка из превью — открываем в новой вкладке, а не внутри iframe
+      if (e.data.type === 'ROBOWEB_OPEN_LINK' && typeof e.data.href === 'string') {
+        window.open(e.data.href, '_blank', 'noopener,noreferrer');
+        return;
+      }
+      if (e.data.type !== 'ROBOWEB_CLICK') return;
       setEditPopover({ x: e.data.x, y: e.data.y, text: e.data.text, path: e.data.path });
       setEditValue(e.data.text);
       if (e.data.styles) setPropsPanel({ path: e.data.path, ...e.data.styles });
