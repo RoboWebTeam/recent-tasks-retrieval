@@ -41,7 +41,7 @@ export default function DashboardHeader({ active, leadsCount = 0 }: DashboardHea
   ];
 
   return (
-    <header className="border-b border-border bg-card sticky top-0 z-10">
+    <header className="border-b border-border bg-card/95 backdrop-blur-sm sticky top-0 z-30 shadow-sm">
       <div className="container flex items-center justify-between py-3.5">
         <Link to="/" className="flex items-center gap-2 font-display font-extrabold text-lg">
           <span className="grid h-8 w-8 place-items-center rounded-xl bg-primary text-primary-foreground shrink-0">

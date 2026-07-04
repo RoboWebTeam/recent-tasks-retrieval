@@ -185,9 +185,22 @@ export default function DashboardProjectsTab({
                     )}
                   </div>
 
-                  <p className="text-muted-foreground text-xs mb-4 line-clamp-2 min-h-[2rem]">
+                  <p className="text-muted-foreground text-xs mb-3 line-clamp-2 min-h-[2rem]">
                     {p.description || (lang === 'ru' ? 'Без описания' : 'No description')}
                   </p>
+
+                  {/* Прямая ссылка на живой сайт — только для опубликованных проектов */}
+                  {p.status === 'published' && p.slug && (
+                    <a
+                      href={`/site/${p.slug}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 mb-3 rounded-lg bg-emerald-50 text-emerald-700 px-2.5 py-1.5 text-xs font-semibold hover:bg-emerald-100 transition-colors w-fit"
+                    >
+                      <Icon name="ExternalLink" size={12} />
+                      {lang === 'ru' ? 'Открыть сайт' : 'Open site'}
+                    </a>
+                  )}
 
                   <div className="flex items-center justify-between mt-auto pt-3 border-t border-border">
                     <span className="text-xs text-muted-foreground inline-flex items-center gap-1">
