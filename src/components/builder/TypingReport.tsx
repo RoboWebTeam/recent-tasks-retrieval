@@ -67,9 +67,8 @@ function TypingLine({ text, animate, onDone, onTick, className }: {
  */
 export default function TypingReport(props: Props) {
   const {
-    lang, intro, summary, steps = [], design,
-    sections = [], suggestions = [],
-    animate, onTick, isEdit, onSuggestion, suggestionsDisabled,
+    lang, intro, summary, steps = [],
+    animate, onTick, isEdit,
   } = props;
 
   // Диалог отправляется частями (фазами), появляющимися по очереди с паузой:
@@ -89,8 +88,9 @@ export default function TypingReport(props: Props) {
   }, []);
 
   // Собираем последовательность «этапов» подробного описания — блоки раскрываются по очереди.
+  // Показываем только intro, шаги и итог (блоки дизайна/секций/идей убраны из отчёта).
   const totalStages =
-    (intro ? 1 : 0) + steps.length + (summary ? 1 : 0) + (design ? 1 : 0) + 1; // +1 = финальный
+    (intro ? 1 : 0) + steps.length + (summary ? 1 : 0) + 1; // +1 = финальный
 
   const [stage, setStage] = useState(animate ? 0 : totalStages);
   const next = () => setStage(s => s + 1);
@@ -100,7 +100,6 @@ export default function TypingReport(props: Props) {
   const introStage = intro ? cursor++ : -1;
   const stepStages = steps.map(() => cursor++);
   const summaryStage = summary ? cursor++ : -1;
-  const designStage = design ? cursor++ : -1;
   const finalStage = cursor;
 
   // Подробное описание печатается только на 2-й фазе.
@@ -179,57 +178,6 @@ export default function TypingReport(props: Props) {
         <p className="text-foreground text-[14px] font-semibold leading-relaxed">
           <TypingLine text={summary} animate={detailsAnimate && stage === summaryStage} onDone={next} onTick={onTick} />
         </p>
-      )}
-
-      {/* Дизайн */}
-      {phase >= 2 && design && stage >= designStage && (
-        <div className="flex items-start gap-2 text-[14px] font-semibold text-foreground bg-primary/5 border border-primary/15 rounded-lg px-2.5 py-2 leading-relaxed">
-          <Icon name="Palette" size={13} className="text-primary shrink-0 mt-0.5" />
-          <TypingLine text={design} animate={detailsAnimate && stage === designStage} onDone={next} onTick={onTick} />
-        </div>
-      )}
-
-      {/* Секции сайта — теги с блоками, которые получились */}
-      {phase >= 2 && stage >= finalStage && sections.length > 0 && (
-        <div className="space-y-1.5">
-          <p className="text-[15px] text-foreground font-semibold">
-            {lang === 'ru' ? 'Секции сайта' : 'Site sections'}
-          </p>
-          <div className="flex flex-wrap gap-1.5">
-            {sections.map((s, i) => (
-              <span key={i} className="inline-flex items-center gap-1 text-[12px] font-medium text-foreground bg-secondary border border-border rounded-lg px-2 py-1">
-                <Icon name="LayoutPanelTop" fallback="Square" size={11} className="text-primary shrink-0" />
-                {s}
-              </span>
-            ))}
-          </div>
-        </div>
-      )}
-
-      {/* Идеи улучшений — кликабельные кнопки, запускающие правку */}
-      {phase >= 2 && stage >= finalStage && suggestions.length > 0 && (
-        <div className="space-y-1.5 pt-0.5">
-          <p className="text-[15px] text-foreground font-semibold">
-            {lang === 'ru' ? 'Что ещё можно улучшить' : 'What else to improve'}
-          </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5">
-            {suggestions.map((sg, i) => (
-              <button
-                key={i}
-                onClick={() => onSuggestion?.(sg.prompt)}
-                disabled={suggestionsDisabled}
-                className="group flex items-center gap-2 text-left text-[13px] font-medium text-foreground bg-secondary hover:bg-primary hover:text-primary-foreground border border-border hover:border-primary rounded-xl px-2.5 py-2 transition-colors disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:bg-secondary disabled:hover:text-foreground"
-                title={sg.prompt}
-              >
-                <span className="grid h-6 w-6 place-items-center rounded-lg bg-primary/10 text-primary group-hover:bg-white/20 group-hover:text-primary-foreground shrink-0 transition-colors">
-                  <Icon name={sg.icon} fallback="Sparkles" size={13} />
-                </span>
-                <span className="flex-1 min-w-0 truncate">{sg.label}</span>
-                <Icon name="Plus" size={13} className="text-muted-foreground group-hover:text-primary-foreground shrink-0" />
-              </button>
-            ))}
-          </div>
-        </div>
       )}
 
       {/* Финальный этап */}
