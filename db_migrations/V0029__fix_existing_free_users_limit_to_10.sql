@@ -1,0 +1,1 @@
+UPDATE users SET requests_limit = 10 WHERE plan = 'free' AND requests_limit = 3;
