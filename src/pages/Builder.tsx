@@ -1058,7 +1058,10 @@ export default function Builder() {
       </header>
 
       {/* MAIN */}
-      <div className="flex flex-1 overflow-hidden">
+      <div className="flex flex-1 overflow-hidden relative">
+        {/* Прозрачный оверлей поверх iframe во время ресайза чата — без него mousemove/mouseup
+            "тонут" внутри iframe (у него свой контекст событий) и перетаскивание залипает. */}
+        {isResizingChat && <div className="fixed inset-0 z-[9999] cursor-col-resize" />}
 
         {/* LEFT — CHAT */}
         {sidebarOpen && (
