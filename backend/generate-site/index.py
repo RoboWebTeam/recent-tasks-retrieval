@@ -282,12 +282,11 @@ def handler(event: dict, context) -> dict:
             with urllib.request.urlopen(req, timeout=60) as response:
                 result = json.loads(response.read().decode('utf-8'))
         except urllib.error.HTTPError as e:
-            error_body = e.read().decode('utf-8', errors='replace')
-            print(f'OPENROUTER_ERROR {e.code}: {error_body}')
-            return err(f'OpenRouter API error {e.code}: {error_body}', 502)
-        except urllib.error.URLError as e:
-            print(f'OPENROUTER_URLERROR: {e.reason}')
-            return err(f'OpenRouter API недоступен: {e.reason}', 503)
+            return err(f'OpenRouter API error {e.code}', 502)
+        except urllib.error.URLError:
+            return err('OpenRouter API недоступен. Попробуйте позже.', 503)
+        except (json.JSONDecodeError, Exception):
+            return err('Неверный ответ от OpenRouter.', 502)
 
         choices = result.get('choices') or []
         if not choices:
