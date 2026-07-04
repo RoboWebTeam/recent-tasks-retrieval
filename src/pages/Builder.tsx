@@ -219,7 +219,7 @@ export default function Builder() {
   const [publishError, setPublishError] = useState('');
   const [remaining, setRemaining] = useState<number | null>(null);
   const [quotaExceeded, setQuotaExceeded] = useState(false);
-  const [aiModel, setAiModel] = useState<'claude' | 'gpt-4o' | 'gemini'>('gemini');
+  const [aiModel, setAiModel] = useState<'claude' | 'gpt-4o' | 'gemini' | 'opus' | 'sonnet'>('gemini');
   const [showModelMenu, setShowModelMenu] = useState(false);
   const [dismissedModelHint, setDismissedModelHint] = useState(false);
   const [showImageGen, setShowImageGen] = useState(false);
@@ -1383,7 +1383,7 @@ export default function Builder() {
                       className="flex items-center gap-1 h-7 px-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors text-[11px] font-semibold"
                       title={lang === 'ru' ? 'Модель AI' : 'AI model'}>
                       <Icon name="Cpu" size={13} />
-                      <span className="hidden sm:inline">{aiModel === 'gpt-4o' ? 'GPT-4o' : aiModel === 'gemini' ? 'Gemini' : 'Claude'}</span>
+                      <span className="hidden sm:inline">{aiModel === 'gpt-4o' ? 'GPT-4o' : aiModel === 'gemini' ? 'Gemini' : aiModel === 'opus' ? 'Opus 4.8' : aiModel === 'sonnet' ? 'Sonnet 5' : 'Claude'}</span>
                     </button>
                     {showModelMenu && (
                       <div className="absolute bottom-10 left-0 z-50 w-60 bg-secondary border border-border rounded-2xl shadow-2xl p-1.5">
@@ -1411,6 +1411,22 @@ export default function Builder() {
                             hint: lang === 'ru'
                               ? 'Лучше для нестандартного дизайна'
                               : 'Best for bold, creative design',
+                          },
+                          {
+                            id: 'sonnet' as const,
+                            label: 'Sonnet 5',
+                            desc: lang === 'ru' ? 'Мощный, медленнее' : 'Powerful, slower',
+                            hint: lang === 'ru'
+                              ? 'Максимальное качество для сложных сайтов'
+                              : 'Top quality for complex sites',
+                          },
+                          {
+                            id: 'opus' as const,
+                            label: 'Opus 4.8',
+                            desc: lang === 'ru' ? 'Флагман, медленный' : 'Flagship, slow',
+                            hint: lang === 'ru'
+                              ? 'Самая мощная модель. Лучше при таймауте 90 сек'
+                              : 'Most powerful model. Best with 90s timeout',
                           },
                         ].map(m => (
                           <button key={m.id}

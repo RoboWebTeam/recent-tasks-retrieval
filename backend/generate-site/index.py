@@ -454,12 +454,15 @@ def handler(event: dict, context) -> dict:
             for m in trimmed
         ]
 
-    # Используем БЫСТРЫЕ версии моделей — они дают отличное качество для лендингов/визиток
-    # за 5-15 секунд и оставляют большой запас времени даже при увеличенном таймауте функции.
+    # Быстрые модели (gemini/claude/gpt-4o) дают отличное качество для лендингов/визиток
+    # за 5-15 секунд. Мощные модели (opus/sonnet) — топовое качество, но заметно медленнее:
+    # рекомендованы при увеличенном таймауте функции (FUNCTION_TIMEOUT_SEC=90).
     OPENROUTER_MODELS = {
         'gpt-4o': 'openai/gpt-4o-mini',
         'claude': 'anthropic/claude-haiku-4.5',
         'gemini': 'google/gemini-2.5-flash',
+        'opus': 'anthropic/claude-opus-4.8',
+        'sonnet': 'anthropic/claude-sonnet-5',
     }
     model_name = OPENROUTER_MODELS.get(model_choice, OPENROUTER_MODELS['gemini'])
 
