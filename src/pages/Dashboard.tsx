@@ -95,7 +95,18 @@ const Dashboard = () => {
       .finally(() => setLoading(false));
 
     apiGetProjects(session)
-      .then(p => { if (Array.isArray(p)) setProjects(p); })
+      .then(p => {
+        if (!Array.isArray(p)) return;
+        // Проекты с незавершённой работой (есть переписка с ассистентом) поднимаем выше,
+        // чтобы пользователь сразу видел, где продолжить. Внутри групп сохраняется
+        // исходный порядок от бэкенда — по дате последнего изменения (свежие сверху).
+        const sorted = [...p].sort((a, b) => {
+          const aHasChat = (a.chat_count ?? 0) > 0 ? 1 : 0;
+          const bHasChat = (b.chat_count ?? 0) > 0 ? 1 : 0;
+          return bHasChat - aHasChat;
+        });
+        setProjects(sorted);
+      })
       .catch(() => {/* пустой список */});
   }, []);
 
