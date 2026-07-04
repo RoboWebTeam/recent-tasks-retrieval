@@ -128,7 +128,18 @@ export default function Builder() {
   const [searchParams] = useSearchParams();
   const projectId = searchParams.get('project');
 
-  const [messages, setMessages] = useState<Message[]>([]);
+  // Ключ для хранения истории чата в localStorage — свой для каждого проекта
+  const chatStorageKey = `builder_chat_${projectId || 'new'}`;
+
+  const [messages, setMessages] = useState<Message[]>(() => {
+    if (typeof window === 'undefined') return [];
+    try {
+      const saved = localStorage.getItem(`builder_chat_${new URLSearchParams(window.location.search).get('project') || 'new'}`);
+      return saved ? JSON.parse(saved) : [];
+    } catch {
+      return [];
+    }
+  });
   const [input, setInput] = useState('');
   const [loading, setLoading] = useState(false);
   const [html, setHtml] = useState('');
@@ -225,6 +236,21 @@ export default function Builder() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  // Сохраняем историю чата в localStorage — чтобы она не терялась при перезагрузке страницы.
+  // Не сохраняем во время загрузки (когда последнее сообщение ассистента ещё пустое).
+  useEffect(() => {
+    if (loading) return;
+    try {
+      if (messages.length > 0) {
+        localStorage.setItem(chatStorageKey, JSON.stringify(messages.slice(-50)));
+      } else {
+        localStorage.removeItem(chatStorageKey);
+      }
+    } catch {
+      /* localStorage может быть переполнен — не критично */
+    }
+  }, [messages, loading, chatStorageKey]);
 
   useEffect(() => {
     localStorage.setItem('builder_theme', builderTheme);
@@ -1050,6 +1076,23 @@ export default function Builder() {
                                 <Icon name="Download" size={11} /> {tr('builderDownload', lang)}
                               </button>
                             </div>
+                            {/* Подсказки: что можно доработать дальше — показываем только у последнего ответа */}
+                            {i === messages.length - 1 && !loading && (
+                              <div className="pt-2.5 border-t border-border">
+                                <p className="text-[10px] text-muted-foreground mb-1.5">
+                                  {lang === 'ru' ? '💡 Что дальше? Попробуйте:' : '💡 What next? Try:'}
+                                </p>
+                                <div className="flex flex-wrap gap-1.5">
+                                  {QUICK_EDITS.slice(0, 4).map(e => (
+                                    <button key={e.label} onClick={() => sendMessage(e.prompt)}
+                                      className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-primary bg-background hover:bg-primary/5 border border-border hover:border-primary/40 px-2 py-1 rounded-lg transition-all">
+                                      <Icon name={e.icon} size={10} className="text-primary shrink-0" />
+                                      {e.label}
+                                    </button>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
                           </div>
                         ) : m.content}
                       </div>

@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-route
 import { getSession } from "@/lib/auth";
 import ScrollToTop from "@/components/ScrollToTop";
 import SupportChatWidget from "@/components/SupportChatWidget";
+import ErrorBoundary from "@/components/ErrorBoundary";
 import Icon from "@/components/ui/icon";
 import Index from "./pages/Index";
 
@@ -56,6 +57,7 @@ function GlobalSupportChat() {
 }
 
 const App = () => (
+  <ErrorBoundary>
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
       <Toaster />
@@ -96,6 +98,7 @@ const App = () => (
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
+  </ErrorBoundary>
 );
 
 export default App;
