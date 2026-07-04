@@ -9,7 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import BuilderCorePanel from '@/components/builder/BuilderCorePanel';
 import BuilderDomainModal from '@/components/builder/BuilderDomainModal';
 import GenerationProgress from '@/components/builder/GenerationProgress';
-import TypewriterText from '@/components/builder/TypewriterText';
+import TypingReport from '@/components/builder/TypingReport';
 import { trackGoal, GOALS } from '@/lib/analytics';
 import { apiUrl } from '@/lib/apiConfig';
 
@@ -652,9 +652,17 @@ export default function Builder() {
   // HTML с внедрённым скриптом для режима редактирования
   const htmlWithEditScript = (rawHtml: string) => {
     if (!rawHtml) return rawHtml;
-    const hasHead = /<head[\s>]/i.test(rawHtml);
-    if (hasHead) return rawHtml.replace(/<head([^>]*)>/i, `<head$1>${EDIT_SCRIPT}`);
-    return EDIT_SCRIPT + rawHtml;
+    // Скрипт лучше вставлять внутрь <head> или в начало <body>. Вставка ПЕРЕД <!DOCTYPE>
+    // переводит браузер в quirks mode и ломает вёрстку превью — поэтому так не делаем.
+    if (/<head[\s>]/i.test(rawHtml)) {
+      return rawHtml.replace(/<head([^>]*)>/i, `<head$1>${EDIT_SCRIPT}`);
+    }
+    if (/<body[\s>]/i.test(rawHtml)) {
+      return rawHtml.replace(/<body([^>]*)>/i, `<body$1>${EDIT_SCRIPT}`);
+    }
+    // Нет ни head, ни body (обрезанный/невалидный HTML) — оборачиваем в корректный документ,
+    // чтобы браузер не пытался достроить структуру сам и не показывал артефакты.
+    return `<!DOCTYPE html><html><head>${EDIT_SCRIPT}</head><body>${rawHtml}</body></html>`;
   };
 
   // Слушаем сообщения от iframe
@@ -1095,115 +1103,25 @@ export default function Builder() {
                         {m.role === 'assistant' && m.content === '' ? (
                           <GenerationProgress lang={lang} isEdit={!!m.isEdit} />
                         ) : m.isHtml ? (
-                          <div className="space-y-3">
-                            <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 text-xs font-semibold">
-                              <Icon name="CheckCircle" size={13} /> {tr('builderReady', lang)}
-                            </div>
-
-                            {/* Вступление: как ИИ понял задачу (печатается у последнего ответа) */}
-                            {m.intro && (
-                              <p className="text-foreground text-[13px] leading-relaxed">
-                                {i === messages.length - 1 ? (
-                                  <TypewriterText text={m.intro} onTick={() => messagesEndRef.current?.scrollIntoView({ behavior: 'auto' })} />
-                                ) : m.intro}
-                              </p>
-                            )}
-
-                            {/* Пошаговый рассказ: что конкретно сделано / исправлено / улучшено */}
-                            {m.steps && m.steps.length > 0 && (
-                              <div className="space-y-1.5">
-                                <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">
-                                  {lang === 'ru' ? 'Что я сделал' : 'What I did'}
-                                </p>
-                                <div className="space-y-1.5">
-                                  {m.steps.map((step, sti) => (
-                                    <div key={sti} className="flex items-start gap-2 text-[12px] text-foreground leading-snug">
-                                      <span className="grid place-items-center h-4 w-4 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5">
-                                        <Icon name="Check" size={10} />
-                                      </span>
-                                      <span>{step}</span>
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                            )}
-
-                            {/* Итог / общее впечатление */}
-                            {m.summary && (
-                              <p className="text-muted-foreground text-[12px] leading-relaxed">{m.summary}</p>
-                            )}
-
-                            {/* Дизайн-решения */}
-                            {m.design && (
-                              <div className="flex items-start gap-2 text-[12px] text-foreground bg-primary/5 border border-primary/15 rounded-lg px-2.5 py-2">
-                                <Icon name="Palette" size={13} className="text-primary shrink-0 mt-0.5" />
-                                <span>{m.design}</span>
-                              </div>
-                            )}
-
-                            {!m.intro && !m.summary && !m.steps?.length && (
-                              <p className="text-muted-foreground text-xs">{tr('builderReadyDesc', lang)}</p>
-                            )}
-
-                            {/* Список секций на сайте */}
-                            {m.sections && m.sections.length > 0 && (
-                              <div>
-                                <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold mb-1.5">
-                                  {lang === 'ru' ? 'На сайте есть' : 'On the site'}
-                                </p>
-                                <div className="flex flex-wrap gap-1.5">
-                                  {m.sections.map((s, si) => (
-                                    <span key={si} className="flex items-center gap-1 text-[11px] text-foreground bg-background border border-border px-2 py-1 rounded-lg">
-                                      <Icon name="Check" size={10} className="text-emerald-500 shrink-0" />
-                                      {s}
-                                    </span>
-                                  ))}
-                                </div>
-                              </div>
-                            )}
-
-                            <div className="flex gap-2 pt-2.5 border-t border-border">
-                              <button onClick={() => setRightTab('preview')}
-                                className="flex items-center gap-1 text-xs text-primary hover:text-primary/80 font-semibold bg-primary/10 hover:bg-primary/20 px-2.5 py-1.5 rounded-lg transition-colors">
-                                <Icon name="Eye" size={11} /> {tr('builderPreview', lang)}
-                              </button>
-                              <button onClick={() => { setRightTab('code'); setCodeEditorValue(html); }}
-                                className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground bg-secondary hover:bg-secondary/70 px-2.5 py-1.5 rounded-lg transition-colors">
-                                <Icon name="Code" size={11} /> {tr('builderCode', lang)}
-                              </button>
-                              <button onClick={handleDownload}
-                                className="flex items-center gap-1 text-xs text-muted-foreground hover:text-foreground bg-secondary hover:bg-secondary/70 px-2.5 py-1.5 rounded-lg transition-colors">
-                                <Icon name="Download" size={11} /> {tr('builderDownload', lang)}
-                              </button>
-                            </div>
-
-                            {/* Персональные предложения улучшений — показываем только у последнего ответа */}
-                            {i === messages.length - 1 && !loading && (() => {
-                              const ideas = (m.suggestions && m.suggestions.length > 0)
-                                ? m.suggestions
-                                : QUICK_EDITS.slice(0, 4).map(e => ({ icon: e.icon, label: e.label, prompt: e.prompt }));
-                              return (
-                                <div className="pt-2.5 border-t border-border">
-                                  <p className="text-[11px] text-foreground font-semibold mb-2 flex items-center gap-1">
-                                    <Icon name="Sparkles" size={12} className="text-primary" />
-                                    {lang === 'ru' ? 'Идеи, чтобы сделать сайт лучше' : 'Ideas to improve the site'}
-                                  </p>
-                                  <div className="space-y-1.5">
-                                    {ideas.map((s, sgi) => (
-                                      <button key={sgi} onClick={() => sendMessage(s.prompt)}
-                                        className="w-full flex items-center gap-2 text-left text-[12px] text-foreground bg-background hover:bg-primary/5 border border-border hover:border-primary/40 px-2.5 py-2 rounded-lg transition-all group">
-                                        <span className="grid place-items-center h-6 w-6 rounded-md bg-primary/10 text-primary shrink-0">
-                                          <Icon name={s.icon} size={13} fallback="Sparkles" />
-                                        </span>
-                                        <span className="flex-1 font-medium">{s.label}</span>
-                                        <Icon name="Plus" size={13} className="text-muted-foreground group-hover:text-primary shrink-0" />
-                                      </button>
-                                    ))}
-                                  </div>
-                                </div>
-                              );
-                            })()}
-                          </div>
+                          <TypingReport
+                            lang={lang}
+                            intro={m.intro}
+                            summary={m.summary}
+                            steps={m.steps}
+                            design={m.design}
+                            sections={m.sections}
+                            suggestions={m.suggestions}
+                            animate={i === messages.length - 1 && !loading}
+                            onPreview={() => setRightTab('preview')}
+                            onCode={() => { setRightTab('code'); setCodeEditorValue(html); }}
+                            onDownload={handleDownload}
+                            onSuggestion={(prompt) => sendMessage(prompt)}
+                            onTick={() => messagesEndRef.current?.scrollIntoView({ behavior: 'auto' })}
+                            previewLabel={tr('builderPreview', lang)}
+                            codeLabel={tr('builderCode', lang)}
+                            downloadLabel={tr('builderDownload', lang)}
+                            fallbackIdeas={QUICK_EDITS.slice(0, 4).map(e => ({ icon: e.icon, label: e.label, prompt: e.prompt }))}
+                          />
                         ) : m.content}
                       </div>
                       {m.role === 'user' && (
