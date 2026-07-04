@@ -442,6 +442,19 @@ export default function Builder() {
       setQuotaExceeded(false);
       const generatedHtml = (data as { html?: string }).html || '';
       const tokens = (data as { tokens?: number }).tokens || 0;
+
+      // Усиленная генерация: система распознала крупную задачу и сделала более детальный сайт,
+      // списав больше энергии. Сообщаем пользователю, чтобы расход был прозрачным.
+      const isLargeTask = (data as { large_task?: boolean }).large_task === true;
+      const requestCost = (data as { cost?: number }).cost || 1;
+      if (generatedHtml && isLargeTask && requestCost > 1) {
+        toast({
+          title: lang === 'ru' ? '✨ Детальный сайт' : '✨ Detailed site',
+          description: lang === 'ru'
+            ? `Крупная задача — сделал более насыщенный сайт. Списано ${requestCost} запроса вместо 1.`
+            : `Large task — generated a richer site. ${requestCost} requests used instead of 1.`,
+        });
+      }
       if (typeof (data as { remaining?: number }).remaining === 'number') {
         const newRemaining = (data as { remaining?: number }).remaining!;
         if (newRemaining <= LOW_BALANCE_THRESHOLD && (remaining === null || remaining > LOW_BALANCE_THRESHOLD)) {

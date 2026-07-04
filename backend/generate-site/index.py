@@ -105,8 +105,10 @@ PLAN_LIMITS = {
     'pro_60': 60, 'pro_80': 80, 'pro_200': 200, 'pro_400': 400, 'pro_800': 800,
 }
 
-def check_and_consume_quota(user_id: int, schema: str):
-    """Проверяет лимит AI-запросов (тариф + энергия) и списывает один запрос.
+def check_and_consume_quota(user_id: int, schema: str, cost: int = 1):
+    """Проверяет лимит AI-запросов (тариф + энергия) и списывает `cost` единиц.
+    cost=1 — обычная генерация, cost=3 — усиленная (крупная задача, детальный сайт).
+    Списание идёт сначала из лимита тарифа, затем из энергии (может частично из обоих).
     Возвращает (allowed: bool, error_message: str|None, remaining: int)"""
     conn = psycopg2.connect(os.environ['DATABASE_URL'])
     try:
@@ -132,41 +134,48 @@ def check_and_consume_quota(user_id: int, schema: str):
                     (limit, user_id)
                 )
 
-            if used < limit:
-                cur.execute(f"UPDATE {schema}.users SET requests_used = requests_used + 1 WHERE id = %s", (user_id,))
+            # Всего доступно = остаток тарифа + энергия. Если крупной задачи не хватает —
+            # не списываем ничего и просим пополнить (не оставляем пользователя без результата).
+            available = (limit - used) + energy
+            if available < cost:
                 conn.commit()
-                return True, None, (limit - used - 1) + energy
+                return False, 'Лимит AI-запросов исчерпан. Пополните энергию или смените тариф.', 0
 
-            if energy > 0:
-                cur.execute(f"UPDATE {schema}.users SET energy_balance = energy_balance - 1 WHERE id = %s", (user_id,))
-                conn.commit()
-                return True, None, energy - 1
-
+            # Списываем cost: сначала из лимита тарифа, остаток — из энергии.
+            from_limit = min(cost, max(0, limit - used))
+            from_energy = cost - from_limit
+            if from_limit:
+                cur.execute(f"UPDATE {schema}.users SET requests_used = requests_used + %s WHERE id = %s", (from_limit, user_id))
+            if from_energy:
+                cur.execute(f"UPDATE {schema}.users SET energy_balance = energy_balance - %s WHERE id = %s", (from_energy, user_id))
             conn.commit()
-            return False, 'Лимит AI-запросов исчерпан. Пополните энергию или смените тариф.', 0
+            return True, None, available - cost
     finally:
         conn.close()
 
-def refund_quota(user_id: int, schema: str):
-    """Возвращает списанный запрос, если обращение к AI не удалось (таймаут, ошибка модели и т.п.).
-    Пользователь не должен терять запрос из своего лимита, если сайт не был сгенерирован.
-    Порядок восстановления зеркален списанию: сначала энергия, затем лимит тарифа —
-    так же, как FILO/LIFO для check_and_consume_quota (energy списывается только когда лимит уже исчерпан)."""
+def refund_quota(user_id: int, schema: str, cost: int = 1):
+    """Возвращает списанные `cost` единиц, если обращение к AI не удалось (таймаут, ошибка модели).
+    Пользователь не должен терять запросы из лимита, если сайт не был сгенерирован.
+    Порядок восстановления зеркален списанию: сначала энергия, затем лимит тарифа."""
     conn = psycopg2.connect(os.environ['DATABASE_URL'])
     try:
         with conn.cursor() as cur:
             cur.execute(
-                f"SELECT requests_used, requests_limit FROM {schema}.users WHERE id = %s FOR UPDATE",
+                f"SELECT requests_used FROM {schema}.users WHERE id = %s FOR UPDATE",
                 (user_id,)
             )
             row = cur.fetchone()
             if not row:
                 return
-            used, limit = row
-            if used > 0:
-                cur.execute(f"UPDATE {schema}.users SET requests_used = requests_used - 1 WHERE id = %s", (user_id,))
-            else:
-                cur.execute(f"UPDATE {schema}.users SET energy_balance = energy_balance + 1 WHERE id = %s", (user_id,))
+            used = row[0]
+            # Сначала возвращаем в энергию столько, сколько было списано сверх лимита,
+            # остальное — обратно в лимит тарифа (не уводя used ниже нуля).
+            to_limit = min(cost, used)
+            to_energy = cost - to_limit
+            if to_limit:
+                cur.execute(f"UPDATE {schema}.users SET requests_used = requests_used - %s WHERE id = %s", (to_limit, user_id))
+            if to_energy:
+                cur.execute(f"UPDATE {schema}.users SET energy_balance = energy_balance + %s WHERE id = %s", (to_energy, user_id))
             conn.commit()
     except Exception:
         pass
@@ -337,6 +346,33 @@ def save_html(project_id: int, html: str, schema: str):
     finally:
         conn.close()
 
+
+# Ключевые слова, по которым запрос считаем "крупной задачей" — тогда включается
+# усиленная генерация (детальнее сайт, больше секций) и списывается больше энергии.
+LARGE_TASK_KEYWORDS = [
+    # ru
+    'магазин', 'интернет-магазин', 'каталог', 'корзин', 'маркетплейс', 'лендинг',
+    'многостранич', 'портфолио', 'галере', 'прайс', 'тариф', 'отзыв', 'блог', 'faq',
+    'форма заявк', 'форма обратн', 'калькулятор', 'дашборд', 'админ', 'личный кабинет',
+    'много секц', 'подробн', 'детальн', 'большой сайт', 'крупный', 'полноценн',
+    'разделы', 'меню навигац', 'слайдер', 'карусел', 'анимаци', 'корпоратив',
+    # en
+    'shop', 'store', 'ecommerce', 'catalog', 'cart', 'marketplace', 'landing',
+    'multipage', 'portfolio', 'gallery', 'pricing', 'testimonial', 'blog', 'dashboard',
+    'sections', 'detailed', 'full site', 'corporate', 'slider', 'carousel',
+]
+
+
+def detect_large_task(text: str, is_edit: bool) -> bool:
+    """Определяет, является ли запрос крупной задачей — по ключевым словам и объёму текста.
+    Правки существующего сайта крупными не считаем: там меняется малая часть кода."""
+    if is_edit:
+        return False
+    low = (text or '').lower()
+    keyword_hits = sum(1 for kw in LARGE_TASK_KEYWORDS if kw in low)
+    # Крупная задача, если: есть 2+ характерных слова ИЛИ одно сильное слово + длинное подробное ТЗ.
+    return keyword_hits >= 2 or (keyword_hits >= 1 and len(low) >= 220)
+
 def handler(event: dict, context) -> dict:
     """Генерирует HTML-код сайта через Claude Sonnet или GPT-4o (оба через OpenRouter) по описанию пользователя"""
 
@@ -354,15 +390,6 @@ def handler(event: dict, context) -> dict:
     if not user_id:
         return err('Сессия истекла', 401)
 
-    allowed, quota_error, remaining = check_and_consume_quota(user_id, schema)
-    if not allowed:
-        maybe_notify_low_balance(user_id, 0, schema)
-        return err(quota_error, 402)
-
-    # ВАЖНО: уведомление о низком балансе отправляем ПОСЛЕ успешной генерации, а не до неё.
-    # Раньше вызов стоял здесь и мог задерживать сам процесс генерации из-за медленного SMTP —
-    # это съедало секунды из общего бюджета времени функции ещё до обращения к AI.
-
     body = json.loads(event.get('body') or '{}')
     messages = body.get('messages', [])
     project_id = body.get('project_id')
@@ -371,6 +398,22 @@ def handler(event: dict, context) -> dict:
 
     if not messages:
         return err('Нет сообщений')
+
+    # Определяем стоимость запроса ДО списания: крупная задача (новый насыщенный сайт —
+    # магазин, лендинг с множеством секций, подробное ТЗ) стоит дороже и генерируется детальнее.
+    is_edit = bool(current_html)
+    last_user_text = (messages[-1].get('content', '') or '') if messages else ''
+    is_large_task = detect_large_task(last_user_text, is_edit)
+    request_cost = 3 if is_large_task else 1
+
+    allowed, quota_error, remaining = check_and_consume_quota(user_id, schema, request_cost)
+    if not allowed:
+        maybe_notify_low_balance(user_id, 0, schema)
+        return err(quota_error, 402)
+
+    # ВАЖНО: уведомление о низком балансе отправляем ПОСЛЕ успешной генерации, а не до неё.
+    # Раньше вызов стоял здесь и мог задерживать сам процесс генерации из-за медленного SMTP —
+    # это съедало секунды из общего бюджета времени функции ещё до обращения к AI.
 
     project_images = get_project_images(project_id, user_id, schema)
     system_prompt = build_system_prompt(project_images)
@@ -435,10 +478,23 @@ def handler(event: dict, context) -> dict:
     # Длину ответа масштабируем под бюджет: при 30 сек — компактный сайт (успевает сгенериться),
     # при увеличенном лимите — более насыщенный. Обрыв подстрахован repair_truncated_html.
     max_tokens = 5000 if function_timeout <= 35 else 10000
+    # Усиленная генерация (крупная задача): даём модели больше места на детальный сайт.
+    # Ограничиваем 8000 на 30-сек лимите, чтобы не упереться в таймаут; при большом лимите — до 14000.
+    if is_large_task:
+        max_tokens = min(8000, max_tokens + 3000) if function_timeout <= 35 else 14000
+
+    # Для крупной задачи усиливаем системный промпт: просим более детальный и насыщенный сайт.
+    effective_system_prompt = system_prompt
+    if is_large_task:
+        effective_system_prompt += (
+            "\n\nЭто КРУПНАЯ задача — сделай максимально насыщенный, детальный и продающий сайт: "
+            "больше содержательных секций (6-8), проработанные блоки (преимущества, отзывы, тарифы/каталог, FAQ, форма), "
+            "богатая, но аккуратная вёрстка и продуманный дизайн. Всё равно ОБЯЗАТЕЛЬНО закрой все теги и заверши документ на </body></html>."
+        )
 
     payload = json.dumps({
         'model': model_name,
-        'messages': [{'role': 'system', 'content': system_prompt}] + chat_messages,
+        'messages': [{'role': 'system', 'content': effective_system_prompt}] + chat_messages,
         'max_tokens': max_tokens,
         'temperature': 0.7,
         # Отключаем режим "рассуждения" (reasoning/thinking) — у Gemini 2.5 Flash он включён
@@ -467,26 +523,26 @@ def handler(event: dict, context) -> dict:
         with urllib.request.urlopen(req, timeout=ai_timeout) as response:
             result = json.loads(response.read().decode('utf-8'))
     except urllib.error.HTTPError as e:
-        refund_quota(user_id, schema)
+        refund_quota(user_id, schema, request_cost)
         return err(f'OpenRouter API error {e.code}', 502)
     except (urllib.error.URLError, TimeoutError, socket.timeout) as e:
-        refund_quota(user_id, schema)
+        refund_quota(user_id, schema, request_cost)
         # Таймаут ожидания ответа от AI — отдаём 504, фронтенд покажет понятный текст.
         if isinstance(e, urllib.error.URLError) and not isinstance(getattr(e, 'reason', None), (TimeoutError, socket.timeout)):
             return err('OpenRouter API недоступен. Попробуйте позже.', 503)
         return err('AI не успел ответить вовремя. Упростите запрос или выберите другую модель.', 504)
     except (json.JSONDecodeError, Exception):
-        refund_quota(user_id, schema)
+        refund_quota(user_id, schema, request_cost)
         return err('Неверный ответ от OpenRouter.', 502)
 
     choices = result.get('choices') or []
     if not choices:
-        refund_quota(user_id, schema)
+        refund_quota(user_id, schema, request_cost)
         return err('AI вернул пустой ответ.', 502)
 
     html = (choices[0].get('message', {}).get('content') or '').strip()
     if not html:
-        refund_quota(user_id, schema)
+        refund_quota(user_id, schema, request_cost)
         return err('AI вернул пустой HTML.', 502)
 
     usage = result.get('usage', {})
@@ -517,6 +573,8 @@ def handler(event: dict, context) -> dict:
         'html': html,
         'tokens': tokens,
         'remaining': remaining,
+        'large_task': is_large_task,
+        'cost': request_cost,
         'intro': meta.get('intro', ''),
         'summary': meta.get('summary', ''),
         'steps': meta.get('steps', []),
