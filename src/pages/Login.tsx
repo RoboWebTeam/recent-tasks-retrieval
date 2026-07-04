@@ -198,11 +198,6 @@ const Login = () => {
               <Icon name="ArrowLeft" size={12} /> {tr('backHome', lang)}
             </Link>
           </p>
-
-          {/* Lang switcher desktop */}
-          <div className="hidden lg:flex justify-center mt-6">
-            <LangSwitcher lang={lang} />
-          </div>
         </div>
       </div>
     </div>
