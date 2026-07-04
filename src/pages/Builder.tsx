@@ -1193,7 +1193,7 @@ export default function Builder() {
                     <div className="grid h-8 w-8 place-items-center rounded-xl bg-primary text-primary-foreground shrink-0 mt-0.5 shadow-sm">
                       <Icon name="Bot" size={15} />
                     </div>
-                    <div className="max-w-[85%] text-[14px] font-semibold leading-[1.55] bg-secondary border border-border text-foreground rounded-2xl rounded-bl-sm px-4 py-3">
+                    <div className="flex-1 min-w-0 text-[14px] font-semibold leading-[1.55] text-foreground py-1">
                       {WELCOME_MESSAGE(lang)}
                     </div>
                   </div>
@@ -1208,10 +1208,10 @@ export default function Builder() {
                           <Icon name="Bot" size={15} />
                         </div>
                       )}
-                      <div className={`max-w-[85%] text-[14px] font-semibold leading-[1.55] ${
+                      <div className={`text-[14px] font-semibold leading-[1.55] ${
                         m.role === 'user'
-                          ? 'bg-primary text-primary-foreground rounded-2xl rounded-br-sm px-4 py-3 shadow-sm'
-                          : 'bg-secondary border border-border text-foreground rounded-2xl rounded-bl-sm px-4 py-3'
+                          ? 'max-w-[85%] bg-primary text-primary-foreground rounded-2xl rounded-br-sm px-4 py-3 shadow-sm'
+                          : 'flex-1 min-w-0 text-foreground py-1'
                       }`}>
                         {m.role === 'user' && (
                           <div className="text-[10px] text-primary-foreground/60 mb-1.5">{msgTime}</div>
