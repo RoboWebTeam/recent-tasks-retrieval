@@ -1356,11 +1356,11 @@ export default function Builder() {
                       )}
                       <div className={`text-[14px] font-semibold leading-[1.55] ${
                         m.role === 'user'
-                          ? 'max-w-[85%] bg-primary text-primary-foreground rounded-2xl rounded-br-sm px-4 py-3 shadow-sm'
+                          ? 'max-w-[85%] text-foreground text-right px-1 py-1'
                           : 'flex-1 min-w-0 text-foreground py-1'
                       }`}>
                         {m.role === 'user' && (
-                          <div className="text-[10px] text-primary-foreground/60 mb-1.5">{msgTime}</div>
+                          <div className="text-[10px] text-muted-foreground mb-1.5">{msgTime}</div>
                         )}
                         {m.role === 'assistant' && m.content === '' ? (
                           <GenerationProgress lang={lang} isEdit={!!m.isEdit} />

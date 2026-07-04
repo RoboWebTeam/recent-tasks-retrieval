@@ -121,15 +121,15 @@ export default function TypingReport(props: Props) {
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 text-xs font-semibold">
-        <Icon name="CheckCircle" size={13} /> {tr('builderReady', lang)}
+      <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 text-[14px] font-semibold">
+        <Icon name="CheckCircle" size={14} /> {tr('builderReady', lang)}
       </div>
 
       {/* ФАЗА 1 — какой файл читается/создаётся */}
-      <div className="flex items-center gap-2 text-[12px] text-muted-foreground bg-secondary/60 border border-border rounded-lg px-2.5 py-1.5 w-fit">
-        <Icon name={isEdit ? 'FilePenLine' : 'FilePlus2'} fallback="FileCode" size={13} className="text-primary shrink-0" />
+      <div className="flex items-center gap-2 text-[14px] font-semibold text-muted-foreground bg-secondary/60 border border-border rounded-lg px-2.5 py-1.5 w-fit">
+        <Icon name={isEdit ? 'FilePenLine' : 'FilePlus2'} fallback="FileCode" size={14} className="text-primary shrink-0" />
         <span className="font-mono">index.html</span>
-        <span className="text-muted-foreground/60">
+        <span className="text-muted-foreground/70">
           {phase < 2
             ? (lang === 'ru' ? 'читаю…' : 'reading…')
             : isEdit ? (lang === 'ru' ? 'обновлён' : 'updated') : (lang === 'ru' ? 'создан' : 'created')}
