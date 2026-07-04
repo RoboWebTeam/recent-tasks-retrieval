@@ -90,6 +90,7 @@ export const t = {
   builderInputPlaceholder: { ru: 'Опишите ваш сайт…', en: 'Describe your website…' },
   builderInputHint: { ru: 'Enter — отправить · Shift+Enter — новая строка', en: 'Enter to send · Shift+Enter for new line' },
   builderGenerating: { ru: 'Генерирую сайт', en: 'Generating site' },
+  builderDone: { ru: 'Готово! Сайт обновлён.', en: 'Done! Site updated.' },
   builderReady: { ru: 'Сайт готов!', en: 'Site ready!' },
   builderReadyDesc: { ru: 'Превью обновлено справа. Можете скачать или продолжить диалог.', en: 'Preview updated on the right. Download or continue the dialog.' },
   builderPreview: { ru: 'Превью', en: 'Preview' },
@@ -163,5 +164,9 @@ export const t = {
 export type TranslationKey = keyof typeof t;
 
 export function tr(key: TranslationKey, lang: Lang): string {
-  return t[key][lang];
+  // Защита от отсутствующего ключа: без неё обращение к t[key][lang] при опечатке
+  // роняет весь интерфейс ошибкой "Cannot read properties of undefined".
+  const entry = t[key];
+  if (!entry) return key;
+  return entry[lang] ?? entry.ru ?? key;
 }
