@@ -1,18 +1,42 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { type Lang } from '@/lib/i18n';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { getSession } from '@/lib/auth';
-import { L, getPORTFOLIO, DEMO_CATEGORIES_RU, DEMO_CATEGORIES_EN, type DemoCategory } from './indexData';
+import { L } from './indexData';
+import { DEMO_CATEGORIES_RU, DEMO_CATEGORIES_EN, type DemoCategory } from './portfolioCategories';
+import type { DemoItem } from './portfolioData';
 import { Reveal, EmailForm } from './IndexShared';
 
 interface Props { lang: Lang; }
 
 const PAGE_SIZE = 12;
 
+const SKELETON_COUNT = 8;
+
+function PortfolioSkeleton() {
+  return (
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+      {Array.from({ length: SKELETON_COUNT }).map((_, i) => (
+        <div
+          key={i}
+          className="flex flex-col overflow-hidden rounded-2xl border border-border bg-card animate-pulse"
+        >
+          <div className="h-44 bg-muted" />
+          <div className="p-4 flex flex-col flex-1 gap-3">
+            <div className="h-4 w-20 rounded-full bg-muted" />
+            <div className="h-4 w-3/4 rounded bg-muted" />
+            <div className="h-8 w-full rounded-xl bg-muted mt-auto" />
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
 // --- Секция портфолио ---
-function PortfolioSection({ lang, portfolio }: { lang: Lang; portfolio: ReturnType<typeof getPORTFOLIO> }) {
+function PortfolioSection({ lang, portfolio }: { lang: Lang; portfolio: DemoItem[] }) {
   const navigate = useNavigate();
   const [activeFilter, setActiveFilter] = useState<DemoCategory>('all');
   const [page, setPage] = useState(1);
@@ -83,6 +107,9 @@ function PortfolioSection({ lang, portfolio }: { lang: Lang; portfolio: ReturnTy
         </Reveal>
 
         {/* Сетка */}
+        {portfolio.length === 0 ? (
+          <PortfolioSkeleton />
+        ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
           {visible.map((p, i) => {
             const isNew = i >= prevCount;
@@ -129,8 +156,10 @@ function PortfolioSection({ lang, portfolio }: { lang: Lang; portfolio: ReturnTy
             );
           })}
         </div>
+        )}
 
         {/* Показать ещё / счётчик */}
+        {portfolio.length > 0 && (
         <div className="mt-8 flex flex-col items-center gap-3">
           <p className="text-xs text-muted-foreground">
             {lang === 'ru' ? `Показано ${visible.length} из ${filtered.length}` : `Showing ${visible.length} of ${filtered.length}`}
@@ -145,6 +174,7 @@ function PortfolioSection({ lang, portfolio }: { lang: Lang; portfolio: ReturnTy
             </button>
           )}
         </div>
+        )}
 
         <Reveal>
           <div className="mt-10 text-center">
@@ -161,12 +191,20 @@ function PortfolioSection({ lang, portfolio }: { lang: Lang; portfolio: ReturnTy
 }
 
 export function IndexSectionsMiddle({ lang }: Props) {
-  const PORTFOLIO = getPORTFOLIO(lang);
+  const [portfolio, setPortfolio] = useState<DemoItem[]>([]);
+
+  useEffect(() => {
+    let cancelled = false;
+    import('./portfolioData').then(m => {
+      if (!cancelled) setPortfolio(m.getPORTFOLIO(lang));
+    });
+    return () => { cancelled = true; };
+  }, [lang]);
 
   return (
     <>
       {/* PORTFOLIO */}
-      <PortfolioSection lang={lang} portfolio={PORTFOLIO} />
+      <PortfolioSection lang={lang} portfolio={portfolio} />
 
       {/* REVIEWS */}
       <section className="py-16 md:py-24 bg-secondary/40">
