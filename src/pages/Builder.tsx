@@ -428,8 +428,9 @@ export default function Builder() {
 
     const isEditRequest = !!html;
     const newMessages: Message[] = [...messages, { role: 'user', content }];
-    setMessages(newMessages);
-    setMessages(prev => [...prev, { role: 'assistant', content: '', isEdit: isEditRequest }]);
+    // Добавляем сообщение пользователя И пустой ответ ассистента одним обновлением —
+    // без гонки между двумя setState (иначе при быстрых кликах история могла рассинхронизироваться).
+    setMessages([...newMessages, { role: 'assistant', content: '', isEdit: isEditRequest }]);
 
     try {
       const { res, raw } = await fetchWithAiRetry(GENERATE_URL, {
@@ -449,7 +450,17 @@ export default function Builder() {
 
       let data: Record<string, unknown> = raw;
       if (raw.body !== undefined) {
-        data = typeof raw.body === 'string' ? JSON.parse(raw.body) : raw.body as Record<string, unknown>;
+        // Парсинг тела оборачиваем в try — иначе битый JSON из ответа приводил к крашу
+        // ВНЕ основного catch и оставлял чат навсегда в состоянии загрузки.
+        if (typeof raw.body === 'string') {
+          try {
+            data = JSON.parse(raw.body);
+          } catch {
+            data = { statusCode: 502, error: tr('builderError', lang) };
+          }
+        } else {
+          data = raw.body as Record<string, unknown>;
+        }
       }
       const statusCode = typeof raw.statusCode === 'number' ? raw.statusCode : res.status;
       const ok = statusCode >= 200 && statusCode < 300;
@@ -617,9 +628,15 @@ export default function Builder() {
   };
 
   const handleCopyCode = () => {
-    navigator.clipboard.writeText(html);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    // clipboard может быть недоступен (нет прав/старый браузер) — обрабатываем ошибку,
+    // чтобы не показывать «Скопировано», когда копирование не произошло, и не ловить краш.
+    navigator.clipboard?.writeText(html).then(
+      () => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      },
+      () => toast({ variant: 'destructive', title: lang === 'ru' ? 'Не удалось скопировать' : 'Copy failed' })
+    );
   };
 
   const handleClearChat = () => {
@@ -883,6 +900,8 @@ export default function Builder() {
       setIsRecording(false);
       return;
     }
+    // Останавливаем предыдущий экземпляр, если он ещё активен — чтобы не было двух распознаваний.
+    recognitionRef.current?.abort();
     const rec = new SpeechRecognitionAPI();
     rec.lang = lang === 'ru' ? 'ru-RU' : 'en-US';
     rec.interimResults = true;
@@ -898,13 +917,39 @@ export default function Builder() {
     setIsRecording(true);
   };
 
+  // Останавливаем распознавание голоса при уходе со страницы редактора —
+  // иначе микрофон мог оставаться активным (утечка ресурса).
+  useEffect(() => {
+    return () => {
+      recognitionRef.current?.abort();
+      recognitionRef.current = null;
+    };
+  }, []);
+
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    // Валидация типа: только изображения (защита от подмены расширения).
+    if (!file.type.startsWith('image/')) {
+      toast({ variant: 'destructive', title: lang === 'ru' ? 'Можно загрузить только изображение' : 'Only images allowed' });
+      e.target.value = '';
+      return;
+    }
+    // Валидация размера: до 10 МБ, чтобы не перегрузить память браузера и запрос.
+    const MAX_SIZE = 10 * 1024 * 1024;
+    if (file.size > MAX_SIZE) {
+      toast({ variant: 'destructive', title: lang === 'ru' ? 'Файл слишком большой (макс. 10 МБ)' : 'File too large (max 10 MB)' });
+      e.target.value = '';
+      return;
+    }
     const reader = new FileReader();
     reader.onload = (ev) => {
       setAttachedImage({ url: ev.target?.result as string, name: file.name });
       if (!input) setInput(lang === 'ru' ? 'Создай сайт по этому изображению' : 'Create a website based on this image');
+    };
+    // Обработка ошибки чтения — иначе битый файл молча попадал в запрос.
+    reader.onerror = () => {
+      toast({ variant: 'destructive', title: lang === 'ru' ? 'Не удалось прочитать файл' : 'Failed to read file' });
     };
     reader.readAsDataURL(file);
     e.target.value = '';
