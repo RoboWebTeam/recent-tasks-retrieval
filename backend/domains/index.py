@@ -137,7 +137,10 @@ def handler(event: dict, context) -> dict:
     if not session_id:
         return err('Не авторизован', 401)
 
-    body = json.loads(event.get('body') or '{}')
+    try:
+        body = json.loads(event.get('body') or '{}')
+    except (json.JSONDecodeError, TypeError):
+        return err('Некорректный формат данных запроса', 400)
     params = event.get('queryStringParameters') or {}
 
     conn = get_conn()
@@ -184,6 +187,13 @@ def handler(event: dict, context) -> dict:
                         return err('Этот домен уже добавлен')
 
                     project_id = body.get('project_id')
+                    # Если домен привязывается к проекту — проверяем, что проект принадлежит
+                    # пользователю (иначе можно было бы привязать домен к чужому проекту).
+                    if project_id:
+                        cur.execute(f"SELECT id FROM {schema}.projects WHERE id = %s AND user_id = %s", (project_id, user_id))
+                        if not cur.fetchone():
+                            return err('Проект не найден', 404)
+
                     cur.execute(f"SELECT COUNT(*) FROM {schema}.domains WHERE user_id = %s", (user_id,))
                     is_first = cur.fetchone()[0] == 0
 
@@ -252,6 +262,9 @@ def handler(event: dict, context) -> dict:
                         f"UPDATE {schema}.domains SET redirect_mode = %s WHERE id = %s AND user_id = %s",
                         (redirect_mode, domain_id, user_id)
                     )
+                    # Если ничего не обновилось — домен не принадлежит пользователю, честно вернём 404.
+                    if cur.rowcount == 0:
+                        return err('Домен не найден', 404)
                     conn.commit()
                     return ok({'ok': True})
 
@@ -266,6 +279,8 @@ def handler(event: dict, context) -> dict:
                         f"UPDATE {schema}.domains SET project_id = %s WHERE id = %s AND user_id = %s",
                         (project_id, domain_id, user_id)
                     )
+                    if cur.rowcount == 0:
+                        return err('Домен не найден', 404)
                     conn.commit()
                     return ok({'ok': True})
 
@@ -276,9 +291,16 @@ def handler(event: dict, context) -> dict:
                 if not domain_id:
                     return err('Укажите id домена')
                 cur.execute(f"DELETE FROM {schema}.domains WHERE id = %s AND user_id = %s", (domain_id, user_id))
+                if cur.rowcount == 0:
+                    return err('Домен не найден', 404)
                 conn.commit()
                 return ok({'ok': True})
 
+    except Exception:
+        # Любая ошибка БД (напр. гонка при добавлении дубля домена) — откатываем транзакцию
+        # и возвращаем понятный ответ вместо голого 500.
+        conn.rollback()
+        return err('Ошибка обработки запроса. Попробуйте ещё раз.', 500)
     finally:
         conn.close()
 
