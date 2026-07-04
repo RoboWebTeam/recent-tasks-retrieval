@@ -1280,9 +1280,12 @@ export default function Builder() {
                             summary={m.summary}
                             steps={m.steps}
                             design={m.design}
+                            sections={m.sections}
+                            suggestions={m.suggestions}
                             isEdit={m.isEdit}
                             animate={!!m.justGenerated && i === messages.length - 1 && !loading}
                             onTick={() => messagesEndRef.current?.scrollIntoView({ behavior: 'auto' })}
+                            onSuggestion={(prompt) => sendMessage(prompt)}
                           />
                         ) : m.content}
                       </div>
