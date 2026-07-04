@@ -8,6 +8,7 @@ import LangSwitcher from '@/components/LangSwitcher';
 import { useToast } from '@/hooks/use-toast';
 import BuilderCorePanel from '@/components/builder/BuilderCorePanel';
 import BuilderDomainModal from '@/components/builder/BuilderDomainModal';
+import GenerationProgress from '@/components/builder/GenerationProgress';
 import { trackGoal, GOALS } from '@/lib/analytics';
 import { apiUrl } from '@/lib/apiConfig';
 
@@ -41,6 +42,8 @@ interface Message {
   content: string;
   isHtml?: boolean;
   tokens?: number;
+  /** true — этот пустой ответ ассистента относится к правке существующего сайта, а не к генерации с нуля */
+  isEdit?: boolean;
 }
 
 interface Version {
@@ -330,9 +333,10 @@ export default function Builder() {
 
     const content = rawContent + imageNote;
 
+    const isEditRequest = !!html;
     const newMessages: Message[] = [...messages, { role: 'user', content }];
     setMessages(newMessages);
-    setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
+    setMessages(prev => [...prev, { role: 'assistant', content: '', isEdit: isEditRequest }]);
 
     try {
       const { res, raw } = await fetchWithAiRetry(GENERATE_URL, {
@@ -1055,14 +1059,7 @@ export default function Builder() {
                           <div className="text-[10px] text-primary-foreground/60 mb-1.5">{msgTime}</div>
                         )}
                         {m.role === 'assistant' && m.content === '' ? (
-                          <div className="flex items-center gap-1.5 py-0.5">
-                            <span className="text-muted-foreground text-xs">{tr('builderGenerating', lang)}</span>
-                            <span className="flex gap-1">
-                              {[0,1,2].map(j => (
-                                <span key={j} className="h-1.5 w-1.5 rounded-full bg-primary animate-bounce" style={{animationDelay:`${j*0.15}s`}} />
-                              ))}
-                            </span>
-                          </div>
+                          <GenerationProgress lang={lang} isEdit={!!m.isEdit} />
                         ) : m.isHtml ? (
                           <div className="space-y-2.5">
                             <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 text-xs font-semibold">
