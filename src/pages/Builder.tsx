@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, type CSSProperties } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
-import { getSession, getStoredUser, apiUploadFile, apiGetProject, apiPublishProject, apiGenerateImage, LOW_BALANCE_THRESHOLD } from '@/lib/auth';
+import { getSession, getStoredUser, apiUploadFile, apiGetProject, apiPublishProject, apiGenerateImage, apiSaveChatHistory, LOW_BALANCE_THRESHOLD } from '@/lib/auth';
 import { getLang, tr } from '@/lib/i18n';
 import LangSwitcher from '@/components/LangSwitcher';
 import { useToast } from '@/hooks/use-toast';
@@ -210,6 +210,9 @@ export default function Builder() {
   const [saveToFilesDone, setSaveToFilesDone] = useState(false);
   const [projectTitle, setProjectTitle] = useState('');
   const [loadingProject, setLoadingProject] = useState(false);
+  // Флаг: история чата из БД уже загружена. До этого момента не сохраняем автоматически,
+  // чтобы пустой стартовый стейт не затёр сохранённую историю в базе.
+  const [chatLoaded, setChatLoaded] = useState(!projectId);
   const [publishing, setPublishing] = useState(false);
   const [publishedSlug, setPublishedSlug] = useState<string | null>(null);
   const [showPublishModal, setShowPublishModal] = useState(false);
@@ -267,8 +270,22 @@ export default function Builder() {
         if (project.status === 'published' && project.slug) {
           setPublishedSlug(project.slug);
         }
+        // История диалога хранится в БД — восстанавливаем её при входе, чтобы чат
+        // не был пустым. БД имеет приоритет над localStorage (работает с любого устройства).
+        const dbHistory = Array.isArray(project.chat_history) ? project.chat_history : [];
+        const validHistory = dbHistory.filter((m): m is Message =>
+          !!m && typeof m === 'object' &&
+          ((m as Message).role === 'user' || (m as Message).role === 'assistant') &&
+          typeof (m as Message).content === 'string'
+        );
+        if (validHistory.length > 0) {
+          setMessages(validHistory);
+        }
+        // Разрешаем автосохранение истории только после первичной загрузки —
+        // иначе пустой стартовый стейт перезапишет сохранённую историю в БД.
+        setChatLoaded(true);
       })
-      .catch(() => {/* проект не найден — начинаем с чистого листа */})
+      .catch(() => { setChatLoaded(true); })
       .finally(() => setLoadingProject(false));
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session, projectId]);
@@ -305,7 +322,7 @@ export default function Builder() {
     };
   }, [isResizingChat]);
 
-  // Сохраняем историю чата в localStorage — чтобы она не терялась при перезагрузке страницы.
+  // Сохраняем историю чата в localStorage — быстрый локальный кеш на случай перезагрузки.
   // Не сохраняем во время загрузки (когда последнее сообщение ассистента ещё пустое).
   useEffect(() => {
     if (loading) return;
@@ -319,6 +336,18 @@ export default function Builder() {
       /* localStorage может быть переполнен — не критично */
     }
   }, [messages, loading, chatStorageKey]);
+
+  // Сохраняем историю чата в БД проекта — чтобы она восстанавливалась при повторном входе
+  // с любого устройства. Делаем с задержкой (debounce), чтобы не слать запрос на каждый символ,
+  // и только после того как история из БД уже загружена (иначе затрём её пустым стейтом).
+  useEffect(() => {
+    if (loading || !session || !projectId || !chatLoaded) return;
+    const timer = setTimeout(() => {
+      apiSaveChatHistory(session, projectId, messages.slice(-100)).catch(() => {/* не критично */});
+    }, 1200);
+    return () => clearTimeout(timer);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [messages, loading, chatLoaded, projectId]);
 
   useEffect(() => {
     localStorage.setItem('builder_theme', builderTheme);

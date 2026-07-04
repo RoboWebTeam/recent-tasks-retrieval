@@ -49,6 +49,7 @@ export interface Project {
   url: string;
   slug?: string | null;
   html_content?: string;
+  chat_history?: unknown[];
   created_at: string;
   updated_at: string;
 }
@@ -290,6 +291,16 @@ export async function apiPublishProject(sessionId: string, projectId: string | n
   });
   if (!res.ok) throw new Error((data as {error?: string}).error || 'Ошибка публикации сайта');
   return data as { slug: string; status: string };
+}
+
+/** Сохраняет историю диалога чата проекта в БД, чтобы она не терялась между входами
+ * и была доступна с любого устройства. Ошибки не критичны — вызываем «мягко». */
+export async function apiSaveChatHistory(sessionId: string, projectId: string | number, chatHistory: unknown[]): Promise<void> {
+  await apiFetch(PROJECTS_URL, {
+    method: 'POST',
+    headers: { 'x-session-id': sessionId },
+    body: JSON.stringify({ action: 'save_chat', id: projectId, chat_history: chatHistory }),
+  });
 }
 
 export async function apiGetFiles(sessionId: string): Promise<SiteFile[]> {

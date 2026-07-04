@@ -62,17 +62,20 @@ def handler(event: dict, context) -> dict:
 
                 if project_id:
                     cur.execute(
-                        f"SELECT id, title, description, status, url, slug, html_content, created_at, updated_at "
+                        f"SELECT id, title, description, status, url, slug, html_content, created_at, updated_at, chat_history "
                         f"FROM {schema}.projects WHERE id = %s AND user_id = %s",
                         (project_id, user_id)
                     )
                     row = cur.fetchone()
                     if not row:
                         return err('Проект не найден', 404)
+                    # chat_history хранится как JSONB — psycopg2 отдаёт его уже как list/dict.
+                    chat_history = row[9] if row[9] is not None else []
                     project = {
                         'id': row[0], 'title': row[1], 'description': row[2], 'status': row[3],
                         'url': row[4], 'slug': row[5], 'html_content': row[6],
                         'created_at': row[7].isoformat(), 'updated_at': row[8].isoformat(),
+                        'chat_history': chat_history,
                     }
                     return ok({'project': project})
 
@@ -89,9 +92,27 @@ def handler(event: dict, context) -> dict:
                 ]
                 return ok({'projects': projects})
 
-            # POST — создать проект / опубликовать проект
+            # POST — создать проект / опубликовать проект / сохранить историю чата
             if method == 'POST':
                 action = body.get('action', 'create')
+
+                # Сохранение истории диалога чата в БД — чтобы она не терялась между входами
+                # и была доступна с любого устройства (localStorage хранит только локально).
+                if action == 'save_chat':
+                    project_id = body.get('id')
+                    if not project_id:
+                        return err('Укажите id проекта')
+                    chat_history = body.get('chat_history', [])
+                    if not isinstance(chat_history, list):
+                        return err('chat_history должен быть массивом')
+                    # Ограничиваем объём (последние 100 сообщений) — чтобы не раздувать строку в БД.
+                    chat_history = chat_history[-100:]
+                    cur.execute(
+                        f"UPDATE {schema}.projects SET chat_history = %s WHERE id = %s AND user_id = %s",
+                        (json.dumps(chat_history), project_id, user_id)
+                    )
+                    conn.commit()
+                    return ok({'ok': True})
 
                 if action == 'publish':
                     project_id = body.get('id')
