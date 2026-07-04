@@ -14,6 +14,10 @@ PLAN_LIMITS = {
     'pro_60': 60, 'pro_80': 80, 'pro_200': 200, 'pro_400': 400, 'pro_800': 800,
 }
 
+# Стартовый бонус энергии для новых пользователей — чтобы можно было протестировать
+# AI-редактор чуть дольше, чем базовый лимит тарифа Free
+STARTER_ENERGY = 5
+
 def get_schema():
     global SCHEMA
     if not SCHEMA:
@@ -160,8 +164,9 @@ def handler(event: dict, context) -> dict:
                     if cur.fetchone():
                         return err('Пользователь с таким e-mail уже существует')
                     cur.execute(
-                        f"INSERT INTO {schema}.users (email, password_hash, name) VALUES (%s, %s, %s) RETURNING id",
-                        (email, hash_password(password), name)
+                        f"""INSERT INTO {schema}.users (email, password_hash, name, requests_limit, energy_balance)
+                            VALUES (%s, %s, %s, %s, %s) RETURNING id""",
+                        (email, hash_password(password), name, PLAN_LIMITS['free'], STARTER_ENERGY)
                     )
                     user_id = cur.fetchone()[0]
                     session_id = str(uuid.uuid4())
@@ -172,7 +177,7 @@ def handler(event: dict, context) -> dict:
                 conn.commit()
             finally:
                 conn.close()
-            return ok({'session_id': session_id, 'user': {'id': user_id, 'email': email, 'name': name, 'plan': 'free', 'requests_used': 0, 'requests_limit': PLAN_LIMITS['free'], 'energy_balance': 0}})
+            return ok({'session_id': session_id, 'user': {'id': user_id, 'email': email, 'name': name, 'plan': 'free', 'requests_used': 0, 'requests_limit': PLAN_LIMITS['free'], 'energy_balance': STARTER_ENERGY}})
 
         # LOGIN
         if action == 'login':
@@ -274,8 +279,9 @@ def handler(event: dict, context) -> dict:
                         user_id, name, plan = row
                     else:
                         cur.execute(
-                            f"INSERT INTO {schema}.users (email, password_hash, name) VALUES (%s, %s, %s) RETURNING id",
-                            (gh_email, hash_password(str(uuid.uuid4())), gh_name)
+                            f"""INSERT INTO {schema}.users (email, password_hash, name, requests_limit, energy_balance)
+                                VALUES (%s, %s, %s, %s, %s) RETURNING id""",
+                            (gh_email, hash_password(str(uuid.uuid4())), gh_name, PLAN_LIMITS['free'], STARTER_ENERGY)
                         )
                         user_id = cur.fetchone()[0]
                         name, plan = gh_name, 'free'
@@ -403,8 +409,9 @@ def handler(event: dict, context) -> dict:
                         user_id, name, plan = row
                     else:
                         cur.execute(
-                            f"INSERT INTO {schema}.users (email, password_hash, name) VALUES (%s, %s, %s) RETURNING id",
-                            (ya_email, hash_password(str(uuid.uuid4())), ya_name)
+                            f"""INSERT INTO {schema}.users (email, password_hash, name, requests_limit, energy_balance)
+                                VALUES (%s, %s, %s, %s, %s) RETURNING id""",
+                            (ya_email, hash_password(str(uuid.uuid4())), ya_name, PLAN_LIMITS['free'], STARTER_ENERGY)
                         )
                         user_id = cur.fetchone()[0]
                         name, plan = ya_name, 'free'
@@ -460,8 +467,9 @@ def handler(event: dict, context) -> dict:
                         user_id, name, plan = row
                     else:
                         cur.execute(
-                            f"INSERT INTO {schema}.users (email, password_hash, name) VALUES (%s, %s, %s) RETURNING id",
-                            (tg_email, hash_password(str(uuid.uuid4())), tg_name)
+                            f"""INSERT INTO {schema}.users (email, password_hash, name, requests_limit, energy_balance)
+                                VALUES (%s, %s, %s, %s, %s) RETURNING id""",
+                            (tg_email, hash_password(str(uuid.uuid4())), tg_name, PLAN_LIMITS['free'], STARTER_ENERGY)
                         )
                         user_id = cur.fetchone()[0]
                         name, plan = tg_name, 'free'

@@ -127,6 +127,10 @@ export default function Builder() {
   const [html, setHtml] = useState('');
   const [rightTab, setRightTab] = useState<RightTab>('preview');
   const [device, setDevice] = useState<DeviceMode>('desktop');
+  const [builderTheme, setBuilderTheme] = useState<'light' | 'dark'>(() => {
+    if (typeof window === 'undefined') return 'light';
+    return (localStorage.getItem('builder_theme') as 'light' | 'dark') || 'light';
+  });
   const [sidebarOpen, setSidebarOpen] = useState(true);
   const [versions, setVersions] = useState<Version[]>([]);
   const [showVersions, setShowVersions] = useState(false);
@@ -210,6 +214,12 @@ export default function Builder() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  useEffect(() => {
+    localStorage.setItem('builder_theme', builderTheme);
+  }, [builderTheme]);
+
+  const toggleBuilderTheme = () => setBuilderTheme(t => t === 'light' ? 'dark' : 'light');
 
   useEffect(() => {
     const ta = textareaRef.current;
@@ -702,7 +712,7 @@ export default function Builder() {
   const msgCount = messages.filter(m => m.role === 'user').length;
 
   return (
-    <div className="flex flex-col h-screen bg-background overflow-hidden">
+    <div className={`flex flex-col h-screen bg-background overflow-hidden ${builderTheme === 'dark' ? 'dark' : ''}`}>
 
       {/* TOP BAR */}
       <header className="flex items-center justify-between px-3 sm:px-4 h-14 border-b border-border shrink-0 bg-card">
@@ -805,6 +815,13 @@ export default function Builder() {
               )}
             </div>
           )}
+
+          {/* Тема интерфейса редактора */}
+          <button onClick={toggleBuilderTheme}
+            className="grid h-8 w-8 place-items-center rounded-lg border border-border bg-secondary hover:bg-secondary/70 hover:text-foreground transition-colors text-muted-foreground"
+            title={lang === 'ru' ? 'Тема интерфейса' : 'Interface theme'}>
+            <Icon name={builderTheme === 'dark' ? 'Sun' : 'Moon'} size={13} />
+          </button>
 
           {/* Refresh preview */}
           {html && (

@@ -1,0 +1,2 @@
+ALTER TABLE users ALTER COLUMN requests_limit SET DEFAULT 10;
+ALTER TABLE users ALTER COLUMN energy_balance SET DEFAULT 5;
