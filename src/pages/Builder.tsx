@@ -104,6 +104,12 @@ function getSuggestedModel(text: string, lang: 'ru' | 'en'): SuggestedModel {
   return null;
 }
 
+// Приветственное сообщение ассистента при первом входе в новый проект.
+const WELCOME_MESSAGE = (lang: 'ru' | 'en') =>
+  lang === 'ru'
+    ? 'Привет :) Roboweb заменяет фрилансеров и конструкторы сайтов. Опишите идею в диалоге — и получите готовый сайт, магазин, IT-стартап за минуты, а не недели. Ваш личный разработчик! И это всё реальность! Попробуйте, вам обязательно понравится.'
+    : 'Hi :) Roboweb replaces freelancers and site builders. Describe your idea in the chat — and get a ready website, store or IT startup in minutes, not weeks. Your personal developer! And it\'s all real! Give it a try — you\'ll love it.';
+
 const QUICK_EDITS_RU = [
   { icon: 'Palette', label: 'Тёмная тема', prompt: 'Сделай тёмную цветовую схему' },
   { icon: 'Sun', label: 'Светлая тема', prompt: 'Сделай светлую цветовую схему' },
@@ -130,23 +136,8 @@ const QUICK_EDITS_EN = [
   { icon: 'Award', label: 'Benefits', prompt: 'Add a key company benefits block (4-6 items)' },
 ];
 
-const SUGGESTIONS_RU = [
-  { cat: 'Услуги', items: ['Лендинг для кофейни с меню и формой заказа', 'Сайт для барбершопа с записью онлайн', 'Лендинг для фитнес-тренера с отзывами'] },
-  { cat: 'Бизнес', items: ['Сайт-визитка для юриста', 'Лендинг для агентства недвижимости', 'Корпоративный сайт IT-компании'] },
-  { cat: 'Магазин', items: ['Интернет-магазин одежды', 'Лендинг для продажи курсов', 'Магазин handmade товаров'] },
-  { cat: 'Портфолио', items: ['Сайт-портфолио для фотографа', 'Портфолио дизайнера', 'Личный сайт разработчика'] },
-];
-
-const SUGGESTIONS_EN = [
-  { cat: 'Services', items: ['Coffee shop landing with menu and order form', 'Barbershop website with online booking', 'Fitness trainer landing with reviews'] },
-  { cat: 'Business', items: ['Lawyer business card site', 'Real estate agency landing', 'IT company corporate site'] },
-  { cat: 'Store', items: ['Online clothing store', 'Landing page for online courses', 'Handmade products store'] },
-  { cat: 'Portfolio', items: ['Portfolio site for a photographer', 'Designer portfolio', 'Developer personal site'] },
-];
-
 export default function Builder() {
   const lang = getLang();
-  const SUGGESTIONS = lang === 'ru' ? SUGGESTIONS_RU : SUGGESTIONS_EN;
   const QUICK_EDITS = lang === 'ru' ? QUICK_EDITS_RU : QUICK_EDITS_EN;
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -170,7 +161,9 @@ export default function Builder() {
           m && typeof m === 'object' &&
           (m.role === 'user' || m.role === 'assistant') &&
           typeof m.content === 'string'
-        );
+        )
+        // Восстановленные сообщения НИКОГДА не анимируются повторно — сбрасываем флаг.
+        .map(({ justGenerated, ...rest }: Message) => rest);
     } catch {
       return [];
     }
@@ -276,13 +269,20 @@ export default function Builder() {
         // История диалога хранится в БД — восстанавливаем её при входе, чтобы чат
         // не был пустым. БД имеет приоритет над localStorage (работает с любого устройства).
         const dbHistory = Array.isArray(project.chat_history) ? project.chat_history : [];
-        const validHistory = dbHistory.filter((m): m is Message =>
-          !!m && typeof m === 'object' &&
-          ((m as Message).role === 'user' || (m as Message).role === 'assistant') &&
-          typeof (m as Message).content === 'string'
-        );
+        const validHistory = dbHistory
+          .filter((m): m is Message =>
+            !!m && typeof m === 'object' &&
+            ((m as Message).role === 'user' || (m as Message).role === 'assistant') &&
+            typeof (m as Message).content === 'string'
+          )
+          // Гарантируем: восстановленные из БД сообщения не анимируются повторно.
+          .map(({ justGenerated, ...rest }: Message) => rest);
         if (validHistory.length > 0) {
           setMessages(validHistory);
+        } else {
+          // Первый вход в проект (истории ещё нет) — приветствуем пользователя в диалоге.
+          // Проверяем и текущий localStorage-стейт, чтобы не задублировать приветствие.
+          setMessages(prev => prev.length > 0 ? prev : [{ role: 'assistant', content: WELCOME_MESSAGE(lang) }]);
         }
         // Разрешаем автосохранение истории только после первичной загрузки —
         // иначе пустой стартовый стейт перезапишет сохранённую историю в БД.
@@ -1188,34 +1188,14 @@ export default function Builder() {
                     </div>
                   )}
 
-                  <div className="text-center mb-6">
-                    <div className="grid h-14 w-14 place-items-center rounded-2xl bg-primary/10 text-primary mx-auto mb-3 border border-primary/20">
-                      <Icon name="Sparkles" size={24} />
+                  {/* Приветственное сообщение — вместо блоков с примерами сайтов */}
+                  <div className="flex gap-2.5 justify-start">
+                    <div className="grid h-8 w-8 place-items-center rounded-xl bg-primary text-primary-foreground shrink-0 mt-0.5 shadow-sm">
+                      <Icon name="Bot" size={15} />
                     </div>
-                    <h2 className="font-display font-bold text-lg text-foreground">
-                      {tr('builderHello', lang)}{user?.name ? `, ${user.name.split(' ')[0]}` : ''}!
-                    </h2>
-                    <p className="text-sm text-muted-foreground mt-1">{tr('builderWelcome', lang)}</p>
-                  </div>
-
-                  {/* Categorized suggestions */}
-                  <div className="space-y-3">
-                    {SUGGESTIONS.map(group => (
-                      <div key={group.cat}>
-                        <p className="text-[10px] text-muted-foreground/70 uppercase tracking-widest font-semibold px-1 mb-1.5">{group.cat}</p>
-                        <div className="space-y-1">
-                          {group.items.map(s => (
-                            <button key={s} onClick={() => applyTemplate(s)}
-                              className="w-full text-left text-sm font-medium text-muted-foreground hover:text-foreground bg-secondary hover:bg-secondary/70 border border-border hover:border-primary/50 rounded-xl px-3 py-2.5 transition-all group">
-                              <span className="flex items-center gap-2">
-                                <Icon name="Pencil" size={11} className="text-primary shrink-0 opacity-0 group-hover:opacity-100 transition-opacity" />
-                                {s}
-                              </span>
-                            </button>
-                          ))}
-                        </div>
-                      </div>
-                    ))}
+                    <div className="max-w-[85%] text-[14px] font-semibold leading-[1.55] bg-secondary border border-border text-foreground rounded-2xl rounded-bl-sm px-4 py-3">
+                      {WELCOME_MESSAGE(lang)}
+                    </div>
                   </div>
                 </div>
               ) : (
