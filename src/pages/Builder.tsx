@@ -56,10 +56,20 @@ const DEVICE_WIDTHS: Record<DeviceMode, string> = {
 const GEMINI_HINT_KEYWORDS_RU = ['сложн', 'интерактив', 'калькулятор', 'фильтр', 'анимаци', 'игр', 'квиз', 'викторин'];
 const GEMINI_HINT_KEYWORDS_EN = ['complex', 'interactive', 'calculator', 'filter', 'animation', 'game', 'quiz'];
 
-function shouldSuggestGemini(text: string, lang: 'ru' | 'en'): boolean {
+// Ключевые слова, при которых стоит предложить Claude — модель лучше справляется
+// с классическими бизнес-сайтами и структурированным контентом
+const CLAUDE_HINT_KEYWORDS_RU = ['лендинг', 'интернет-магазин', 'магазин', 'каталог', 'визитк', 'портфолио', 'корпоратив', 'услуг', 'юридическ', 'медицинск', 'клиник', 'салон'];
+const CLAUDE_HINT_KEYWORDS_EN = ['landing', 'online store', 'shop', 'catalog', 'portfolio', 'corporate', 'services', 'law firm', 'clinic', 'salon'];
+
+type SuggestedModel = 'claude' | 'gemini' | null;
+
+function getSuggestedModel(text: string, lang: 'ru' | 'en'): SuggestedModel {
   const lower = text.toLowerCase();
-  const keywords = lang === 'ru' ? GEMINI_HINT_KEYWORDS_RU : GEMINI_HINT_KEYWORDS_EN;
-  return keywords.some(kw => lower.includes(kw));
+  const geminiKw = lang === 'ru' ? GEMINI_HINT_KEYWORDS_RU : GEMINI_HINT_KEYWORDS_EN;
+  const claudeKw = lang === 'ru' ? CLAUDE_HINT_KEYWORDS_RU : CLAUDE_HINT_KEYWORDS_EN;
+  if (geminiKw.some(kw => lower.includes(kw))) return 'gemini';
+  if (claudeKw.some(kw => lower.includes(kw))) return 'claude';
+  return null;
 }
 
 const QUICK_EDITS_RU = [
@@ -212,7 +222,8 @@ export default function Builder() {
     if (!input.trim()) setDismissedModelHint(false);
   }, [input]);
 
-  const showGeminiHint = aiModel !== 'gemini' && !dismissedModelHint && shouldSuggestGemini(input, lang);
+  const suggestedModel = getSuggestedModel(input, lang);
+  const showModelHint = !dismissedModelHint && suggestedModel !== null && suggestedModel !== aiModel;
 
   const applyTemplate = (text: string) => {
     setInput(text);
@@ -1035,17 +1046,21 @@ export default function Builder() {
               </div>
             )}
 
-            {/* Подсказка: предложить Gemini для сложных/интерактивных запросов */}
-            {showGeminiHint && (
+            {/* Подсказка: предложить более подходящую модель под тип запроса */}
+            {showModelHint && suggestedModel && (
               <div className="mx-3 mt-3 rounded-xl px-3 py-2.5 flex items-center gap-2 text-xs bg-primary/10 text-primary">
                 <Icon name="Sparkles" size={14} className="shrink-0" />
                 <p className="flex-1">
-                  {lang === 'ru'
-                    ? 'Для сложного и интерактивного сайта лучше подойдёт Gemini 2.5 Pro'
-                    : 'Gemini 2.5 Pro is better suited for complex, interactive sites'}
+                  {suggestedModel === 'gemini'
+                    ? (lang === 'ru'
+                        ? 'Для сложного и интерактивного сайта лучше подойдёт Gemini 2.5 Pro'
+                        : 'Gemini 2.5 Pro is better suited for complex, interactive sites')
+                    : (lang === 'ru'
+                        ? 'Для бизнес-сайта или лендинга лучше подойдёт Claude Sonnet'
+                        : 'Claude Sonnet is better suited for business sites and landings')}
                 </p>
                 <button
-                  onClick={() => { setAiModel('gemini'); setDismissedModelHint(true); }}
+                  onClick={() => { setAiModel(suggestedModel); setDismissedModelHint(true); }}
                   className="shrink-0 font-semibold underline hover:no-underline">
                   {lang === 'ru' ? 'Переключить' : 'Switch'}
                 </button>
