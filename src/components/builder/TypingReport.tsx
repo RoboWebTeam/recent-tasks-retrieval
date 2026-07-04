@@ -11,6 +11,8 @@ interface Props {
   /** true — проигрывать анимацию печати; false — показать всё сразу (старые сообщения из истории) */
   animate: boolean;
   onTick: () => void;
+  /** true — это правка существующего сайта, false — создание нового */
+  isEdit?: boolean;
 }
 
 /**
@@ -51,7 +53,7 @@ function TypingLine({ text, animate, onDone, onTick, className }: {
 export default function TypingReport(props: Props) {
   const {
     lang, intro, summary, steps = [], design,
-    animate, onTick,
+    animate, onTick, isEdit,
   } = props;
 
   // Собираем последовательность «этапов» — сколько блоков нужно раскрыть по очереди.
@@ -75,6 +77,15 @@ export default function TypingReport(props: Props) {
     <div className="space-y-3">
       <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 text-xs font-semibold">
         <Icon name="CheckCircle" size={13} /> {tr('builderReady', lang)}
+      </div>
+
+      {/* Файл, с которым работал ИИ — показываем какой именно код был изменён */}
+      <div className="flex items-center gap-2 text-[12px] text-muted-foreground bg-secondary/60 border border-border rounded-lg px-2.5 py-1.5 w-fit">
+        <Icon name={isEdit ? 'FilePenLine' : 'FilePlus2'} fallback="FileCode" size={13} className="text-primary shrink-0" />
+        <span className="font-mono">index.html</span>
+        <span className="text-muted-foreground/60">
+          {isEdit ? (lang === 'ru' ? 'обновлён' : 'updated') : (lang === 'ru' ? 'создан' : 'created')}
+        </span>
       </div>
 
       {/* Вступление */}

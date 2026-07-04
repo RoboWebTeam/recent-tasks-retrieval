@@ -89,7 +89,7 @@ export const t = {
   builderTryTitle: { ru: 'Попробуйте', en: 'Try these' },
   builderInputPlaceholder: { ru: 'Опишите ваш сайт…', en: 'Describe your website…' },
   builderInputHint: { ru: 'Enter — отправить · Shift+Enter — новая строка', en: 'Enter to send · Shift+Enter for new line' },
-  builderGenerating: { ru: 'Генерирую сайт', en: 'Generating site' },
+  builderGenerating: { ru: 'Работаю, минуту...', en: 'Working, one moment...' },
   builderStep1: { ru: 'Анализирую ваш запрос', en: 'Analyzing your request' },
   builderStep2: { ru: 'Продумываю структуру страниц', en: 'Planning page structure' },
   builderStep3: { ru: 'Подбираю дизайн и цвета', en: 'Choosing design and colors' },

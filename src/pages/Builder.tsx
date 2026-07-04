@@ -915,19 +915,30 @@ export default function Builder() {
             </span>
           )}
           {msgCount > 0 && (
-            <span className="hidden md:flex items-center gap-1 text-xs text-muted-foreground">
-              <Icon name="MessageSquare" size={11} />
-              {msgCount} {lang === 'ru' ? 'запросов' : 'requests'}
-              {totalTokens > 0 && <span className="text-muted-foreground/50 ml-1">· {(totalTokens / 1000).toFixed(1)}k tokens</span>}
+            <span
+              className="hidden md:flex items-center gap-1 text-xs text-muted-foreground shrink-0 whitespace-nowrap"
+              title={lang === 'ru' ? `${msgCount} запросов к AI` : `${msgCount} AI requests`}
+            >
+              <Icon name="MessageSquare" size={11} className="shrink-0" />
+              <span>{msgCount}</span>
+            </span>
+          )}
+          {totalTokens > 0 && (
+            <span
+              className="hidden lg:flex items-center gap-1 text-xs text-muted-foreground shrink-0 whitespace-nowrap"
+              title={lang === 'ru' ? `Использовано ${(totalTokens / 1000).toFixed(1)}k токенов` : `${(totalTokens / 1000).toFixed(1)}k tokens used`}
+            >
+              <Icon name="Cpu" size={11} className="shrink-0" />
+              <span>{(totalTokens / 1000).toFixed(1)}k</span>
             </span>
           )}
           {remaining !== null && (
             <Link
               to="/dashboard?tab=plan"
-              title={lang === 'ru' ? 'Пополнить энергию' : 'Top up energy'}
-              className={`hidden sm:flex items-center gap-1 text-xs font-semibold rounded-lg px-2 py-1 transition-colors ${remaining <= 0 ? 'bg-destructive/10 text-destructive' : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 hover:bg-amber-500/20'}`}
+              title={lang === 'ru' ? `Осталось ${remaining} запросов. Нажмите, чтобы пополнить энергию` : `${remaining} requests left. Click to top up energy`}
+              className={`hidden sm:flex items-center gap-1 text-xs font-semibold rounded-lg px-2 py-1 shrink-0 whitespace-nowrap transition-colors ${remaining <= 0 ? 'bg-destructive/10 text-destructive' : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 hover:bg-amber-500/20'}`}
             >
-              <Icon name="Zap" size={11} />
+              <Icon name="Zap" size={11} className="shrink-0" />
               {remaining}
             </Link>
           )}
@@ -936,10 +947,14 @@ export default function Builder() {
         <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
           {/* Device switcher */}
           <div className="hidden lg:flex items-center gap-0.5 bg-secondary rounded-lg p-1 border border-border">
-            {([['desktop', 'Monitor'], ['tablet', 'Tablet'], ['mobile', 'Smartphone']] as const).map(([d, icon]) => (
+            {([
+              ['desktop', 'Monitor', lang === 'ru' ? 'Компьютер' : 'Desktop'],
+              ['tablet', 'Tablet', lang === 'ru' ? 'Планшет' : 'Tablet'],
+              ['mobile', 'Smartphone', lang === 'ru' ? 'Телефон' : 'Mobile'],
+            ] as const).map(([d, icon, deviceLabel]) => (
               <button key={d} onClick={() => setDevice(d)}
                 className={`grid h-7 w-7 place-items-center rounded-md transition-all ${device === d ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-secondary/70'}`}
-                title={d}>
+                title={deviceLabel}>
                 <Icon name={icon} size={13} />
               </button>
             ))}
@@ -949,6 +964,7 @@ export default function Builder() {
           <div className="flex items-center gap-0.5 bg-secondary rounded-lg p-1 border border-border shrink-0">
             {([['preview', 'Eye', tr('builderPreview', lang)], ['code', 'Code', tr('builderCode', lang)], ['core', 'Database', lang === 'ru' ? 'Ядро' : 'Core']] as const).map(([tab, icon, label]) => (
               <button key={tab} onClick={() => { setRightTab(tab); if (tab === 'code') setCodeEditorValue(html); }}
+                title={label}
                 className={`flex items-center gap-1.5 h-7 px-2 sm:px-2.5 rounded-md text-xs font-medium transition-all ${rightTab === tab ? 'bg-card text-foreground border border-border shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-secondary/70'}`}>
                 <Icon name={icon} size={13} />
                 <span className="hidden lg:inline">{label}</span>
@@ -1190,6 +1206,7 @@ export default function Builder() {
                             summary={m.summary}
                             steps={m.steps}
                             design={m.design}
+                            isEdit={m.isEdit}
                             animate={i === messages.length - 1 && !loading}
                             onTick={() => messagesEndRef.current?.scrollIntoView({ behavior: 'auto' })}
                           />
@@ -1442,7 +1459,7 @@ export default function Builder() {
                   {/* Отправить */}
                   <button onClick={() => sendMessage()}
                     disabled={loading || quotaExceeded || (!input.trim() && !attachedImage)}
-                    title={quotaExceeded ? (lang === 'ru' ? 'Лимит AI-запросов исчерпан' : 'AI request limit reached') : undefined}
+                    title={quotaExceeded ? (lang === 'ru' ? 'Лимит AI-запросов исчерпан' : 'AI request limit reached') : (lang === 'ru' ? 'Отправить' : 'Send')}
                     className="grid h-8 w-8 place-items-center rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground disabled:opacity-30 transition-all shrink-0 shadow-sm shadow-primary/20">
                     {loading ? <Icon name="Loader" size={14} className="animate-spin" /> : <Icon name="Send" size={14} />}
                   </button>
@@ -1539,7 +1556,7 @@ export default function Builder() {
                         <Icon name="MousePointer" size={11} />
                         {lang === 'ru' ? 'Кликните на любой текст для редактирования' : 'Click any text to edit'}
                       </span>
-                      <button onClick={toggleEditMode} className="hover:text-primary/70 transition-colors">
+                      <button onClick={toggleEditMode} title={lang === 'ru' ? 'Закрыть' : 'Close'} className="hover:text-primary/70 transition-colors">
                         <Icon name="X" size={11} />
                       </button>
                     </div>
@@ -1570,7 +1587,7 @@ export default function Builder() {
                               <Icon name="Type" size={12} />
                               {lang === 'ru' ? 'Текст' : 'Text'}
                             </span>
-                            <button onClick={() => setEditPopover(null)} className="text-muted-foreground hover:text-foreground transition-colors">
+                            <button onClick={() => setEditPopover(null)} title={lang === 'ru' ? 'Закрыть' : 'Close'} className="text-muted-foreground hover:text-foreground transition-colors">
                               <Icon name="X" size={13} />
                             </button>
                           </div>
