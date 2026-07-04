@@ -219,7 +219,7 @@ def save_html(project_id: int, html: str, schema: str):
         conn.close()
 
 def handler(event: dict, context) -> dict:
-    """Генерирует HTML-код сайта через Claude Sonnet (Anthropic) или GPT-4o (OpenAI) по описанию пользователя"""
+    """Генерирует HTML-код сайта через Claude Sonnet или GPT-4o (оба через OpenRouter) по описанию пользователя"""
 
     if event.get('httpMethod') == 'OPTIONS':
         return {'statusCode': 200, 'headers': cors(), 'body': ''}
@@ -254,94 +254,55 @@ def handler(event: dict, context) -> dict:
     system_prompt = build_system_prompt(project_images)
     chat_messages = [{'role': m.get('role', 'user'), 'content': m.get('content', '')} for m in messages]
 
-    if model_choice == 'gpt-4o':
-        api_key = os.environ.get('OPENROUTER_API_KEY', '')
-        if not api_key:
-            return err('OpenRouter API ключ не настроен')
+    OPENROUTER_MODELS = {
+        'gpt-4o': 'openai/gpt-4o',
+        'claude': 'anthropic/claude-sonnet-4.5',
+    }
+    model_name = OPENROUTER_MODELS.get(model_choice, OPENROUTER_MODELS['claude'])
 
-        payload = json.dumps({
-            'model': 'openai/gpt-4o',
-            'messages': [{'role': 'system', 'content': system_prompt}] + chat_messages,
-            'max_tokens': 8000,
-            'temperature': 0.7,
-        }).encode('utf-8')
+    api_key = os.environ.get('OPENROUTER_API_KEY', '')
+    if not api_key:
+        return err('OpenRouter API ключ не настроен')
 
-        req = urllib.request.Request(
-            'https://openrouter.ai/api/v1/chat/completions',
-            data=payload,
-            headers={
-                'Content-Type': 'application/json',
-                'Authorization': f'Bearer {api_key}',
-                'HTTP-Referer': 'https://roboweb.site',
-                'X-Title': 'Roboweb',
-            },
-            method='POST'
-        )
+    payload = json.dumps({
+        'model': model_name,
+        'messages': [{'role': 'system', 'content': system_prompt}] + chat_messages,
+        'max_tokens': 8000,
+        'temperature': 0.7,
+    }).encode('utf-8')
 
-        try:
-            with urllib.request.urlopen(req, timeout=60) as response:
-                result = json.loads(response.read().decode('utf-8'))
-        except urllib.error.HTTPError as e:
-            return err(f'OpenRouter API error {e.code}', 502)
-        except urllib.error.URLError:
-            return err('OpenRouter API недоступен. Попробуйте позже.', 503)
-        except (json.JSONDecodeError, Exception):
-            return err('Неверный ответ от OpenRouter.', 502)
+    req = urllib.request.Request(
+        'https://openrouter.ai/api/v1/chat/completions',
+        data=payload,
+        headers={
+            'Content-Type': 'application/json',
+            'Authorization': f'Bearer {api_key}',
+            'HTTP-Referer': 'https://roboweb.site',
+            'X-Title': 'Roboweb',
+        },
+        method='POST'
+    )
 
-        choices = result.get('choices') or []
-        if not choices:
-            return err('GPT-4o вернул пустой ответ.', 502)
+    try:
+        with urllib.request.urlopen(req, timeout=60) as response:
+            result = json.loads(response.read().decode('utf-8'))
+    except urllib.error.HTTPError as e:
+        return err(f'OpenRouter API error {e.code}', 502)
+    except urllib.error.URLError:
+        return err('OpenRouter API недоступен. Попробуйте позже.', 503)
+    except (json.JSONDecodeError, Exception):
+        return err('Неверный ответ от OpenRouter.', 502)
 
-        html = (choices[0].get('message', {}).get('content') or '').strip()
-        if not html:
-            return err('GPT-4o вернул пустой HTML.', 502)
+    choices = result.get('choices') or []
+    if not choices:
+        return err('AI вернул пустой ответ.', 502)
 
-        usage = result.get('usage', {})
-        tokens = usage.get('prompt_tokens', 0) + usage.get('completion_tokens', 0)
-    else:
-        api_key = os.environ.get('ANTHROPIC_API_KEY', '')
-        if not api_key:
-            return err('Anthropic API ключ не настроен')
+    html = (choices[0].get('message', {}).get('content') or '').strip()
+    if not html:
+        return err('AI вернул пустой HTML.', 502)
 
-        payload = json.dumps({
-            'model': 'claude-sonnet-4-5-20250929',
-            'system': system_prompt,
-            'messages': chat_messages,
-            'max_tokens': 8000,
-            'temperature': 0.7,
-        }).encode('utf-8')
-
-        req = urllib.request.Request(
-            'https://api.anthropic.com/v1/messages',
-            data=payload,
-            headers={
-                'Content-Type': 'application/json',
-                'x-api-key': api_key,
-                'anthropic-version': '2023-06-01',
-            },
-            method='POST'
-        )
-
-        try:
-            with urllib.request.urlopen(req, timeout=60) as response:
-                result = json.loads(response.read().decode('utf-8'))
-        except urllib.error.HTTPError as e:
-            return err(f'Anthropic API error {e.code}', 502)
-        except urllib.error.URLError:
-            return err('Anthropic API недоступен. Попробуйте позже.', 503)
-        except (json.JSONDecodeError, Exception):
-            return err('Неверный ответ от Anthropic.', 502)
-
-        content_blocks = result.get('content') or []
-        if not content_blocks:
-            return err('Claude вернул пустой ответ.', 502)
-
-        html = (content_blocks[0].get('text') or '').strip()
-        if not html:
-            return err('Claude вернул пустой HTML.', 502)
-
-        usage = result.get('usage', {})
-        tokens = usage.get('input_tokens', 0) + usage.get('output_tokens', 0)
+    usage = result.get('usage', {})
+    tokens = usage.get('prompt_tokens', 0) + usage.get('completion_tokens', 0)
 
     # Убираем markdown-обёртку если есть
     if html.startswith('```'):
