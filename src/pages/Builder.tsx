@@ -51,8 +51,14 @@ interface Message {
   tokens?: number;
   /** true — этот пустой ответ ассистента относится к правке существующего сайта, а не к генерации с нуля */
   isEdit?: boolean;
+  /** Вступление: как ИИ понял задачу */
+  intro?: string;
   /** Живое описание от ИИ: что именно он сделал */
   summary?: string;
+  /** Пошаговый рассказ что конкретно сделано/исправлено/улучшено */
+  steps?: string[];
+  /** Дизайн-решения: палитра, шрифты, стиль */
+  design?: string;
   /** Список секций/блоков, которые есть на созданном сайте */
   sections?: string[];
   /** Персональные предложения улучшений именно для этого сайта */
@@ -427,7 +433,10 @@ export default function Builder() {
       setRightTab('preview');
       setIframeKey(k => k + 1);
 
+      const intro = (data as { intro?: string }).intro || '';
       const summary = (data as { summary?: string }).summary || '';
+      const steps = Array.isArray((data as { steps?: string[] }).steps) ? (data as { steps: string[] }).steps : [];
+      const design = (data as { design?: string }).design || '';
       const sections = Array.isArray((data as { sections?: string[] }).sections) ? (data as { sections: string[] }).sections : [];
       const suggestions = Array.isArray((data as { suggestions?: Suggestion[] }).suggestions) ? (data as { suggestions: Suggestion[] }).suggestions : [];
 
@@ -438,7 +447,10 @@ export default function Builder() {
           content: generatedHtml ? tr('builderDone', lang) : (data as { message?: string }).message || tr('builderError', lang),
           isHtml: !!generatedHtml,
           tokens,
+          intro,
           summary,
+          steps,
+          design,
           sections,
           suggestions,
         };
@@ -1088,14 +1100,48 @@ export default function Builder() {
                               <Icon name="CheckCircle" size={13} /> {tr('builderReady', lang)}
                             </div>
 
-                            {/* Живое описание от ИИ: что именно сделано (печатается по буквам у последнего ответа) */}
-                            {m.summary ? (
+                            {/* Вступление: как ИИ понял задачу (печатается у последнего ответа) */}
+                            {m.intro && (
                               <p className="text-foreground text-[13px] leading-relaxed">
                                 {i === messages.length - 1 ? (
-                                  <TypewriterText text={m.summary} onTick={() => messagesEndRef.current?.scrollIntoView({ behavior: 'auto' })} />
-                                ) : m.summary}
+                                  <TypewriterText text={m.intro} onTick={() => messagesEndRef.current?.scrollIntoView({ behavior: 'auto' })} />
+                                ) : m.intro}
                               </p>
-                            ) : (
+                            )}
+
+                            {/* Пошаговый рассказ: что конкретно сделано / исправлено / улучшено */}
+                            {m.steps && m.steps.length > 0 && (
+                              <div className="space-y-1.5">
+                                <p className="text-[10px] text-muted-foreground uppercase tracking-wider font-semibold">
+                                  {lang === 'ru' ? 'Что я сделал' : 'What I did'}
+                                </p>
+                                <div className="space-y-1.5">
+                                  {m.steps.map((step, sti) => (
+                                    <div key={sti} className="flex items-start gap-2 text-[12px] text-foreground leading-snug">
+                                      <span className="grid place-items-center h-4 w-4 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5">
+                                        <Icon name="Check" size={10} />
+                                      </span>
+                                      <span>{step}</span>
+                                    </div>
+                                  ))}
+                                </div>
+                              </div>
+                            )}
+
+                            {/* Итог / общее впечатление */}
+                            {m.summary && (
+                              <p className="text-muted-foreground text-[12px] leading-relaxed">{m.summary}</p>
+                            )}
+
+                            {/* Дизайн-решения */}
+                            {m.design && (
+                              <div className="flex items-start gap-2 text-[12px] text-foreground bg-primary/5 border border-primary/15 rounded-lg px-2.5 py-2">
+                                <Icon name="Palette" size={13} className="text-primary shrink-0 mt-0.5" />
+                                <span>{m.design}</span>
+                              </div>
+                            )}
+
+                            {!m.intro && !m.summary && !m.steps?.length && (
                               <p className="text-muted-foreground text-xs">{tr('builderReadyDesc', lang)}</p>
                             )}
 
