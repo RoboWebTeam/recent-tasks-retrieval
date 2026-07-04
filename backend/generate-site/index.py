@@ -204,7 +204,10 @@ def send_low_balance_email(to_email: str, remaining: int):
     msg.attach(MIMEText(html, 'html'))
 
     try:
-        with smtplib.SMTP_SSL('smtp.yandex.ru', 465) as server:
+        # timeout обязателен: без него зависшее SMTP-соединение могло съедать до 20-30 сек
+        # из общего бюджета функции ЕЩЁ ДО обращения к AI — это была скрытая причина части
+        # таймаутов "Генерация заняла слишком много времени", не связанная с самой моделью.
+        with smtplib.SMTP_SSL('smtp.yandex.ru', 465, timeout=5) as server:
             server.login(smtp_user, smtp_password)
             server.sendmail(smtp_user, to_email, msg.as_string())
     except Exception:
@@ -355,7 +358,9 @@ def handler(event: dict, context) -> dict:
         maybe_notify_low_balance(user_id, 0, schema)
         return err(quota_error, 402)
 
-    maybe_notify_low_balance(user_id, remaining, schema)
+    # ВАЖНО: уведомление о низком балансе отправляем ПОСЛЕ успешной генерации, а не до неё.
+    # Раньше вызов стоял здесь и мог задерживать сам процесс генерации из-за медленного SMTP —
+    # это съедало секунды из общего бюджета времени функции ещё до обращения к AI.
 
     body = json.loads(event.get('body') or '{}')
     messages = body.get('messages', [])
@@ -489,6 +494,9 @@ def handler(event: dict, context) -> dict:
     # Сохраняем HTML в проект если передан project_id
     if project_id:
         save_html(int(project_id), html, schema)
+
+    # Уведомление шлём только теперь, когда сайт уже готов — чтобы никак не задерживать генерацию
+    maybe_notify_low_balance(user_id, remaining, schema)
 
     return ok({
         'html': html,

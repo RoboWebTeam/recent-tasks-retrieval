@@ -992,6 +992,19 @@ export default function Builder() {
             </div>
           )}
 
+          {/* Режим редактирования текста прямо на превью */}
+          {html && rightTab === 'preview' && (
+            <button onClick={toggleEditMode}
+              className={`hidden sm:grid h-8 w-8 shrink-0 place-items-center rounded-lg border transition-colors ${
+                editMode
+                  ? 'bg-primary text-primary-foreground border-primary'
+                  : 'border-border bg-secondary hover:bg-secondary/70 hover:text-foreground text-muted-foreground'
+              }`}
+              title={lang === 'ru' ? 'Изменить текст на сайте' : 'Edit text on the site'}>
+              <Icon name="MousePointer" size={13} />
+            </button>
+          )}
+
           {/* Тема интерфейса редактора */}
           <button onClick={toggleBuilderTheme}
             className="hidden sm:grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-border bg-secondary hover:bg-secondary/70 hover:text-foreground transition-colors text-muted-foreground"
@@ -1480,45 +1493,6 @@ export default function Builder() {
             <div className="flex-1 flex flex-col items-center overflow-hidden">
               {html ? (
                 <>
-                  {/* Preview toolbar */}
-                  <div className="w-full flex items-center justify-between px-4 py-2 border-b border-border bg-card shrink-0">
-                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                      <div className="flex gap-1.5">
-                        <div className="h-2.5 w-2.5 rounded-full bg-rose-500/80" />
-                        <div className="h-2.5 w-2.5 rounded-full bg-amber-500/80" />
-                        <div className="h-2.5 w-2.5 rounded-full bg-emerald-500/80" />
-                      </div>
-                      <span className="font-mono text-[11px] bg-secondary border border-border rounded-md px-2 py-0.5 text-muted-foreground">
-                        {lang === 'ru' ? 'предпросмотр' : 'preview'} · {device}
-                      </span>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      {/* Кнопка режима редактирования текста */}
-                      <button
-                        onClick={toggleEditMode}
-                        className={`flex items-center gap-1 text-[11px] font-medium px-2.5 py-1 rounded-lg transition-all ${
-                          editMode
-                            ? 'bg-primary text-primary-foreground'
-                            : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
-                        }`}
-                        title={lang === 'ru' ? 'Режим редактирования текста' : 'Text edit mode'}
-                      >
-                        <Icon name="MousePointer" size={11} />
-                        {editMode
-                          ? (lang === 'ru' ? 'Редактирование' : 'Editing')
-                          : (lang === 'ru' ? 'Изменить текст' : 'Edit text')}
-                      </button>
-                      <button onClick={() => setIframeKey(k => k + 1)}
-                        className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded-lg hover:bg-secondary">
-                        <Icon name="RefreshCw" size={11} /> {lang === 'ru' ? 'Обновить' : 'Refresh'}
-                      </button>
-                      <button onClick={openInNewTab}
-                        className="flex items-center gap-1 text-[11px] text-muted-foreground hover:text-foreground transition-colors px-2 py-1 rounded-lg hover:bg-secondary">
-                        <Icon name="ExternalLink" size={11} /> {lang === 'ru' ? 'В новой вкладке' : 'New tab'}
-                      </button>
-                    </div>
-                  </div>
-
                   {/* Подсказка в режиме редактирования */}
                   {editMode && (
                     <div className="w-full flex items-center justify-between gap-2 px-4 py-1.5 bg-primary/5 border-b border-primary/20 text-[11px] text-primary shrink-0">
