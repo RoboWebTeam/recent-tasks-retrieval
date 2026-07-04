@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import BuilderCorePanel from '@/components/builder/BuilderCorePanel';
 import BuilderDomainModal from '@/components/builder/BuilderDomainModal';
 import GenerationProgress from '@/components/builder/GenerationProgress';
+import TypewriterText from '@/components/builder/TypewriterText';
 import { trackGoal, GOALS } from '@/lib/analytics';
 import { apiUrl } from '@/lib/apiConfig';
 
@@ -797,8 +798,8 @@ export default function Builder() {
     <div className={`flex flex-col h-screen bg-background overflow-hidden ${builderTheme === 'dark' ? 'dark' : ''}`}>
 
       {/* TOP BAR */}
-      <header className="flex items-center justify-between px-3 sm:px-4 h-14 border-b border-border shrink-0 bg-card">
-        <div className="flex items-center gap-2 sm:gap-3">
+      <header className="flex items-center justify-between gap-2 px-3 sm:px-4 h-14 border-b border-border shrink-0 bg-card">
+        <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           <button
             onClick={() => setSidebarOpen(v => !v)}
             className="grid h-8 w-8 place-items-center rounded-lg bg-secondary border border-border text-muted-foreground hover:text-foreground hover:bg-secondary/70 transition-colors"
@@ -837,9 +838,9 @@ export default function Builder() {
           )}
         </div>
 
-        <div className="flex items-center gap-1 sm:gap-1.5">
+        <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
           {/* Device switcher */}
-          <div className="hidden md:flex items-center gap-0.5 bg-secondary rounded-lg p-1 border border-border">
+          <div className="hidden lg:flex items-center gap-0.5 bg-secondary rounded-lg p-1 border border-border">
             {([['desktop', 'Monitor'], ['tablet', 'Tablet'], ['mobile', 'Smartphone']] as const).map(([d, icon]) => (
               <button key={d} onClick={() => setDevice(d)}
                 className={`grid h-7 w-7 place-items-center rounded-md transition-all ${device === d ? 'bg-primary text-primary-foreground shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-secondary/70'}`}
@@ -850,17 +851,17 @@ export default function Builder() {
           </div>
 
           {/* Preview / Code / Core tabs */}
-          <div className="flex items-center gap-0.5 bg-secondary rounded-lg p-1 border border-border">
+          <div className="flex items-center gap-0.5 bg-secondary rounded-lg p-1 border border-border shrink-0">
             {([['preview', 'Eye', tr('builderPreview', lang)], ['code', 'Code', tr('builderCode', lang)], ['core', 'Database', lang === 'ru' ? 'Ядро' : 'Core']] as const).map(([tab, icon, label]) => (
               <button key={tab} onClick={() => { setRightTab(tab); if (tab === 'code') setCodeEditorValue(html); }}
-                className={`flex items-center gap-1.5 h-7 px-2.5 rounded-md text-xs font-medium transition-all ${rightTab === tab ? 'bg-card text-foreground border border-border shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-secondary/70'}`}>
+                className={`flex items-center gap-1.5 h-7 px-2 sm:px-2.5 rounded-md text-xs font-medium transition-all ${rightTab === tab ? 'bg-card text-foreground border border-border shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-secondary/70'}`}>
                 <Icon name={icon} size={13} />
-                <span className="hidden sm:inline">{label}</span>
+                <span className="hidden lg:inline">{label}</span>
               </button>
             ))}
           </div>
 
-          <div className="w-px h-5 bg-border" />
+          <div className="hidden sm:block w-px h-5 bg-border shrink-0" />
 
           {/* Versions */}
           {versions.length > 0 && (
@@ -900,7 +901,7 @@ export default function Builder() {
 
           {/* Тема интерфейса редактора */}
           <button onClick={toggleBuilderTheme}
-            className="grid h-8 w-8 place-items-center rounded-lg border border-border bg-secondary hover:bg-secondary/70 hover:text-foreground transition-colors text-muted-foreground"
+            className="hidden sm:grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-border bg-secondary hover:bg-secondary/70 hover:text-foreground transition-colors text-muted-foreground"
             title={lang === 'ru' ? 'Тема интерфейса' : 'Interface theme'}>
             <Icon name={builderTheme === 'dark' ? 'Sun' : 'Moon'} size={13} />
           </button>
@@ -908,7 +909,7 @@ export default function Builder() {
           {/* Refresh preview */}
           {html && (
             <button onClick={() => setIframeKey(k => k + 1)}
-              className="grid h-8 w-8 place-items-center rounded-lg border border-border bg-secondary hover:bg-secondary/70 hover:text-foreground transition-colors text-muted-foreground"
+              className="hidden md:grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-border bg-secondary hover:bg-secondary/70 hover:text-foreground transition-colors text-muted-foreground"
               title={lang === 'ru' ? 'Обновить превью' : 'Refresh preview'}>
               <Icon name="RefreshCw" size={13} />
             </button>
@@ -917,28 +918,28 @@ export default function Builder() {
           {/* Open in new tab */}
           {html && (
             <button onClick={openInNewTab}
-              className="hidden sm:grid h-8 w-8 place-items-center rounded-lg border border-border bg-secondary hover:bg-secondary/70 hover:text-foreground transition-colors text-muted-foreground"
+              className="hidden lg:grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-border bg-secondary hover:bg-secondary/70 hover:text-foreground transition-colors text-muted-foreground"
               title={lang === 'ru' ? 'Открыть в новой вкладке' : 'Open in new tab'}>
               <Icon name="ExternalLink" size={13} />
             </button>
           )}
 
           <button onClick={handleDownload} disabled={!html}
-            className="hidden sm:flex items-center gap-1.5 h-8 px-2.5 rounded-lg text-xs border border-border bg-secondary hover:bg-secondary/70 hover:text-foreground text-muted-foreground transition-colors disabled:opacity-30">
+            className="hidden md:flex items-center gap-1.5 h-8 px-2.5 shrink-0 rounded-lg text-xs border border-border bg-secondary hover:bg-secondary/70 hover:text-foreground text-muted-foreground transition-colors disabled:opacity-30">
             <Icon name="Download" size={13} />
-            <span className="hidden md:inline">{tr('builderDownload', lang)}</span>
+            <span className="hidden lg:inline">{tr('builderDownload', lang)}</span>
           </button>
 
           <button onClick={handleSaveToFiles} disabled={!html || savingToFiles}
             title={lang === 'ru' ? 'Сохранить в моё хранилище файлов' : 'Save to my file storage'}
-            className="hidden sm:flex items-center gap-1.5 h-8 px-2.5 rounded-lg text-xs border border-border bg-secondary hover:bg-secondary/70 hover:text-foreground text-muted-foreground transition-colors disabled:opacity-30">
+            className="hidden md:flex items-center gap-1.5 h-8 px-2.5 shrink-0 rounded-lg text-xs border border-border bg-secondary hover:bg-secondary/70 hover:text-foreground text-muted-foreground transition-colors disabled:opacity-30">
             <Icon name={savingToFiles ? 'Loader' : saveToFilesDone ? 'Check' : 'FolderOpen'} size={13} className={savingToFiles ? 'animate-spin' : ''} />
-            <span className="hidden md:inline">
+            <span className="hidden lg:inline">
               {saveToFilesDone ? (lang === 'ru' ? 'Сохранено' : 'Saved') : (lang === 'ru' ? 'В хранилище' : 'To storage')}
             </span>
           </button>
 
-          <Button size="sm" disabled={!html || publishing || !projectId} onClick={publishedSlug ? () => setShowPublishModal(true) : handlePublish} className="h-8 rounded-lg text-xs px-2.5 gap-1.5">
+          <Button size="sm" disabled={!html || publishing || !projectId} onClick={publishedSlug ? () => setShowPublishModal(true) : handlePublish} className="h-8 rounded-lg text-xs px-2.5 gap-1.5 shrink-0">
             <Icon name={publishing ? 'Loader' : publishedSlug ? 'CheckCircle' : 'Globe'} size={13} className={publishing ? 'animate-spin' : ''} />
             <span className="hidden md:inline">
               {publishing ? (lang === 'ru' ? 'Публикуем…' : 'Publishing…') : publishedSlug ? (lang === 'ru' ? 'Опубликовано' : 'Published') : tr('builderPublish', lang)}
@@ -951,9 +952,11 @@ export default function Builder() {
             <span className="hidden lg:inline">{lang === 'ru' ? 'Домен' : 'Domain'}</span>
           </button>
 
-          <LangSwitcher lang={lang} />
+          <div className="hidden sm:block shrink-0">
+            <LangSwitcher lang={lang} />
+          </div>
 
-          <div className="grid h-8 w-8 place-items-center rounded-lg bg-primary text-primary-foreground text-xs font-bold shrink-0">
+          <div className="hidden sm:grid h-8 w-8 place-items-center rounded-lg bg-primary text-primary-foreground text-xs font-bold shrink-0">
             {initials}
           </div>
         </div>
@@ -1085,9 +1088,13 @@ export default function Builder() {
                               <Icon name="CheckCircle" size={13} /> {tr('builderReady', lang)}
                             </div>
 
-                            {/* Живое описание от ИИ: что именно сделано */}
+                            {/* Живое описание от ИИ: что именно сделано (печатается по буквам у последнего ответа) */}
                             {m.summary ? (
-                              <p className="text-foreground text-[13px] leading-relaxed">{m.summary}</p>
+                              <p className="text-foreground text-[13px] leading-relaxed">
+                                {i === messages.length - 1 ? (
+                                  <TypewriterText text={m.summary} onTick={() => messagesEndRef.current?.scrollIntoView({ behavior: 'auto' })} />
+                                ) : m.summary}
+                              </p>
                             ) : (
                               <p className="text-muted-foreground text-xs">{tr('builderReadyDesc', lang)}</p>
                             )}
