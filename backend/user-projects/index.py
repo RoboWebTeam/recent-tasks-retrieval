@@ -188,26 +188,27 @@ def handler(event: dict, context) -> dict:
                 # У проекта есть связанные записи в других таблицах (заявки, домены, файлы,
                 # секреты, пользовательские таблицы, аналитика). В БД нет ON DELETE CASCADE,
                 # поэтому сначала удаляем зависимые записи в правильном порядке, затем сам проект.
-                # Каждое удаление в своей try — если какой-то таблицы нет, продолжаем дальше.
-                cleanup_statements = [
-                    f"DELETE FROM {schema}.project_db_rows WHERE table_id IN (SELECT id FROM {schema}.project_db_tables WHERE project_id = %s)",
-                    f"DELETE FROM {schema}.project_db_tables WHERE project_id = %s",
-                    f"DELETE FROM {schema}.project_secrets WHERE project_id = %s",
-                    f"DELETE FROM {schema}.domains WHERE project_id = %s",
-                    f"DELETE FROM {schema}.site_files WHERE project_id = %s",
-                    f"DELETE FROM {schema}.site_leads WHERE project_id = %s",
-                    f"DELETE FROM {schema}.page_views WHERE project_id = %s",
+                # Проверяем существование каждой таблицы через to_regclass — так не порождаем
+                # ошибок в транзакции (savepoint-подход ломался на несуществующих таблицах).
+                def table_exists(name: str) -> bool:
+                    cur.execute("SELECT to_regclass(%s)", (f"{schema}.{name}",))
+                    return cur.fetchone()[0] is not None
+
+                # (имя таблицы, SQL удаления по project_id) — в порядке зависимостей.
+                cleanup = [
+                    ('project_db_rows', f"DELETE FROM {schema}.project_db_rows WHERE table_id IN (SELECT id FROM {schema}.project_db_tables WHERE project_id = %s)"),
+                    ('project_db_tables', f"DELETE FROM {schema}.project_db_tables WHERE project_id = %s"),
+                    ('project_secrets', f"DELETE FROM {schema}.project_secrets WHERE project_id = %s"),
+                    ('domains', f"DELETE FROM {schema}.domains WHERE project_id = %s"),
+                    ('site_files', f"DELETE FROM {schema}.site_files WHERE project_id = %s"),
+                    ('site_leads', f"DELETE FROM {schema}.site_leads WHERE project_id = %s"),
+                    ('page_views', f"DELETE FROM {schema}.page_views WHERE project_id = %s"),
                 ]
-                for i, stmt in enumerate(cleanup_statements):
-                    # SAVEPOINT: если конкретной таблицы нет — откатываем ТОЛЬКО эту операцию,
-                    # не теряя уже успешно удалённые связанные записи в той же транзакции.
-                    sp = f"sp_cleanup_{i}"
-                    cur.execute(f"SAVEPOINT {sp}")
-                    try:
+                for table_name, stmt in cleanup:
+                    # project_db_rows зависит от project_db_tables — проверяем обе таблицы.
+                    check_name = 'project_db_tables' if table_name == 'project_db_rows' else table_name
+                    if table_exists(check_name):
                         cur.execute(stmt, (project_id,))
-                        cur.execute(f"RELEASE SAVEPOINT {sp}")
-                    except Exception:
-                        cur.execute(f"ROLLBACK TO SAVEPOINT {sp}")
 
                 # Теперь можно удалить сам проект.
                 cur.execute(
