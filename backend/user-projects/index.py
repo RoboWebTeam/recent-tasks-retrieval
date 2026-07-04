@@ -176,6 +176,40 @@ def handler(event: dict, context) -> dict:
                 project_id = body.get('id') or params.get('id')
                 if not project_id:
                     return err('Укажите id проекта')
+
+                # Проверяем, что проект принадлежит пользователю — иначе удалять нельзя.
+                cur.execute(
+                    f"SELECT id FROM {schema}.projects WHERE id = %s AND user_id = %s",
+                    (project_id, user_id)
+                )
+                if not cur.fetchone():
+                    return err('Проект не найден', 404)
+
+                # У проекта есть связанные записи в других таблицах (заявки, домены, файлы,
+                # секреты, пользовательские таблицы, аналитика). В БД нет ON DELETE CASCADE,
+                # поэтому сначала удаляем зависимые записи в правильном порядке, затем сам проект.
+                # Каждое удаление в своей try — если какой-то таблицы нет, продолжаем дальше.
+                cleanup_statements = [
+                    f"DELETE FROM {schema}.project_db_rows WHERE table_id IN (SELECT id FROM {schema}.project_db_tables WHERE project_id = %s)",
+                    f"DELETE FROM {schema}.project_db_tables WHERE project_id = %s",
+                    f"DELETE FROM {schema}.project_secrets WHERE project_id = %s",
+                    f"DELETE FROM {schema}.domains WHERE project_id = %s",
+                    f"DELETE FROM {schema}.site_files WHERE project_id = %s",
+                    f"DELETE FROM {schema}.site_leads WHERE project_id = %s",
+                    f"DELETE FROM {schema}.page_views WHERE project_id = %s",
+                ]
+                for i, stmt in enumerate(cleanup_statements):
+                    # SAVEPOINT: если конкретной таблицы нет — откатываем ТОЛЬКО эту операцию,
+                    # не теряя уже успешно удалённые связанные записи в той же транзакции.
+                    sp = f"sp_cleanup_{i}"
+                    cur.execute(f"SAVEPOINT {sp}")
+                    try:
+                        cur.execute(stmt, (project_id,))
+                        cur.execute(f"RELEASE SAVEPOINT {sp}")
+                    except Exception:
+                        cur.execute(f"ROLLBACK TO SAVEPOINT {sp}")
+
+                # Теперь можно удалить сам проект.
                 cur.execute(
                     f"DELETE FROM {schema}.projects WHERE id = %s AND user_id = %s",
                     (project_id, user_id)
