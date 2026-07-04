@@ -136,9 +136,37 @@ const QUICK_EDITS_EN = [
   { icon: 'Award', label: 'Benefits', prompt: 'Add a key company benefits block (4-6 items)' },
 ];
 
+// Библиотека готовых секций — добавление целых блоков сайта в один клик.
+const SECTION_LIBRARY_RU = [
+  { icon: 'Image', label: 'Галерея', prompt: 'Добавь красивую галерею изображений в виде адаптивной сетки с hover-эффектом' },
+  { icon: 'CreditCard', label: 'Тарифы', prompt: 'Добавь секцию с тарифами: 3 карточки цен, у средней выдели «Популярный», с кнопками' },
+  { icon: 'Users', label: 'Команда', prompt: 'Добавь секцию «Наша команда» с карточками сотрудников (фото, имя, должность)' },
+  { icon: 'HelpCircle', label: 'FAQ', prompt: 'Добавь раздел с частыми вопросами и ответами (аккордеон, 5-6 вопросов)' },
+  { icon: 'MessageSquare', label: 'Отзывы', prompt: 'Добавь секцию отзывов клиентов со звёздным рейтингом (3-4 правдоподобных отзыва с именами)' },
+  { icon: 'ListChecks', label: 'Этапы работы', prompt: 'Добавь блок «Как мы работаем» с нумерованными этапами (4 шага с иконками)' },
+  { icon: 'Images', label: 'Портфолио', prompt: 'Добавь секцию портфолио/кейсов с карточками работ и описаниями' },
+  { icon: 'Percent', label: 'Акция', prompt: 'Добавь яркий баннер с акцией/спецпредложением и кнопкой призыва к действию' },
+  { icon: 'MapPin', label: 'Контакты', prompt: 'Добавь секцию контактов: адрес, телефон, email, режим работы и карту' },
+  { icon: 'Newspaper', label: 'Новости/блог', prompt: 'Добавь секцию с последними новостями или статьями блога (3 карточки)' },
+];
+
+const SECTION_LIBRARY_EN = [
+  { icon: 'Image', label: 'Gallery', prompt: 'Add a beautiful responsive image gallery grid with hover effects' },
+  { icon: 'CreditCard', label: 'Pricing', prompt: 'Add a pricing section: 3 price cards, highlight the middle one as "Popular", with buttons' },
+  { icon: 'Users', label: 'Team', prompt: 'Add an "Our team" section with member cards (photo, name, role)' },
+  { icon: 'HelpCircle', label: 'FAQ', prompt: 'Add a FAQ section with accordion (5-6 questions and answers)' },
+  { icon: 'MessageSquare', label: 'Reviews', prompt: 'Add a customer reviews section with star ratings (3-4 realistic reviews with names)' },
+  { icon: 'ListChecks', label: 'How it works', prompt: 'Add a "How we work" block with numbered steps (4 steps with icons)' },
+  { icon: 'Images', label: 'Portfolio', prompt: 'Add a portfolio/cases section with work cards and descriptions' },
+  { icon: 'Percent', label: 'Promo', prompt: 'Add a bright promo/special offer banner with a call-to-action button' },
+  { icon: 'MapPin', label: 'Contacts', prompt: 'Add a contacts section: address, phone, email, working hours and a map' },
+  { icon: 'Newspaper', label: 'News/blog', prompt: 'Add a section with latest news or blog articles (3 cards)' },
+];
+
 export default function Builder() {
   const lang = getLang();
   const QUICK_EDITS = lang === 'ru' ? QUICK_EDITS_RU : QUICK_EDITS_EN;
+  const SECTION_LIBRARY = lang === 'ru' ? SECTION_LIBRARY_RU : SECTION_LIBRARY_EN;
   const navigate = useNavigate();
   const { toast } = useToast();
   const [searchParams] = useSearchParams();
@@ -193,6 +221,7 @@ export default function Builder() {
   const [versions, setVersions] = useState<Version[]>([]);
   const [showVersions, setShowVersions] = useState(false);
   const [showQuickEdits, setShowQuickEdits] = useState(false);
+  const [showSectionLibrary, setShowSectionLibrary] = useState(false);
   const [totalTokens, setTotalTokens] = useState(0);
   const [copied, setCopied] = useState(false);
   const [iframeKey, setIframeKey] = useState(0);
@@ -1372,6 +1401,24 @@ export default function Builder() {
               </div>
             )}
 
+            {/* Section library panel — добавление готовых секций в один клик */}
+            {showSectionLibrary && html && (
+              <div className="border-t border-border bg-secondary/50 p-3">
+                <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold mb-2">
+                  {lang === 'ru' ? 'Добавить секцию' : 'Add section'}
+                </p>
+                <div className="grid grid-cols-2 gap-1.5">
+                  {SECTION_LIBRARY.map(e => (
+                    <button key={e.label} onClick={() => { sendMessage(e.prompt); setShowSectionLibrary(false); }}
+                      className="flex items-center gap-1.5 px-2.5 py-2 rounded-xl bg-secondary border border-border text-xs text-muted-foreground hover:text-primary hover:border-primary transition-all text-left">
+                      <Icon name={e.icon} fallback="Square" size={12} className="text-primary shrink-0" />
+                      {e.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Low balance / quota banner */}
             {remaining !== null && remaining <= LOW_BALANCE_THRESHOLD && (
               <div className={`mx-3 mt-3 rounded-xl px-3 py-2.5 flex items-start gap-2 text-xs ${
@@ -1485,10 +1532,19 @@ export default function Builder() {
                 <div className="flex items-center gap-1 px-2 pb-2 pt-0.5">
                   {/* Быстрые правки */}
                   {html && (
-                    <button onClick={() => setShowQuickEdits(v => !v)}
+                    <button onClick={() => { setShowQuickEdits(v => !v); setShowSectionLibrary(false); }}
                       className={`grid h-7 w-7 place-items-center rounded-lg transition-colors shrink-0 ${showQuickEdits ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-foreground hover:bg-secondary'}`}
                       title={lang === 'ru' ? 'Быстрые правки' : 'Quick edits'}>
                       <Icon name="Wand2" size={14} />
+                    </button>
+                  )}
+
+                  {/* Библиотека секций — добавить готовый блок */}
+                  {html && (
+                    <button onClick={() => { setShowSectionLibrary(v => !v); setShowQuickEdits(false); }}
+                      className={`grid h-7 w-7 place-items-center rounded-lg transition-colors shrink-0 ${showSectionLibrary ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-foreground hover:bg-secondary'}`}
+                      title={lang === 'ru' ? 'Добавить секцию' : 'Add section'}>
+                      <Icon name="LayoutGrid" fallback="Plus" size={14} />
                     </button>
                   )}
 
