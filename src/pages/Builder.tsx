@@ -1114,7 +1114,7 @@ export default function Builder() {
                           <Icon name="Bot" size={15} />
                         </div>
                       )}
-                      <div className={`max-w-[85%] text-[15px] font-medium leading-[1.55] ${
+                      <div className={`max-w-[85%] text-[12px] font-medium leading-[1.55] ${
                         m.role === 'user'
                           ? 'bg-primary text-primary-foreground rounded-2xl rounded-br-sm px-4 py-3 shadow-sm'
                           : 'bg-secondary border border-border text-foreground rounded-2xl rounded-bl-sm px-4 py-3'

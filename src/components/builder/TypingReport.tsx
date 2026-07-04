@@ -98,7 +98,7 @@ export default function TypingReport(props: Props) {
 
       {/* Вступление */}
       {intro && stage >= introStage && (
-        <p className="text-foreground text-[13px] leading-relaxed">
+        <p className="text-foreground text-[12px] leading-relaxed">
           <TypingLine text={intro} animate={animate && stage === introStage} onDone={next} onTick={onTick} />
         </p>
       )}
@@ -112,7 +112,7 @@ export default function TypingReport(props: Props) {
           <div className="space-y-1.5">
             {steps.map((step, i) => (
               stage >= stepStages[i] && (
-                <div key={i} className="flex items-start gap-2 text-[13px] text-foreground leading-relaxed">
+                <div key={i} className="flex items-start gap-2 text-[12px] text-foreground leading-relaxed">
                   <span className="grid place-items-center h-4 w-4 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5">
                     <Icon name="Check" size={10} />
                   </span>
@@ -126,14 +126,14 @@ export default function TypingReport(props: Props) {
 
       {/* Итог */}
       {summary && stage >= summaryStage && (
-        <p className="text-foreground text-[13px] leading-relaxed">
+        <p className="text-foreground text-[12px] leading-relaxed">
           <TypingLine text={summary} animate={animate && stage === summaryStage} onDone={next} onTick={onTick} />
         </p>
       )}
 
       {/* Дизайн */}
       {design && stage >= designStage && (
-        <div className="flex items-start gap-2 text-[13px] text-foreground bg-primary/5 border border-primary/15 rounded-lg px-2.5 py-2 leading-relaxed">
+        <div className="flex items-start gap-2 text-[12px] text-foreground bg-primary/5 border border-primary/15 rounded-lg px-2.5 py-2 leading-relaxed">
           <Icon name="Palette" size={13} className="text-primary shrink-0 mt-0.5" />
           <TypingLine text={design} animate={animate && stage === designStage} onDone={next} onTick={onTick} />
         </div>
@@ -143,7 +143,7 @@ export default function TypingReport(props: Props) {
       {stage >= finalStage && (
         <>
           {!intro && !summary && steps.length === 0 && (
-            <p className="text-muted-foreground text-[13px]">{tr('builderReadyDesc', lang)}</p>
+            <p className="text-muted-foreground text-[12px]">{tr('builderReadyDesc', lang)}</p>
           )}
 
           {sections.length > 0 && (
