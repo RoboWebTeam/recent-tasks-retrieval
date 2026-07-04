@@ -216,6 +216,10 @@ export default function Builder() {
   const [remaining, setRemaining] = useState<number | null>(null);
   const [quotaExceeded, setQuotaExceeded] = useState(false);
   const [aiModel, setAiModel] = useState<'claude' | 'gpt-4o' | 'gemini' | 'opus' | 'sonnet'>('gemini');
+  // Выбранный стиль-пресет для новых сайтов ('' = авто, ИИ подбирает сам под нишу)
+  const [siteStyle, setSiteStyle] = useState<'' | 'minimal' | 'premium' | 'bright' | 'dark'>('');
+  const [showStyleMenu, setShowStyleMenu] = useState(false);
+  const [dismissedStyleHint, setDismissedStyleHint] = useState(false);
   const [showModelMenu, setShowModelMenu] = useState(false);
   const [dismissedModelHint, setDismissedModelHint] = useState(false);
   const [showImageGen, setShowImageGen] = useState(false);
@@ -403,6 +407,9 @@ export default function Builder() {
 
   const suggestedModel = getSuggestedModel(input, lang);
   const showModelHint = !dismissedModelHint && suggestedModel !== null && suggestedModel !== aiModel;
+  // Умное уточнение: пользователь пишет запрос на новый сайт, но не выбрал стиль —
+  // мягко предлагаем выбрать стиль для лучшего результата (не блокируя генерацию).
+  const showStyleHint = !html && !siteStyle && input.trim().length >= 8 && !dismissedStyleHint;
 
   const applyTemplate = (text: string) => {
     setInput(text);
@@ -461,6 +468,8 @@ export default function Builder() {
           messages: newMessages.map(m => ({ role: m.role, content: m.content })),
           project_id: projectId,
           model: aiModel,
+          // Стиль-пресет применяется только к новым сайтам (при правке html уже есть)
+          style: !html ? siteStyle : undefined,
           // Передаём текущий HTML сайта — модель правит именно его, а не пытается
           // восстановить состояние сайта по истории текстовых команд
           current_html: html || undefined,
@@ -1409,6 +1418,40 @@ export default function Builder() {
               </div>
             )}
 
+            {/* Умное уточнение: предложить выбрать стиль дизайна для нового сайта */}
+            {showStyleHint && (
+              <div className="mx-3 mt-3 rounded-xl px-3 py-2.5 bg-secondary border border-border">
+                <div className="flex items-center gap-2 mb-2">
+                  <Icon name="Palette" size={14} className="text-primary shrink-0" />
+                  <p className="flex-1 text-xs text-foreground font-medium">
+                    {lang === 'ru' ? 'Какой стиль дизайна предпочитаете?' : 'Which design style do you prefer?'}
+                  </p>
+                  <button onClick={() => setDismissedStyleHint(true)} className="shrink-0 text-muted-foreground hover:text-foreground">
+                    <Icon name="X" size={13} />
+                  </button>
+                </div>
+                <div className="flex flex-wrap gap-1.5">
+                  {[
+                    { id: 'minimal' as const, label: lang === 'ru' ? 'Минимализм' : 'Minimal' },
+                    { id: 'premium' as const, label: lang === 'ru' ? 'Премиум' : 'Premium' },
+                    { id: 'bright' as const, label: lang === 'ru' ? 'Яркий' : 'Bright' },
+                    { id: 'dark' as const, label: lang === 'ru' ? 'Тёмный' : 'Dark' },
+                  ].map(s => (
+                    <button key={s.id}
+                      onClick={() => { setSiteStyle(s.id); setDismissedStyleHint(true); }}
+                      className="text-xs font-medium px-2.5 py-1.5 rounded-lg bg-background border border-border hover:border-primary hover:text-primary transition-colors">
+                      {s.label}
+                    </button>
+                  ))}
+                  <button
+                    onClick={() => setDismissedStyleHint(true)}
+                    className="text-xs font-medium px-2.5 py-1.5 rounded-lg text-muted-foreground hover:text-foreground transition-colors">
+                    {lang === 'ru' ? 'Пусть решит ИИ' : 'Let AI decide'}
+                  </button>
+                </div>
+              </div>
+            )}
+
             {/* Input */}
             <div className="p-3 border-t border-border bg-background">
               {/* Прикреплённое изображение */}
@@ -1549,6 +1592,47 @@ export default function Builder() {
                     )}
                   </div>
 
+                  {/* Стиль сайта — только для создания нового (при правке html уже есть) */}
+                  {!html && (
+                    <div className="relative shrink-0">
+                      <button onClick={() => setShowStyleMenu(v => !v)}
+                        className={`flex items-center gap-1 h-7 px-2 rounded-lg transition-colors text-[11px] font-semibold ${siteStyle ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-foreground hover:bg-secondary'}`}
+                        title={lang === 'ru' ? 'Стиль дизайна' : 'Design style'}>
+                        <Icon name="Palette" size={13} />
+                        <span className="hidden sm:inline">
+                          {siteStyle === 'minimal' ? (lang === 'ru' ? 'Минимализм' : 'Minimal')
+                            : siteStyle === 'premium' ? (lang === 'ru' ? 'Премиум' : 'Premium')
+                            : siteStyle === 'bright' ? (lang === 'ru' ? 'Яркий' : 'Bright')
+                            : siteStyle === 'dark' ? (lang === 'ru' ? 'Тёмный' : 'Dark')
+                            : (lang === 'ru' ? 'Стиль' : 'Style')}
+                        </span>
+                      </button>
+                      {showStyleMenu && (
+                        <div className="absolute bottom-10 left-0 z-50 w-56 bg-secondary border border-border rounded-2xl shadow-2xl p-1.5">
+                          {[
+                            { id: '' as const, icon: 'Wand2', label: lang === 'ru' ? 'Авто (под нишу)' : 'Auto', desc: lang === 'ru' ? 'ИИ подберёт стиль сам' : 'AI picks the style' },
+                            { id: 'minimal' as const, icon: 'Minus', label: lang === 'ru' ? 'Минимализм' : 'Minimal', desc: lang === 'ru' ? 'Чисто, светло, воздушно' : 'Clean & airy' },
+                            { id: 'premium' as const, icon: 'Crown', label: lang === 'ru' ? 'Премиум' : 'Premium', desc: lang === 'ru' ? 'Дорого и элегантно' : 'Luxury & elegant' },
+                            { id: 'bright' as const, icon: 'Sparkles', label: lang === 'ru' ? 'Яркий' : 'Bright', desc: lang === 'ru' ? 'Сочно и энергично' : 'Vivid & energetic' },
+                            { id: 'dark' as const, icon: 'Moon', label: lang === 'ru' ? 'Тёмный' : 'Dark', desc: lang === 'ru' ? 'Тёмный с акцентом' : 'Dark with accent' },
+                          ].map(s => (
+                            <button key={s.id}
+                              onClick={() => { setSiteStyle(s.id); setShowStyleMenu(false); }}
+                              className="w-full flex items-start gap-2.5 px-2.5 py-2 rounded-xl hover:bg-secondary/70 transition-colors text-left">
+                              <div className={`grid h-6 w-6 place-items-center rounded-lg shrink-0 mt-0.5 ${siteStyle === s.id ? 'bg-primary text-primary-foreground' : 'bg-background text-muted-foreground'}`}>
+                                <Icon name={siteStyle === s.id ? 'Check' : s.icon} fallback="Palette" size={12} />
+                              </div>
+                              <div>
+                                <div className="text-xs font-medium text-foreground">{s.label}</div>
+                                <div className="text-[10px] text-muted-foreground">{s.desc}</div>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  )}
+
                   {/* Расширения */}
                   <div className="relative shrink-0">
                     <button onClick={() => setShowExtensions(v => !v)}
@@ -1609,6 +1693,7 @@ export default function Builder() {
             {/* Overlay закрывает расширения */}
             {showExtensions && <div className="fixed inset-0 z-40" onClick={() => setShowExtensions(false)} />}
             {showModelMenu && <div className="fixed inset-0 z-40" onClick={() => setShowModelMenu(false)} />}
+            {showStyleMenu && <div className="fixed inset-0 z-40" onClick={() => setShowStyleMenu(false)} />}
           </div>
         )}
 

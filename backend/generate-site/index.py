@@ -531,6 +531,23 @@ def detect_large_task(text: str, is_edit: bool) -> bool:
     # Крупная задача, если: есть 2+ характерных слова ИЛИ одно сильное слово + длинное подробное ТЗ.
     return keyword_hits >= 2 or (keyword_hits >= 1 and len(low) >= 220)
 
+
+# Готовые стили-пресеты: пользователь выбирает эстетику, и ИИ точно в неё попадает.
+STYLE_PRESETS = {
+    'minimal': "СТИЛЬ — МИНИМАЛИЗМ: чистый светлый дизайн, много воздуха, тонкая типографика, "
+               "спокойная почти монохромная палитра с одним сдержанным акцентом, тонкие линии-разделители, "
+               "лёгкие тени, никаких лишних украшений. Элегантно и просто.",
+    'premium': "СТИЛЬ — ПРЕМИУМ: дорогой элегантный вид, тёмная или глубокая палитра с золотым/бронзовым или "
+               "благородным акцентом, засечные или контрастные шрифты, крупные заголовки, много «воздуха», "
+               "тонкие рамки и деликатные градиенты. Ощущение люкса и статуса.",
+    'bright': "СТИЛЬ — ЯРКИЙ: сочная жизнерадостная палитра (2-3 контрастных цвета), крупные насыщенные градиенты, "
+              "энергичные кнопки, скруглённые формы, эмодзи/иконки, динамичные акценты. Молодо, свежо и позитивно.",
+    'dark': "СТИЛЬ — ТЁМНЫЙ: тёмный фон (near-black/тёмно-серый), неоновый или яркий акцентный цвет, "
+            "свечения (glow) и градиентные пятна, контрастная светлая типографика, эффект «технологичности». "
+            "Современно, брутально и стильно.",
+}
+
+
 def handler(event: dict, context) -> dict:
     """Генерирует HTML-код сайта через Claude Sonnet или GPT-4o (оба через OpenRouter) по описанию пользователя"""
 
@@ -553,6 +570,7 @@ def handler(event: dict, context) -> dict:
     project_id = body.get('project_id')
     model_choice = body.get('model', 'claude')
     current_html = body.get('current_html', '')
+    style_choice = body.get('style', '')  # выбранный стиль-пресет (minimal/premium/bright/dark)
 
     if not messages:
         return err('Нет сообщений')
@@ -656,6 +674,9 @@ def handler(event: dict, context) -> dict:
         max_tokens = 6500 if function_timeout <= 35 else 14000
 
     effective_system_prompt = system_prompt
+    # Выбранный стиль-пресет — точная эстетика вместо угадывания.
+    if style_choice in STYLE_PRESETS and not current_html:
+        effective_system_prompt += "\n\n" + STYLE_PRESETS[style_choice]
     # Крупная задача: даём чуть больше блоков, но с сохранением принципа «красота важнее объёма».
     if is_large_task:
         sections_hint = '4-5' if function_timeout <= 35 else '6-8'
@@ -666,13 +687,15 @@ def handler(event: dict, context) -> dict:
             "лучше меньше секций, но идеальных. ОБЯЗАТЕЛЬНО заверши документ на </body></html>."
         )
 
-    def call_openrouter(model_id: str):
+    def call_openrouter(model_id: str, override_messages=None, override_max_tokens=None):
         """Один вызов OpenRouter. Возвращает (result_dict | None, error_info).
-        error_info = None при успехе, иначе (http_code, текст_причины)."""
+        error_info = None при успехе, иначе (http_code, текст_причины).
+        override_messages — если задан, используется вместо системного промпта + истории (для 2-го прохода)."""
+        msgs = override_messages if override_messages is not None else ([{'role': 'system', 'content': effective_system_prompt}] + chat_messages)
         payload = json.dumps({
             'model': model_id,
-            'messages': [{'role': 'system', 'content': effective_system_prompt}] + chat_messages,
-            'max_tokens': max_tokens,
+            'messages': msgs,
+            'max_tokens': override_max_tokens or max_tokens,
             'temperature': 0.7,
             'reasoning': {'effort': 'low', 'exclude': True},
         }).encode('utf-8')
@@ -776,6 +799,42 @@ def handler(event: dict, context) -> dict:
     if len(visible) < 10 and '<img' not in body_inner.lower() and '<svg' not in body_inner.lower():
         refund_quota(user_id, schema, request_cost)
         return err('Сайт не успел сгенерироваться полностью. Попробуйте ещё раз или упростите запрос.', 503)
+
+    # АВТО-УЛУЧШЕНИЕ В 2 ПРОХОДА: если есть запас времени (таймаут функции поднят до 60+ сек),
+    # это создание нового сайта и HTML получился нормального размера — просим модель КРИТИЧЕСКИ
+    # оценить свою работу и вернуть улучшенную версию (дизайн, контраст, продающий текст).
+    # При 30-сек лимите пропускаем — второй проход не успеет.
+    if function_timeout >= 60 and not is_edit and 1500 < len(html) < 60000:
+        improve_prompt = (
+            "Ты — придирчивый арт-директор и копирайтер. Вот готовый HTML-сайт. "
+            "Критически улучши его как финальную версию: усиль дизайн (контраст, отступы, единый визуальный ритм, "
+            "выразительный hero, аккуратные карточки, hover-эффекты, чередование фонов секций), сделай текст более продающим "
+            "и живым (сильный оффер, человеческие CTA, конкретные преимущества, правдоподобные отзывы — без «воды»). "
+            "НИЧЕГО не ломай, сохрани структуру и рабочие ссылки на картинки. Верни ТОЛЬКО улучшенный полный HTML-документ "
+            "целиком от <!DOCTYPE html> до </body></html>, без markdown и пояснений."
+        )
+        improved_res, improved_err = call_openrouter(
+            model_name,
+            override_messages=[
+                {'role': 'system', 'content': improve_prompt},
+                {'role': 'user', 'content': html[:55000]},
+            ],
+            override_max_tokens=max_tokens,
+        )
+        if improved_err is None and improved_res:
+            imp_choices = improved_res.get('choices') or []
+            imp_html = (imp_choices[0].get('message', {}).get('content') or '').strip() if imp_choices else ''
+            imp_html = imp_html.strip()
+            if imp_html.startswith('```'):
+                lines = imp_html.split('\n')
+                imp_html = '\n'.join(lines[1:-1] if lines[-1] == '```' else lines[1:])
+            imp_html, _imp_meta = extract_meta_block(imp_html)
+            imp_html = repair_truncated_html(imp_html.strip())
+            # Принимаем результат 2-го прохода только если он валиден и не оборвался.
+            if imp_html.lower().rstrip().endswith('</html>') and len(imp_html) > 1500:
+                html = imp_html
+                imp_usage = improved_res.get('usage', {})
+                tokens += imp_usage.get('prompt_tokens', 0) + imp_usage.get('completion_tokens', 0)
 
     # Если модель не прислала служебный блок описания (частый случай при 30-сек лимите —
     # HTML успел, а метаданные в конце нет) — строим описание работы прямо из готового HTML,
