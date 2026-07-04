@@ -556,6 +556,8 @@ STYLE_PRESETS = {
 
 def handler(event: dict, context) -> dict:
     """Генерирует HTML-код сайта через Claude Sonnet или GPT-4o (оба через OpenRouter) по описанию пользователя"""
+    import time as _time
+    started_at = _time.monotonic()
 
     if event.get('httpMethod') == 'OPTIONS':
         return {'statusCode': 200, 'headers': cors(), 'body': ''}
@@ -671,8 +673,10 @@ def handler(event: dict, context) -> dict:
     if model_choice in SLOW_MODELS and function_timeout <= 35:
         refund_quota(user_id, schema, request_cost)
         return err('Модели Sonnet и Opus слишком мощные для быстрой генерации и не успевают ответить. Выберите Gemini или Claude — они быстрые и отлично справляются с сайтами.', 400)
-    # Оставляем ~7 сек запаса на чтение ответа, очистку HTML и запись в БД.
-    ai_timeout = max(12, function_timeout - 7)
+    # Оставляем запас на чтение ответа, очистку HTML и запись в БД. Важно: наш внутренний
+    # таймаут должен сработать ЗАМЕТНО раньше жёсткого лимита функции, иначе платформа убьёт
+    # функцию с 504 до того, как мы вернём понятную ошибку. Поэтому запас ~12 сек.
+    ai_timeout = max(12, function_timeout - 12)
     # Длину ответа масштабируем под РЕАЛЬНЫЙ бюджет времени. При 30-сек лимите функции модель
     # успевает сгенерировать ~4000 токенов до обрыва — ставим именно столько, чтобы документ
     # ГАРАНТИРОВАННО дописался целиком (лучше компактный целый сайт, чем длинный оборванный —
@@ -682,14 +686,21 @@ def handler(event: dict, context) -> dict:
     if is_large_task:
         max_tokens = 6500 if function_timeout <= 35 else 14000
 
-    # КРИТИЧНО ДЛЯ ПРАВОК: модель возвращает ВЕСЬ сайт целиком заново. Если max_tokens меньше
-    # размера текущего HTML — ответ обрывается на середине и блоки пропадают (баг «ломается превью»).
-    # Поэтому при правке даём лимит с запасом: (текущий HTML в токенах ≈ len/3) + 1500 на изменения.
+    # КРИТИЧНО ДЛЯ ПРАВОК: модель возвращает ВЕСЬ сайт целиком заново. Нужен баланс:
+    #  - max_tokens должен вмещать весь текущий HTML + запас на изменения (иначе обрыв и потеря блоков),
+    #  - но НЕ больше, чем модель реально успеет сгенерировать за бюджет времени (иначе таймаут 504).
+    # Быстрые модели дают ~130-160 токенов/сек, значит за ai_timeout безопасно ~ai_timeout*140 токенов.
     if current_html:
         needed = len(current_html) // 3 + 1500
-        # Верхний потолок зависит от бюджета времени: при 30 сек не даём слишком много (иначе таймаут).
-        ceiling = 8000 if function_timeout <= 35 else 20000
-        max_tokens = max(max_tokens, min(needed, ceiling))
+        speed_ceiling = int(ai_timeout * 140)  # сколько модель реально успеет за отведённое время
+        hard_ceiling = 8000 if function_timeout <= 35 else 12000
+        ceiling = min(hard_ceiling, speed_ceiling)
+        # Если сайт настолько большой, что не помещается в бюджет времени — правка целиком
+        # физически не успеет и сайт сломается. Честно предупреждаем и НЕ трогаем текущий сайт.
+        if needed > ceiling * 1.15:
+            refund_quota(user_id, schema, request_cost)
+            return err('Сайт стал слишком большим, чтобы переписать его целиком за одну правку — блоки могли бы потеряться. Сайт оставлен без изменений. Опубликуйте текущую версию или попросите изменение попроще (например, поправить один конкретный блок).', 413)
+        max_tokens = max(min(max_tokens, ceiling), min(needed, ceiling))
 
     effective_system_prompt = system_prompt
     # Выбранный стиль-пресет — точная эстетика вместо угадывания.
@@ -705,11 +716,13 @@ def handler(event: dict, context) -> dict:
             "лучше меньше секций, но идеальных. ОБЯЗАТЕЛЬНО заверши документ на </body></html>."
         )
 
-    def call_openrouter(model_id: str, override_messages=None, override_max_tokens=None):
+    def call_openrouter(model_id: str, override_messages=None, override_max_tokens=None, override_timeout=None):
         """Один вызов OpenRouter. Возвращает (result_dict | None, error_info).
         error_info = None при успехе, иначе (http_code, текст_причины).
-        override_messages — если задан, используется вместо системного промпта + истории (для 2-го прохода)."""
+        override_messages — если задан, используется вместо системного промпта + истории (для 2-го прохода).
+        override_timeout — таймаут именно этого вызова (для 2-го прохода — по остатку времени)."""
         msgs = override_messages if override_messages is not None else ([{'role': 'system', 'content': effective_system_prompt}] + chat_messages)
+        call_timeout = override_timeout or ai_timeout
         payload = json.dumps({
             'model': model_id,
             'messages': msgs,
@@ -729,7 +742,7 @@ def handler(event: dict, context) -> dict:
             method='POST'
         )
         try:
-            with urllib.request.urlopen(req, timeout=ai_timeout) as response:
+            with urllib.request.urlopen(req, timeout=call_timeout) as response:
                 res = json.loads(response.read().decode('utf-8'))
         except urllib.error.HTTPError as e:
             try:
@@ -829,11 +842,13 @@ def handler(event: dict, context) -> dict:
         refund_quota(user_id, schema, request_cost)
         return err('Сайт не успел сгенерироваться полностью. Попробуйте ещё раз или упростите запрос.', 503)
 
-    # АВТО-УЛУЧШЕНИЕ В 2 ПРОХОДА: если есть запас времени (таймаут функции поднят до 60+ сек),
-    # это создание нового сайта и HTML получился нормального размера — просим модель КРИТИЧЕСКИ
-    # оценить свою работу и вернуть улучшенную версию (дизайн, контраст, продающий текст).
-    # При 30-сек лимите пропускаем — второй проход не успеет.
-    if function_timeout >= 60 and not is_edit and 1500 < len(html) < 60000:
+    # АВТО-УЛУЧШЕНИЕ В 2 ПРОХОДА: только для создания нового сайта (не правки!) и только если
+    # реально остался запас времени. Проверяем фактически прошедшее время: если первый проход
+    # был долгим, второй НЕ запускаем — иначе функция упрётся в таймаут и сломает результат.
+    elapsed = _time.monotonic() - started_at
+    remaining_time = function_timeout - elapsed - 10  # -10 сек на завершение и запись в БД
+    second_pass_tokens = min(max_tokens, int(remaining_time * 140)) if remaining_time > 0 else 0
+    if function_timeout >= 60 and not is_edit and 1500 < len(html) < 55000 and remaining_time >= 25 and second_pass_tokens >= 1500:
         improve_prompt = (
             "Ты — придирчивый арт-директор и копирайтер. Вот готовый HTML-сайт. "
             "Критически улучши его как финальную версию: усиль дизайн (контраст, отступы, единый визуальный ритм, "
@@ -848,7 +863,8 @@ def handler(event: dict, context) -> dict:
                 {'role': 'system', 'content': improve_prompt},
                 {'role': 'user', 'content': html[:55000]},
             ],
-            override_max_tokens=max_tokens,
+            override_max_tokens=second_pass_tokens,
+            override_timeout=max(12, int(remaining_time)),
         )
         if improved_err is None and improved_res:
             imp_choices = improved_res.get('choices') or []
