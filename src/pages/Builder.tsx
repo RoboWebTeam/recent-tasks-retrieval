@@ -244,7 +244,12 @@ export default function Builder() {
   const [publishError, setPublishError] = useState('');
   const [remaining, setRemaining] = useState<number | null>(null);
   const [quotaExceeded, setQuotaExceeded] = useState(false);
-  const [aiModel, setAiModel] = useState<'claude' | 'gpt-4o' | 'gemini' | 'opus' | 'sonnet'>('gemini');
+  const [aiModel, setAiModel] = useState<'claude' | 'gpt-4o' | 'gemini' | 'opus' | 'sonnet'>(() => {
+    // По умолчанию Claude; выбранная модель запоминается между заходами в localStorage.
+    if (typeof window === 'undefined') return 'claude';
+    const saved = localStorage.getItem('builder_ai_model');
+    return (saved === 'claude' || saved === 'gpt-4o' || saved === 'gemini' || saved === 'opus' || saved === 'sonnet') ? saved : 'claude';
+  });
   // Выбранный стиль-пресет для новых сайтов ('' = авто, ИИ подбирает сам под нишу)
   const [siteStyle, setSiteStyle] = useState<'' | 'minimal' | 'premium' | 'bright' | 'dark'>('');
   const [showStyleMenu, setShowStyleMenu] = useState(false);
@@ -415,6 +420,11 @@ export default function Builder() {
   useEffect(() => {
     localStorage.setItem('builder_theme', builderTheme);
   }, [builderTheme]);
+
+  // Запоминаем выбранную модель ИИ — чтобы при следующем заходе она сохранялась.
+  useEffect(() => {
+    localStorage.setItem('builder_ai_model', aiModel);
+  }, [aiModel]);
 
   const toggleBuilderTheme = () => setBuilderTheme(t => t === 'light' ? 'dark' : 'light');
 
