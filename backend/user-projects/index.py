@@ -80,14 +80,16 @@ def handler(event: dict, context) -> dict:
                     return ok({'project': project})
 
                 cur.execute(
-                    f"SELECT id, title, description, status, url, slug, created_at, updated_at "
+                    f"SELECT id, title, description, status, url, slug, created_at, updated_at, "
+                    f"COALESCE(jsonb_array_length(chat_history), 0) "
                     f"FROM {schema}.projects WHERE user_id = %s ORDER BY updated_at DESC",
                     (user_id,)
                 )
                 rows = cur.fetchall()
                 projects = [
                     {'id': r[0], 'title': r[1], 'description': r[2], 'status': r[3],
-                     'url': r[4], 'slug': r[5], 'created_at': r[6].isoformat(), 'updated_at': r[7].isoformat()}
+                     'url': r[4], 'slug': r[5], 'created_at': r[6].isoformat(), 'updated_at': r[7].isoformat(),
+                     'chat_count': r[8]}
                     for r in rows
                 ]
                 return ok({'projects': projects})

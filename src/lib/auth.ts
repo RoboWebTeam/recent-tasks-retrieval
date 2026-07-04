@@ -50,6 +50,8 @@ export interface Project {
   slug?: string | null;
   html_content?: string;
   chat_history?: unknown[];
+  /** Число сообщений в истории чата проекта (для значка «есть переписка» на дашборде) */
+  chat_count?: number;
   created_at: string;
   updated_at: string;
 }

@@ -116,10 +116,21 @@ export default function DashboardProjectsTab({
                   <div className="grid h-10 w-10 place-items-center rounded-xl bg-primary/10 text-primary shrink-0 group-hover:bg-primary group-hover:text-primary-foreground transition-colors">
                     <Icon name="Globe" size={18} />
                   </div>
-                  <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${s.color}`}>
-                    <Icon name={s.icon} size={11} className={p.status === 'building' ? 'animate-spin' : ''} />
-                    {s.label}
-                  </span>
+                  <div className="flex items-center gap-1.5 flex-wrap justify-end">
+                    {(p.chat_count ?? 0) > 0 && (
+                      <span
+                        className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs font-semibold bg-primary/10 text-primary"
+                        title={lang === 'ru' ? 'Есть история переписки с ассистентом' : 'Has chat history with assistant'}
+                      >
+                        <Icon name="MessageSquare" size={11} />
+                        {p.chat_count}
+                      </span>
+                    )}
+                    <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${s.color}`}>
+                      <Icon name={s.icon} size={11} className={p.status === 'building' ? 'animate-spin' : ''} />
+                      {s.label}
+                    </span>
+                  </div>
                 </div>
                 <h3 className="font-display font-bold text-base mb-1 line-clamp-1">{p.title}</h3>
                 {p.description && (
