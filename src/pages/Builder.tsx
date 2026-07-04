@@ -511,8 +511,8 @@ export default function Builder() {
       editMode = e.data.enabled;
       document.body.style.cursor = editMode ? 'crosshair' : '';
       if (!editMode) {
-        if (highlighted) { highlighted.style.outline = ''; highlighted = null; }
-        if (selected) { selected.style.outline = ''; selected = null; }
+        if (highlighted) { highlighted.style.outline = ''; highlighted.style.boxShadow = ''; highlighted = null; }
+        if (selected) { selected.style.outline = ''; selected.style.boxShadow = ''; selected = null; }
       }
     }
     if (e.data.type === 'ROBOWEB_APPLY_TEXT') {
@@ -530,26 +530,28 @@ export default function Builder() {
     if (!editMode) return;
     var t = e.target;
     if (t === selected) return;
-    if (highlighted && highlighted !== t) highlighted.style.outline = '';
+    if (highlighted && highlighted !== t) { highlighted.style.outline = ''; highlighted.style.boxShadow = ''; }
     t.style.outline = '2px dashed #4f6ef7';
     t.style.outlineOffset = '2px';
+    t.style.boxShadow = '0 0 0 4px rgba(255,255,255,0.6)';
     highlighted = t;
   });
 
   document.addEventListener('mouseout', function(e) {
     if (!editMode) return;
     var t = e.target;
-    if (t === highlighted && t !== selected) { t.style.outline = ''; highlighted = null; }
+    if (t === highlighted && t !== selected) { t.style.outline = ''; t.style.boxShadow = ''; highlighted = null; }
   });
 
   document.addEventListener('click', function(e) {
     if (!editMode) return;
     e.preventDefault(); e.stopPropagation();
     var t = e.target;
-    if (selected && selected !== t) selected.style.outline = '';
+    if (selected && selected !== t) { selected.style.outline = ''; selected.style.boxShadow = ''; }
     selected = t;
     t.style.outline = '2px solid #4f6ef7';
     t.style.outlineOffset = '2px';
+    t.style.boxShadow = '0 0 0 4px rgba(255,255,255,0.6)';
     var rect = t.getBoundingClientRect();
     window.parent.postMessage({
       type: 'ROBOWEB_CLICK',
@@ -1378,9 +1380,12 @@ export default function Builder() {
                     </div>
                   )}
 
-                  <div className="flex-1 flex overflow-hidden w-full">
+                  <div className={`flex-1 flex overflow-hidden w-full ${device !== 'desktop' && !propsPanel ? 'justify-center bg-secondary/30 py-4' : ''}`}>
                     {/* iframe */}
-                    <div className="flex-1 relative overflow-hidden transition-all duration-500" style={{ maxWidth: propsPanel ? undefined : DEVICE_WIDTHS[device] }}>
+                    <div
+                      className={`relative overflow-hidden transition-all duration-500 bg-white ${device !== 'desktop' && !propsPanel ? 'rounded-2xl border border-border shadow-lg' : 'flex-1'}`}
+                      style={{ maxWidth: propsPanel ? undefined : DEVICE_WIDTHS[device], width: device !== 'desktop' && !propsPanel ? DEVICE_WIDTHS[device] : '100%' }}
+                    >
                       <iframe
                         ref={iframeRef}
                         key={iframeKey}
