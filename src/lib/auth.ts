@@ -330,17 +330,33 @@ export async function apiUploadFile(
   return (data as {file: SiteFile}).file;
 }
 
+/** Повторяет запрос при временной недоступности AI-сервиса (502/503), с нарастающей паузой между попытками. */
+async function withAiRetry<T>(
+  fn: () => Promise<{ res: { ok: boolean; status: number }; data: T }>,
+  maxRetries = 2,
+  delayMs = 1500,
+): Promise<{ res: { ok: boolean; status: number }; data: T }> {
+  let result: { res: { ok: boolean; status: number }; data: T };
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    result = await fn();
+    const isRetryable = result.res.status === 502 || result.res.status === 503;
+    if (result.res.ok || !isRetryable || attempt === maxRetries) return result;
+    await new Promise(r => setTimeout(r, delayMs * (attempt + 1)));
+  }
+  return result!;
+}
+
 export async function apiGenerateImage(
   sessionId: string,
   prompt: string,
   projectId?: number,
   size?: '1024x1024' | '1792x1024' | '1024x1792',
 ): Promise<{ url: string; file_name: string; revised_prompt: string; remaining?: number }> {
-  const { res, data } = await apiFetch(GENERATE_IMAGE_URL, {
+  const { res, data } = await withAiRetry(() => apiFetch(GENERATE_IMAGE_URL, {
     method: 'POST',
     headers: { 'x-session-id': sessionId },
     body: JSON.stringify({ prompt, project_id: projectId, size }),
-  });
+  }));
   if (!res.ok) {
     if (res.status === 502 || res.status === 503) throw new Error('AI_SERVICE_UNAVAILABLE');
     throw new Error((data as {error?: string}).error || 'Ошибка генерации изображения');

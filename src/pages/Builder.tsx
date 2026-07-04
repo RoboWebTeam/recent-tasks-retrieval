@@ -13,6 +13,22 @@ import { apiUrl } from '@/lib/apiConfig';
 
 const GENERATE_URL = apiUrl('generate-site');
 
+/** Повторяет запрос генерации при временной недоступности AI-сервиса (502/503), с нарастающей паузой.
+ * Реальный статус может быть внутри JSON-тела (raw.statusCode), а не только в res.status. */
+async function fetchWithAiRetry(url: string, options: RequestInit, maxRetries = 2, delayMs = 1500): Promise<{ res: Response; raw: Record<string, unknown> }> {
+  let res: Response;
+  let raw: Record<string, unknown>;
+  for (let attempt = 0; attempt <= maxRetries; attempt++) {
+    res = await fetch(url, options);
+    raw = await res.json();
+    const statusCode = typeof raw.statusCode === 'number' ? raw.statusCode : res.status;
+    const isRetryable = statusCode === 502 || statusCode === 503;
+    if (!isRetryable || attempt === maxRetries) return { res, raw };
+    await new Promise(r => setTimeout(r, delayMs * (attempt + 1)));
+  }
+  return { res: res!, raw: raw! };
+}
+
 interface Message {
   role: 'user' | 'assistant';
   content: string;
@@ -228,7 +244,7 @@ export default function Builder() {
     setMessages(prev => [...prev, { role: 'assistant', content: '' }]);
 
     try {
-      const res = await fetch(GENERATE_URL, {
+      const { res, raw } = await fetchWithAiRetry(GENERATE_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'x-session-id': session! },
         body: JSON.stringify({
@@ -238,7 +254,6 @@ export default function Builder() {
         }),
       });
 
-      const raw = await res.json();
       let data: Record<string, unknown> = raw;
       if (raw.body !== undefined) {
         data = typeof raw.body === 'string' ? JSON.parse(raw.body) : raw.body as Record<string, unknown>;
