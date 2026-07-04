@@ -1,0 +1,8 @@
+# Единые зависимости для запуска всех backend-функций проекта на обычном сервере.
+# Собрано из requirements.txt каждой отдельной функции в /backend/*/requirements.txt
+
+flask>=3.0.0
+gunicorn>=21.2.0
+psycopg2-binary>=2.9.0
+bcrypt>=4.0.0
+boto3>=1.34.0
