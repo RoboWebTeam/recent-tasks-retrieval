@@ -46,6 +46,7 @@ const Admin = () => {
   const [userActionError, setUserActionError] = useState('');
   const [aiBalance, setAiBalance] = useState<AiBalance | null>(null);
   const [aiBalanceLoading, setAiBalanceLoading] = useState(false);
+  const [aiBalanceError, setAiBalanceError] = useState('');
 
   const manageUser = async (userId: number, action: 'block' | 'unblock' | 'delete' | 'change_plan', plan?: string) => {
     setActionLoading(userId);
@@ -155,12 +156,14 @@ const Admin = () => {
 
   const fetchAiBalance = (adminKey: string) => {
     setAiBalanceLoading(true);
+    setAiBalanceError('');
     fetch(AI_BALANCE_URL, { headers: { 'x-admin-key': adminKey } })
       .then(r => r.json()).then(raw => {
         const d = unwrap(raw);
         if (!d.error) setAiBalance(d as unknown as AiBalance);
+        else setAiBalanceError((d.error as string) || '');
       })
-      .catch(() => {/* тихо */})
+      .catch(() => setAiBalanceError('Ошибка соединения'))
       .finally(() => setAiBalanceLoading(false));
   };
 
@@ -341,6 +344,8 @@ const Admin = () => {
                   ${aiBalance.remaining.toFixed(2)}
                   <span className="text-sm font-normal text-muted-foreground ml-2">из ${aiBalance.total_credits.toFixed(2)}</span>
                 </div>
+              ) : aiBalanceError ? (
+                <div className="text-sm text-destructive">{aiBalanceError}</div>
               ) : (
                 <div className="text-sm text-muted-foreground">Нет данных</div>
               )}
