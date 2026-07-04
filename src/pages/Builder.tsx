@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, type CSSProperties } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
@@ -186,6 +186,14 @@ export default function Builder() {
     return localStorage.getItem('show_energy_bonus') === '1';
   });
   const [sidebarOpen, setSidebarOpen] = useState(true);
+  // Ширина панели чата — можно менять мышкой за разделитель. Сохраняем в localStorage,
+  // чтобы выбранная ширина сохранялась между сессиями работы в редакторе.
+  const [chatWidth, setChatWidth] = useState(() => {
+    if (typeof window === 'undefined') return 400;
+    const saved = Number(localStorage.getItem('builder_chat_width'));
+    return saved >= 300 && saved <= 800 ? saved : 400;
+  });
+  const [isResizingChat, setIsResizingChat] = useState(false);
   const [versions, setVersions] = useState<Version[]>([]);
   const [showVersions, setShowVersions] = useState(false);
   const [showQuickEdits, setShowQuickEdits] = useState(false);
@@ -268,6 +276,34 @@ export default function Builder() {
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
+
+  // Изменение ширины панели чата мышкой за разделитель
+  useEffect(() => {
+    if (!isResizingChat) return;
+    const MIN_WIDTH = 300;
+    const MAX_WIDTH = 800;
+    const handleMouseMove = (e: MouseEvent) => {
+      const next = Math.min(MAX_WIDTH, Math.max(MIN_WIDTH, e.clientX));
+      setChatWidth(next);
+    };
+    const handleMouseUp = () => {
+      setIsResizingChat(false);
+      setChatWidth(w => {
+        localStorage.setItem('builder_chat_width', String(w));
+        return w;
+      });
+    };
+    document.body.style.cursor = 'col-resize';
+    document.body.style.userSelect = 'none';
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('mouseup', handleMouseUp);
+    return () => {
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('mouseup', handleMouseUp);
+    };
+  }, [isResizingChat]);
 
   // Сохраняем историю чата в localStorage — чтобы она не терялась при перезагрузке страницы.
   // Не сохраняем во время загрузки (когда последнее сообщение ассистента ещё пустое).
@@ -1026,7 +1062,10 @@ export default function Builder() {
 
         {/* LEFT — CHAT */}
         {sidebarOpen && (
-          <div className="flex flex-col w-full sm:w-[360px] lg:w-[400px] xl:w-[430px] shrink-0 border-r border-border bg-card">
+          <div
+            className="flex flex-col w-full shrink-0 bg-card sm:[width:var(--chat-w)]"
+            style={{ '--chat-w': `${chatWidth}px` } as CSSProperties}
+          >
 
             {/* Chat header */}
             <div className="flex items-center gap-2.5 px-4 py-3 border-b border-border shrink-0 bg-background">
@@ -1413,6 +1452,17 @@ export default function Builder() {
             {/* Overlay закрывает расширения */}
             {showExtensions && <div className="fixed inset-0 z-40" onClick={() => setShowExtensions(false)} />}
             {showModelMenu && <div className="fixed inset-0 z-40" onClick={() => setShowModelMenu(false)} />}
+          </div>
+        )}
+
+        {/* Разделитель для изменения ширины панели чата мышкой */}
+        {sidebarOpen && (
+          <div
+            onMouseDown={(e) => { e.preventDefault(); setIsResizingChat(true); }}
+            className={`hidden sm:block relative w-1 shrink-0 cursor-col-resize group ${isResizingChat ? 'bg-primary' : 'bg-border hover:bg-primary/60'} transition-colors`}
+            title={lang === 'ru' ? 'Потяните, чтобы изменить ширину чата' : 'Drag to resize chat panel'}
+          >
+            <div className="absolute inset-y-0 -left-1.5 -right-1.5" />
           </div>
         )}
 
