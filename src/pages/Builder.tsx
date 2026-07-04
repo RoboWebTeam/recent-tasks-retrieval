@@ -165,7 +165,7 @@ export default function Builder() {
   const [publishError, setPublishError] = useState('');
   const [remaining, setRemaining] = useState<number | null>(null);
   const [quotaExceeded, setQuotaExceeded] = useState(false);
-  const [aiModel, setAiModel] = useState<'claude' | 'gpt-4o' | 'gemini'>('claude');
+  const [aiModel, setAiModel] = useState<'claude' | 'gpt-4o' | 'gemini'>('gemini');
   const [showModelMenu, setShowModelMenu] = useState(false);
   const [dismissedModelHint, setDismissedModelHint] = useState(false);
   const [showImageGen, setShowImageGen] = useState(false);
@@ -1112,11 +1112,11 @@ export default function Builder() {
                 <p className="flex-1">
                   {suggestedModel === 'gemini'
                     ? (lang === 'ru'
-                        ? 'Для сложного и интерактивного сайта лучше подойдёт Gemini 2.5 Pro'
-                        : 'Gemini 2.5 Pro is better suited for complex, interactive sites')
+                        ? 'Для сложного и интерактивного сайта лучше подойдёт Gemini'
+                        : 'Gemini is better suited for complex, interactive sites')
                     : (lang === 'ru'
-                        ? 'Для бизнес-сайта или лендинга лучше подойдёт Claude Sonnet'
-                        : 'Claude Sonnet is better suited for business sites and landings')}
+                        ? 'Для бизнес-сайта или лендинга лучше подойдёт Claude'
+                        : 'Claude is better suited for business sites and landings')}
                 </p>
                 <button
                   onClick={() => { setAiModel(suggestedModel); setDismissedModelHint(true); }}
@@ -1205,28 +1205,28 @@ export default function Builder() {
                       <div className="absolute bottom-10 left-0 z-50 w-60 bg-secondary border border-border rounded-2xl shadow-2xl p-1.5">
                         {[
                           {
-                            id: 'claude' as const,
-                            label: 'Claude Sonnet',
-                            desc: lang === 'ru' ? 'Точный и качественный' : 'Precise & polished',
+                            id: 'gemini' as const,
+                            label: 'Gemini',
+                            desc: lang === 'ru' ? 'Быстрый и универсальный' : 'Fast & versatile',
                             hint: lang === 'ru'
-                              ? 'Лучше для бизнес-сайтов, лендингов и сложной структуры'
-                              : 'Best for business sites, landings & complex layouts',
+                              ? 'Оптимальный выбор для большинства сайтов'
+                              : 'Best choice for most websites',
+                          },
+                          {
+                            id: 'claude' as const,
+                            label: 'Claude',
+                            desc: lang === 'ru' ? 'Точный и аккуратный' : 'Precise & polished',
+                            hint: lang === 'ru'
+                              ? 'Лучше для бизнес-сайтов и лендингов'
+                              : 'Best for business sites and landings',
                           },
                           {
                             id: 'gpt-4o' as const,
                             label: 'GPT-4o',
-                            desc: lang === 'ru' ? 'Быстрый и креативный' : 'Fast & creative',
+                            desc: lang === 'ru' ? 'Креативный' : 'Creative',
                             hint: lang === 'ru'
-                              ? 'Лучше для нестандартного дизайна и творческих идей'
-                              : 'Best for bold design and creative concepts',
-                          },
-                          {
-                            id: 'gemini' as const,
-                            label: 'Gemini 2.5 Pro',
-                            desc: lang === 'ru' ? 'Мощный и универсальный' : 'Powerful & versatile',
-                            hint: lang === 'ru'
-                              ? 'Лучше для сложной логики и насыщенных интерфейсов'
-                              : 'Best for complex logic and rich interfaces',
+                              ? 'Лучше для нестандартного дизайна'
+                              : 'Best for bold, creative design',
                           },
                         ].map(m => (
                           <button key={m.id}

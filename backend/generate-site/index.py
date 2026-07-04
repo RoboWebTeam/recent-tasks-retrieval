@@ -20,6 +20,7 @@ SYSTEM_PROMPT = """Ты — профессиональный веб-разраб
 7. Добавляй плавные анимации появления элементов
 8. Не используй внешние JS-библиотеки кроме Google Fonts
 9. Сайт должен выглядеть профессионально и продающе
+9a. ВАЖНО: пиши компактный код без избыточных комментариев и повторов. Сфокусируйся на 4-6 ключевых секциях — лучше качественно и лаконично, чем длинно. Не раздувай CSS.
 
 ОБЯЗАТЕЛЬНОЕ SEO-оформление <head> (важно для индексации в Яндекс и Google):
 10. <html lang="ru"> (или другой язык, если пользователь просит сайт на другом языке)
@@ -313,12 +314,16 @@ def handler(event: dict, context) -> dict:
             for m in trimmed
         ]
 
+    # Используем БЫСТРЫЕ версии моделей: полноценный сайт должен успеть сгенерироваться
+    # в пределах лимита времени облачной функции (~30 сек). Топовые модели (sonnet-4.5,
+    # gemini-2.5-pro) слишком медленные для одностраничной генерации и упираются в таймаут.
+    # Быстрые варианты дают отличное качество для лендингов/визиток за 5-15 секунд.
     OPENROUTER_MODELS = {
-        'gpt-4o': 'openai/gpt-4o',
-        'claude': 'anthropic/claude-sonnet-4.5',
-        'gemini': 'google/gemini-2.5-pro',
+        'gpt-4o': 'openai/gpt-4o-mini',
+        'claude': 'anthropic/claude-haiku-4.5',
+        'gemini': 'google/gemini-2.5-flash',
     }
-    model_name = OPENROUTER_MODELS.get(model_choice, OPENROUTER_MODELS['claude'])
+    model_name = OPENROUTER_MODELS.get(model_choice, OPENROUTER_MODELS['gemini'])
 
     api_key = os.environ.get('OPENROUTER_API_KEY', '')
     if not api_key:
@@ -327,8 +332,15 @@ def handler(event: dict, context) -> dict:
     payload = json.dumps({
         'model': model_name,
         'messages': [{'role': 'system', 'content': system_prompt}] + chat_messages,
-        'max_tokens': 8000,
+        # Ограничиваем длину ответа: генерация HTML идёт токен за токеном, и полотно на 8000
+        # токенов физически не успевает сгенерироваться за 30-секундный лимит облачной функции.
+        # 5000 токенов достаточно для качественного одностраничного сайта и укладывается по времени.
+        'max_tokens': 5000,
         'temperature': 0.7,
+        # Отключаем режим "рассуждения" (reasoning/thinking) — у Gemini 2.5 Flash он включён
+        # по умолчанию и тратит много времени на размышления ДО ответа. Для генерации HTML
+        # он не нужен — важна скорость выдачи кода. effort=low минимизирует задержку.
+        'reasoning': {'effort': 'low', 'exclude': True},
     }).encode('utf-8')
 
     req = urllib.request.Request(
@@ -343,11 +355,11 @@ def handler(event: dict, context) -> dict:
         method='POST'
     )
 
-    # Таймаут внутреннего запроса к OpenRouter выставлен с запасом под лимит самой облачной
-    # функции: если функция обрывается раньше (например на 30-й секунде), важно хотя бы
-    # успеть вернуть пользователю списанный запрос при следующем обращении — см. refund_quota ниже.
+    # Таймаут внутреннего запроса к OpenRouter — 22 сек, чтобы гарантированно оставить
+    # время на сохранение результата в БД и корректный ответ до 30-секундного лимита самой
+    # облачной функции. Если ответ не пришёл за 22 сек — вернём понятную ошибку и вернём запрос.
     try:
-        with urllib.request.urlopen(req, timeout=25) as response:
+        with urllib.request.urlopen(req, timeout=22) as response:
             result = json.loads(response.read().decode('utf-8'))
     except urllib.error.HTTPError as e:
         refund_quota(user_id, schema)
