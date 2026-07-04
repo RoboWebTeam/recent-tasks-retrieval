@@ -198,7 +198,7 @@ export default function BuilderCoreStorage({ lang, projectId, onUseInChat, onFil
                   )}
                 </div>
               ) : (
-                <div className={`grid h-9 w-9 place-items-center rounded-xl shrink-0 ${f.file_type === 'zip' ? 'bg-amber-100 text-amber-700' : 'bg-primary/10 text-primary'}`}>
+                <div className={`grid h-9 w-9 place-items-center rounded-xl shrink-0 ${f.file_type === 'zip' ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400' : 'bg-primary/10 text-primary'}`}>
                   <Icon name={f.file_type === 'zip' ? 'FileArchive' : 'FileCode'} size={16} />
                 </div>
               )}

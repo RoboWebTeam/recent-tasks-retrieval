@@ -125,7 +125,7 @@ export default function BuilderCoreSecrets({ lang, projectId }: BuilderCoreSecre
           {secrets.map(s => (
             <div key={s.id} className="flex items-center justify-between gap-3 rounded-xl border border-border bg-card p-3">
               <div className="flex items-center gap-3 min-w-0">
-                <div className="grid h-9 w-9 place-items-center rounded-xl bg-amber-100 text-amber-600 shrink-0">
+                <div className="grid h-9 w-9 place-items-center rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 shrink-0">
                   <Icon name="KeyRound" size={16} />
                 </div>
                 <div className="min-w-0">

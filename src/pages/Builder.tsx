@@ -756,7 +756,7 @@ export default function Builder() {
             <Link
               to="/dashboard?tab=plan"
               title={lang === 'ru' ? 'Пополнить энергию' : 'Top up energy'}
-              className={`hidden sm:flex items-center gap-1 text-xs font-semibold rounded-lg px-2 py-1 transition-colors ${remaining <= 0 ? 'bg-destructive/10 text-destructive' : 'bg-amber-50 text-amber-700 hover:bg-amber-100'}`}
+              className={`hidden sm:flex items-center gap-1 text-xs font-semibold rounded-lg px-2 py-1 transition-colors ${remaining <= 0 ? 'bg-destructive/10 text-destructive' : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 hover:bg-amber-500/20'}`}
             >
               <Icon name="Zap" size={11} />
               {remaining}
@@ -919,7 +919,7 @@ export default function Builder() {
               </div>
               {messages.length > 0 && (
                 <button onClick={handleClearChat}
-                  className="grid h-7 w-7 place-items-center rounded-lg text-muted-foreground hover:text-red-400 hover:bg-red-500/10 transition-colors"
+                  className="grid h-7 w-7 place-items-center rounded-lg text-muted-foreground hover:text-destructive hover:bg-destructive/10 transition-colors"
                   title={lang === 'ru' ? 'Очистить чат' : 'Clear chat'}>
                   <Icon name="Trash2" size={14} />
                 </button>
@@ -998,11 +998,11 @@ export default function Builder() {
                       )}
                       <div className={`max-w-[85%] text-[15px] font-medium leading-[1.55] ${
                         m.role === 'user'
-                          ? 'bg-primary text-white rounded-2xl rounded-br-sm px-4 py-3 shadow-sm'
+                          ? 'bg-primary text-primary-foreground rounded-2xl rounded-br-sm px-4 py-3 shadow-sm'
                           : 'bg-secondary border border-border text-foreground rounded-2xl rounded-bl-sm px-4 py-3'
                       }`}>
                         {m.role === 'user' && (
-                          <div className="text-[10px] text-white/50 mb-1.5">{msgTime}</div>
+                          <div className="text-[10px] text-primary-foreground/60 mb-1.5">{msgTime}</div>
                         )}
                         {m.role === 'assistant' && m.content === '' ? (
                           <div className="flex items-center gap-1.5 py-0.5">
@@ -1015,7 +1015,7 @@ export default function Builder() {
                           </div>
                         ) : m.isHtml ? (
                           <div className="space-y-2.5">
-                            <div className="flex items-center gap-2 text-emerald-400 text-xs font-semibold">
+                            <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 text-xs font-semibold">
                               <Icon name="CheckCircle" size={13} /> {tr('builderReady', lang)}
                             </div>
                             <p className="text-muted-foreground text-xs">{tr('builderReadyDesc', lang)}</p>
@@ -1072,7 +1072,7 @@ export default function Builder() {
             {/* Low balance / quota banner */}
             {remaining !== null && remaining <= LOW_BALANCE_THRESHOLD && (
               <div className={`mx-3 mt-3 rounded-xl px-3 py-2.5 flex items-start gap-2 text-xs ${
-                remaining <= 0 ? 'bg-destructive/10 text-destructive' : 'bg-amber-50 text-amber-800'
+                remaining <= 0 ? 'bg-destructive/10 text-destructive' : 'bg-amber-500/10 text-amber-700 dark:text-amber-400'
               }`}>
                 <Icon name={remaining <= 0 ? 'AlertCircle' : 'Zap'} size={14} className="shrink-0 mt-0.5" />
                 <div className="flex-1">
@@ -1600,8 +1600,8 @@ export default function Builder() {
                     </span>
                   )}
                   {codeEditorValue !== html && (
-                    <span className="text-amber-500 font-semibold flex items-center gap-1">
-                      <span className="h-1.5 w-1.5 rounded-full bg-amber-500 inline-block" />
+                    <span className="text-amber-600 dark:text-amber-400 font-semibold flex items-center gap-1">
+                      <span className="h-1.5 w-1.5 rounded-full bg-amber-600 dark:bg-amber-400 inline-block" />
                       {lang === 'ru' ? 'Не сохранено' : 'Unsaved'}
                     </span>
                   )}
@@ -1642,7 +1642,7 @@ export default function Builder() {
                     <>
                       <div className="w-px h-4 bg-border" />
                       <button onClick={handleCopyCode}
-                        className={`flex items-center gap-1.5 text-xs transition-colors ${copied ? 'text-emerald-400' : 'text-muted-foreground hover:text-foreground'}`}>
+                        className={`flex items-center gap-1.5 text-xs transition-colors ${copied ? 'text-emerald-600 dark:text-emerald-400' : 'text-muted-foreground hover:text-foreground'}`}>
                         <Icon name={copied ? 'Check' : 'Copy'} size={13} />
                         {copied ? (lang === 'ru' ? 'Скопировано!' : 'Copied!') : tr('builderCopy', lang)}
                       </button>
@@ -1695,14 +1695,14 @@ export default function Builder() {
                     }}
                   />
                 ) : (
-                  <div className="flex items-center justify-center h-full text-muted-foreground text-sm">
+                  <div className="flex items-center justify-center h-full text-white/40 text-sm">
                     {tr('builderCodeEmpty', lang)}
                   </div>
                 )}
               </div>
 
               {/* Подсказка */}
-              <div className="px-4 py-1.5 bg-[#1e1e1e] border-t border-white/5 text-[10px] text-white/30 flex items-center gap-3 shrink-0">
+              <div className="px-4 py-1.5 bg-[#1e1e1e] border-t border-white/10 text-[10px] text-white/40 flex items-center gap-3 shrink-0">
                 <span>Tab → отступ</span>
                 <span>·</span>
                 <span>{lang === 'ru' ? 'Ctrl+Enter → применить' : 'Ctrl+Enter → apply'}</span>
@@ -1719,7 +1719,7 @@ export default function Builder() {
       {showPublishModal && publishedSlug && (
         <div className="fixed inset-0 z-[60] bg-black/50 flex items-center justify-center p-4" onClick={() => setShowPublishModal(false)}>
           <div className="bg-card rounded-2xl shadow-2xl p-6 max-w-md w-full" onClick={e => e.stopPropagation()}>
-            <div className="grid h-12 w-12 place-items-center rounded-2xl bg-emerald-100 text-emerald-600 mx-auto mb-4">
+            <div className="grid h-12 w-12 place-items-center rounded-2xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 mx-auto mb-4">
               <Icon name="CheckCircle" size={24} />
             </div>
             <h3 className="font-display font-bold text-lg text-center mb-1">
