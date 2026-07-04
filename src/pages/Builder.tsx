@@ -1114,7 +1114,7 @@ export default function Builder() {
                           <Icon name="Bot" size={15} />
                         </div>
                       )}
-                      <div className={`max-w-[85%] text-[12px] font-medium leading-[1.55] ${
+                      <div className={`max-w-[85%] text-[14px] font-semibold leading-[1.55] ${
                         m.role === 'user'
                           ? 'bg-primary text-primary-foreground rounded-2xl rounded-br-sm px-4 py-3 shadow-sm'
                           : 'bg-secondary border border-border text-foreground rounded-2xl rounded-bl-sm px-4 py-3'
@@ -1131,18 +1131,8 @@ export default function Builder() {
                             summary={m.summary}
                             steps={m.steps}
                             design={m.design}
-                            sections={m.sections}
-                            suggestions={m.suggestions}
                             animate={i === messages.length - 1 && !loading}
-                            onPreview={() => setRightTab('preview')}
-                            onCode={() => { setRightTab('code'); setCodeEditorValue(html); }}
-                            onDownload={handleDownload}
-                            onSuggestion={(prompt) => sendMessage(prompt)}
                             onTick={() => messagesEndRef.current?.scrollIntoView({ behavior: 'auto' })}
-                            previewLabel={tr('builderPreview', lang)}
-                            codeLabel={tr('builderCode', lang)}
-                            downloadLabel={tr('builderDownload', lang)}
-                            fallbackIdeas={QUICK_EDITS.slice(0, 4).map(e => ({ icon: e.icon, label: e.label, prompt: e.prompt }))}
                           />
                         ) : m.content}
                       </div>
