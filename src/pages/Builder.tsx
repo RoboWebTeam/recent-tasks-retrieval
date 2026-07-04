@@ -1177,7 +1177,14 @@ export default function Builder() {
                               <Icon name={aiModel === m.id ? 'Check' : 'Cpu'} size={12} />
                             </div>
                             <div>
-                              <div className="text-xs font-medium text-foreground">{m.label}</div>
+                              <div className="flex items-center gap-1.5">
+                                <span className="text-xs font-medium text-foreground">{m.label}</span>
+                                {suggestedModel === m.id && aiModel !== m.id && (
+                                  <span className="text-[9px] font-semibold uppercase tracking-wide text-primary bg-primary/10 rounded-full px-1.5 py-0.5">
+                                    {lang === 'ru' ? 'Рекомендуется' : 'Recommended'}
+                                  </span>
+                                )}
+                              </div>
                               <div className="text-[10px] text-muted-foreground">{m.desc}</div>
                               <div className="text-[10px] text-muted-foreground/70 mt-0.5 leading-snug">{m.hint}</div>
                             </div>
