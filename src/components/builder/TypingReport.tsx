@@ -26,7 +26,7 @@ function TypingLine({ text, animate, onDone, onTick, className }: {
   useEffect(() => {
     if (!animate) { onDone(); return; }
     let i = 0;
-    const speed = 2;
+    const speed = 1;
     const timer = setInterval(() => {
       i = Math.min(i + speed, text.length);
       setShown(text.slice(0, i));
