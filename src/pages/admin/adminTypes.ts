@@ -8,6 +8,7 @@ export const ACTIVITY_LOG_URL = apiUrl('activity-log');
 export const PLAN_PRICING_URL = apiUrl('plan-pricing');
 export const SUPPORT_CHAT_URL = apiUrl('support-chat');
 export const AI_BALANCE_URL   = apiUrl('ai-balance');
+export const ENERGY_PRICING_URL = apiUrl('energy-pricing');
 
 export function unwrap(raw: Record<string, unknown>): Record<string, unknown> {
   if (raw.body !== undefined) {
@@ -19,6 +20,8 @@ export function unwrap(raw: Record<string, unknown>): Record<string, unknown> {
 export interface Lead { id: number; email: string; created_at: string; }
 
 export interface PlanPrice { plan_code: string; requests: number; price: number; }
+
+export interface EnergyPrice { code: string; requests: number; price: number; }
 
 export interface User {
   id: number; email: string; name: string; plan: string;

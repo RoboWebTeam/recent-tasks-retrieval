@@ -26,6 +26,7 @@ const FUNCTION_IDS = {
   'yookassa-yookassa': '4fec45e4-aaef-4bc4-ba3c-7a43dfc964bc',
   'order-status': '0883717d-f728-467e-b5d2-c91fb10bf3e6',
   'ai-balance': '6c9f46a5-6772-44a1-92bb-278ae6386b19',
+  'energy-pricing': '610d2b17-ab5a-496c-8fe9-1fdbd061dcc8',
 } as const;
 
 export type FunctionName = keyof typeof FUNCTION_IDS;

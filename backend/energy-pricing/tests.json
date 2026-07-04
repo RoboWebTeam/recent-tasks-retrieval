@@ -1,0 +1,23 @@
+{
+  "tests": [
+    {
+      "name": "OPTIONS preflight",
+      "method": "OPTIONS",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "GET публичный список пакетов",
+      "method": "GET",
+      "path": "/",
+      "expectedStatus": 200
+    },
+    {
+      "name": "PUT без ключа админа — 401",
+      "method": "PUT",
+      "path": "/",
+      "body": {"packages": [{"code": "small", "price": 500}]},
+      "expectedStatus": 401
+    }
+  ]
+}

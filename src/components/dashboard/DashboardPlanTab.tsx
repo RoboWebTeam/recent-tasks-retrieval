@@ -5,14 +5,7 @@ import Icon from '@/components/ui/icon';
 import { tr, type Lang } from '@/lib/i18n';
 import { type User, getRemainingRequests, LOW_BALANCE_THRESHOLD } from '@/lib/auth';
 import { PLAN_PRICING_URL, FALLBACK_PRO_PLANS, PRO_PLAN_DETAILS, getProRequestsLabel, type ProPlanOption } from '@/data/proPlans';
-
-const ENERGY_PACKAGES = [
-  { code: 'small', requests: 10, price: 290 },
-  { code: 'medium', requests: 30, price: 690 },
-  { code: 'large', requests: 100, price: 1990 },
-  { code: 'xlarge', requests: 200, price: 0 },
-  { code: 'xxlarge', requests: 400, price: 0 },
-];
+import { ENERGY_PRICING_URL, FALLBACK_ENERGY_PACKAGES, type EnergyPackage } from '@/data/energyPackages';
 
 interface PlanLabelItem {
   label: string;
@@ -35,6 +28,7 @@ export default function DashboardPlanTab({
   const [proPlans, setProPlans] = useState<ProPlanOption[]>(FALLBACK_PRO_PLANS);
   const [proIndex, setProIndex] = useState(0);
   const selectedPro = proPlans[proIndex] ?? proPlans[0];
+  const [energyPackages, setEnergyPackages] = useState<EnergyPackage[]>(FALLBACK_ENERGY_PACKAGES);
   const remaining = getRemainingRequests(user);
   const lowBalance = remaining !== null && remaining <= LOW_BALANCE_THRESHOLD;
 
@@ -44,6 +38,14 @@ export default function DashboardPlanTab({
       .then(raw => {
         const d = raw.body !== undefined ? (typeof raw.body === 'string' ? JSON.parse(raw.body) : raw.body) : raw;
         if (Array.isArray(d.plans) && d.plans.length > 0) setProPlans(d.plans);
+      })
+      .catch(() => {/* остаёмся на резервных ценах */});
+
+    fetch(ENERGY_PRICING_URL)
+      .then(r => r.json())
+      .then(raw => {
+        const d = raw.body !== undefined ? (typeof raw.body === 'string' ? JSON.parse(raw.body) : raw.body) : raw;
+        if (Array.isArray(d.packages) && d.packages.length > 0) setEnergyPackages(d.packages);
       })
       .catch(() => {/* остаёмся на резервных ценах */});
   }, []);
@@ -105,8 +107,8 @@ export default function DashboardPlanTab({
             ? 'Когда лимит тарифа заканчивается, дополнительные обращения к AI списываются из энергии.'
             : 'When your plan limit runs out, extra AI requests are deducted from energy.'}
         </p>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3">
-          {ENERGY_PACKAGES.map(pkg => (
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          {energyPackages.map(pkg => (
             <div key={pkg.code} className="rounded-xl border border-border p-4 flex flex-col items-center text-center gap-2">
               <div className="font-display font-black text-xl">{pkg.requests}</div>
               <p className="text-xs text-muted-foreground">{lang === 'ru' ? 'запросов' : 'requests'}</p>
