@@ -1,7 +1,9 @@
 import os
 import json
+import socket
 import smtplib
 import urllib.request
+import urllib.error
 import psycopg2
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
@@ -422,13 +424,22 @@ def handler(event: dict, context) -> dict:
     if not api_key:
         return err('OpenRouter API ключ не настроен')
 
+    # Бюджет времени функции. По умолчанию платформа даёт 30 сек; если в настройках
+    # (Ядро → Функции → generate-site) таймаут поднят вручную — задаём переменную окружения
+    # FUNCTION_TIMEOUT_SEC (напр. 90), и код автоматически использует бОльший бюджет.
+    # Это ключ к устранению ошибки 504: внутренний таймаут запроса к AI ВСЕГДА должен быть
+    # меньше лимита функции, иначе платформа убивает функцию раньше, чем мы вернём ответ.
+    function_timeout = int(os.environ.get('FUNCTION_TIMEOUT_SEC', '30'))
+    # Оставляем ~7 сек запаса на чтение ответа, очистку HTML и запись в БД.
+    ai_timeout = max(12, function_timeout - 7)
+    # Длину ответа масштабируем под бюджет: при 30 сек — компактный сайт (успевает сгенериться),
+    # при увеличенном лимите — более насыщенный. Обрыв подстрахован repair_truncated_html.
+    max_tokens = 5000 if function_timeout <= 35 else 10000
+
     payload = json.dumps({
         'model': model_name,
         'messages': [{'role': 'system', 'content': system_prompt}] + chat_messages,
-        # Лимит длины ответа поднят с 5000 до 10000 — таймаут функции увеличен до 90 сек,
-        # это даёт запас на более насыщенные сайты без риска обрыва. На случай обрыва
-        # (сеть, редкая нестабильность модели) есть страховка repair_truncated_html.
-        'max_tokens': 10000,
+        'max_tokens': max_tokens,
         'temperature': 0.7,
         # Отключаем режим "рассуждения" (reasoning/thinking) — у Gemini 2.5 Flash он включён
         # по умолчанию и тратит много времени на размышления ДО ответа. Для генерации HTML
@@ -448,18 +459,22 @@ def handler(event: dict, context) -> dict:
         method='POST'
     )
 
-    # Таймаут внутреннего запроса к OpenRouter — 80 сек (таймаут самой функции поднят до 90),
-    # оставляет 10 сек про запас на сохранение результата в БД и формирование ответа.
-    # Если ответ не пришёл за 80 сек — вернём понятную ошибку и вернём списанный запрос.
+    # Таймаут внутреннего запроса к OpenRouter вычислен из бюджета функции (ai_timeout).
+    # Он ГАРАНТИРОВАННО меньше лимита функции — поэтому если AI отвечает слишком долго,
+    # мы САМИ прерываем ожидание, возвращаем списанный запрос (refund_quota) и отдаём
+    # понятную ошибку 504, а не получаем жёсткий обрыв функции платформой.
     try:
-        with urllib.request.urlopen(req, timeout=80) as response:
+        with urllib.request.urlopen(req, timeout=ai_timeout) as response:
             result = json.loads(response.read().decode('utf-8'))
     except urllib.error.HTTPError as e:
         refund_quota(user_id, schema)
         return err(f'OpenRouter API error {e.code}', 502)
-    except urllib.error.URLError:
+    except (urllib.error.URLError, TimeoutError, socket.timeout) as e:
         refund_quota(user_id, schema)
-        return err('OpenRouter API недоступен. Попробуйте позже.', 503)
+        # Таймаут ожидания ответа от AI — отдаём 504, фронтенд покажет понятный текст.
+        if isinstance(e, urllib.error.URLError) and not isinstance(getattr(e, 'reason', None), (TimeoutError, socket.timeout)):
+            return err('OpenRouter API недоступен. Попробуйте позже.', 503)
+        return err('AI не успел ответить вовремя. Упростите запрос или выберите другую модель.', 504)
     except (json.JSONDecodeError, Exception):
         refund_quota(user_id, schema)
         return err('Неверный ответ от OpenRouter.', 502)
