@@ -216,7 +216,6 @@ export default function Builder() {
   const [remaining, setRemaining] = useState<number | null>(null);
   const [quotaExceeded, setQuotaExceeded] = useState(false);
   const [aiModel, setAiModel] = useState<'claude' | 'gpt-4o' | 'gemini' | 'opus' | 'sonnet'>('gemini');
-  const [premiumMode, setPremiumMode] = useState(false);
   const [showModelMenu, setShowModelMenu] = useState(false);
   const [dismissedModelHint, setDismissedModelHint] = useState(false);
   const [showImageGen, setShowImageGen] = useState(false);
@@ -462,8 +461,6 @@ export default function Builder() {
           messages: newMessages.map(m => ({ role: m.role, content: m.content })),
           project_id: projectId,
           model: aiModel,
-          // Премиум-режим: макс. качество дизайна за 50 энергии
-          premium: premiumMode,
           // Передаём текущий HTML сайта — модель правит именно его, а не пытается
           // восстановить состояние сайта по истории текстовых команд
           current_html: html || undefined,
@@ -516,18 +513,10 @@ export default function Builder() {
       const generatedHtml = (data as { html?: string }).html || '';
       const tokens = (data as { tokens?: number }).tokens || 0;
 
-      // Усиленная/премиум генерация: сообщаем пользователю про повышенный расход, чтобы было прозрачно.
+      // Усиленная генерация крупной задачи: сообщаем про повышенный расход, чтобы было прозрачно.
       const isLargeTask = (data as { large_task?: boolean }).large_task === true;
-      const isPremium = (data as { premium?: boolean }).premium === true;
       const requestCost = (data as { cost?: number }).cost || 1;
-      if (generatedHtml && isPremium) {
-        toast({
-          title: lang === 'ru' ? '✨ Премиум-качество' : '✨ Premium quality',
-          description: lang === 'ru'
-            ? `Сделал сайт с максимальной проработкой дизайна. Списано ${requestCost} энергии.`
-            : `Generated a top-quality design. ${requestCost} energy used.`,
-        });
-      } else if (generatedHtml && isLargeTask && requestCost > 1) {
+      if (generatedHtml && isLargeTask && requestCost > 1) {
         toast({
           title: lang === 'ru' ? '✨ Детальный сайт' : '✨ Detailed site',
           description: lang === 'ru'
@@ -1549,22 +1538,6 @@ export default function Builder() {
                       </div>
                     )}
                   </div>
-
-                  {/* Премиум-режим: макс. качество за 50 энергии */}
-                  <button
-                    onClick={() => setPremiumMode(v => !v)}
-                    className={`flex items-center gap-1 h-7 px-2 rounded-lg transition-colors text-[11px] font-semibold shrink-0 ${
-                      premiumMode
-                        ? 'text-amber-600 bg-amber-100 dark:bg-amber-500/15'
-                        : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
-                    }`}
-                    title={lang === 'ru'
-                      ? 'Премиум-качество: максимально красивый сайт за 50 энергии'
-                      : 'Premium quality: the most beautiful site for 50 energy'}>
-                    <Icon name="Sparkles" size={13} />
-                    <span className="hidden sm:inline">{lang === 'ru' ? 'Премиум' : 'Premium'}</span>
-                    {premiumMode && <span className="text-[9px] font-bold">50⚡</span>}
-                  </button>
 
                   {/* Расширения */}
                   <div className="relative shrink-0">
