@@ -11,12 +11,16 @@ def get_conn():
     return psycopg2.connect(os.environ['DATABASE_URL'])
 
 
+S3_BUCKET = 'roboweb'
+
+
 def get_s3():
+    # Собственное S3-хранилище на reg.ru (Рег.облако) вместо встроенного хранилища платформы.
     return boto3.client(
         's3',
-        endpoint_url='https://bucket.poehali.dev',
-        aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
-        aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'],
+        endpoint_url='https://s3.regru.cloud',
+        aws_access_key_id=os.environ['REG_S3_ACCESS_KEY_ID'],
+        aws_secret_access_key=os.environ['REG_S3_SECRET_ACCESS_KEY'],
     )
 
 
@@ -127,8 +131,8 @@ def handler(event: dict, context) -> dict:
                 key = f"sites/{user_id}/{context.request_id}_{safe_name}"
 
                 s3 = get_s3()
-                s3.put_object(Bucket='files', Key=key, Body=raw, ContentType=content_type)
-                cdn_url = f"https://cdn.poehali.dev/projects/{os.environ['AWS_ACCESS_KEY_ID']}/bucket/{key}"
+                s3.put_object(Bucket=S3_BUCKET, Key=key, Body=raw, ContentType=content_type)
+                cdn_url = f"https://s3.regru.cloud/{S3_BUCKET}/{key}"
 
                 cur.execute(
                     f"INSERT INTO {schema}.site_files (user_id, project_id, file_name, file_key, file_url, file_type, file_size) "
@@ -160,7 +164,7 @@ def handler(event: dict, context) -> dict:
 
                 s3 = get_s3()
                 try:
-                    s3.delete_object(Bucket='files', Key=row[0])
+                    s3.delete_object(Bucket=S3_BUCKET, Key=row[0])
                 except Exception:
                     pass
 

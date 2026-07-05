@@ -27,12 +27,16 @@ def get_schema(): return os.environ.get('MAIN_DB_SCHEMA', 'public')
 def get_conn(): return psycopg2.connect(os.environ['DATABASE_URL'])
 
 
+S3_BUCKET = 'roboweb'
+
+
 def get_s3():
+    # Собственное S3-хранилище на reg.ru (Рег.облако) вместо встроенного хранилища платформы.
     return boto3.client(
         's3',
-        endpoint_url='https://bucket.poehali.dev',
-        aws_access_key_id=os.environ['AWS_ACCESS_KEY_ID'],
-        aws_secret_access_key=os.environ['AWS_SECRET_ACCESS_KEY'],
+        endpoint_url='https://s3.regru.cloud',
+        aws_access_key_id=os.environ['REG_S3_ACCESS_KEY_ID'],
+        aws_secret_access_key=os.environ['REG_S3_SECRET_ACCESS_KEY'],
     )
 
 
@@ -73,8 +77,8 @@ def upload_chat_file(file_name: str, file_content_b64: str, visitor_id: str):
     safe_name = ''.join(c for c in file_name if c.isalnum() or c in ('-', '_', '.')) or 'file'
     key = f"support-chat/{visitor_id}/{safe_name}"
     s3 = get_s3()
-    s3.put_object(Bucket='files', Key=key, Body=raw, ContentType=content_type)
-    cdn_url = f"https://cdn.poehali.dev/projects/{os.environ['AWS_ACCESS_KEY_ID']}/bucket/{key}"
+    s3.put_object(Bucket=S3_BUCKET, Key=key, Body=raw, ContentType=content_type)
+    cdn_url = f"https://s3.regru.cloud/{S3_BUCKET}/{key}"
     return cdn_url, file_kind, safe_name
 
 
