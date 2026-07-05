@@ -24,14 +24,18 @@ export function useCounter(target: number, duration = 1800, active = false) {
   const [val, setVal] = useState(0);
   useEffect(() => {
     if (!active) return;
-    let start = 0;
-    const step = target / (duration / 32);
-    const t = setInterval(() => {
-      start += step;
-      if (start >= target) { setVal(target); clearInterval(t); }
-      else setVal(Math.floor(start));
-    }, 32);
-    return () => clearInterval(t);
+    let raf = 0;
+    let startTs = 0;
+    const easeOutExpo = (t: number) => (t >= 1 ? 1 : 1 - Math.pow(2, -10 * t));
+    const tick = (ts: number) => {
+      if (!startTs) startTs = ts;
+      const p = Math.min((ts - startTs) / duration, 1);
+      setVal(Math.round(target * easeOutExpo(p)));
+      if (p < 1) raf = requestAnimationFrame(tick);
+      else setVal(target);
+    };
+    raf = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(raf);
   }, [active, target, duration]);
   return val;
 }
@@ -54,9 +58,10 @@ export function Reveal({ children, delay = 0, className = '' }: { children: Reac
 export function CounterStat({ value, suffix, label }: { value: number; suffix: string; label: string }) {
   const { ref, shown } = useReveal();
   const count = useCounter(value, 1600, shown);
+  const done = shown && count >= value;
   return (
     <div ref={ref} className="text-center">
-      <div className="font-display font-extrabold text-xl sm:text-2xl text-foreground tabular-nums">
+      <div className={`font-display font-black text-2xl sm:text-3xl text-gradient tabular-nums ${done ? 'counter-pop' : ''}`}>
         {count.toLocaleString()}{suffix}
       </div>
       <div className="text-sm text-muted-foreground">{label}</div>
