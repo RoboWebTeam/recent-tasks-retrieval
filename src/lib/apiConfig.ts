@@ -13,7 +13,6 @@ const FUNCTION_IDS = {
   'public-site': '2c23b134-6798-4837-b6b2-226e599051f9',
   domains: '8e970c92-49ad-4f27-9b52-3572f6efc1f6',
   'project-core': '7aaaa29f-7484-4295-83d3-fbc7eaf6e923',
-  'generate-image': '6a25f90e-ad5e-4f64-abf2-45b6b515b915',
   'generate-site': '64b3e52e-6bb5-4d4e-b7ee-e3840af35990',
   'plan-pricing': 'b66b5f92-bcdf-4605-87e2-b42e3d90e6ff',
   'send-email': '4272fc80-99e8-4abe-8f09-7dce2b50bc57',
@@ -25,7 +24,6 @@ const FUNCTION_IDS = {
   'support-chat': '0ddd7998-ad2d-433a-a6ef-5801b4ed059b',
   'yookassa-yookassa': '4fec45e4-aaef-4bc4-ba3c-7a43dfc964bc',
   'order-status': '0883717d-f728-467e-b5d2-c91fb10bf3e6',
-  'ai-balance': '6c9f46a5-6772-44a1-92bb-278ae6386b19',
   'energy-pricing': '610d2b17-ab5a-496c-8fe9-1fdbd061dcc8',
 } as const;
 

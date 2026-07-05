@@ -632,7 +632,6 @@ def _handler_impl(event: dict, context) -> dict:
     body = json.loads(event.get('body') or '{}')
     messages = body.get('messages', [])
     project_id = body.get('project_id')
-    model_choice = body.get('model', 'claude')
     current_html = body.get('current_html', '')
     style_choice = body.get('style', '')  # выбранный стиль-пресет (minimal/premium/bright/dark)
 
@@ -698,28 +697,12 @@ def _handler_impl(event: dict, context) -> dict:
             for m in trimmed
         ]
 
-    # Быстрые модели (gemini/claude/gpt-4o) дают отличное качество для лендингов/визиток
-    # за 5-15 секунд. Мощные модели (opus/sonnet) — топовое качество, но заметно медленнее:
-    # рекомендованы при увеличенном таймауте функции (FUNCTION_TIMEOUT_SEC=90).
-    OPENROUTER_MODELS = {
-        'gpt-4o': 'openai/gpt-4o-mini',
-        'claude': 'anthropic/claude-haiku-4.5',
-        'gemini': 'google/gemini-2.5-flash',
-        'opus': 'anthropic/claude-opus-4-8',
-        'sonnet': 'anthropic/claude-sonnet-5',
-    }
-    model_name = OPENROUTER_MODELS.get(model_choice, OPENROUTER_MODELS['gemini'])
-
-    # Sonnet 5 — прямое подключение к Anthropic API (в обход OpenRouter), если настроен ключ.
-    # Даёт более быстрый и стабильный ответ без промежуточного прокси. Если ключ не задан —
-    # автоматически используется прежний путь через OpenRouter, чтобы ничего не сломать.
-    ANTHROPIC_MODELS = {'sonnet': 'claude-sonnet-5'}
+    # Единственная модель редактора — Claude Sonnet 5, напрямую через Anthropic API
+    # (без посредников вроде OpenRouter).
+    ANTHROPIC_MODEL = 'claude-sonnet-5'
     anthropic_api_key = os.environ.get('ANTHROPIC_API_KEY', '')
-    use_direct_anthropic = model_choice in ANTHROPIC_MODELS and bool(anthropic_api_key)
-
-    api_key = os.environ.get('OPENROUTER_API_KEY', '')
-    if not api_key and not use_direct_anthropic:
-        return err('OpenRouter API ключ не настроен')
+    if not anthropic_api_key:
+        return err('Anthropic API ключ не настроен')
 
     # Бюджет времени функции. По умолчанию платформа даёт 30 сек; если в настройках
     # (Ядро → Функции → generate-site) таймаут поднят вручную — задаём переменную окружения
@@ -728,14 +711,13 @@ def _handler_impl(event: dict, context) -> dict:
     # меньше лимита функции, иначе платформа убивает функцию раньше, чем мы вернём ответ.
     function_timeout = int(os.environ.get('FUNCTION_TIMEOUT_SEC', '30'))
 
-    # Мощные модели (Sonnet/Opus) физически НЕ укладываются в 30-секундный лимит функции —
-    # они долго «рассуждают» и упираются в жёсткий таймаут платформы (504) раньше, чем мы
-    # успеваем перехватить. Пока лимит функции не поднят, не даём выбрать их впустую:
-    # сразу возвращаем понятную подсказку и НЕ списываем запрос.
-    SLOW_MODELS = {'opus', 'sonnet'}
-    if model_choice in SLOW_MODELS and function_timeout <= 35:
+    # Sonnet 5 — мощная модель, физически НЕ укладывается в 30-секундный лимит функции: она
+    # долго «рассуждает» и упирается в жёсткий таймаут платформы (504) раньше, чем мы успеваем
+    # перехватить. Пока лимит функции не поднят, не даём генерировать впустую — сразу возвращаем
+    # понятную подсказку и НЕ списываем запрос.
+    if function_timeout <= 35:
         refund_quota(user_id, schema, request_cost)
-        return err('Модели Sonnet и Opus слишком мощные для быстрой генерации и не успевают ответить. Выберите Gemini или Claude — они быстрые и отлично справляются с сайтами.', 400)
+        return err('Модель Sonnet 5 мощная и не успевает ответить за текущий таймаут функции. Поднимите таймаут generate-site до 90 секунд в настройках (Ядро → Функции).', 400)
     # Оставляем запас на чтение ответа, очистку HTML и запись в БД. Важно: наш внутренний
     # таймаут должен сработать ЗАМЕТНО раньше жёсткого лимита функции, иначе платформа убьёт
     # функцию с 504 до того, как мы вернём понятную ошибку. Поэтому запас ~12 сек.
@@ -789,59 +771,13 @@ def _handler_impl(event: dict, context) -> dict:
             "лучше меньше секций, но идеальных. ОБЯЗАТЕЛЬНО заверши документ на </body></html>."
         )
 
-    def call_openrouter(model_id: str, override_messages=None, override_max_tokens=None, override_timeout=None):
-        """Один вызов OpenRouter. Возвращает (result_dict | None, error_info).
-        error_info = None при успехе, иначе (http_code, текст_причины).
+    def call_anthropic(model_id: str, override_messages=None, override_max_tokens=None, override_timeout=None):
+        """Прямой вызов Anthropic Messages API. Возвращает (result_dict | None, error_info).
+        error_info = None при успехе, иначе (http_code, текст_причины). Ответ переводится в
+        общий формат {'choices': [{'message': {'content': ...}}], 'usage': {...}}, которым
+        пользуется весь код ниже (парсинг HTML, метаданных, подсчёт токенов).
         override_messages — если задан, используется вместо системного промпта + истории (для 2-го прохода).
         override_timeout — таймаут именно этого вызова (для 2-го прохода — по остатку времени)."""
-        msgs = override_messages if override_messages is not None else ([{'role': 'system', 'content': effective_system_prompt}] + chat_messages)
-        call_timeout = override_timeout or ai_timeout
-        payload = json.dumps({
-            'model': model_id,
-            'messages': msgs,
-            'max_tokens': override_max_tokens or max_tokens,
-            'temperature': 0.7,
-            'reasoning': {'effort': 'low', 'exclude': True},
-        }).encode('utf-8')
-        req = urllib.request.Request(
-            'https://openrouter.ai/api/v1/chat/completions',
-            data=payload,
-            headers={
-                'Content-Type': 'application/json',
-                'Authorization': f'Bearer {api_key}',
-                'HTTP-Referer': 'https://roboweb.site',
-                'X-Title': 'Roboweb',
-            },
-            method='POST'
-        )
-        try:
-            with urllib.request.urlopen(req, timeout=call_timeout) as response:
-                res = json.loads(response.read().decode('utf-8'))
-        except urllib.error.HTTPError as e:
-            try:
-                body = e.read().decode('utf-8')
-            except Exception:
-                body = ''
-            log(f'OpenRouter HTTPError {e.code} for model={model_id}: {body[:500]}')
-            return None, (e.code, body)
-        except (urllib.error.URLError, TimeoutError, socket.timeout) as e:
-            log(f'OpenRouter network error for model={model_id}: {repr(e)[:200]}')
-            return None, ('network', repr(e))
-        except (json.JSONDecodeError, Exception) as e:
-            log(f'OpenRouter parse error for model={model_id}: {repr(e)[:200]}')
-            return None, ('parse', repr(e))
-        # HTTP 200, но с ошибкой в теле (модель упала на стороне провайдера)
-        if isinstance(res, dict) and res.get('error'):
-            api_err = res.get('error')
-            msg = api_err.get('message') if isinstance(api_err, dict) else str(api_err)
-            log(f'OpenRouter body error for model={model_id}: {str(msg)[:500]}')
-            return None, ('body', str(msg))
-        return res, None
-
-    def call_anthropic(model_id: str, override_messages=None, override_max_tokens=None, override_timeout=None):
-        """Прямой вызов Anthropic Messages API (без OpenRouter). Возвращает ответ, переведённый
-        в ТОТ ЖЕ формат, что и call_openrouter (choices[0].message.content + usage), чтобы весь
-        код ниже (парсинг HTML, метаданных, подсчёт токенов) работал одинаково для обоих путей."""
         msgs = override_messages if override_messages is not None else chat_messages
         # Anthropic принимает system отдельным полем, а не как сообщение с role=system.
         sys_prompt = effective_system_prompt
@@ -891,7 +827,7 @@ def _handler_impl(event: dict, context) -> dict:
             msg = api_err.get('message') if isinstance(api_err, dict) else str(api_err)
             log(f'Anthropic body error for model={model_id}: {str(msg)[:500]}')
             return None, ('body', str(msg))
-        # Переводим ответ Anthropic в формат, идентичный OpenRouter/OpenAI-стилю.
+        # Переводим ответ Anthropic в общий формат.
         content_blocks = res.get('content') or []
         text = ''.join(b.get('text', '') for b in content_blocks if isinstance(b, dict) and b.get('type') == 'text')
         usage = res.get('usage') or {}
@@ -904,40 +840,17 @@ def _handler_impl(event: dict, context) -> dict:
         }
         return normalized, None
 
-    # Основной вызов. Если выбранная модель упала из-за проблемы С МОДЕЛЬЮ (недоступна/битый ответ) —
-    # автоматически повторяем на быстром Gemini, чтобы пользователь всё равно получил сайт.
-    if use_direct_anthropic:
-        result, error_info = call_anthropic(ANTHROPIC_MODELS[model_choice])
-        # Если прямой вызов Anthropic не удался (например временная перегрузка) — не сдаёмся,
-        # а пробуем тот же Sonnet через OpenRouter (если ключ настроен), и только потом Gemini.
-        if error_info is not None and api_key:
-            log(f'Direct Anthropic failed ({error_info[0]}), falling back to OpenRouter for {model_name}')
-            result, error_info = call_openrouter(model_name)
-    else:
-        result, error_info = call_openrouter(model_name)
+    result, error_info = call_anthropic(ANTHROPIC_MODEL)
 
     if error_info is not None:
         code, detail = error_info
-        # Сетевой таймаут — не тот случай для фолбэка, честно сообщаем.
+        log(f'Anthropic call failed: code={code} detail={str(detail)[:300]}')
+        refund_quota(user_id, schema, request_cost)
         if code == 'network':
-            refund_quota(user_id, schema, request_cost)
-            return err('AI не успел ответить вовремя. Упростите запрос или выберите другую модель.', 504)
-        # Нет средств — фолбэк не поможет.
+            return err('AI не успел ответить вовремя. Упростите запрос и попробуйте снова.', 504)
         if code == 402:
-            refund_quota(user_id, schema, request_cost)
-            return err('На балансе AI-провайдера закончились средства. Пополните счёт.', 502)
-        # Проблема с моделью или её ответом — пробуем запасной Gemini через OpenRouter (если доступен).
-        if api_key:
-            fallback = OPENROUTER_MODELS['gemini']
-            if model_name != fallback:
-                log(f'Fallback to {fallback} after error {code} on {model_name}: {str(detail)[:300]}')
-                result, error_info = call_openrouter(fallback)
-
-        if error_info is not None:
-            fcode, fdetail = error_info
-            log(f'Fallback ALSO failed: code={fcode} detail={str(fdetail)[:300]}')
-            refund_quota(user_id, schema, request_cost)
-            return err('AI-сервис временно недоступен. Попробуйте через минуту или выберите другую модель.', 502)
+            return err('На балансе Anthropic закончились средства. Пополните счёт Anthropic.', 502)
+        return err('AI-сервис временно недоступен. Попробуйте через минуту.', 502)
 
     choices = result.get('choices') or []
     if not choices:
@@ -1031,10 +944,8 @@ def _handler_impl(event: dict, context) -> dict:
             "НИЧЕГО не ломай, сохрани структуру и рабочие ссылки на картинки. Верни ТОЛЬКО улучшенный полный HTML-документ "
             "целиком от <!DOCTYPE html> до </body></html>, без markdown и пояснений."
         )
-        improve_call = call_anthropic if use_direct_anthropic else call_openrouter
-        improve_model = ANTHROPIC_MODELS[model_choice] if use_direct_anthropic else model_name
-        improved_res, improved_err = improve_call(
-            improve_model,
+        improved_res, improved_err = call_anthropic(
+            ANTHROPIC_MODEL,
             override_messages=[
                 {'role': 'system', 'content': improve_prompt},
                 {'role': 'user', 'content': html[:55000]},

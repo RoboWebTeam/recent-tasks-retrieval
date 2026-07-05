@@ -3,9 +3,9 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import {
-  GET_LEADS_URL, MANAGE_USER_URL, ANALYTICS_URL, SITE_LEADS_URL, ACTIVITY_LOG_URL, AI_BALANCE_URL,
+  GET_LEADS_URL, MANAGE_USER_URL, ANALYTICS_URL, SITE_LEADS_URL, ACTIVITY_LOG_URL,
   unwrap,
-  type Lead, type User, type SiteLead, type AnalyticsData, type LogEntry, type Notification, type UserDetails, type AiBalance,
+  type Lead, type User, type SiteLead, type AnalyticsData, type LogEntry, type Notification, type UserDetails,
 } from './admin/adminTypes';
 import { AdminAnalytics } from './admin/AdminAnalytics';
 import { SiteLeadsTab, LeadsTab, UsersTab, LogTab, NotificationsTab } from './admin/AdminTables';
@@ -44,9 +44,6 @@ const Admin = () => {
   const [userDetails, setUserDetails] = useState<UserDetails | null>(null);
   const [userDetailsLoading, setUserDetailsLoading] = useState(false);
   const [userActionError, setUserActionError] = useState('');
-  const [aiBalance, setAiBalance] = useState<AiBalance | null>(null);
-  const [aiBalanceLoading, setAiBalanceLoading] = useState(false);
-  const [aiBalanceError, setAiBalanceError] = useState('');
 
   const manageUser = async (userId: number, action: 'block' | 'unblock' | 'delete' | 'change_plan', plan?: string) => {
     setActionLoading(userId);
@@ -154,19 +151,6 @@ const Admin = () => {
     });
   };
 
-  const fetchAiBalance = (adminKey: string) => {
-    setAiBalanceLoading(true);
-    setAiBalanceError('');
-    fetch(AI_BALANCE_URL, { headers: { 'x-admin-key': adminKey } })
-      .then(r => r.json()).then(raw => {
-        const d = unwrap(raw);
-        if (!d.error) setAiBalance(d as unknown as AiBalance);
-        else setAiBalanceError((d.error as string) || '');
-      })
-      .catch(() => setAiBalanceError('Ошибка соединения'))
-      .finally(() => setAiBalanceLoading(false));
-  };
-
   const fetchChatUnread = (adminKey: string) => {
     fetch(`${SUPPORT_CHAT_URL}?list=conversations`, { headers: { 'x-admin-key': adminKey } })
       .then(r => r.json()).then(raw => {
@@ -207,7 +191,6 @@ const Admin = () => {
       fetchAnalytics(adminKey, 7);
       fetchSiteLeads(adminKey);
       fetchNotifications(adminKey);
-      fetchAiBalance(adminKey);
     } catch { setError('Ошибка соединения. Попробуйте ещё раз.'); }
     setLoading(false);
   };
@@ -327,43 +310,6 @@ const Admin = () => {
               <div className="font-display font-black text-3xl">{s.value}</div>
             </div>
           ))}
-        </div>
-
-        {/* AI balance (OpenRouter) */}
-        <div className={`rounded-2xl border p-4 md:p-5 mb-6 flex items-center justify-between gap-4 flex-wrap ${aiBalance?.low_balance ? 'border-destructive/40 bg-destructive/5' : 'border-border bg-card'}`}>
-          <div className="flex items-center gap-3">
-            <span className={`grid h-10 w-10 place-items-center rounded-xl ${aiBalance?.low_balance ? 'bg-destructive/15 text-destructive' : 'bg-primary/10 text-primary'}`}>
-              <Icon name="Sparkles" size={18} />
-            </span>
-            <div>
-              <div className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Баланс AI (OpenRouter)</div>
-              {aiBalanceLoading && !aiBalance ? (
-                <div className="font-display font-black text-2xl">…</div>
-              ) : aiBalance ? (
-                <div className={`font-display font-black text-2xl ${aiBalance.low_balance ? 'text-destructive' : ''}`}>
-                  ${aiBalance.remaining.toFixed(2)}
-                  <span className="text-sm font-normal text-muted-foreground ml-2">из ${aiBalance.total_credits.toFixed(2)}</span>
-                </div>
-              ) : aiBalanceError ? (
-                <div className="text-sm text-destructive">{aiBalanceError}</div>
-              ) : (
-                <div className="text-sm text-muted-foreground">Нет данных</div>
-              )}
-            </div>
-          </div>
-          <div className="flex items-center gap-2">
-            {aiBalance?.low_balance && (
-              <span className="text-xs font-semibold text-destructive bg-destructive/10 rounded-full px-3 py-1.5">Баланс заканчивается</span>
-            )}
-            <Button variant="outline" size="sm" className="rounded-xl gap-2" onClick={() => fetchAiBalance(key)} disabled={aiBalanceLoading}>
-              <Icon name={aiBalanceLoading ? 'Loader' : 'RefreshCw'} size={14} className={aiBalanceLoading ? 'animate-spin' : ''} />
-            </Button>
-            <Button size="sm" className="rounded-xl gap-2" asChild>
-              <a href="https://openrouter.ai/credits" target="_blank" rel="noopener noreferrer">
-                <Icon name="Plus" size={14} /> Пополнить
-              </a>
-            </Button>
-          </div>
         </div>
 
         {/* Tabs */}

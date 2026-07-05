@@ -2,7 +2,7 @@ import { useState, useEffect, useCallback, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { type Lang } from '@/lib/i18n';
-import { getSession, apiGetFiles, apiUploadFile, apiDeleteFile, apiGenerateImage, type SiteFile } from '@/lib/auth';
+import { getSession, apiGetFiles, apiUploadFile, apiDeleteFile, type SiteFile } from '@/lib/auth';
 
 interface BuilderCoreStorageProps {
   lang: Lang;
@@ -29,9 +29,6 @@ export default function BuilderCoreStorage({ lang, projectId, onUseInChat, onFil
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState('');
   const [deletingId, setDeletingId] = useState<number | null>(null);
-  const [showGenBox, setShowGenBox] = useState(false);
-  const [genPrompt, setGenPrompt] = useState('');
-  const [generating, setGenerating] = useState(false);
 
   const loadFiles = useCallback(async () => {
     if (!session) return;
@@ -82,25 +79,6 @@ export default function BuilderCoreStorage({ lang, projectId, onUseInChat, onFil
     e.target.value = '';
   };
 
-  const handleGenerate = async () => {
-    if (!genPrompt.trim() || !session) return;
-    setGenerating(true);
-    setError('');
-    try {
-      await apiGenerateImage(session, genPrompt.trim(), projectId);
-      setGenPrompt('');
-      setShowGenBox(false);
-      await loadFiles();
-      onFilesChanged?.();
-    } catch (err) {
-      const rawMessage = err instanceof Error ? err.message : (isRu ? 'Ошибка генерации' : 'Generation error');
-      setError(rawMessage === 'AI_SERVICE_UNAVAILABLE'
-        ? (isRu ? 'AI-сервис временно недоступен. Попробуйте через минуту.' : 'AI service is temporarily unavailable. Try again in a minute.')
-        : rawMessage);
-    }
-    setGenerating(false);
-  };
-
   const handleDelete = async (id: number) => {
     if (!session) return;
     setDeletingId(id);
@@ -129,10 +107,6 @@ export default function BuilderCoreStorage({ lang, projectId, onUseInChat, onFil
           <p className="text-xs text-muted-foreground mt-0.5">{isRu ? 'Изображения, HTML и ZIP для этого проекта' : 'Images, HTML and ZIP for this project'}</p>
         </div>
         <div className="flex items-center gap-1.5 shrink-0">
-          <Button size="sm" variant="outline" className="rounded-xl gap-1.5" onClick={() => setShowGenBox(v => !v)}>
-            <Icon name="ImagePlus" size={14} />
-            {isRu ? 'AI-картинка' : 'AI image'}
-          </Button>
           <Button size="sm" className="rounded-xl gap-1.5" onClick={handleUploadClick} disabled={uploading}>
             {uploading ? <Icon name="Loader" size={14} className="animate-spin" /> : <Icon name="Upload" size={14} />}
             {isRu ? 'Загрузить' : 'Upload'}
@@ -140,33 +114,6 @@ export default function BuilderCoreStorage({ lang, projectId, onUseInChat, onFil
         </div>
         <input ref={fileInputRef} type="file" accept={ACCEPTED_EXTENSIONS.join(',')} className="hidden" onChange={handleFileChange} />
       </div>
-
-      {showGenBox && (
-        <div className="bg-secondary/50 border border-border rounded-2xl p-3 mb-4">
-          <p className="text-xs font-semibold text-foreground mb-2 flex items-center gap-1.5">
-            <Icon name="Sparkles" size={13} className="text-primary" />
-            {isRu ? 'Сгенерировать изображение через DALL-E' : 'Generate an image with DALL-E'}
-          </p>
-          <textarea
-            value={genPrompt}
-            onChange={e => setGenPrompt(e.target.value)}
-            placeholder={isRu ? 'Например: минималистичный логотип кофейни с чашкой' : 'E.g.: minimalist coffee shop logo with a cup'}
-            rows={2}
-            disabled={generating}
-            className="w-full bg-background border border-border rounded-xl px-3 py-2 text-sm resize-none outline-none focus:border-primary/50 mb-2 disabled:opacity-60"
-          />
-          <div className="flex gap-2 justify-end">
-            <Button size="sm" variant="outline" className="rounded-xl" disabled={generating} onClick={() => setShowGenBox(false)}>
-              {isRu ? 'Отмена' : 'Cancel'}
-            </Button>
-            <Button size="sm" className="rounded-xl gap-1.5" disabled={generating || !genPrompt.trim()} onClick={handleGenerate}>
-              {generating
-                ? <><Icon name="Loader" size={14} className="animate-spin" />{isRu ? 'Создаём…' : 'Generating…'}</>
-                : <><Icon name="Sparkles" size={14} />{isRu ? 'Создать' : 'Generate'}</>}
-            </Button>
-          </div>
-        </div>
-      )}
 
       {error && (
         <div className="flex items-center gap-2 bg-destructive/10 text-destructive rounded-xl px-3 py-2 mb-4 text-sm">

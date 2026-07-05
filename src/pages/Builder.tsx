@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, type CSSProperties } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
-import { getSession, getStoredUser, apiUploadFile, apiGetProject, apiPublishProject, apiGenerateImage, apiSaveChatHistory, LOW_BALANCE_THRESHOLD } from '@/lib/auth';
+import { getSession, getStoredUser, apiUploadFile, apiGetProject, apiPublishProject, apiSaveChatHistory, LOW_BALANCE_THRESHOLD } from '@/lib/auth';
 import { getLang, tr } from '@/lib/i18n';
 import LangSwitcher from '@/components/LangSwitcher';
 import { useToast } from '@/hooks/use-toast';
@@ -86,27 +86,6 @@ const DEVICE_WIDTHS: Record<DeviceMode, string> = {
   tablet: 'min(768px, 100%)',
   mobile: 'min(375px, 100%)',
 };
-
-// Ключевые слова, при которых стоит предложить Gemini — модель лучше справляется
-// со сложной логикой, интерактивом и насыщенными интерфейсами
-const GEMINI_HINT_KEYWORDS_RU = ['сложн', 'интерактив', 'калькулятор', 'фильтр', 'анимаци', 'игр', 'квиз', 'викторин'];
-const GEMINI_HINT_KEYWORDS_EN = ['complex', 'interactive', 'calculator', 'filter', 'animation', 'game', 'quiz'];
-
-// Ключевые слова, при которых стоит предложить Claude — модель лучше справляется
-// с классическими бизнес-сайтами и структурированным контентом
-const CLAUDE_HINT_KEYWORDS_RU = ['лендинг', 'интернет-магазин', 'магазин', 'каталог', 'визитк', 'портфолио', 'корпоратив', 'услуг', 'юридическ', 'медицинск', 'клиник', 'салон'];
-const CLAUDE_HINT_KEYWORDS_EN = ['landing', 'online store', 'shop', 'catalog', 'portfolio', 'corporate', 'services', 'law firm', 'clinic', 'salon'];
-
-type SuggestedModel = 'claude' | 'gemini' | null;
-
-function getSuggestedModel(text: string, lang: 'ru' | 'en'): SuggestedModel {
-  const lower = text.toLowerCase();
-  const geminiKw = lang === 'ru' ? GEMINI_HINT_KEYWORDS_RU : GEMINI_HINT_KEYWORDS_EN;
-  const claudeKw = lang === 'ru' ? CLAUDE_HINT_KEYWORDS_RU : CLAUDE_HINT_KEYWORDS_EN;
-  if (geminiKw.some(kw => lower.includes(kw))) return 'gemini';
-  if (claudeKw.some(kw => lower.includes(kw))) return 'claude';
-  return null;
-}
 
 // Приветственное сообщение ассистента при первом входе в новый проект.
 const WELCOME_MESSAGE = (lang: 'ru' | 'en') =>
@@ -248,22 +227,10 @@ export default function Builder() {
   const [publishError, setPublishError] = useState('');
   const [remaining, setRemaining] = useState<number | null>(null);
   const [quotaExceeded, setQuotaExceeded] = useState(false);
-  const [aiModel, setAiModel] = useState<'claude' | 'gpt-4o' | 'gemini' | 'opus' | 'sonnet'>(() => {
-    // По умолчанию Claude; выбранная модель запоминается между заходами в localStorage.
-    if (typeof window === 'undefined') return 'claude';
-    const saved = localStorage.getItem('builder_ai_model');
-    return (saved === 'claude' || saved === 'gpt-4o' || saved === 'gemini' || saved === 'opus' || saved === 'sonnet') ? saved : 'claude';
-  });
   // Выбранный стиль-пресет для новых сайтов ('' = авто, ИИ подбирает сам под нишу)
   const [siteStyle, setSiteStyle] = useState<'' | 'minimal' | 'premium' | 'bright' | 'dark'>('');
   const [showStyleMenu, setShowStyleMenu] = useState(false);
   const [dismissedStyleHint, setDismissedStyleHint] = useState(false);
-  const [showModelMenu, setShowModelMenu] = useState(false);
-  const [dismissedModelHint, setDismissedModelHint] = useState(false);
-  const [showImageGen, setShowImageGen] = useState(false);
-  const [imagePrompt, setImagePrompt] = useState('');
-  const [generatingImage, setGeneratingImage] = useState(false);
-  const [imageGenError, setImageGenError] = useState('');
   const [showDomainModal, setShowDomainModal] = useState(false);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
@@ -425,11 +392,6 @@ export default function Builder() {
     localStorage.setItem('builder_theme', builderTheme);
   }, [builderTheme]);
 
-  // Запоминаем выбранную модель ИИ — чтобы при следующем заходе она сохранялась.
-  useEffect(() => {
-    localStorage.setItem('builder_ai_model', aiModel);
-  }, [aiModel]);
-
   const toggleBuilderTheme = () => setBuilderTheme(t => t === 'light' ? 'dark' : 'light');
 
   const dismissEnergyBonus = () => {
@@ -444,12 +406,6 @@ export default function Builder() {
     ta.style.height = Math.min(ta.scrollHeight, 160) + 'px';
   }, [input]);
 
-  useEffect(() => {
-    if (!input.trim()) setDismissedModelHint(false);
-  }, [input]);
-
-  const suggestedModel = getSuggestedModel(input, lang);
-  const showModelHint = !dismissedModelHint && suggestedModel !== null && suggestedModel !== aiModel;
   // Умное уточнение: пользователь пишет запрос на новый сайт, но не выбрал стиль —
   // мягко предлагаем выбрать стиль для лучшего результата (не блокируя генерацию).
   const showStyleHint = !html && !siteStyle && input.trim().length >= 8 && !dismissedStyleHint;
@@ -510,7 +466,6 @@ export default function Builder() {
         body: JSON.stringify({
           messages: newMessages.map(m => ({ role: m.role, content: m.content })),
           project_id: projectId,
-          model: aiModel,
           // Стиль-пресет применяется только к новым сайтам (при правке html уже есть)
           style: !html ? siteStyle : undefined,
           // Передаём текущий HTML сайта — модель правит именно его, а не пытается
@@ -1060,41 +1015,6 @@ export default function Builder() {
     e.target.value = '';
   };
 
-  const handleGenerateImage = async () => {
-    if (!imagePrompt.trim() || !session) return;
-    setGeneratingImage(true);
-    setImageGenError('');
-    try {
-      const result = await apiGenerateImage(session, imagePrompt.trim(), projectId ? Number(projectId) : undefined);
-      setQuotaExceeded(false);
-      if (typeof result.remaining === 'number') {
-        setRemaining(result.remaining);
-        if (result.remaining <= LOW_BALANCE_THRESHOLD) {
-          toast({
-            title: lang === 'ru' ? '⚡ Заканчиваются запросы к AI' : '⚡ AI requests running low',
-            description: lang === 'ru'
-              ? `Осталось ${result.remaining} запросов. Пополните энергию или смените тариф, чтобы не потерять доступ.`
-              : `${result.remaining} requests left. Top up energy or upgrade your plan to avoid losing access.`,
-          });
-        }
-      }
-      setAttachedImage({ url: result.url, name: result.file_name, alreadyUploaded: true });
-      setShowImageGen(false);
-      setImagePrompt('');
-      if (!input) setInput(lang === 'ru' ? 'Используй это изображение на сайте' : 'Use this image on the site');
-    } catch (e) {
-      const rawMessage = e instanceof Error ? e.message : tr('builderError', lang);
-      const message = rawMessage === 'AI_SERVICE_UNAVAILABLE' ? tr('builderAiUnavailable', lang) : rawMessage;
-      setImageGenError(message);
-      if (rawMessage.includes('Лимит') || rawMessage.includes('limit')) {
-        setQuotaExceeded(true);
-        setRemaining(0);
-      }
-    } finally {
-      setGeneratingImage(false);
-    }
-  };
-
   const handleUseFileInChat = (file: { file_url: string; file_name: string }) => {
     setAttachedImage({ url: file.file_url, name: file.file_name, alreadyUploaded: true });
     setRightTab('preview');
@@ -1470,30 +1390,6 @@ export default function Builder() {
               </div>
             )}
 
-            {/* Подсказка: предложить более подходящую модель под тип запроса */}
-            {showModelHint && suggestedModel && (
-              <div className="mx-3 mt-3 rounded-xl px-3 py-2.5 flex items-center gap-2 text-xs bg-primary/10 text-primary">
-                <Icon name="Sparkles" size={14} className="shrink-0" />
-                <p className="flex-1">
-                  {suggestedModel === 'gemini'
-                    ? (lang === 'ru'
-                        ? 'Для сложного и интерактивного сайта лучше подойдёт Gemini'
-                        : 'Gemini is better suited for complex, interactive sites')
-                    : (lang === 'ru'
-                        ? 'Для бизнес-сайта или лендинга лучше подойдёт Claude'
-                        : 'Claude is better suited for business sites and landings')}
-                </p>
-                <button
-                  onClick={() => { setAiModel(suggestedModel); setDismissedModelHint(true); }}
-                  className="shrink-0 font-semibold underline hover:no-underline">
-                  {lang === 'ru' ? 'Переключить' : 'Switch'}
-                </button>
-                <button onClick={() => setDismissedModelHint(true)} className="shrink-0 text-primary/60 hover:text-primary">
-                  <Icon name="X" size={13} />
-                </button>
-              </div>
-            )}
-
             {/* Умное уточнение: предложить выбрать стиль дизайна для нового сайта */}
             {showStyleHint && (
               <div className="mx-3 mt-3 rounded-xl px-3 py-2.5 bg-secondary border border-border">
@@ -1594,87 +1490,10 @@ export default function Builder() {
                   </button>
                   <input ref={imageInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
 
-                  {/* Сгенерировать изображение через DALL-E */}
-                  <button onClick={() => { setShowImageGen(true); setImageGenError(''); }}
-                    className="grid h-7 w-7 place-items-center rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors shrink-0"
-                    title={lang === 'ru' ? 'Сгенерировать изображение (DALL-E)' : 'Generate image (DALL-E)'}>
-                    <Icon name="ImagePlus" size={14} />
-                  </button>
-
-                  {/* Модель AI */}
-                  <div className="relative shrink-0">
-                    <button onClick={() => setShowModelMenu(v => !v)}
-                      className="flex items-center gap-1 h-7 px-2 rounded-lg text-muted-foreground hover:text-foreground hover:bg-secondary transition-colors text-[11px] font-semibold"
-                      title={lang === 'ru' ? 'Модель AI' : 'AI model'}>
-                      <Icon name="Cpu" size={13} />
-                      <span className="hidden sm:inline">{aiModel === 'gpt-4o' ? 'GPT-4o' : aiModel === 'gemini' ? 'Gemini' : aiModel === 'opus' ? 'Opus 4.8' : aiModel === 'sonnet' ? 'Sonnet 5' : 'Claude'}</span>
-                    </button>
-                    {showModelMenu && (
-                      <div className="absolute bottom-10 left-0 z-50 w-60 max-w-[calc(100vw-2rem)] bg-secondary border border-border rounded-2xl shadow-2xl p-1.5">
-                        {[
-                          {
-                            id: 'gemini' as const,
-                            label: 'Gemini',
-                            desc: lang === 'ru' ? 'Быстрый и универсальный' : 'Fast & versatile',
-                            hint: lang === 'ru'
-                              ? 'Оптимальный выбор для большинства сайтов'
-                              : 'Best choice for most websites',
-                          },
-                          {
-                            id: 'claude' as const,
-                            label: 'Claude',
-                            desc: lang === 'ru' ? 'Точный и аккуратный' : 'Precise & polished',
-                            hint: lang === 'ru'
-                              ? 'Лучше для бизнес-сайтов и лендингов'
-                              : 'Best for business sites and landings',
-                          },
-                          {
-                            id: 'gpt-4o' as const,
-                            label: 'GPT-4o',
-                            desc: lang === 'ru' ? 'Креативный' : 'Creative',
-                            hint: lang === 'ru'
-                              ? 'Лучше для нестандартного дизайна'
-                              : 'Best for bold, creative design',
-                          },
-                          {
-                            id: 'sonnet' as const,
-                            label: 'Sonnet 5',
-                            desc: lang === 'ru' ? 'Мощный, медленнее' : 'Powerful, slower',
-                            hint: lang === 'ru'
-                              ? 'Максимальное качество для сложных сайтов'
-                              : 'Top quality for complex sites',
-                          },
-                          {
-                            id: 'opus' as const,
-                            label: 'Opus 4.8',
-                            desc: lang === 'ru' ? 'Флагман, медленный' : 'Flagship, slow',
-                            hint: lang === 'ru'
-                              ? 'Самая мощная модель. Лучше при таймауте 90 сек'
-                              : 'Most powerful model. Best with 90s timeout',
-                          },
-                        ].map(m => (
-                          <button key={m.id}
-                            onClick={() => { setAiModel(m.id); setShowModelMenu(false); }}
-                            className="w-full flex items-start gap-2.5 px-2.5 py-2 rounded-xl hover:bg-secondary/70 transition-colors text-left">
-                            <div className={`grid h-6 w-6 place-items-center rounded-lg shrink-0 mt-0.5 ${aiModel === m.id ? 'bg-primary text-primary-foreground' : 'bg-background text-muted-foreground'}`}>
-                              <Icon name={aiModel === m.id ? 'Check' : 'Cpu'} size={12} />
-                            </div>
-                            <div>
-                              <div className="flex items-center gap-1.5">
-                                <span className="text-xs font-medium text-foreground">{m.label}</span>
-                                {suggestedModel === m.id && aiModel !== m.id && (
-                                  <span className="text-[9px] font-semibold uppercase tracking-wide text-primary bg-primary/10 rounded-full px-1.5 py-0.5">
-                                    {lang === 'ru' ? 'Рекомендуется' : 'Recommended'}
-                                  </span>
-                                )}
-                              </div>
-                              <div className="text-[10px] text-muted-foreground">{m.desc}</div>
-                              <div className="text-[10px] text-muted-foreground/70 mt-0.5 leading-snug">{m.hint}</div>
-                            </div>
-                          </button>
-                        ))}
-                      </div>
-                    )}
+                  {/* Модель AI — фиксированная, Claude Sonnet 5 напрямую через Anthropic */}
+                  <div className="flex items-center gap-1 h-7 px-2 rounded-lg text-muted-foreground text-[11px] font-semibold shrink-0" title="Claude Sonnet 5">
+                    <Icon name="Cpu" size={13} />
+                    <span className="hidden sm:inline">Sonnet 5</span>
                   </div>
 
                   {/* Стиль сайта — только для создания нового (при правке html уже есть) */}
@@ -1777,7 +1596,6 @@ export default function Builder() {
 
             {/* Overlay закрывает расширения */}
             {showExtensions && <div className="fixed inset-0 z-40" onClick={() => setShowExtensions(false)} />}
-            {showModelMenu && <div className="fixed inset-0 z-40" onClick={() => setShowModelMenu(false)} />}
             {showStyleMenu && <div className="fixed inset-0 z-40" onClick={() => setShowStyleMenu(false)} />}
           </div>
         )}
@@ -2235,47 +2053,6 @@ export default function Builder() {
           <Icon name="AlertCircle" size={15} className="shrink-0" />
           <span className="flex-1">{publishError}</span>
           <button onClick={() => setPublishError('')}><Icon name="X" size={14} /></button>
-        </div>
-      )}
-
-      {/* Generate image (DALL-E) modal */}
-      {showImageGen && (
-        <div className="fixed inset-0 z-[60] bg-black/50 flex items-center justify-center p-4" onClick={() => !generatingImage && setShowImageGen(false)}>
-          <div className="bg-card rounded-2xl shadow-2xl p-6 max-w-md w-full" onClick={e => e.stopPropagation()}>
-            <div className="grid h-12 w-12 place-items-center rounded-2xl bg-primary/10 text-primary mx-auto mb-4">
-              <Icon name="ImagePlus" size={22} />
-            </div>
-            <h3 className="font-display font-bold text-lg text-center mb-1">
-              {lang === 'ru' ? 'Сгенерировать изображение' : 'Generate an image'}
-            </h3>
-            <p className="text-sm text-muted-foreground text-center mb-4">
-              {lang === 'ru' ? 'Опишите картинку словами — DALL-E создаст её и добавит в чат' : 'Describe the image in words — DALL-E will create it and attach it to chat'}
-            </p>
-            <textarea
-              value={imagePrompt}
-              onChange={e => setImagePrompt(e.target.value)}
-              placeholder={lang === 'ru' ? 'Например: минималистичный логотип кофейни с чашкой' : 'E.g.: minimalist coffee shop logo with a cup'}
-              rows={3}
-              disabled={generatingImage}
-              className="w-full bg-secondary border border-border rounded-xl px-3.5 py-2.5 text-sm resize-none outline-none focus:border-primary/50 mb-3 disabled:opacity-60"
-            />
-            {imageGenError && (
-              <div className="flex items-start gap-2 text-sm text-destructive bg-destructive/10 rounded-xl px-3 py-2.5 mb-3">
-                <Icon name="AlertCircle" size={15} className="shrink-0 mt-0.5" />
-                <span>{imageGenError}</span>
-              </div>
-            )}
-            <div className="flex gap-2">
-              <Button variant="outline" className="flex-1 rounded-xl" disabled={generatingImage} onClick={() => setShowImageGen(false)}>
-                {lang === 'ru' ? 'Отмена' : 'Cancel'}
-              </Button>
-              <Button className="flex-1 rounded-xl" disabled={generatingImage || quotaExceeded || !imagePrompt.trim()} onClick={handleGenerateImage}>
-                {generatingImage
-                  ? <><Icon name="Loader" size={14} className="mr-1.5 animate-spin" />{lang === 'ru' ? 'Создаём…' : 'Generating…'}</>
-                  : <><Icon name="Sparkles" size={14} className="mr-1.5" />{lang === 'ru' ? 'Создать' : 'Generate'}</>}
-              </Button>
-            </div>
-          </div>
         </div>
       )}
 
