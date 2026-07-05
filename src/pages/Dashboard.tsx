@@ -271,7 +271,7 @@ const Dashboard = () => {
     <div className="min-h-screen bg-background flex flex-col">
       <DashboardHeader active={tab} />
 
-      <div className="container py-6 md:py-8 max-w-5xl flex-1">
+      <div className="container py-5 sm:py-6 md:py-8 max-w-5xl flex-1">
 
         {/* PROJECTS TAB */}
         {tab === 'projects' && (

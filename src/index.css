@@ -98,6 +98,15 @@ html {
   scroll-behavior: smooth;
 }
 
+/* Скрывает полосу прокрутки визуально, сохраняя саму прокрутку (для мобильной навигации и т.п.) */
+.no-scrollbar {
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
+}
+
 section[id] {
   scroll-margin-top: 88px;
 }

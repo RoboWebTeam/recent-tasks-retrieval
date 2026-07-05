@@ -65,7 +65,7 @@ export default function DashboardProfileTab({
 
   return (
     <div className="max-w-lg">
-      <h1 className="font-display font-black text-2xl mb-6">{tr('profile', lang)}</h1>
+      <h1 className="font-display font-black text-xl sm:text-2xl mb-6">{tr('profile', lang)}</h1>
 
       {lowBalance && (
         <div className={`rounded-2xl px-4 py-3 mb-4 flex items-start gap-2.5 text-sm ${
@@ -88,14 +88,14 @@ export default function DashboardProfileTab({
         </div>
       )}
 
-      <div className="rounded-2xl border border-border bg-card p-6 mb-4">
-        <div className="flex items-center gap-4 mb-6">
-          <div className="grid h-16 w-16 place-items-center rounded-2xl bg-primary text-primary-foreground font-display font-black text-xl">
+      <div className="rounded-2xl border border-border bg-card p-4 sm:p-6 mb-4">
+        <div className="flex items-center gap-3 sm:gap-4 mb-6">
+          <div className="grid h-12 w-12 sm:h-16 sm:w-16 place-items-center rounded-2xl bg-primary text-primary-foreground font-display font-black text-base sm:text-xl shrink-0">
             {user.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)}
           </div>
-          <div>
-            <div className="font-display font-bold text-lg">{user.name}</div>
-            <div className="text-muted-foreground text-sm">{user.email}</div>
+          <div className="min-w-0">
+            <div className="font-display font-bold text-base sm:text-lg truncate">{user.name}</div>
+            <div className="text-muted-foreground text-xs sm:text-sm truncate">{user.email}</div>
             <span className={`inline-block mt-1 rounded-full px-2.5 py-0.5 text-xs font-bold ${plan.color}`}>
               {plan.label}
             </span>
@@ -135,7 +135,7 @@ export default function DashboardProfileTab({
       </div>
 
       {/* Смена пароля */}
-      <div className="rounded-2xl border border-border bg-card p-6 mb-4">
+      <div className="rounded-2xl border border-border bg-card p-4 sm:p-6 mb-4">
         <h3 className="font-display font-bold text-sm mb-4">{lang === 'ru' ? 'Смена пароля' : 'Change password'}</h3>
         <form onSubmit={handleChangePassword} className="space-y-3">
           <Input
@@ -175,10 +175,10 @@ export default function DashboardProfileTab({
       </div>
 
       {/* GitHub */}
-      <div className="rounded-2xl border border-border bg-card p-6 mb-4">
+      <div className="rounded-2xl border border-border bg-card p-4 sm:p-6 mb-4">
         <h3 className="font-display font-bold text-sm mb-4">GitHub</h3>
         {user.github_login ? (
-          <div className="flex items-center justify-between gap-3">
+          <div className="flex flex-col xs:flex-row items-start xs:items-center justify-between gap-3">
             <div className="flex items-center gap-3 min-w-0">
               <div className="grid h-10 w-10 place-items-center rounded-xl bg-foreground text-background shrink-0">
                 <Icon name="Github" size={18} />
@@ -191,7 +191,7 @@ export default function DashboardProfileTab({
             <Button
               variant="outline"
               size="sm"
-              className="rounded-xl text-destructive hover:text-destructive border-destructive/20 hover:bg-destructive/5 shrink-0"
+              className="rounded-xl text-destructive hover:text-destructive border-destructive/20 hover:bg-destructive/5 shrink-0 w-full xs:w-auto"
               disabled={disconnectingGithub}
               onClick={handleDisconnectGithub}
             >
@@ -200,11 +200,11 @@ export default function DashboardProfileTab({
             </Button>
           </div>
         ) : (
-          <div className="flex items-center justify-between gap-3">
+          <div className="flex flex-col xs:flex-row items-start xs:items-center justify-between gap-3">
             <p className="text-sm text-muted-foreground">
               {lang === 'ru' ? 'Аккаунт не подключён' : 'Account not connected'}
             </p>
-            <Button variant="outline" size="sm" className="rounded-xl gap-1.5 shrink-0" asChild>
+            <Button variant="outline" size="sm" className="rounded-xl gap-1.5 shrink-0 w-full xs:w-auto" asChild>
               <a href={`https://github.com/login/oauth/authorize?client_id=Ov23linVfsQ0G4M2cWrd&scope=public_repo&state=connect&redirect_uri=${encodeURIComponent(window.location.origin + '/auth/github/callback')}`}>
                 <Icon name="Github" size={14} />
                 {lang === 'ru' ? 'Подключить' : 'Connect'}
@@ -220,7 +220,7 @@ export default function DashboardProfileTab({
       </div>
 
       {/* История платежей */}
-      <div className="rounded-2xl border border-border bg-card p-6 mb-4">
+      <div className="rounded-2xl border border-border bg-card p-4 sm:p-6 mb-4">
         <h3 className="font-display font-bold text-sm mb-4">{lang === 'ru' ? 'История платежей' : 'Payment history'}</h3>
         {orders.length === 0 ? (
           <p className="text-sm text-muted-foreground">{lang === 'ru' ? 'Платежей пока нет' : 'No payments yet'}</p>
@@ -250,7 +250,7 @@ export default function DashboardProfileTab({
         )}
       </div>
 
-      <div className="rounded-2xl border border-border bg-card p-5 flex items-center justify-between mb-4">
+      <div className="rounded-2xl border border-border bg-card p-4 sm:p-5 flex items-center justify-between gap-3 mb-4">
         <div>
           <div className="font-semibold text-sm">{tr('projects', lang)}</div>
           <div className="text-muted-foreground text-xs">{projectsCount} {tr('created', lang)}</div>

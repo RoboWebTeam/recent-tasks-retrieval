@@ -52,7 +52,7 @@ export default function DashboardPlanTab({
 
   return (
     <div>
-      <h1 className="font-display font-black text-2xl mb-6">{lang === 'ru' ? 'Тарифный план' : 'Pricing Plan'}</h1>
+      <h1 className="font-display font-black text-xl sm:text-2xl mb-6">{lang === 'ru' ? 'Тарифный план' : 'Pricing Plan'}</h1>
 
       {lowBalance && (
         <div className={`rounded-2xl px-4 py-3 mb-4 flex items-start gap-2.5 text-sm ${
@@ -72,7 +72,7 @@ export default function DashboardPlanTab({
         </div>
       )}
 
-      <div className="rounded-2xl border border-primary bg-card p-6 mb-4 flex flex-col sm:flex-row sm:items-center gap-4">
+      <div className="rounded-2xl border border-primary bg-card p-4 sm:p-6 mb-4 flex flex-col sm:flex-row sm:items-center gap-4">
         <div className="flex-1">
           <div className="flex items-center gap-2 mb-1">
             <span className={`rounded-full px-3 py-0.5 text-xs font-bold ${plan.color}`}>{plan.label}</span>
@@ -83,12 +83,12 @@ export default function DashboardPlanTab({
             {(user?.requests_used ?? 0)} / {user?.requests_limit ?? plan.requests} {lang === 'ru' ? 'запросов к AI использовано в этом месяце' : 'AI requests used this month'}
           </p>
         </div>
-        <Button className="rounded-xl font-semibold shrink-0" asChild>
+        <Button className="rounded-xl font-semibold w-full sm:w-auto shrink-0" asChild>
           <Link to="/pricing">{tr('upgradePlan', lang)}</Link>
         </Button>
       </div>
 
-      <div className="rounded-2xl border border-border bg-card p-6 mb-6">
+      <div className="rounded-2xl border border-border bg-card p-4 sm:p-6 mb-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
           <div className="flex items-center gap-2">
             <div className="grid h-9 w-9 place-items-center rounded-xl bg-amber-100 text-amber-600">
@@ -107,16 +107,16 @@ export default function DashboardPlanTab({
             ? 'Когда лимит тарифа заканчивается, дополнительные обращения к AI списываются из энергии.'
             : 'When your plan limit runs out, extra AI requests are deducted from energy.'}
         </p>
-        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
           {energyPackages.map(pkg => (
-            <div key={pkg.code} className="rounded-xl border border-border p-4 flex flex-col items-center text-center gap-2">
-              <div className="font-display font-black text-xl">{pkg.requests}</div>
-              <p className="text-xs text-muted-foreground">{lang === 'ru' ? 'запросов' : 'requests'}</p>
-              <p className="text-sm font-semibold">{pkg.price.toLocaleString()} ₽</p>
+            <div key={pkg.code} className="rounded-xl border border-border p-2.5 sm:p-4 flex flex-col items-center text-center gap-1.5 sm:gap-2">
+              <div className="font-display font-black text-lg sm:text-xl">{pkg.requests}</div>
+              <p className="text-[11px] sm:text-xs text-muted-foreground">{lang === 'ru' ? 'запросов' : 'requests'}</p>
+              <p className="text-xs sm:text-sm font-semibold">{pkg.price.toLocaleString()} ₽</p>
               <Button
                 size="sm"
                 variant="outline"
-                className="rounded-lg text-xs w-full"
+                className="rounded-lg text-xs w-full px-2"
                 disabled={buyingEnergy === pkg.code}
                 onClick={() => handleBuyEnergy(pkg.code, pkg.requests, pkg.price)}
               >

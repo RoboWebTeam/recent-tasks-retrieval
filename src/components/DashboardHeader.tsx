@@ -92,13 +92,14 @@ export default function DashboardHeader({ active, leadsCount = 0 }: DashboardHea
         </div>
       </div>
 
-      {/* Mobile nav */}
-      <div className="sm:hidden flex border-t border-border overflow-x-auto">
+      {/* Mobile nav — горизонтальная прокрутка вместо сжатия текста, чтобы подписи
+          вроде "Аналитика" не переносились и не наезжали друг на друга на узких экранах */}
+      <div className="sm:hidden flex border-t border-border overflow-x-auto no-scrollbar">
         {mainNav.map(([id, label, icon, href]) => (
           <Link
             key={id}
             to={href}
-            className={`flex-1 flex flex-col items-center gap-1 py-2.5 text-xs font-medium transition-colors shrink-0 relative ${
+            className={`flex flex-col items-center gap-1 py-2.5 px-3 min-w-[64px] text-[11px] font-medium whitespace-nowrap transition-colors shrink-0 relative ${
               active === id ? 'text-primary' : 'text-muted-foreground'
             }`}
           >
@@ -113,7 +114,7 @@ export default function DashboardHeader({ active, leadsCount = 0 }: DashboardHea
           <Link
             key={id}
             to={href}
-            className={`flex-1 flex flex-col items-center gap-1 py-2.5 text-xs font-medium transition-colors shrink-0 relative ${
+            className={`flex flex-col items-center gap-1 py-2.5 px-3 min-w-[64px] text-[11px] font-medium whitespace-nowrap transition-colors shrink-0 relative ${
               active === id ? 'text-primary' : 'text-muted-foreground'
             }`}
           >

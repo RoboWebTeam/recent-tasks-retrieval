@@ -67,12 +67,12 @@ export default function DashboardProjectsTab({
     <div>
       <div className="flex items-center justify-between mb-6 gap-3 flex-wrap">
         <div>
-          <h1 className="font-display font-black text-2xl">{tr('myProjects', lang)}</h1>
+          <h1 className="font-display font-black text-xl sm:text-2xl">{tr('myProjects', lang)}</h1>
           <p className="text-muted-foreground text-sm mt-0.5">{projects.length} {lang === 'ru' ? `проект${projects.length === 1 ? '' : projects.length < 5 ? 'а' : 'ов'}` : `project${projects.length === 1 ? '' : 's'}`}</p>
         </div>
         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="rounded-xl font-semibold gap-2">
+            <Button className="rounded-xl font-semibold gap-2 w-full xs:w-auto">
               <Icon name="Plus" size={16} /> {tr('newProject', lang)}
             </Button>
           </DialogTrigger>
