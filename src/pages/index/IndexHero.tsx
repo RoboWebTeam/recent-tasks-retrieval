@@ -149,7 +149,8 @@ export function IndexHero({ lang, typedText, chatStep, isTyping, progress, chatS
   const heroCtaHref = getSession() ? '/builder' : '/register';
 
   return (
-    <section className="relative pt-28 sm:pt-32 lg:pt-36 pb-16 md:pb-24" style={{clipPath: 'inset(0)'}}>
+    <section className="relative overflow-hidden pt-28 sm:pt-32 lg:pt-36 pb-16 md:pb-24" style={{clipPath: 'inset(0)'}}>
+      <div className="aurora absolute inset-0 -z-10" />
       <ParticlesBg />
       <div className="absolute inset-0 -z-10 bg-gradient-to-b from-background/40 via-background/60 to-background" />
       {/* Floating orbs */}
@@ -177,8 +178,8 @@ export function IndexHero({ lang, typedText, chatStep, isTyping, progress, chatS
             <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
             {L.hero.badge[lang]}
           </span>
-          <h1 className="mt-5 font-display font-black leading-[1.05] text-4xl sm:text-5xl md:text-6xl xl:text-7xl tracking-tight">
-            <span className="text-gradient inline-block min-h-[1.1em]">
+          <h1 className="mt-5 font-display font-black leading-[1.02] text-5xl sm:text-6xl md:text-7xl xl:text-7xl 2xl:text-8xl tracking-tight">
+            <span className="text-gradient-animated inline-block min-h-[1.1em] drop-shadow-[0_4px_30px_hsl(232_90%_58%_/_0.28)]">
               {typedText}
               <span className="typed-cursor">|</span>
             </span>
@@ -187,12 +188,15 @@ export function IndexHero({ lang, typedText, chatStep, isTyping, progress, chatS
             {L.hero.desc[lang]}
           </p>
           <div className="mt-7 flex flex-col sm:flex-row flex-wrap gap-3 justify-center lg:justify-start">
-            <Button size="lg" className="rounded-full text-base font-semibold px-8 shadow-xl shadow-primary/25 w-full sm:w-auto group" asChild>
-              <Link to={heroCtaHref}>
-                {L.hero.cta[lang]}
-                <Icon name="ArrowRight" size={18} className="ml-1 transition-transform group-hover:translate-x-1" />
-              </Link>
-            </Button>
+            <div className="relative w-full sm:w-auto">
+              <span className="cta-glow rounded-full" />
+              <Button size="lg" className="rounded-full text-base font-semibold px-8 shadow-xl shadow-primary/25 w-full sm:w-auto group" asChild>
+                <Link to={heroCtaHref}>
+                  {L.hero.cta[lang]}
+                  <Icon name="ArrowRight" size={18} className="ml-1 transition-transform group-hover:translate-x-1" />
+                </Link>
+              </Button>
+            </div>
             <Button size="lg" variant="outline" className="rounded-full text-base font-semibold px-8 w-full sm:w-auto group"
               onClick={onDemoOpen}>
               <Icon name="Play" size={16} className="mr-1" /> {L.hero.demo[lang]}
