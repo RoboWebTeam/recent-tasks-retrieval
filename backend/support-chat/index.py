@@ -77,7 +77,9 @@ def upload_chat_file(file_name: str, file_content_b64: str, visitor_id: str):
     safe_name = ''.join(c for c in file_name if c.isalnum() or c in ('-', '_', '.')) or 'file'
     key = f"support-chat/{visitor_id}/{safe_name}"
     s3 = get_s3()
-    s3.put_object(Bucket=S3_BUCKET, Key=key, Body=raw, ContentType=content_type)
+    # ACL='public-read' обязателен: без него reg.ru отдаёт 403 при попытке
+    # открыть файл по прямой ссылке, даже если сам bucket публичный.
+    s3.put_object(Bucket=S3_BUCKET, Key=key, Body=raw, ContentType=content_type, ACL='public-read')
     cdn_url = f"https://s3.regru.cloud/{S3_BUCKET}/{key}"
     return cdn_url, file_kind, safe_name
 

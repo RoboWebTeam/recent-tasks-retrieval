@@ -131,7 +131,9 @@ def handler(event: dict, context) -> dict:
                 key = f"sites/{user_id}/{context.request_id}_{safe_name}"
 
                 s3 = get_s3()
-                s3.put_object(Bucket=S3_BUCKET, Key=key, Body=raw, ContentType=content_type)
+                # ACL='public-read' обязателен: без него reg.ru отдаёт 403 при попытке
+                # открыть файл по прямой ссылке, даже если сам bucket публичный.
+                s3.put_object(Bucket=S3_BUCKET, Key=key, Body=raw, ContentType=content_type, ACL='public-read')
                 cdn_url = f"https://s3.regru.cloud/{S3_BUCKET}/{key}"
 
                 cur.execute(
