@@ -1,6 +1,6 @@
 """
 Единая точка входа для запуска всех backend-функций проекта на обычном VPS
-(вместо облачных Cloud Functions poehali.dev).
+(вместо облачных serverless-функций).
 
 Как это работает:
 - Каждая функция в /backend/<name>/index.py содержит функцию handler(event, context).

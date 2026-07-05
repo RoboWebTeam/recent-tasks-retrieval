@@ -97,7 +97,7 @@ export const L = {
 } as const;
 
 export const ROBO_IMG =
-  'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/2704f2a7-0e24-4881-a393-b234ab436538.jpg';
+  'https://s3-nl.hostkey.com/robo/demo/2704f2a7-0e24-4881-a393-b234ab436538.jpg';
 
 export const SEND_EMAIL_URL = apiUrl('send-email');
 

@@ -17,7 +17,7 @@ export const ARTICLES: Article[] = [
     date: '10 июня 2026',
     readTime: '5 мин',
     category: 'AI и бизнес',
-    cover: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/119fb9a0-189b-42d4-b25a-50d014970fd6.jpg',
+    cover: 'https://s3-nl.hostkey.com/robo/demo/119fb9a0-189b-42d4-b25a-50d014970fd6.jpg',
     content: `
 ## Почему AI заменяет фрилансеров при создании сайтов
 
@@ -51,7 +51,7 @@ export const ARTICLES: Article[] = [
     date: '12 июня 2026',
     readTime: '4 мин',
     category: 'Инструкции',
-    cover: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/08ca2384-7d8f-4aec-826e-e0d57ef5fc9e.jpg',
+    cover: 'https://s3-nl.hostkey.com/robo/demo/08ca2384-7d8f-4aec-826e-e0d57ef5fc9e.jpg',
     content: `
 ## Как создать сайт за 5 минут с помощью Roboweb
 
@@ -87,7 +87,7 @@ Roboweb обучен на тысячах реальных сайтов и зна
     date: '14 июня 2026',
     readTime: '6 мин',
     category: 'AI и бизнес',
-    cover: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/9cc14c55-085e-48e2-9ae1-6623505e8aa2.jpg',
+    cover: 'https://s3-nl.hostkey.com/robo/demo/9cc14c55-085e-48e2-9ae1-6623505e8aa2.jpg',
     content: `
 ## 7 преимуществ сайтов, созданных с помощью AI
 
@@ -129,7 +129,7 @@ Roboweb создаёт сайты на уровне профессиональн
     date: '15 июня 2026',
     readTime: '5 мин',
     category: 'Малый бизнес',
-    cover: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/5ac55f01-7429-4b4e-acdb-0e5f0ce36cac.jpg',
+    cover: 'https://s3-nl.hostkey.com/robo/demo/5ac55f01-7429-4b4e-acdb-0e5f0ce36cac.jpg',
     content: `
 ## AI-сайт для малого бизнеса: зачем и как
 
@@ -170,7 +170,7 @@ Roboweb создаёт сайты на уровне профессиональн
     date: '16 июня 2026',
     readTime: '7 мин',
     category: 'Технологии',
-    cover: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/46139957-ab81-4334-9839-4ab615f4099d.jpg',
+    cover: 'https://s3-nl.hostkey.com/robo/demo/46139957-ab81-4334-9839-4ab615f4099d.jpg',
     content: `
 ## Сайт за минуты — это не миф: как работает Roboweb
 
@@ -205,7 +205,7 @@ Roboweb использует большую языковую модель (LLM),
     date: '17 июня 2026',
     readTime: '6 мин',
     category: 'SEO',
-    cover: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/6bdecfb6-b342-474b-be2b-8ff8584df360.jpg',
+    cover: 'https://s3-nl.hostkey.com/robo/demo/6bdecfb6-b342-474b-be2b-8ff8584df360.jpg',
     content: `
 ## SEO AI-сайтов: как Roboweb помогает попасть в топ поиска
 
@@ -248,7 +248,7 @@ Roboweb создаёт технически грамотную основу дл
     date: '18 июня 2026',
     readTime: '8 мин',
     category: 'Сравнения',
-    cover: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/d1d14788-7bde-4ecd-840d-3da0b64fe4a3.jpg',
+    cover: 'https://s3-nl.hostkey.com/robo/demo/d1d14788-7bde-4ecd-840d-3da0b64fe4a3.jpg',
     content: `
 ## Roboweb vs конструкторы сайтов: Tilda, Wix, Тинькофф
 
@@ -293,7 +293,7 @@ Tilda, Wix, Тинькофф Сайты — все они работают по 
     date: '19 июня 2026',
     readTime: '7 мин',
     category: 'Инструкции',
-    cover: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/e825a615-cfdb-4506-845c-1cd2c0648d8f.jpg',
+    cover: 'https://s3-nl.hostkey.com/robo/demo/e825a615-cfdb-4506-845c-1cd2c0648d8f.jpg',
     content: `
 ## Как создать продающий лендинг с помощью AI
 
@@ -341,7 +341,7 @@ Tilda, Wix, Тинькофф Сайты — все они работают по 
     date: '21 июня 2026',
     readTime: '6 мин',
     category: 'Кейсы',
-    cover: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/c5f4a8e0-9102-436b-b88f-adf01134cadf.jpg',
+    cover: 'https://s3-nl.hostkey.com/robo/demo/c5f4a8e0-9102-436b-b88f-adf01134cadf.jpg',
     content: `
 ## Истории успеха: реальные бизнесы, запущенные через Roboweb
 
@@ -377,7 +377,7 @@ Tilda, Wix, Тинькофф Сайты — все они работают по 
     date: '23 июня 2026',
     readTime: '8 мин',
     category: 'Технологии',
-    cover: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/9f942d58-5f05-460c-a15a-8839c5dbdecd.jpg',
+    cover: 'https://s3-nl.hostkey.com/robo/demo/9f942d58-5f05-460c-a15a-8839c5dbdecd.jpg',
     content: `
 ## Будущее создания сайтов: как AI меняет индустрию
 
@@ -421,7 +421,7 @@ Roboweb уже сейчас даёт малому бизнесу возможн�
     date: '24 июня 2026',
     readTime: '6 мин',
     category: 'Стратегия',
-    cover: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/1f97a636-3e57-493a-8ea5-e18031b3dca4.jpg',
+    cover: 'https://s3-nl.hostkey.com/robo/demo/1f97a636-3e57-493a-8ea5-e18031b3dca4.jpg',
     content: `
 ## Главные приоритеты при создании сайта с помощью ИИ
 
@@ -465,7 +465,7 @@ Google снижает позиции сайтов, которые загружа
     date: '25 июня 2026',
     readTime: '5 мин',
     category: 'Стратегия',
-    cover: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/f3b3e1f6-93fa-4aa7-aae2-db66460f0121.jpg',
+    cover: 'https://s3-nl.hostkey.com/robo/demo/f3b3e1f6-93fa-4aa7-aae2-db66460f0121.jpg',
     content: `
 ## Почему скорость загрузки — приоритет №1 для сайта в 2026 году
 
@@ -517,7 +517,7 @@ Google снижает позиции сайтов, которые загружа
     date: '26 июня 2026',
     readTime: '7 мин',
     category: 'Дизайн',
-    cover: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/412a8208-c0f9-408d-964b-f2a4a41554ba.jpg',
+    cover: 'https://s3-nl.hostkey.com/robo/demo/412a8208-c0f9-408d-964b-f2a4a41554ba.jpg',
     content: `
 ## UX как главный приоритет: почему удобство важнее красоты
 
@@ -559,7 +559,7 @@ User Experience (UX) — это то, что человек чувствует �
     date: '27 июня 2026',
     readTime: '6 мин',
     category: 'Маркетинг',
-    cover: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/1e25f3a5-0a4b-442e-a367-2d21f7fd9f65.jpg',
+    cover: 'https://s3-nl.hostkey.com/robo/demo/1e25f3a5-0a4b-442e-a367-2d21f7fd9f65.jpg',
     content: `
 ## Конверсия как главный KPI: как ИИ строит продающие сайты
 
@@ -603,7 +603,7 @@ User Experience (UX) — это то, что человек чувствует �
     date: '28 июня 2026',
     readTime: '5 мин',
     category: 'Стратегия',
-    cover: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/efead282-5f5e-464c-895c-12807b8b424f.jpg',
+    cover: 'https://s3-nl.hostkey.com/robo/demo/efead282-5f5e-464c-895c-12807b8b424f.jpg',
     content: `
 ## Mobile First: почему мобильная версия должна быть приоритетом
 
@@ -654,7 +654,7 @@ Mobile First: сначала телефон → потом расширяем д
     date: '29 июня 2026',
     readTime: '7 мин',
     category: 'Контент',
-    cover: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/513346aa-6578-409d-aeca-824ebafac864.jpg',
+    cover: 'https://s3-nl.hostkey.com/robo/demo/513346aa-6578-409d-aeca-824ebafac864.jpg',
     content: `
 ## Контент как приоритет: почему тексты важнее дизайна для продвижения
 
@@ -707,7 +707,7 @@ Roboweb создаёт тексты по этому правилу автома�
     date: '30 июня 2026',
     readTime: '5 мин',
     category: 'Безопасность',
-    cover: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/c1d18b74-eacb-4b0b-8b3f-cfe8048b6ef8.jpg',
+    cover: 'https://s3-nl.hostkey.com/robo/demo/c1d18b74-eacb-4b0b-8b3f-cfe8048b6ef8.jpg',
     content: `
 ## Безопасность сайта: почему это приоритет, а не опция
 
@@ -750,7 +750,7 @@ Roboweb создаёт тексты по этому правилу автома�
     date: '30 июня 2026',
     readTime: '6 мин',
     category: 'Аналитика',
-    cover: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/2522d1b9-ab99-4cf1-9602-e51f5e90912a.jpg',
+    cover: 'https://s3-nl.hostkey.com/robo/demo/2522d1b9-ab99-4cf1-9602-e51f5e90912a.jpg',
     content: `
 ## Аналитика сайта: как данные помогают расставить приоритеты развития
 
@@ -803,7 +803,7 @@ Roboweb создаёт тексты по этому правилу автома�
     date: '30 июня 2026',
     readTime: '5 мин',
     category: 'AI и бизнес',
-    cover: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/aaa41df7-117b-4bcd-8041-af8004500463.jpg',
+    cover: 'https://s3-nl.hostkey.com/robo/demo/aaa41df7-117b-4bcd-8041-af8004500463.jpg',
     content: `
 ## Автоматизация как приоритет: что ИИ делает за вас при создании сайта
 
@@ -850,7 +850,7 @@ Roboweb сокращает ваше участие до 2-3 часов. Экон
     date: '30 июня 2026',
     readTime: '4 мин',
     category: 'Инструкции',
-    cover: 'https://cdn.poehali.dev/projects/a4107a6b-2fca-459b-a931-acd33e9eb6c0/files/b7796f12-0c75-4de7-a739-85e27577a6b2.jpg',
+    cover: 'https://s3-nl.hostkey.com/robo/demo/b7796f12-0c75-4de7-a739-85e27577a6b2.jpg',
     content: `
 ## Чек-лист запуска: 10 приоритетов перед публикацией сайта
 

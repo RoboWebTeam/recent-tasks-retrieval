@@ -58,7 +58,7 @@ export default function Privacy() {
         </p>
         <p>
           3.2. Data is stored in a PostgreSQL database and S3-compatible object storage located on servers used by
-          the Service's hosting/infrastructure provider (poehali.dev platform infrastructure).
+          the Service's hosting/infrastructure provider.
         </p>
         <p>3.3. Passwords are never stored in plain text — only as bcrypt hashes.</p>
         <h2>4. Data Sharing with Third Parties</h2>
@@ -164,7 +164,7 @@ export default function Privacy() {
       </p>
       <p>
         3.2. Данные хранятся в базе данных PostgreSQL и S3-совместимом объектном хранилище, размещённых на
-        серверах инфраструктуры платформы, используемой Сервисом (poehali.dev).
+        серверах инфраструктуры платформы, используемой Сервисом.
       </p>
       <p>3.3. Пароли никогда не хранятся в открытом виде — только в виде bcrypt-хэша.</p>
 
