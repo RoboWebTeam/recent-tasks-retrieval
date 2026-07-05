@@ -169,7 +169,7 @@ export function AdminUserDetailsPanel({ details, loading }: AdminUserDetailsPane
       </div>
 
       {/* Tabs */}
-      <div className="flex gap-2">
+      <div className="flex gap-2 flex-wrap">
         {([
           ['projects', 'Проекты', 'Layers', projects.length],
           ['orders', 'Платежи', 'CreditCard', orders.length],

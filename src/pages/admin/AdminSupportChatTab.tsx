@@ -207,7 +207,7 @@ export function AdminSupportChatTab({ adminKey }: AdminSupportChatTabProps) {
 
   return (
     <>
-      <div className="rounded-2xl border border-border overflow-hidden flex h-[600px]">
+      <div className="rounded-2xl border border-border overflow-hidden flex flex-col sm:flex-row h-[75vh] sm:h-[600px]">
         <AdminSupportChatSidebar
           conversations={conversations}
           activeId={activeId}

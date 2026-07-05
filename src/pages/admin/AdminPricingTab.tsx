@@ -142,7 +142,8 @@ export function AdminPricingTab({ adminKey }: AdminPricingTabProps) {
         )}
 
         <div className="rounded-2xl border border-border overflow-hidden">
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto">
+          <table className="w-full text-sm min-w-[420px]">
             <thead className="bg-secondary/50 border-b border-border">
               <tr>
                 <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Тариф</th>
@@ -168,6 +169,7 @@ export function AdminPricingTab({ adminKey }: AdminPricingTabProps) {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
       </div>
 
@@ -205,7 +207,8 @@ export function AdminPricingTab({ adminKey }: AdminPricingTabProps) {
           </div>
         ) : (
           <div className="rounded-2xl border border-border overflow-hidden">
-            <table className="w-full text-sm">
+            <div className="overflow-x-auto">
+            <table className="w-full text-sm min-w-[420px]">
               <thead className="bg-secondary/50 border-b border-border">
                 <tr>
                   <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Пакет</th>
@@ -231,6 +234,7 @@ export function AdminPricingTab({ adminKey }: AdminPricingTabProps) {
                 ))}
               </tbody>
             </table>
+            </div>
           </div>
         )}
       </div>

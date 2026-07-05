@@ -95,7 +95,7 @@ export default function Files() {
               {isRu ? 'Готовые сайты в формате HTML или ZIP' : 'Ready-made sites in HTML or ZIP format'}
             </p>
           </div>
-          <Button onClick={handleUploadClick} disabled={uploading} className="rounded-xl font-semibold gap-2">
+          <Button onClick={handleUploadClick} disabled={uploading} className="rounded-xl font-semibold gap-2 w-full sm:w-auto">
             {uploading
               ? <><Icon name="Loader" size={15} className="animate-spin" />{isRu ? 'Загрузка…' : 'Uploading…'}</>
               : <><Icon name="Upload" size={15} />{isRu ? 'Загрузить файл' : 'Upload file'}</>}

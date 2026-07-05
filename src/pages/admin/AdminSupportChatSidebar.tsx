@@ -19,7 +19,7 @@ export function AdminSupportChatSidebar({
   onOpenSettings, onOpenConversation,
 }: AdminSupportChatSidebarProps) {
   return (
-    <div className="w-full sm:w-80 border-r border-border shrink-0 flex flex-col bg-secondary/20">
+    <div className="w-full sm:w-80 max-h-[40vh] sm:max-h-none border-b sm:border-b-0 sm:border-r border-border shrink-0 flex flex-col bg-secondary/20">
       <div className="px-4 py-3 border-b border-border bg-card space-y-2">
         <div className="flex items-center justify-between">
           <p className="text-sm font-semibold">Диалоги</p>

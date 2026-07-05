@@ -8,7 +8,7 @@ export function DashboardFooter({ lang }: Props) {
   return (
     <footer className="border-t border-border bg-background mt-auto">
       <div className="container py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-x-4 gap-y-1.5 flex-wrap justify-center">
           <span>© 2026 Roboweb</span>
           <a href="mailto:roboweb.site@yandex.ru" className="flex items-center gap-1.5 hover:text-foreground transition-colors">
             <Icon name="Mail" size={13} /> roboweb.site@yandex.ru
@@ -17,7 +17,7 @@ export function DashboardFooter({ lang }: Props) {
             <Icon name="Send" size={13} /> Telegram
           </a>
         </div>
-        <div className="flex items-center gap-4">
+        <div className="flex items-center gap-x-4 gap-y-1.5 flex-wrap justify-center">
           <Link to="/pricing" className="hover:text-foreground transition-colors">
             {lang === 'ru' ? 'Тарифы' : 'Pricing'}
           </Link>

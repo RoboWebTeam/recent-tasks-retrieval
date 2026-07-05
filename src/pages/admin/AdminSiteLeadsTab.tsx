@@ -44,10 +44,10 @@ export function SiteLeadsTab({
             </button>
           ))}
         </div>
-        <div className="flex gap-2 ml-auto">
-          <div className="relative">
+        <div className="flex gap-2 sm:ml-auto">
+          <div className="relative flex-1 sm:flex-none">
             <Icon name="Search" size={14} className="absolute left-2.5 top-1/2 -translate-y-1/2 text-muted-foreground" />
-            <Input placeholder="Поиск…" value={search} onChange={e => setSearch(e.target.value)} className="pl-8 h-9 rounded-xl text-sm w-48" />
+            <Input placeholder="Поиск…" value={search} onChange={e => setSearch(e.target.value)} className="pl-8 h-9 rounded-xl text-sm w-full sm:w-48" />
           </div>
           <Button variant="outline" onClick={exportCSV} className="rounded-xl gap-1.5 h-9 text-sm shrink-0" disabled={filteredSiteLeads.length === 0}>
             <Icon name="Download" size={13} /> CSV
