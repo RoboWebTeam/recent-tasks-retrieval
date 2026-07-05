@@ -1,4 +1,5 @@
 import os
+import sys
 import json
 import socket
 import smtplib
@@ -7,6 +8,12 @@ import urllib.error
 import psycopg2
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+
+
+def log(msg: str):
+    """Надёжный лог для диагностики: сразу сбрасывает буфер вывода,
+    чтобы сообщение точно попало в get_logs даже при быстром завершении функции."""
+    print(msg, flush=True)
 
 LOW_BALANCE_THRESHOLD = 5
 
@@ -591,7 +598,19 @@ STYLE_PRESETS = {
 
 
 def handler(event: dict, context) -> dict:
-    """Генерирует HTML-код сайта через Claude Sonnet или GPT-4o (оба через OpenRouter) по описанию пользователя"""
+    """Генерирует HTML-код сайта через Claude Sonnet или GPT-4o (оба через OpenRouter) по описанию пользователя.
+    Обёртка с try/except: любое неожиданное исключение (баг, сбой БД и т.п.) логируется ПОЛНОСТЬЮ
+    с traceback и превращается в понятный ответ 500, а не в "тихий" сбой платформы без деталей —
+    это критично для диагностики (иначе причина ошибки остаётся неизвестной)."""
+    try:
+        return _handler_impl(event, context)
+    except Exception as e:
+        import traceback
+        log(f'UNHANDLED EXCEPTION in generate-site: {repr(e)}\n{traceback.format_exc()}')
+        return err('Внутренняя ошибка сервиса. Мы уже знаем о проблеме — попробуйте через минуту.', 500)
+
+
+def _handler_impl(event: dict, context) -> dict:
     import time as _time
     started_at = _time.monotonic()
 
@@ -795,19 +814,19 @@ def handler(event: dict, context) -> dict:
                 body = e.read().decode('utf-8')
             except Exception:
                 body = ''
-            print(f'OpenRouter HTTPError {e.code} for model={model_id}: {body[:500]}')
+            log(f'OpenRouter HTTPError {e.code} for model={model_id}: {body[:500]}')
             return None, (e.code, body)
         except (urllib.error.URLError, TimeoutError, socket.timeout) as e:
-            print(f'OpenRouter network error for model={model_id}: {repr(e)[:200]}')
+            log(f'OpenRouter network error for model={model_id}: {repr(e)[:200]}')
             return None, ('network', repr(e))
         except (json.JSONDecodeError, Exception) as e:
-            print(f'OpenRouter parse error for model={model_id}: {repr(e)[:200]}')
+            log(f'OpenRouter parse error for model={model_id}: {repr(e)[:200]}')
             return None, ('parse', repr(e))
         # HTTP 200, но с ошибкой в теле (модель упала на стороне провайдера)
         if isinstance(res, dict) and res.get('error'):
             api_err = res.get('error')
             msg = api_err.get('message') if isinstance(api_err, dict) else str(api_err)
-            print(f'OpenRouter body error for model={model_id}: {str(msg)[:500]}')
+            log(f'OpenRouter body error for model={model_id}: {str(msg)[:500]}')
             return None, ('body', str(msg))
         return res, None
 
@@ -828,17 +847,19 @@ def handler(event: dict, context) -> dict:
         # Проблема с моделью или её ответом — пробуем запасной Gemini (если ещё не он).
         fallback = OPENROUTER_MODELS['gemini']
         if model_name != fallback:
-            print(f'Fallback to {fallback} after error {code} on {model_name}')
+            log(f'Fallback to {fallback} after error {code} on {model_name}: {str(detail)[:300]}')
             result, error_info = call_openrouter(fallback)
 
         if error_info is not None:
+            fcode, fdetail = error_info
+            log(f'Fallback ALSO failed: code={fcode} detail={str(fdetail)[:300]}')
             refund_quota(user_id, schema, request_cost)
             return err('AI-сервис временно недоступен. Попробуйте через минуту или выберите другую модель.', 502)
 
     choices = result.get('choices') or []
     if not choices:
         refund_quota(user_id, schema, request_cost)
-        print(f'OpenRouter empty choices: {json.dumps(result)[:500]}')
+        log(f'OpenRouter empty choices: {json.dumps(result)[:500]}')
         return err('AI вернул пустой ответ.', 502)
 
     html = (choices[0].get('message', {}).get('content') or '').strip()
