@@ -207,9 +207,10 @@ def handler(event, context):
             'quantity': 1
         }]
 
-    # Get credentials
-    shop_id = os.environ.get('YOOKASSA_SHOP_ID', '')
-    secret_key = os.environ.get('YOOKASSA_SECRET_KEY', '')
+    # Get credentials. Убираем случайные пробелы/переносы строк, которые часто попадают
+    # при копировании ключей и ломают авторизацию ("Login has illegal format").
+    shop_id = os.environ.get('YOOKASSA_SHOP_ID', '').strip()
+    secret_key = os.environ.get('YOOKASSA_SECRET_KEY', '').strip()
 
     if not shop_id or not secret_key:
         return {

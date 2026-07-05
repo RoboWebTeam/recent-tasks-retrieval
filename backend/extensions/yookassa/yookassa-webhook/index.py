@@ -206,8 +206,8 @@ def handler(event, context):
         }
 
     # Security: Verify payment via API (most reliable)
-    shop_id = os.environ.get('YOOKASSA_SHOP_ID', '')
-    secret_key = os.environ.get('YOOKASSA_SECRET_KEY', '')
+    shop_id = os.environ.get('YOOKASSA_SHOP_ID', '').strip()
+    secret_key = os.environ.get('YOOKASSA_SECRET_KEY', '').strip()
 
     if shop_id and secret_key:
         verified_payment = verify_payment_via_api(payment_id, shop_id, secret_key)
