@@ -147,16 +147,30 @@ export function IndexHero({ lang, typedText, chatStep, isTyping, progress, chatS
   const chatEndRef = useRef<HTMLDivElement>(null);
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const heroCtaHref = getSession() ? '/builder' : '/register';
+  const secRef = useRef<HTMLElement>(null);
+  const handleParallax = (e: React.MouseEvent) => {
+    const el = secRef.current;
+    if (!el) return;
+    const r = el.getBoundingClientRect();
+    el.style.setProperty('--px', (((e.clientX - r.left) / r.width) - 0.5).toFixed(3));
+    el.style.setProperty('--py', (((e.clientY - r.top) / r.height) - 0.5).toFixed(3));
+  };
+  const resetParallax = () => {
+    const el = secRef.current;
+    if (!el) return;
+    el.style.setProperty('--px', '0');
+    el.style.setProperty('--py', '0');
+  };
 
   return (
-    <section className="relative overflow-hidden pt-28 sm:pt-32 lg:pt-36 pb-16 md:pb-24" style={{clipPath: 'inset(0)'}}>
+    <section ref={secRef} onMouseMove={handleParallax} onMouseLeave={resetParallax} className="relative overflow-hidden pt-28 sm:pt-32 lg:pt-36 pb-16 md:pb-24" style={{clipPath: 'inset(0)'}}>
       <div className="aurora absolute inset-0 -z-10" />
       <ParticlesBg />
       <div className="absolute inset-0 -z-10 bg-gradient-to-b from-background/40 via-background/60 to-background" />
       {/* Floating orbs */}
-      <div className="absolute top-20 -left-24 h-56 w-56 md:h-80 md:w-80 rounded-full bg-primary/20 blur-3xl animate-glow" />
-      <div className="absolute top-40 -right-24 h-56 w-56 md:h-80 md:w-80 rounded-full bg-accent/25 blur-3xl animate-glow" style={{animationDelay:'1.5s'}} />
-      <div className="absolute bottom-10 left-1/3 h-40 w-40 rounded-full bg-primary/10 blur-2xl animate-glow" style={{animationDelay:'0.8s'}} />
+      <div className="absolute top-20 -left-24 h-56 w-56 md:h-80 md:w-80 rounded-full bg-primary/20 blur-3xl animate-glow" style={{transform:'translate3d(calc(var(--px,0) * 34px), calc(var(--py,0) * 34px), 0)', transition:'transform 0.4s ease-out'}} />
+      <div className="absolute top-40 -right-24 h-56 w-56 md:h-80 md:w-80 rounded-full bg-accent/25 blur-3xl animate-glow" style={{animationDelay:'1.5s', transform:'translate3d(calc(var(--px,0) * -28px), calc(var(--py,0) * -28px), 0)', transition:'transform 0.4s ease-out'}} />
+      <div className="absolute bottom-10 left-1/3 h-40 w-40 rounded-full bg-primary/10 blur-2xl animate-glow" style={{animationDelay:'0.8s', transform:'translate3d(calc(var(--px,0) * 44px), calc(var(--py,0) * 22px), 0)', transition:'transform 0.4s ease-out'}} />
 
       {/* Floating badges — только на очень широких экранах, за пределами контента */}
       <div className="absolute top-40 left-4 hidden 2xl:flex items-center gap-2 rounded-2xl glass px-4 py-2.5 shadow-lg animate-float" style={{animationDelay:'0.3s'}}>
@@ -173,7 +187,7 @@ export function IndexHero({ lang, typedText, chatStep, isTyping, progress, chatS
       </div>
 
       <div className="container grid lg:grid-cols-2 gap-10 lg:gap-12 items-center">
-        <div className="animate-fade-in text-center lg:text-left">
+        <div className="animate-fade-in text-center lg:text-left" style={{transform:'translate3d(calc(var(--px,0) * -14px), calc(var(--py,0) * -9px), 0)', transition:'transform 0.4s ease-out'}}>
           <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-xs sm:text-sm font-medium text-primary">
             <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
             {L.hero.badge[lang]}
@@ -279,7 +293,7 @@ export function IndexHero({ lang, typedText, chatStep, isTyping, progress, chatS
             </svg>
           </div>
 
-          <div className="glass rounded-3xl p-4 sm:p-5 shadow-2xl mt-[-1.5rem] mx-2 sm:mx-0 flex flex-col" style={{ height: '380px' }}>
+          <div className="glow-frame glass rounded-3xl p-4 sm:p-5 shadow-2xl mt-[-1.5rem] mx-2 sm:mx-0 flex flex-col" style={{ height: '380px' }}>
             {/* Header */}
             <div className="flex items-center gap-2 pb-3 border-b border-border/60">
               <span className="relative grid h-6 w-6 sm:h-7 sm:w-7 place-items-center rounded-lg bg-primary text-primary-foreground shrink-0">

@@ -407,3 +407,45 @@ section[id] {
 @media (prefers-reduced-motion: reduce) {
   .text-gradient-animated, .aurora, .cta-glow { animation: none !important; }
 }
+
+/* --- Extra wow: glow frame + counter pop (feat/hero-bold-visual) --- */
+@layer utilities {
+  .glow-frame { position: relative; }
+  .glow-frame::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 1.5px;
+    background: linear-gradient(130deg, hsl(232 90% 62%), hsl(258 90% 66%), hsl(88 80% 50%), hsl(232 90% 62%));
+    background-size: 300% 300%;
+    animation: gradient-pan 8s ease-in-out infinite;
+    -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
+    -webkit-mask-composite: xor;
+            mask-composite: exclude;
+    pointer-events: none;
+    z-index: 1;
+  }
+  .glow-frame::after {
+    content: "";
+    position: absolute;
+    inset: -7px;
+    border-radius: inherit;
+    background: linear-gradient(130deg, hsl(232 90% 58% / 0.55), hsl(258 90% 66% / 0.45), hsl(88 80% 50% / 0.45));
+    background-size: 300% 300%;
+    filter: blur(20px);
+    z-index: -1;
+    animation: gradient-pan 8s ease-in-out infinite, glow-frame-pulse 4s ease-in-out infinite;
+    pointer-events: none;
+  }
+  .counter-pop { animation: counter-pop 0.55s cubic-bezier(0.22, 1, 0.36, 1); }
+}
+@keyframes glow-frame-pulse { 0%, 100% { opacity: 0.5; } 50% { opacity: 0.85; } }
+@keyframes counter-pop {
+  0% { transform: scale(0.82); filter: blur(1px); }
+  60% { transform: scale(1.12); }
+  100% { transform: scale(1); filter: blur(0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .glow-frame::before, .glow-frame::after, .counter-pop { animation: none !important; }
+}
