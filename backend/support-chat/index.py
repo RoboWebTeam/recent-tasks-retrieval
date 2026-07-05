@@ -28,10 +28,10 @@ def get_conn(): return psycopg2.connect(os.environ['DATABASE_URL'])
 
 
 # S3-хранилище настраивается через переменные окружения — провайдер-независимо.
-# По умолчанию — прежний reg.ru; для смены провайдера задайте S3_* в .env.
-S3_ENDPOINT = os.environ.get('S3_ENDPOINT_URL', 'https://s3.regru.cloud')
+# Задайте S3_* в .env: endpoint, регион, бакет, ключи, публичная база, ACL.
+S3_ENDPOINT = os.environ.get('S3_ENDPOINT_URL', '')
 S3_REGION = os.environ.get('S3_REGION', '')
-S3_BUCKET = os.environ.get('S3_BUCKET', 'roboweb')
+S3_BUCKET = os.environ.get('S3_BUCKET', 'robo')
 S3_PUBLIC_BASE = (os.environ.get('S3_PUBLIC_BASE') or f'{S3_ENDPOINT}/{S3_BUCKET}').rstrip('/')
 S3_ACL = os.environ.get('S3_ACL', 'public-read')  # пусто = не отправлять ACL
 
@@ -39,8 +39,8 @@ S3_ACL = os.environ.get('S3_ACL', 'public-read')  # пусто = не отпра
 def get_s3():
     kwargs = {
         'endpoint_url': S3_ENDPOINT,
-        'aws_access_key_id': os.environ.get('S3_ACCESS_KEY_ID') or os.environ.get('REG_S3_ACCESS_KEY_ID', ''),
-        'aws_secret_access_key': os.environ.get('S3_SECRET_ACCESS_KEY') or os.environ.get('REG_S3_SECRET_ACCESS_KEY', ''),
+        'aws_access_key_id': os.environ.get('S3_ACCESS_KEY_ID', ''),
+        'aws_secret_access_key': os.environ.get('S3_SECRET_ACCESS_KEY', ''),
     }
     if S3_REGION:
         kwargs['region_name'] = S3_REGION
@@ -84,8 +84,8 @@ def upload_chat_file(file_name: str, file_content_b64: str, visitor_id: str):
     safe_name = ''.join(c for c in file_name if c.isalnum() or c in ('-', '_', '.')) or 'file'
     key = f"support-chat/{visitor_id}/{safe_name}"
     s3 = get_s3()
-    # ACL='public-read' обязателен: без него reg.ru отдаёт 403 при попытке
-    # открыть файл по прямой ссылке, даже если сам bucket публичный.
+    # Публичный доступ к файлу задаётся через S3_ACL (обычно public-read).
+    # Если провайдер делает публичность политикой бакета — задайте S3_ACL пустым.
     put_kwargs = {'Bucket': S3_BUCKET, 'Key': key, 'Body': raw, 'ContentType': content_type}
     if S3_ACL:
         put_kwargs['ACL'] = S3_ACL
