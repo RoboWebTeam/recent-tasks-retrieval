@@ -793,7 +793,6 @@ def _handler_impl(event: dict, context) -> dict:
             'system': sys_prompt,
             'messages': anthropic_messages,
             'max_tokens': override_max_tokens or max_tokens,
-            'temperature': 0.7,
         }).encode('utf-8')
         req = urllib.request.Request(
             'https://api.anthropic.com/v1/messages',
