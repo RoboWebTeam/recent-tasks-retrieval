@@ -73,7 +73,7 @@ function PortfolioSection({ lang, portfolio }: { lang: Lang; portfolio: DemoItem
         <Reveal>
           <div className="text-center max-w-2xl mx-auto px-2 mb-6">
             <span className="text-xs sm:text-sm font-semibold uppercase tracking-widest text-primary">{L.portfolio.label[lang]}</span>
-            <h2 className="mt-3 font-display font-black text-3xl sm:text-4xl md:text-5xl tracking-tight">
+            <h2 className="mt-3 inline-block font-display font-black text-3xl sm:text-4xl md:text-5xl tracking-tight text-gradient">
               {L.portfolio.title[lang]}
             </h2>
             <p className="mt-4 text-muted-foreground text-base sm:text-lg">
@@ -91,8 +91,8 @@ function PortfolioSection({ lang, portfolio }: { lang: Lang; portfolio: DemoItem
                 onClick={() => handleFilter(cat.id)}
                 className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all duration-200 ${
                   activeFilter === cat.id
-                    ? 'bg-primary text-primary-foreground shadow-md shadow-primary/20 scale-105'
-                    : 'bg-card border border-border text-muted-foreground hover:text-foreground hover:border-primary/40'
+                    ? 'bg-gradient-to-r from-primary to-[hsl(258,90%,62%)] text-white shadow-lg shadow-primary/30 scale-105'
+                    : 'bg-card border border-border text-muted-foreground hover:text-foreground hover:border-primary/40 hover:-translate-y-0.5'
                 }`}
               >
                 {cat.label}
@@ -133,7 +133,12 @@ function PortfolioSection({ lang, portfolio }: { lang: Lang; portfolio: DemoItem
                     <Icon name="Lock" size={8} /> roboweb.site
                   </span>
                 </div>
-                <div className="relative aspect-[16/10] overflow-hidden">
+                <div
+                  onClick={() => goToPrompt(p.prompt)}
+                  role="button"
+                  aria-label={p.title}
+                  className="relative aspect-[16/10] cursor-pointer overflow-hidden"
+                >
                   <img
                     src={p.img}
                     alt={p.title}
@@ -146,6 +151,9 @@ function PortfolioSection({ lang, portfolio }: { lang: Lang; portfolio: DemoItem
                   <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/75 via-black/15 to-transparent p-3 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                     <p className="text-xs italic leading-relaxed text-white line-clamp-3">«{p.prompt}»</p>
                   </div>
+                  <span className="pointer-events-none absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 scale-90 items-center gap-1.5 rounded-full bg-white/95 px-4 py-2 text-xs font-bold text-primary opacity-0 shadow-xl transition-all duration-300 group-hover:scale-100 group-hover:opacity-100">
+                    <Icon name="Eye" size={13} /> {lang === 'ru' ? 'Открыть' : 'Open'}
+                  </span>
                   <span className="absolute right-2 top-2 flex items-center gap-1 rounded-full bg-black/55 px-2.5 py-1 text-[10px] font-semibold text-white backdrop-blur">
                     <Icon name="Zap" size={10} className="text-[hsl(88,80%,60%)]" />
                     {lang === 'ru' ? 'ИИ за минуты' : 'AI in minutes'}
