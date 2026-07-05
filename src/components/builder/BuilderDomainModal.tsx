@@ -175,8 +175,8 @@ export default function BuilderDomainModal({ open, onOpenChange, lang, projectId
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent className="rounded-3xl max-w-xl p-0 gap-0 overflow-hidden max-h-[85vh] flex flex-col">
           {/* Header */}
-          <DialogHeader className="shrink-0 px-6 pt-6 pb-4 border-b border-border">
-            <DialogTitle className="font-display font-bold text-lg flex items-center gap-2.5">
+          <DialogHeader className="shrink-0 px-4 sm:px-6 pt-5 sm:pt-6 pb-4 border-b border-border">
+            <DialogTitle className="font-display font-bold text-base sm:text-lg flex items-center gap-2.5">
               <span className="grid h-9 w-9 place-items-center rounded-xl bg-primary/10 text-primary shrink-0">
                 <Icon name="Globe" size={18} />
               </span>
@@ -188,10 +188,10 @@ export default function BuilderDomainModal({ open, onOpenChange, lang, projectId
           </DialogHeader>
 
           {/* Scrollable body */}
-          <div className="flex-1 overflow-y-auto px-6 py-5 space-y-5">
+          <div className="flex-1 overflow-y-auto px-4 sm:px-6 py-5 space-y-5">
             {/* Быстрое добавление домена */}
             <div>
-              <div className="flex gap-2">
+              <div className="flex flex-col xs:flex-row gap-2">
                 <div className="relative flex-1">
                   <Icon name="Globe" size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
                   <input
@@ -202,7 +202,7 @@ export default function BuilderDomainModal({ open, onOpenChange, lang, projectId
                     className="w-full h-11 rounded-xl pl-9 pr-3 text-sm border border-border bg-secondary/40 outline-none focus:border-primary/50 focus:bg-background transition-colors"
                   />
                 </div>
-                <Button onClick={handleAddDomain} disabled={adding || !newDomain.trim()} className="rounded-xl font-semibold shrink-0 h-11">
+                <Button onClick={handleAddDomain} disabled={adding || !newDomain.trim()} className="rounded-xl font-semibold shrink-0 h-11 w-full xs:w-auto">
                   {adding
                     ? <Icon name="Loader" size={15} className="animate-spin" />
                     : <><Icon name="Plus" size={15} className="mr-1" />{isRu ? 'Добавить' : 'Add'}</>}
@@ -273,7 +273,7 @@ export default function BuilderDomainModal({ open, onOpenChange, lang, projectId
           </div>
 
           {/* Footer */}
-          <div className="shrink-0 border-t border-border px-6 py-3">
+          <div className="shrink-0 border-t border-border px-4 sm:px-6 py-3">
             <Link
               to="/settings/domain"
               onClick={() => onOpenChange(false)}

@@ -79,10 +79,12 @@ interface Version {
 type RightTab = 'preview' | 'code' | 'core';
 type DeviceMode = 'desktop' | 'tablet' | 'mobile';
 
+// min() подстраховывает случай, когда сам редактор открыт на узком экране (например device
+// switcher переключили на десктопе, а потом окно сузили) — превью не обрежется по ширине.
 const DEVICE_WIDTHS: Record<DeviceMode, string> = {
   desktop: '100%',
-  tablet: '768px',
-  mobile: '375px',
+  tablet: 'min(768px, 100%)',
+  mobile: 'min(375px, 100%)',
 };
 
 // Ключевые слова, при которых стоит предложить Gemini — модель лучше справляется
@@ -604,6 +606,11 @@ export default function Builder() {
         setCodeEditorValue(generatedHtml); // держим редактор кода в синхроне с превью
         setRightTab('preview');
         setIframeKey(k => k + 1);          // принудительно пересобираем iframe с новым содержимым
+        // На мобильном экране чат и превью занимают весь экран по очереди — после успешной
+        // генерации сразу показываем готовый сайт, а не оставляем пользователя в чате.
+        if (typeof window !== 'undefined' && window.innerWidth < 640) {
+          setSidebarOpen(false);
+        }
       }
 
       const intro = (data as { intro?: string }).intro || '';
@@ -1106,10 +1113,10 @@ export default function Builder() {
         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           <button
             onClick={() => setSidebarOpen(v => !v)}
-            className="grid h-8 w-8 place-items-center rounded-lg bg-secondary border border-border text-muted-foreground hover:text-foreground hover:bg-secondary/70 transition-colors"
-            title={lang === 'ru' ? 'Свернуть чат' : 'Collapse chat'}
+            className="grid h-8 w-8 place-items-center rounded-lg bg-secondary border border-border text-muted-foreground hover:text-foreground hover:bg-secondary/70 transition-colors shrink-0"
+            title={sidebarOpen ? (lang === 'ru' ? 'Показать сайт' : 'Show site') : (lang === 'ru' ? 'Показать чат' : 'Show chat')}
           >
-            <Icon name="PanelLeft" size={15} />
+            <Icon name={sidebarOpen ? 'PanelLeftClose' : 'PanelLeft'} fallback="PanelLeft" size={15} />
           </button>
           <Link to="/dashboard" className="flex items-center gap-2 font-display font-extrabold text-base">
             <span className="grid h-7 w-7 place-items-center rounded-lg bg-primary text-primary-foreground shrink-0">
@@ -1407,14 +1414,14 @@ export default function Builder() {
 
             {/* Quick edits panel */}
             {showQuickEdits && html && (
-              <div className="border-t border-border bg-secondary/50 p-3">
+              <div className="border-t border-border bg-secondary/50 p-3 max-h-[45vh] overflow-y-auto">
                 <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold mb-2">
                   {lang === 'ru' ? 'Быстрые правки' : 'Quick edits'}
                 </p>
                 <div className="grid grid-cols-2 gap-1.5">
                   {QUICK_EDITS.map(e => (
                     <button key={e.label} onClick={() => sendMessage(e.prompt)}
-                      className="flex items-center gap-1.5 px-2.5 py-2 rounded-xl bg-secondary border border-border text-xs text-muted-foreground hover:text-foreground hover:bg-secondary/70 hover:border-border transition-all text-left">
+                      className="flex items-center gap-1.5 px-2 sm:px-2.5 py-2 rounded-xl bg-secondary border border-border text-[11px] sm:text-xs text-muted-foreground hover:text-foreground hover:bg-secondary/70 hover:border-border transition-all text-left">
                       <Icon name={e.icon} size={12} className="text-primary shrink-0" />
                       {e.label}
                     </button>
@@ -1425,14 +1432,14 @@ export default function Builder() {
 
             {/* Section library panel — добавление готовых секций в один клик */}
             {showSectionLibrary && html && (
-              <div className="border-t border-border bg-secondary/50 p-3">
+              <div className="border-t border-border bg-secondary/50 p-3 max-h-[45vh] overflow-y-auto">
                 <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold mb-2">
                   {lang === 'ru' ? 'Добавить секцию' : 'Add section'}
                 </p>
                 <div className="grid grid-cols-2 gap-1.5">
                   {SECTION_LIBRARY.map(e => (
                     <button key={e.label} onClick={() => { sendMessage(e.prompt); setShowSectionLibrary(false); }}
-                      className="flex items-center gap-1.5 px-2.5 py-2 rounded-xl bg-secondary border border-border text-xs text-muted-foreground hover:text-primary hover:border-primary transition-all text-left">
+                      className="flex items-center gap-1.5 px-2 sm:px-2.5 py-2 rounded-xl bg-secondary border border-border text-[11px] sm:text-xs text-muted-foreground hover:text-primary hover:border-primary transition-all text-left">
                       <Icon name={e.icon} fallback="Square" size={12} className="text-primary shrink-0" />
                       {e.label}
                     </button>
@@ -1823,7 +1830,7 @@ export default function Builder() {
                     </div>
                   )}
 
-                  <div className={`flex-1 flex overflow-hidden w-full ${device !== 'desktop' && !propsPanel ? 'justify-center bg-secondary/30 py-4' : ''}`}>
+                  <div className={`flex-1 flex flex-col sm:flex-row overflow-hidden w-full ${device !== 'desktop' && !propsPanel ? 'justify-center bg-secondary/30 py-4' : ''}`}>
                     {/* iframe */}
                     <div
                       className={`relative overflow-hidden transition-all duration-500 bg-white ${device !== 'desktop' && !propsPanel ? 'rounded-2xl border border-border shadow-lg' : 'flex-1'}`}
@@ -1895,9 +1902,11 @@ export default function Builder() {
                       )}
                     </div>
 
-                    {/* Панель свойств элемента */}
+                    {/* Панель свойств элемента — на мобильном становится нижней панелью на всю ширину
+                        (max-h ограничивает высоту, чтобы iframe оставался виден сверху), а не узким
+                        боковым сайдбаром, который на 320-375px почти не оставлял места превью */}
                     {propsPanel && editMode && (
-                      <div className="w-44 sm:w-56 shrink-0 border-l border-border bg-card overflow-y-auto flex flex-col">
+                      <div className="w-full sm:w-56 max-h-[45vh] sm:max-h-none shrink-0 border-t sm:border-t-0 sm:border-l border-border bg-card overflow-y-auto flex flex-col">
                         {/* Заголовок */}
                         <div className="flex items-center justify-between px-3 py-2.5 border-b border-border shrink-0 bg-background">
                           <span className="text-xs font-semibold flex items-center gap-1.5">
@@ -2222,7 +2231,7 @@ export default function Builder() {
 
       {/* Publish error toast */}
       {publishError && (
-        <div className="fixed bottom-4 right-4 z-[60] bg-destructive text-destructive-foreground rounded-xl px-4 py-3 shadow-xl flex items-center gap-2 text-sm max-w-sm">
+        <div className="fixed bottom-4 left-4 right-4 sm:left-auto z-[60] bg-destructive text-destructive-foreground rounded-xl px-4 py-3 shadow-xl flex items-center gap-2 text-sm sm:max-w-sm">
           <Icon name="AlertCircle" size={15} className="shrink-0" />
           <span className="flex-1">{publishError}</span>
           <button onClick={() => setPublishError('')}><Icon name="X" size={14} /></button>
