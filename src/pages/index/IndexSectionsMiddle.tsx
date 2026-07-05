@@ -110,46 +110,65 @@ function PortfolioSection({ lang, portfolio }: { lang: Lang; portfolio: DemoItem
         {portfolio.length === 0 ? (
           <PortfolioSkeleton />
         ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-5">
           {visible.map((p, i) => {
             const isNew = i >= prevCount;
             const delay = isNew ? `${(i - prevCount) * 50}ms` : '0ms';
             return (
             <div
               key={p.title}
-              className="group flex flex-col overflow-hidden rounded-2xl border border-border bg-card transition-all duration-300 hover:shadow-xl hover:-translate-y-1"
+              className="group relative flex flex-col rounded-2xl border border-border bg-card p-2.5 transition-all duration-300 hover:-translate-y-1.5 hover:border-transparent hover:shadow-2xl"
               style={isNew ? { animation: `cardIn 0.4s ease both`, animationDelay: delay } : undefined}
             >
-              <div className="relative h-44 overflow-hidden bg-muted">
-                <img
-                  src={p.img}
-                  alt={p.title}
-                  loading="lazy"
-                  decoding="async"
-                  width={400}
-                  height={176}
-                  className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-end p-3.5">
-                  <p className="text-white text-xs leading-relaxed line-clamp-2 italic">«{p.prompt}»</p>
+              {/* Цветное свечение под карточкой на ховере — уникальный градиент элемента */}
+              <div className={`pointer-events-none absolute -inset-0.5 -z-10 rounded-[1.1rem] bg-gradient-to-br ${p.color} opacity-0 blur-lg transition-opacity duration-300 group-hover:opacity-60`} />
+
+              {/* Скриншот в рамке браузера */}
+              <div className="relative overflow-hidden rounded-xl border border-border bg-muted shadow-sm">
+                <div className="flex items-center gap-1.5 border-b border-border bg-secondary/70 px-3 py-2">
+                  <span className="h-2 w-2 rounded-full bg-rose-400/80" />
+                  <span className="h-2 w-2 rounded-full bg-amber-400/80" />
+                  <span className="h-2 w-2 rounded-full bg-emerald-400/80" />
+                  <span className="ml-2 flex flex-1 items-center gap-1 truncate rounded-md bg-background/80 px-2 py-0.5 text-[9px] text-muted-foreground">
+                    <Icon name="Lock" size={8} /> roboweb.site
+                  </span>
                 </div>
-                <span className="absolute top-3 left-3 flex items-center gap-1.5 rounded-full bg-black/55 backdrop-blur px-2.5 py-1 text-[10px] font-semibold text-white">
-                  <Icon name="Sparkles" size={10} className="text-primary" />
-                  {lang === 'ru' ? 'ИИ за минуты' : 'AI in minutes'}
-                </span>
+                <div className="relative aspect-[16/10] overflow-hidden">
+                  <img
+                    src={p.img}
+                    alt={p.title}
+                    loading="lazy"
+                    decoding="async"
+                    width={400}
+                    height={250}
+                    className="h-full w-full object-cover object-top transition-transform duration-700 ease-out group-hover:scale-[1.06]"
+                  />
+                  <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/75 via-black/15 to-transparent p-3 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
+                    <p className="text-xs italic leading-relaxed text-white line-clamp-3">«{p.prompt}»</p>
+                  </div>
+                  <span className="absolute right-2 top-2 flex items-center gap-1 rounded-full bg-black/55 px-2.5 py-1 text-[10px] font-semibold text-white backdrop-blur">
+                    <Icon name="Zap" size={10} className="text-[hsl(88,80%,60%)]" />
+                    {lang === 'ru' ? 'ИИ за минуты' : 'AI in minutes'}
+                  </span>
+                </div>
               </div>
-              <div className="p-4 flex flex-col flex-1">
-                <span className="inline-block rounded-full bg-primary/10 px-2.5 py-0.5 text-xs font-medium text-primary mb-2 w-fit">{p.tag}</span>
-                <h3 className="font-display font-bold text-sm text-foreground group-hover:text-primary transition-colors flex-1 mb-3">
+
+              {/* Подпись + кнопка */}
+              <div className="flex flex-1 flex-col px-1.5 pb-1 pt-3">
+                <div className="mb-2 flex items-center gap-2">
+                  <span className={`h-2.5 w-2.5 shrink-0 rounded-full bg-gradient-to-br ${p.color}`} />
+                  <span className="text-xs font-semibold text-muted-foreground">{p.tag}</span>
+                </div>
+                <h3 className="mb-3 flex-1 font-display font-bold text-base text-foreground transition-colors group-hover:text-primary">
                   {p.title}
                 </h3>
                 <button
                   onClick={() => goToPrompt(p.prompt)}
-                  className="flex items-center justify-center gap-2 w-full rounded-xl bg-primary/10 hover:bg-primary text-primary hover:text-primary-foreground text-xs font-semibold py-2.5 transition-all duration-200 group/btn"
+                  className="group/btn flex w-full items-center justify-center gap-2 rounded-xl bg-primary/10 py-2.5 text-xs font-semibold text-primary transition-all duration-200 hover:bg-primary hover:text-primary-foreground hover:shadow-lg hover:shadow-primary/25"
                 >
                   <Icon name="Sparkles" size={13} />
                   {lang === 'ru' ? 'Попробовать промпт' : 'Try this prompt'}
-                  <Icon name="ArrowRight" size={13} className="opacity-0 -ml-2 group-hover/btn:opacity-100 group-hover/btn:ml-0 transition-all" />
+                  <Icon name="ArrowRight" size={13} className="-ml-2 opacity-0 transition-all group-hover/btn:ml-0 group-hover/btn:opacity-100" />
                 </button>
               </div>
             </div>
