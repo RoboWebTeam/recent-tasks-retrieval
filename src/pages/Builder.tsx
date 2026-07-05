@@ -66,6 +66,8 @@ interface Message {
   /** true — сообщение только что сгенерировано в этой сессии (нужно проиграть анимацию печати).
    * У сообщений, восстановленных из истории при повторном входе, флага нет — они не анимируются. */
   justGenerated?: boolean;
+  /** true — это уточняющий вопрос от ИИ (задача была расплывчата), а не ошибка и не готовый сайт */
+  isQuestion?: boolean;
 }
 
 interface Version {
@@ -611,12 +613,17 @@ export default function Builder() {
       const sections = Array.isArray((data as { sections?: string[] }).sections) ? (data as { sections: string[] }).sections : [];
       const suggestions = Array.isArray((data as { suggestions?: Suggestion[] }).suggestions) ? (data as { suggestions: Suggestion[] }).suggestions : [];
 
+      const isQuestion = (data as { is_question?: boolean }).is_question === true;
+
       setMessages(prev => {
         const updated = [...prev];
         updated[updated.length - 1] = {
           role: 'assistant',
-          content: generatedHtml ? tr('builderDone', lang) : (data as { message?: string }).message || tr('builderError', lang),
+          content: generatedHtml
+            ? tr('builderDone', lang)
+            : (data as { message?: string }).message || tr('builderError', lang),
           isHtml: !!generatedHtml,
+          isQuestion: !generatedHtml && isQuestion,
           tokens,
           intro,
           summary,
@@ -1364,6 +1371,11 @@ export default function Builder() {
                         )}
                         {m.role === 'assistant' && m.content === '' ? (
                           <GenerationProgress lang={lang} isEdit={!!m.isEdit} />
+                        ) : m.isQuestion ? (
+                          <div className="flex items-start gap-2 bg-secondary/60 border border-border rounded-xl px-3 py-2.5">
+                            <Icon name="HelpCircle" size={16} className="text-primary shrink-0 mt-0.5" />
+                            <span>{m.content}</span>
+                          </div>
                         ) : m.isHtml ? (
                           <TypingReport
                             lang={lang}
