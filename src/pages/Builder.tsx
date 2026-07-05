@@ -231,6 +231,13 @@ export default function Builder() {
   const [siteStyle, setSiteStyle] = useState<'' | 'minimal' | 'premium' | 'bright' | 'dark'>('');
   const [showStyleMenu, setShowStyleMenu] = useState(false);
   const [dismissedStyleHint, setDismissedStyleHint] = useState(false);
+  // Выбор AI-модели редактора: 'sonnet' (Claude Sonnet 5, по умолчанию) или 'opus' (Claude Opus 4.8).
+  // Сохраняем в localStorage, чтобы выбор запоминался между сессиями.
+  const [aiModel, setAiModel] = useState<'sonnet' | 'opus'>(() => {
+    if (typeof window === 'undefined') return 'sonnet';
+    return localStorage.getItem('builder_model') === 'opus' ? 'opus' : 'sonnet';
+  });
+  const [showModelMenu, setShowModelMenu] = useState(false);
   const [showDomainModal, setShowDomainModal] = useState(false);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
@@ -466,6 +473,8 @@ export default function Builder() {
         body: JSON.stringify({
           messages: newMessages.map(m => ({ role: m.role, content: m.content })),
           project_id: projectId,
+          // Выбранная пользователем модель: 'sonnet' (Sonnet 5) или 'opus' (Opus 4.8)
+          model: aiModel,
           // Стиль-пресет применяется только к новым сайтам (при правке html уже есть)
           style: !html ? siteStyle : undefined,
           // Передаём текущий HTML сайта — модель правит именно его, а не пытается
@@ -1258,8 +1267,8 @@ export default function Builder() {
                         </p>
                         <p className="text-xs text-muted-foreground mt-0.5">
                           {lang === 'ru'
-                            ? 'Попробуйте разные модели ИИ — Claude, GPT-4o и Gemini — на выбор.'
-                            : 'Try different AI models — Claude, GPT-4o and Gemini — your choice.'}
+                            ? 'Выбирайте модель ИИ — Claude Sonnet 5 или Opus 4.8 — прямо в редакторе.'
+                            : 'Pick your AI model — Claude Sonnet 5 or Opus 4.8 — right in the editor.'}
                         </p>
                       </div>
                       <button onClick={dismissEnergyBonus} className="shrink-0 text-primary/60 hover:text-primary">
@@ -1490,10 +1499,35 @@ export default function Builder() {
                   </button>
                   <input ref={imageInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
 
-                  {/* Модель AI — фиксированная, Claude Sonnet 5 напрямую через Anthropic */}
-                  <div className="flex items-center gap-1 h-7 px-2 rounded-lg text-muted-foreground text-[11px] font-semibold shrink-0" title="Claude Sonnet 5">
-                    <Icon name="Cpu" size={13} />
-                    <span className="hidden sm:inline">Sonnet 5</span>
+                  {/* Модель AI — выбор между Claude Sonnet 5 и Opus 4.8 (напрямую через Anthropic) */}
+                  <div className="relative shrink-0">
+                    <button onClick={() => setShowModelMenu(v => !v)}
+                      className={`flex items-center gap-1 h-7 px-2 rounded-lg transition-colors text-[11px] font-semibold ${aiModel === 'opus' ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-foreground hover:bg-secondary'}`}
+                      title={aiModel === 'opus' ? 'Claude Opus 4.8' : 'Claude Sonnet 5'}>
+                      <Icon name="Cpu" size={13} />
+                      <span className="hidden sm:inline">{aiModel === 'opus' ? 'Opus 4.8' : 'Sonnet 5'}</span>
+                      <Icon name="ChevronDown" size={11} className="opacity-60" />
+                    </button>
+                    {showModelMenu && (
+                      <div className="absolute bottom-10 left-0 z-50 w-60 max-w-[calc(100vw-2rem)] bg-secondary border border-border rounded-2xl shadow-2xl p-1.5">
+                        {[
+                          { id: 'sonnet' as const, name: 'Sonnet 5', desc: lang === 'ru' ? 'Быстро и универсально' : 'Fast & versatile' },
+                          { id: 'opus' as const, name: 'Opus 4.8', desc: lang === 'ru' ? 'Мощнее для сложных сайтов' : 'Stronger for complex sites' },
+                        ].map(m => (
+                          <button key={m.id}
+                            onClick={() => { setAiModel(m.id); try { localStorage.setItem('builder_model', m.id); } catch { /* приватный режим */ } setShowModelMenu(false); }}
+                            className="w-full flex items-start gap-2.5 px-2.5 py-2 rounded-xl hover:bg-secondary/70 transition-colors text-left">
+                            <div className={`grid h-6 w-6 place-items-center rounded-lg shrink-0 mt-0.5 ${aiModel === m.id ? 'bg-primary text-primary-foreground' : 'bg-background text-muted-foreground'}`}>
+                              <Icon name={aiModel === m.id ? 'Check' : 'Cpu'} size={12} />
+                            </div>
+                            <div>
+                              <div className="text-xs font-medium text-foreground">{m.name}</div>
+                              <div className="text-[10px] text-muted-foreground">{m.desc}</div>
+                            </div>
+                          </button>
+                        ))}
+                      </div>
+                    )}
                   </div>
 
                   {/* Стиль сайта — только для создания нового (при правке html уже есть) */}
@@ -1597,6 +1631,7 @@ export default function Builder() {
             {/* Overlay закрывает расширения */}
             {showExtensions && <div className="fixed inset-0 z-40" onClick={() => setShowExtensions(false)} />}
             {showStyleMenu && <div className="fixed inset-0 z-40" onClick={() => setShowStyleMenu(false)} />}
+            {showModelMenu && <div className="fixed inset-0 z-40" onClick={() => setShowModelMenu(false)} />}
           </div>
         )}
 

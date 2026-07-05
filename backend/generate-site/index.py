@@ -696,9 +696,17 @@ def _handler_impl(event: dict, context) -> dict:
             for m in trimmed
         ]
 
-    # Единственная модель редактора — Claude Sonnet 5, напрямую через Anthropic API
-    # (без посредников вроде OpenRouter).
-    ANTHROPIC_MODEL = 'claude-sonnet-5'
+    # Модель редактора выбирает пользователь в интерфейсе билдера:
+    #  - 'sonnet' → Claude Sonnet 5 (по умолчанию: быстрее и дешевле, отличный баланс);
+    #  - 'opus'   → Claude Opus 4.8 (мощнее для сложных/крупных сайтов).
+    # Обе идут напрямую через Anthropic API (без посредников вроде OpenRouter).
+    # Неизвестное/пустое значение → безопасный дефолт Sonnet 5.
+    ANTHROPIC_MODELS = {
+        'sonnet': 'claude-sonnet-5',
+        'opus': 'claude-opus-4-8',
+    }
+    model_choice = str(body.get('model', '') or '').strip().lower()
+    ANTHROPIC_MODEL = ANTHROPIC_MODELS.get(model_choice, 'claude-sonnet-5')
     anthropic_api_key = os.environ.get('ANTHROPIC_API_KEY', '')
     if not anthropic_api_key:
         return err('Anthropic API ключ не настроен')
