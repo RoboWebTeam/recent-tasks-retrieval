@@ -121,7 +121,7 @@ function PortfolioSection({ lang, portfolio }: { lang: Lang; portfolio: DemoItem
               style={isNew ? { animation: `cardIn 0.4s ease both`, animationDelay: delay } : undefined}
             >
               {/* Цветное свечение под карточкой на ховере — уникальный градиент элемента */}
-              <div className={`pointer-events-none absolute -inset-0.5 -z-10 rounded-[1.1rem] bg-gradient-to-br ${p.color} opacity-0 blur-lg transition-opacity duration-300 group-hover:opacity-60`} />
+              <div className={`pointer-events-none absolute -inset-0.5 -z-10 rounded-[1.1rem] bg-gradient-to-br ${p.color} opacity-0 blur-xl transition-opacity duration-300 group-hover:opacity-30`} />
 
               {/* Скриншот в рамке браузера */}
               <div className="relative overflow-hidden rounded-xl border border-border bg-muted shadow-sm">
