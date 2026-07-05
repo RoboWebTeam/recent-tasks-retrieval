@@ -183,7 +183,7 @@ sudo certbot --nginx -d roboweb.site -d www.roboweb.site
 Сейчас файлы (картинки, HTML-сайты пользователей) хранятся в S3-совместимом бакете
 (`bucket.poehali.dev`). Варианты после переноса:
 - **Оставить как есть** — S3-хранилище можно продолжать использовать (это отдельный сервис, не привязанный к самой платформе), если у вас есть свои ключи `AWS_ACCESS_KEY_ID`/`AWS_SECRET_ACCESS_KEY` для него.
-- **Перенести на свой S3-совместимый сервис** (Selectel, Yandex Object Storage, MinIO на том же VPS) — тогда в backend-функциях `site-files`, `generate-image`, `support-chat` нужно поменять `endpoint_url` на новый.
+- **Перенести на свой S3-совместимый сервис** (Selectel, Yandex Object Storage, MinIO на том же VPS) — тогда в backend-функциях `site-files` и `support-chat` нужно поменять `endpoint_url` на новый (сейчас там уже используется собственное хранилище на reg.ru, `https://s3.regru.cloud`, а не встроенное S3 платформы).
 
 ## Шаг 7. Внешние интеграции — проверить домены/redirect URI
 
