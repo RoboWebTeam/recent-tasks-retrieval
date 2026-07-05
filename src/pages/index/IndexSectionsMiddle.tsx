@@ -133,12 +133,7 @@ function PortfolioSection({ lang, portfolio }: { lang: Lang; portfolio: DemoItem
                     <Icon name="Lock" size={8} /> roboweb.site
                   </span>
                 </div>
-                <div
-                  onClick={() => goToPrompt(p.prompt)}
-                  role="button"
-                  aria-label={p.title}
-                  className="relative aspect-[16/10] cursor-pointer overflow-hidden"
-                >
+                <div className="relative aspect-[16/10] overflow-hidden">
                   <img
                     src={p.img}
                     alt={p.title}
@@ -151,9 +146,6 @@ function PortfolioSection({ lang, portfolio }: { lang: Lang; portfolio: DemoItem
                   <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/75 via-black/15 to-transparent p-3 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                     <p className="text-xs italic leading-relaxed text-white line-clamp-3">«{p.prompt}»</p>
                   </div>
-                  <span className="pointer-events-none absolute left-1/2 top-1/2 flex -translate-x-1/2 -translate-y-1/2 scale-90 items-center gap-1.5 rounded-full bg-white/95 px-4 py-2 text-xs font-bold text-primary opacity-0 shadow-xl transition-all duration-300 group-hover:scale-100 group-hover:opacity-100">
-                    <Icon name="Eye" size={13} /> {lang === 'ru' ? 'Открыть' : 'Open'}
-                  </span>
                   <span className="absolute right-2 top-2 flex items-center gap-1 rounded-full bg-black/55 px-2.5 py-1 text-[10px] font-semibold text-white backdrop-blur">
                     <Icon name="Zap" size={10} className="text-[hsl(88,80%,60%)]" />
                     {lang === 'ru' ? 'ИИ за минуты' : 'AI in minutes'}
