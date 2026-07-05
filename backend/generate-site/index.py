@@ -598,7 +598,8 @@ STYLE_PRESETS = {
 
 
 def handler(event: dict, context) -> dict:
-    """Генерирует HTML-код сайта через Claude Sonnet или GPT-4o (оба через OpenRouter) по описанию пользователя.
+    """Генерирует HTML-код сайта по описанию пользователя. Claude Sonnet 5 идёт напрямую через
+    Anthropic API (если настроен ANTHROPIC_API_KEY), остальные модели — через OpenRouter.
     Обёртка с try/except: любое неожиданное исключение (баг, сбой БД и т.п.) логируется ПОЛНОСТЬЮ
     с traceback и превращается в понятный ответ 500, а не в "тихий" сбой платформы без деталей —
     это критично для диагностики (иначе причина ошибки остаётся неизвестной)."""
@@ -709,8 +710,15 @@ def _handler_impl(event: dict, context) -> dict:
     }
     model_name = OPENROUTER_MODELS.get(model_choice, OPENROUTER_MODELS['gemini'])
 
+    # Sonnet 5 — прямое подключение к Anthropic API (в обход OpenRouter), если настроен ключ.
+    # Даёт более быстрый и стабильный ответ без промежуточного прокси. Если ключ не задан —
+    # автоматически используется прежний путь через OpenRouter, чтобы ничего не сломать.
+    ANTHROPIC_MODELS = {'sonnet': 'claude-sonnet-5'}
+    anthropic_api_key = os.environ.get('ANTHROPIC_API_KEY', '')
+    use_direct_anthropic = model_choice in ANTHROPIC_MODELS and bool(anthropic_api_key)
+
     api_key = os.environ.get('OPENROUTER_API_KEY', '')
-    if not api_key:
+    if not api_key and not use_direct_anthropic:
         return err('OpenRouter API ключ не настроен')
 
     # Бюджет времени функции. По умолчанию платформа даёт 30 сек; если в настройках
@@ -830,9 +838,83 @@ def _handler_impl(event: dict, context) -> dict:
             return None, ('body', str(msg))
         return res, None
 
+    def call_anthropic(model_id: str, override_messages=None, override_max_tokens=None, override_timeout=None):
+        """Прямой вызов Anthropic Messages API (без OpenRouter). Возвращает ответ, переведённый
+        в ТОТ ЖЕ формат, что и call_openrouter (choices[0].message.content + usage), чтобы весь
+        код ниже (парсинг HTML, метаданных, подсчёт токенов) работал одинаково для обоих путей."""
+        msgs = override_messages if override_messages is not None else chat_messages
+        # Anthropic принимает system отдельным полем, а не как сообщение с role=system.
+        sys_prompt = effective_system_prompt
+        anthropic_messages = []
+        for m in msgs:
+            role = m.get('role', 'user')
+            if role == 'system':
+                sys_prompt = m.get('content', '') or sys_prompt
+                continue
+            anthropic_messages.append({'role': role, 'content': m.get('content', '')})
+        call_timeout = override_timeout or ai_timeout
+        payload = json.dumps({
+            'model': model_id,
+            'system': sys_prompt,
+            'messages': anthropic_messages,
+            'max_tokens': override_max_tokens or max_tokens,
+            'temperature': 0.7,
+        }).encode('utf-8')
+        req = urllib.request.Request(
+            'https://api.anthropic.com/v1/messages',
+            data=payload,
+            headers={
+                'Content-Type': 'application/json',
+                'x-api-key': anthropic_api_key,
+                'anthropic-version': '2023-06-01',
+            },
+            method='POST'
+        )
+        try:
+            with urllib.request.urlopen(req, timeout=call_timeout) as response:
+                res = json.loads(response.read().decode('utf-8'))
+        except urllib.error.HTTPError as e:
+            try:
+                body = e.read().decode('utf-8')
+            except Exception:
+                body = ''
+            log(f'Anthropic HTTPError {e.code} for model={model_id}: {body[:500]}')
+            return None, (e.code, body)
+        except (urllib.error.URLError, TimeoutError, socket.timeout) as e:
+            log(f'Anthropic network error for model={model_id}: {repr(e)[:200]}')
+            return None, ('network', repr(e))
+        except (json.JSONDecodeError, Exception) as e:
+            log(f'Anthropic parse error for model={model_id}: {repr(e)[:200]}')
+            return None, ('parse', repr(e))
+        if isinstance(res, dict) and res.get('type') == 'error':
+            api_err = res.get('error') or {}
+            msg = api_err.get('message') if isinstance(api_err, dict) else str(api_err)
+            log(f'Anthropic body error for model={model_id}: {str(msg)[:500]}')
+            return None, ('body', str(msg))
+        # Переводим ответ Anthropic в формат, идентичный OpenRouter/OpenAI-стилю.
+        content_blocks = res.get('content') or []
+        text = ''.join(b.get('text', '') for b in content_blocks if isinstance(b, dict) and b.get('type') == 'text')
+        usage = res.get('usage') or {}
+        normalized = {
+            'choices': [{'message': {'content': text}}],
+            'usage': {
+                'prompt_tokens': usage.get('input_tokens', 0),
+                'completion_tokens': usage.get('output_tokens', 0),
+            },
+        }
+        return normalized, None
+
     # Основной вызов. Если выбранная модель упала из-за проблемы С МОДЕЛЬЮ (недоступна/битый ответ) —
     # автоматически повторяем на быстром Gemini, чтобы пользователь всё равно получил сайт.
-    result, error_info = call_openrouter(model_name)
+    if use_direct_anthropic:
+        result, error_info = call_anthropic(ANTHROPIC_MODELS[model_choice])
+        # Если прямой вызов Anthropic не удался (например временная перегрузка) — не сдаёмся,
+        # а пробуем тот же Sonnet через OpenRouter (если ключ настроен), и только потом Gemini.
+        if error_info is not None and api_key:
+            log(f'Direct Anthropic failed ({error_info[0]}), falling back to OpenRouter for {model_name}')
+            result, error_info = call_openrouter(model_name)
+    else:
+        result, error_info = call_openrouter(model_name)
 
     if error_info is not None:
         code, detail = error_info
@@ -840,15 +922,16 @@ def _handler_impl(event: dict, context) -> dict:
         if code == 'network':
             refund_quota(user_id, schema, request_cost)
             return err('AI не успел ответить вовремя. Упростите запрос или выберите другую модель.', 504)
-        # Нет средств на OpenRouter — фолбэк не поможет.
+        # Нет средств — фолбэк не поможет.
         if code == 402:
             refund_quota(user_id, schema, request_cost)
-            return err('На балансе OpenRouter закончились средства. Пополните счёт OpenRouter.', 502)
-        # Проблема с моделью или её ответом — пробуем запасной Gemini (если ещё не он).
-        fallback = OPENROUTER_MODELS['gemini']
-        if model_name != fallback:
-            log(f'Fallback to {fallback} after error {code} on {model_name}: {str(detail)[:300]}')
-            result, error_info = call_openrouter(fallback)
+            return err('На балансе AI-провайдера закончились средства. Пополните счёт.', 502)
+        # Проблема с моделью или её ответом — пробуем запасной Gemini через OpenRouter (если доступен).
+        if api_key:
+            fallback = OPENROUTER_MODELS['gemini']
+            if model_name != fallback:
+                log(f'Fallback to {fallback} after error {code} on {model_name}: {str(detail)[:300]}')
+                result, error_info = call_openrouter(fallback)
 
         if error_info is not None:
             fcode, fdetail = error_info
@@ -948,8 +1031,10 @@ def _handler_impl(event: dict, context) -> dict:
             "НИЧЕГО не ломай, сохрани структуру и рабочие ссылки на картинки. Верни ТОЛЬКО улучшенный полный HTML-документ "
             "целиком от <!DOCTYPE html> до </body></html>, без markdown и пояснений."
         )
-        improved_res, improved_err = call_openrouter(
-            model_name,
+        improve_call = call_anthropic if use_direct_anthropic else call_openrouter
+        improve_model = ANTHROPIC_MODELS[model_choice] if use_direct_anthropic else model_name
+        improved_res, improved_err = improve_call(
+            improve_model,
             override_messages=[
                 {'role': 'system', 'content': improve_prompt},
                 {'role': 'user', 'content': html[:55000]},
