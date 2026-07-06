@@ -633,6 +633,7 @@ def _handler_impl(event: dict, context) -> dict:
     project_id = body.get('project_id')
     current_html = body.get('current_html', '')
     style_choice = body.get('style', '')  # выбранный стиль-пресет (minimal/premium/bright/dark)
+    stream_mode = bool(body.get('stream'))  # true → отдаём генерацию потоком (SSE, лайв-сборка)
 
     if not messages:
         return err('Нет сообщений')
@@ -845,6 +846,149 @@ def _handler_impl(event: dict, context) -> dict:
             },
         }
         return normalized, None
+
+    # ── РЕЖИМ СТРИМИНГА (SSE) ──────────────────────────────────────────────────────────
+    # Лайв-сборка сайта в редакторе: отдаём токены Anthropic по мере генерации, чтобы
+    # пользователь видел, как сайт собирается в реальном времени, а не ждал ~100с молча.
+    # Второй (арт-директорский) проход в стрим-режиме НЕ выполняется — стримим один проход.
+    if stream_mode:
+        def _sse(event: str, data: dict) -> str:
+            return f'event: {event}\ndata: {json.dumps(data, ensure_ascii=False)}\n\n'
+
+        def _stream_gen():
+            full_parts = []
+            in_tokens = 0
+            out_tokens = 0
+            refunded = False
+            try:
+                yield _sse('start', {'model': ANTHROPIC_MODEL, 'is_edit': is_edit, 'cost': request_cost})
+                anthropic_messages = [
+                    {'role': m.get('role', 'user'), 'content': m.get('content', '')}
+                    for m in chat_messages if m.get('role') != 'system'
+                ]
+                payload = json.dumps({
+                    'model': ANTHROPIC_MODEL,
+                    'system': effective_system_prompt,
+                    'messages': anthropic_messages,
+                    'max_tokens': max_tokens,
+                    'stream': True,
+                }).encode('utf-8')
+                req = urllib.request.Request(
+                    'https://api.anthropic.com/v1/messages',
+                    data=payload,
+                    headers={
+                        'Content-Type': 'application/json',
+                        'x-api-key': anthropic_api_key,
+                        'anthropic-version': '2023-06-01',
+                    },
+                    method='POST',
+                )
+                # Таймаут на КАЖДОЕ чтение из сокета (не на весь стрим). Первый токен может
+                # прийти с задержкой (модель «думает»), поэтому запас щедрый.
+                with urllib.request.urlopen(req, timeout=max(90, ai_timeout)) as response:
+                    for raw_line in response:
+                        line = raw_line.decode('utf-8', 'ignore').strip()
+                        if not line or not line.startswith('data:'):
+                            continue
+                        try:
+                            evt = json.loads(line[5:].strip())
+                        except Exception:
+                            continue
+                        etype = evt.get('type')
+                        if etype == 'message_start':
+                            in_tokens = ((evt.get('message') or {}).get('usage') or {}).get('input_tokens', 0)
+                        elif etype == 'content_block_delta':
+                            delta = evt.get('delta') or {}
+                            if delta.get('type') == 'text_delta':
+                                chunk = delta.get('text', '')
+                                if chunk:
+                                    full_parts.append(chunk)
+                                    yield _sse('token', {'t': chunk})
+                        elif etype == 'message_delta':
+                            out_tokens = (evt.get('usage') or {}).get('output_tokens', out_tokens)
+                        elif etype == 'error':
+                            raise RuntimeError(str(evt.get('error'))[:300])
+
+                total_tokens = in_tokens + out_tokens
+                raw_html = ''.join(full_parts).strip()
+                html_out, meta = extract_meta_block(raw_html)
+
+                # Уточняющий вопрос: модель прислала только служебный блок с question, без HTML.
+                question = (meta.get('question') or '').strip() if isinstance(meta, dict) else ''
+                if question and len(html_out.strip()) < 200:
+                    refund_quota(user_id, schema, request_cost); refunded = True
+                    yield _sse('question', {'message': question, 'tokens': total_tokens, 'remaining': remaining})
+                    return
+
+                html_out = html_out.strip()
+                if html_out.startswith('```'):
+                    lines = html_out.split('\n')
+                    html_out = '\n'.join(lines[1:-1] if lines[-1] == '```' else lines[1:])
+                was_truncated = not html_out.lower().rstrip().endswith('</html>')
+                html_out = repair_truncated_html(html_out.strip())
+
+                # Те же защиты от потери блоков/белого экрана, что и в обычном режиме.
+                if is_edit and was_truncated:
+                    refund_quota(user_id, schema, request_cost); refunded = True
+                    yield _sse('error', {'message': 'Правка не поместилась целиком — сайт слишком большой. Сайт оставлен без изменений, попросите изменение попроще.'})
+                    return
+                if is_edit and not was_truncated and len(html_out) < len(current_html) * 0.7:
+                    refund_quota(user_id, schema, request_cost); refunded = True
+                    yield _sse('error', {'message': 'Часть блоков могла потеряться при правке — сайт оставлен без изменений. Повторите правку или уточните её.'})
+                    return
+                import re as _re
+                body_match = _re.search(r'<body[^>]*>(.*?)</body>', html_out, _re.IGNORECASE | _re.DOTALL)
+                body_inner = body_match.group(1) if body_match else ''
+                visible = _re.sub(r'<(script|style)[^>]*>.*?</\1>', '', body_inner, flags=_re.IGNORECASE | _re.DOTALL)
+                visible = _re.sub(r'<[^>]+>', '', visible).strip()
+                if len(visible) < 10 and '<img' not in body_inner.lower() and '<svg' not in body_inner.lower():
+                    refund_quota(user_id, schema, request_cost); refunded = True
+                    yield _sse('error', {'message': 'Сайт не успел сгенерироваться полностью. Попробуйте ещё раз или упростите запрос.'})
+                    return
+
+                if not meta.get('intro') and not meta.get('steps'):
+                    meta = build_meta_from_html(html_out, is_edit)
+                if project_id:
+                    save_html(int(project_id), html_out, schema)
+                maybe_notify_low_balance(user_id, remaining, schema)
+
+                yield _sse('done', {
+                    'html': html_out,
+                    'tokens': total_tokens,
+                    'remaining': remaining,
+                    'large_task': is_large_task,
+                    'cost': request_cost,
+                    'intro': meta.get('intro', ''),
+                    'summary': meta.get('summary', ''),
+                    'steps': meta.get('steps', []),
+                    'design': meta.get('design', ''),
+                    'sections': meta.get('sections', []),
+                    'suggestions': meta.get('suggestions', []),
+                })
+            except urllib.error.HTTPError as e:
+                if not refunded:
+                    refund_quota(user_id, schema, request_cost)
+                try:
+                    err_body = e.read().decode('utf-8')
+                except Exception:
+                    err_body = ''
+                log(f'stream Anthropic HTTPError {e.code}: {err_body[:300]}')
+                msg = 'На балансе Anthropic закончились средства. Пополните счёт Anthropic.' if e.code == 402 else 'AI-сервис временно недоступен. Попробуйте через минуту.'
+                yield _sse('error', {'message': msg})
+            except Exception as e:
+                if not refunded:
+                    refund_quota(user_id, schema, request_cost)
+                log(f'stream error: {repr(e)[:300]}')
+                yield _sse('error', {'message': 'AI не успел ответить вовремя. Попробуйте ещё раз или упростите запрос.'})
+
+        sse_headers = {
+            'Content-Type': 'text/event-stream; charset=utf-8',
+            'Cache-Control': 'no-cache',
+            'X-Accel-Buffering': 'no',
+            'Access-Control-Allow-Origin': '*',
+        }
+        return {'statusCode': 200, 'headers': sse_headers, 'stream': _stream_gen()}
+    # ── КОНЕЦ РЕЖИМА СТРИМИНГА ─────────────────────────────────────────────────────────
 
     result, error_info = call_anthropic(ANTHROPIC_MODEL)
 

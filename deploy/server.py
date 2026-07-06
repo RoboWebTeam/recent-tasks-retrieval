@@ -22,7 +22,7 @@ import sys
 import json
 import importlib.util
 import types
-from flask import Flask, request, Response
+from flask import Flask, request, Response, stream_with_context
 
 BACKEND_DIR = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 'backend')
 
@@ -101,6 +101,17 @@ def make_handler(func_name: str, rel_path: str):
         except Exception as e:
             return Response(json.dumps({'error': str(e)}), status=500, mimetype='application/json')
 
+        # Стриминг (SSE): если handler вернул генератор в поле 'stream' — отдаём его как
+        # потоковый ответ text/event-stream, не буферизуя. Используется generate-site для
+        # живой сборки сайта в редакторе. stream_with_context сохраняет доступ к request
+        # внутри генератора. X-Accel-Buffering:no отключает буферизацию в nginx.
+        if isinstance(result, dict) and 'stream' in result:
+            headers = result.get('headers', {}) or {}
+            resp = Response(stream_with_context(result['stream']), status=result.get('statusCode', 200))
+            for k, v in headers.items():
+                resp.headers[k] = v
+            return resp
+
         status = result.get('statusCode', 200)
         headers = result.get('headers', {}) or {}
         body = result.get('body', '')
@@ -130,4 +141,6 @@ def health():
 
 if __name__ == '__main__':
     port = int(os.environ.get('PORT', 8000))
-    app.run(host='0.0.0.0', port=port, debug=False)
+    # threaded=True — чтобы долгий SSE-стрим генерации не блокировал остальные запросы
+    # (в проде эту роль выполняют gthread-воркеры gunicorn).
+    app.run(host='0.0.0.0', port=port, debug=False, threaded=True)

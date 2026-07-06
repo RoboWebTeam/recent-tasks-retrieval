@@ -4,6 +4,9 @@ import { type Lang } from '@/lib/i18n';
 interface Props {
   lang: Lang;
   isEdit: boolean;
+  /** Реальная веха SSE-стриминга (напр. «Собираю секцию 3…»). Если задана — показываем её
+   *  вместо имитации фаз по таймеру, т.к. это настоящий прогресс сборки сайта. */
+  liveStatus?: string | null;
 }
 
 // Живые статусы процесса — сменяются по очереди, чтобы ожидание выглядело как реальная
@@ -38,7 +41,7 @@ const STAGES_EDIT_EN = [
 /**
  * Индикатор ожидания ответа ИИ с живыми сменяющимися статусами процесса работы.
  */
-export default function GenerationProgress({ lang, isEdit }: Props) {
+export default function GenerationProgress({ lang, isEdit, liveStatus }: Props) {
   const stages = isEdit
     ? (lang === 'ru' ? STAGES_EDIT_RU : STAGES_EDIT_EN)
     : (lang === 'ru' ? STAGES_CREATE_RU : STAGES_CREATE_EN);
@@ -54,10 +57,13 @@ export default function GenerationProgress({ lang, isEdit }: Props) {
     return () => clearInterval(timer);
   }, [stages.length]);
 
+  // При стриминге показываем РЕАЛЬНУЮ веху сборки, иначе — имитацию фаз по таймеру.
+  const label = liveStatus || stages[idx];
+
   return (
     <div className="flex items-center gap-1.5 py-0.5">
       <span className="text-muted-foreground text-[14px] font-semibold transition-opacity duration-300">
-        {stages[idx]}
+        {label}
       </span>
       <span className="flex gap-1">
         {[0, 1, 2].map(j => (

@@ -238,6 +238,8 @@ export default function Builder() {
     return localStorage.getItem('builder_model') === 'opus' ? 'opus' : 'sonnet';
   });
   const [showModelMenu, setShowModelMenu] = useState(false);
+  // Живой статус SSE-стриминга генерации (реальная веха: «Собираю секцию 3…»). null — стрима нет.
+  const [streamStatus, setStreamStatus] = useState<string | null>(null);
   const [showDomainModal, setShowDomainModal] = useState(false);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
@@ -467,146 +469,270 @@ export default function Builder() {
     setMessages([...newMessages, { role: 'assistant', content: '', isEdit: isEditRequest }]);
 
     try {
-      const { res, raw } = await fetchWithAiRetry(GENERATE_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'x-session-id': session! },
-        body: JSON.stringify({
-          messages: newMessages.map(m => ({ role: m.role, content: m.content })),
-          project_id: projectId,
-          // Выбранная пользователем модель: 'sonnet' (Sonnet 5) или 'opus' (Opus 4.8)
-          model: aiModel,
-          // Стиль-пресет применяется только к новым сайтам (при правке html уже есть)
-          style: !html ? siteStyle : undefined,
-          // Передаём текущий HTML сайта — модель правит именно его, а не пытается
-          // восстановить состояние сайта по истории текстовых команд
-          current_html: html || undefined,
-        }),
-      });
+      const reqBody = {
+        messages: newMessages.map(m => ({ role: m.role, content: m.content })),
+        project_id: projectId,
+        // Выбранная пользователем модель: 'sonnet' (Sonnet 5) или 'opus' (Opus 4.8)
+        model: aiModel,
+        // Стиль-пресет применяется только к новым сайтам (при правке html уже есть)
+        style: !html ? siteStyle : undefined,
+        // Передаём текущий HTML сайта — модель правит именно его, а не пытается
+        // восстановить состояние сайта по истории текстовых команд
+        current_html: html || undefined,
+      };
 
-      let data: Record<string, unknown> = raw;
-      if (raw.body !== undefined) {
-        // Парсинг тела оборачиваем в try — иначе битый JSON из ответа приводил к крашу
-        // ВНЕ основного catch и оставлял чат навсегда в состоянии загрузки.
+      // Разворачивает возможную обёртку { body: ... } платформы в чистый объект данных.
+      const unwrap = (raw: Record<string, unknown>): Record<string, unknown> => {
+        if (raw.body === undefined) return raw;
         if (typeof raw.body === 'string') {
-          try {
-            data = JSON.parse(raw.body);
-          } catch {
-            data = { statusCode: 502, error: tr('builderError', lang) };
-          }
-        } else {
-          data = raw.body as Record<string, unknown>;
+          try { return JSON.parse(raw.body as string); } catch { return { statusCode: 502, error: tr('builderError', lang) }; }
         }
-      }
-      const statusCode = typeof raw.statusCode === 'number' ? raw.statusCode : res.status;
-      const ok = statusCode >= 200 && statusCode < 300;
+        return raw.body as Record<string, unknown>;
+      };
 
-      if (!ok) {
-        if (statusCode === 402) {
-          setQuotaExceeded(true);
-          setRemaining(0);
+      // Применяет ФИНАЛЬНЫЙ результат (успех или ошибка). Общий код для стрим- и буфер-режима:
+      // на событии `done`/`question` стрима и на ответе обычного запроса.
+      const applyResult = (data: Record<string, unknown>, statusCode: number) => {
+        const ok = statusCode >= 200 && statusCode < 300;
+
+        if (!ok) {
+          if (statusCode === 402) {
+            setQuotaExceeded(true);
+            setRemaining(0);
+            toast({
+              variant: 'destructive',
+              title: lang === 'ru' ? '🚫 Лимит AI-запросов исчерпан' : '🚫 AI request limit reached',
+              description: lang === 'ru'
+                ? 'Пополните энергию или смените тариф, чтобы продолжить генерацию сайта.'
+                : 'Top up energy or upgrade your plan to keep generating.',
+            });
+          }
+          const friendlyError = statusCode === 504
+            ? tr('builderTimeout', lang)
+            : statusCode === 502 || statusCode === 503
+            ? tr('builderAiUnavailable', lang)
+            : (data as { error?: string }).error || tr('builderError', lang);
+          setMessages(prev => {
+            const updated = [...prev];
+            updated[updated.length - 1] = { role: 'assistant', content: friendlyError };
+            return updated;
+          });
+          return;
+        }
+
+        setQuotaExceeded(false);
+        const generatedHtml = (data as { html?: string }).html || '';
+        const tokens = (data as { tokens?: number }).tokens || 0;
+
+        // Усиленная генерация крупной задачи: сообщаем про повышенный расход, чтобы было прозрачно.
+        const isLargeTask = (data as { large_task?: boolean }).large_task === true;
+        const requestCost = (data as { cost?: number }).cost || 1;
+        if (generatedHtml && isLargeTask && requestCost > 1) {
           toast({
-            variant: 'destructive',
-            title: lang === 'ru' ? '🚫 Лимит AI-запросов исчерпан' : '🚫 AI request limit reached',
+            title: lang === 'ru' ? '✨ Детальный сайт' : '✨ Detailed site',
             description: lang === 'ru'
-              ? 'Пополните энергию или смените тариф, чтобы продолжить генерацию сайта.'
-              : 'Top up energy or upgrade your plan to keep generating.',
+              ? `Крупная задача — сделал более насыщенный сайт. Списано ${requestCost} запроса вместо 1.`
+              : `Large task — generated a richer site. ${requestCost} requests used instead of 1.`,
           });
         }
-        const friendlyError = statusCode === 504
-          ? tr('builderTimeout', lang)
-          : statusCode === 502 || statusCode === 503
-          ? tr('builderAiUnavailable', lang)
-          : (data as { error?: string }).error || tr('builderError', lang);
+        if (typeof (data as { remaining?: number }).remaining === 'number') {
+          const newRemaining = (data as { remaining?: number }).remaining!;
+          if (newRemaining <= LOW_BALANCE_THRESHOLD && (remaining === null || remaining > LOW_BALANCE_THRESHOLD)) {
+            toast({
+              title: lang === 'ru' ? '⚡ Заканчиваются запросы к AI' : '⚡ AI requests running low',
+              description: lang === 'ru'
+                ? `Осталось ${newRemaining} запросов. Пополните энергию или смените тариф, чтобы не потерять доступ.`
+                : `${newRemaining} requests left. Top up energy or upgrade your plan to avoid losing access.`,
+            });
+          }
+          setRemaining(newRemaining);
+        }
+
+        // Сохраняем версию
+        if (generatedHtml) {
+          if (versions.length === 0) trackGoal(GOALS.WEBSITE_GENERATED_FIRST);
+          setVersions(prev => [
+            { html: generatedHtml, label: content.slice(0, 40) + (content.length > 40 ? '…' : ''), ts: Date.now() },
+            ...prev.slice(0, 9),
+          ]);
+          setTotalTokens(t => t + tokens);
+        }
+
+        // Обновляем превью ТОЛЬКО если пришёл новый HTML — иначе не трогаем состояние,
+        // чтобы случайный пустой ответ не стирал уже показанный сайт. В стрим-режиме превью
+        // уже собиралось вживую — здесь фиксируем финальный чистый HTML (без служебного блока).
+        if (generatedHtml) {
+          setHtml(generatedHtml);
+          setCodeEditorValue(generatedHtml); // держим редактор кода в синхроне с превью
+          setRightTab('preview');
+          setIframeKey(k => k + 1);          // принудительно пересобираем iframe с новым содержимым
+          // На мобильном экране чат и превью занимают весь экран по очереди — после успешной
+          // генерации сразу показываем готовый сайт, а не оставляем пользователя в чате.
+          if (typeof window !== 'undefined' && window.innerWidth < 640) {
+            setSidebarOpen(false);
+          }
+        }
+
+        const intro = (data as { intro?: string }).intro || '';
+        const summary = (data as { summary?: string }).summary || '';
+        const steps = Array.isArray((data as { steps?: string[] }).steps) ? (data as { steps: string[] }).steps : [];
+        const design = (data as { design?: string }).design || '';
+        const sections = Array.isArray((data as { sections?: string[] }).sections) ? (data as { sections: string[] }).sections : [];
+        const suggestions = Array.isArray((data as { suggestions?: Suggestion[] }).suggestions) ? (data as { suggestions: Suggestion[] }).suggestions : [];
+
+        const isQuestion = (data as { is_question?: boolean }).is_question === true;
+
         setMessages(prev => {
           const updated = [...prev];
-          updated[updated.length - 1] = { role: 'assistant', content: friendlyError };
+          updated[updated.length - 1] = {
+            role: 'assistant',
+            content: generatedHtml
+              ? tr('builderDone', lang)
+              : (data as { message?: string }).message || tr('builderError', lang),
+            isHtml: !!generatedHtml,
+            isQuestion: !generatedHtml && isQuestion,
+            tokens,
+            intro,
+            summary,
+            steps,
+            design,
+            sections,
+            suggestions,
+            justGenerated: true,
+          };
           return updated;
         });
-        return;
-      }
+      };
 
-      setQuotaExceeded(false);
-      const generatedHtml = (data as { html?: string }).html || '';
-      const tokens = (data as { tokens?: number }).tokens || 0;
-
-      // Усиленная генерация крупной задачи: сообщаем про повышенный расход, чтобы было прозрачно.
-      const isLargeTask = (data as { large_task?: boolean }).large_task === true;
-      const requestCost = (data as { cost?: number }).cost || 1;
-      if (generatedHtml && isLargeTask && requestCost > 1) {
-        toast({
-          title: lang === 'ru' ? '✨ Детальный сайт' : '✨ Detailed site',
-          description: lang === 'ru'
-            ? `Крупная задача — сделал более насыщенный сайт. Списано ${requestCost} запроса вместо 1.`
-            : `Large task — generated a richer site. ${requestCost} requests used instead of 1.`,
+      // ── СТРИМИНГ (SSE): лайв-сборка сайта + реальные вехи ──────────────────────────────
+      // Сначала пробуем стрим. Если сервер вернул не-стрим (ошибка авторизации/лимита) —
+      // разбираем как обычный ответ. Если стрим не удалось НАЧАТЬ (сеть/сервер без стрима) —
+      // откатываемся на буферный запрос ниже. Уже начавшийся, но оборвавшийся стрим НЕ
+      // перезапускаем (чтобы не сгенерировать/не списать дважды).
+      const prevHtml = html;
+      let streamedOk = false;
+      let receivedAny = false;
+      try {
+        const sres = await fetch(GENERATE_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-session-id': session!, 'Accept': 'text/event-stream' },
+          body: JSON.stringify({ ...reqBody, stream: true }),
         });
-      }
-      if (typeof (data as { remaining?: number }).remaining === 'number') {
-        const newRemaining = (data as { remaining?: number }).remaining!;
-        if (newRemaining <= LOW_BALANCE_THRESHOLD && (remaining === null || remaining > LOW_BALANCE_THRESHOLD)) {
-          toast({
-            title: lang === 'ru' ? '⚡ Заканчиваются запросы к AI' : '⚡ AI requests running low',
-            description: lang === 'ru'
-              ? `Осталось ${newRemaining} запросов. Пополните энергию или смените тариф, чтобы не потерять доступ.`
-              : `${newRemaining} requests left. Top up energy or upgrade your plan to avoid losing access.`,
+        const ctype = sres.headers.get('content-type') || '';
+        if (sres.ok && ctype.includes('text/event-stream') && sres.body) {
+          const reader = sres.body.getReader();
+          const decoder = new TextDecoder();
+          let buf = '';
+          let acc = '';
+          let lastPreview = 0;
+          let lastSection = 0;
+          let headDone = false, bodyDone = false;
+          let settled = false;
+          const flushPreview = (force: boolean) => {
+            const now = Date.now();
+            if ((force || now - lastPreview > 600) && /<body/i.test(acc)) {
+              lastPreview = now;
+              setHtml(acc);
+              setRightTab('preview');
+            }
+          };
+          streamLoop: while (true) {
+            const { done, value } = await reader.read();
+            if (done) break;
+            buf += decoder.decode(value, { stream: true });
+            let sep: number;
+            while ((sep = buf.indexOf('\n\n')) >= 0) {
+              const block = buf.slice(0, sep);
+              buf = buf.slice(sep + 2);
+              let evName = 'message';
+              let dataStr = '';
+              for (const ln of block.split('\n')) {
+                if (ln.startsWith('event:')) evName = ln.slice(6).trim();
+                else if (ln.startsWith('data:')) dataStr += ln.slice(5).trim();
+              }
+              if (!dataStr) continue;
+              let payload: Record<string, unknown>;
+              try { payload = JSON.parse(dataStr); } catch { continue; }
+              receivedAny = true;
+              if (evName === 'token') {
+                acc += (payload.t as string) || '';
+                if (!headDone && /<\/head>/i.test(acc)) { headDone = true; setStreamStatus(lang === 'ru' ? 'Стили и шрифты готовы' : 'Styles & fonts ready'); }
+                const sec = (acc.match(/<section/gi) || []).length;
+                if (sec > lastSection) { lastSection = sec; setStreamStatus(lang === 'ru' ? `Собираю секцию ${sec}…` : `Building section ${sec}…`); }
+                if (!bodyDone && /<\/body>/i.test(acc)) { bodyDone = true; setStreamStatus(lang === 'ru' ? 'Свожу всё воедино…' : 'Putting it all together…'); }
+                flushPreview(false);
+                scrollChatToBottom('auto');
+              } else if (evName === 'done') {
+                settled = true; setStreamStatus(null);
+                applyResult(payload, 200);
+                streamedOk = true;
+                break streamLoop;
+              } else if (evName === 'question') {
+                settled = true; setStreamStatus(null);
+                setHtml(prevHtml); // отбрасываем стримленный служебный блок вопроса
+                applyResult({ ...payload, html: '', is_question: true }, 200);
+                streamedOk = true;
+                break streamLoop;
+              } else if (evName === 'error') {
+                settled = true; setStreamStatus(null);
+                setHtml(prevHtml);
+                setMessages(prev => {
+                  const updated = [...prev];
+                  updated[updated.length - 1] = { role: 'assistant', content: (payload.message as string) || tr('builderError', lang) };
+                  return updated;
+                });
+                streamedOk = true;
+                break streamLoop;
+              }
+            }
+          }
+          setStreamStatus(null);
+          if (!settled) {
+            // Стрим оборвался без финального события — откатываем превью и показываем ошибку,
+            // но НЕ дублируем буферным запросом (частичная генерация уже могла списать/сохранить).
+            setHtml(prevHtml);
+            setMessages(prev => {
+              const updated = [...prev];
+              updated[updated.length - 1] = { role: 'assistant', content: tr('builderError', lang) };
+              return updated;
+            });
+            streamedOk = true;
+          }
+        } else {
+          // Ответ не стрим (ошибка авторизации/лимита/конфигурации до стрима) — разбираем обычно.
+          let raw: Record<string, unknown>;
+          try { raw = await sres.json(); } catch { raw = { statusCode: sres.status, error: tr('builderError', lang) }; }
+          const statusCode = typeof raw.statusCode === 'number' ? raw.statusCode : sres.status;
+          applyResult(unwrap(raw), statusCode);
+          streamedOk = true;
+        }
+      } catch {
+        setStreamStatus(null);
+        setHtml(prevHtml);
+        // Если стрим успел что-то прислать — считаем его завершённым (ошибка показана/откат сделан),
+        // не перезапускаем. Иначе (стрим не начался) — уходим в буферный fallback.
+        streamedOk = receivedAny;
+        if (receivedAny) {
+          setMessages(prev => {
+            const updated = [...prev];
+            updated[updated.length - 1] = { role: 'assistant', content: tr('builderError', lang) };
+            return updated;
           });
         }
-        setRemaining(newRemaining);
       }
 
-      // Сохраняем версию
-      if (generatedHtml) {
-        if (versions.length === 0) trackGoal(GOALS.WEBSITE_GENERATED_FIRST);
-        setVersions(prev => [
-          { html: generatedHtml, label: content.slice(0, 40) + (content.length > 40 ? '…' : ''), ts: Date.now() },
-          ...prev.slice(0, 9),
-        ]);
-        setTotalTokens(t => t + tokens);
+      // Fallback на обычный (буферный) запрос, если стрим не удалось НАЧАТЬ.
+      if (!streamedOk) {
+        const { res, raw } = await fetchWithAiRetry(GENERATE_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'x-session-id': session! },
+          body: JSON.stringify({ ...reqBody, stream: false }),
+        });
+        const statusCode = typeof raw.statusCode === 'number' ? raw.statusCode : res.status;
+        applyResult(unwrap(raw), statusCode);
       }
-
-      // Обновляем превью ТОЛЬКО если пришёл новый HTML — иначе не трогаем состояние,
-      // чтобы случайный пустой ответ не стирал уже показанный сайт.
-      if (generatedHtml) {
-        setHtml(generatedHtml);
-        setCodeEditorValue(generatedHtml); // держим редактор кода в синхроне с превью
-        setRightTab('preview');
-        setIframeKey(k => k + 1);          // принудительно пересобираем iframe с новым содержимым
-        // На мобильном экране чат и превью занимают весь экран по очереди — после успешной
-        // генерации сразу показываем готовый сайт, а не оставляем пользователя в чате.
-        if (typeof window !== 'undefined' && window.innerWidth < 640) {
-          setSidebarOpen(false);
-        }
-      }
-
-      const intro = (data as { intro?: string }).intro || '';
-      const summary = (data as { summary?: string }).summary || '';
-      const steps = Array.isArray((data as { steps?: string[] }).steps) ? (data as { steps: string[] }).steps : [];
-      const design = (data as { design?: string }).design || '';
-      const sections = Array.isArray((data as { sections?: string[] }).sections) ? (data as { sections: string[] }).sections : [];
-      const suggestions = Array.isArray((data as { suggestions?: Suggestion[] }).suggestions) ? (data as { suggestions: Suggestion[] }).suggestions : [];
-
-      const isQuestion = (data as { is_question?: boolean }).is_question === true;
-
-      setMessages(prev => {
-        const updated = [...prev];
-        updated[updated.length - 1] = {
-          role: 'assistant',
-          content: generatedHtml
-            ? tr('builderDone', lang)
-            : (data as { message?: string }).message || tr('builderError', lang),
-          isHtml: !!generatedHtml,
-          isQuestion: !generatedHtml && isQuestion,
-          tokens,
-          intro,
-          summary,
-          steps,
-          design,
-          sections,
-          suggestions,
-          justGenerated: true,
-        };
-        return updated;
-      });
     } catch {
+      setStreamStatus(null);
       setMessages(prev => {
         const updated = [...prev];
         updated[updated.length - 1] = { role: 'assistant', content: tr('builderError', lang) };
@@ -1306,7 +1432,7 @@ export default function Builder() {
                           <div className="text-[10px] text-muted-foreground mb-1.5">{msgTime}</div>
                         )}
                         {m.role === 'assistant' && m.content === '' ? (
-                          <GenerationProgress lang={lang} isEdit={!!m.isEdit} />
+                          <GenerationProgress lang={lang} isEdit={!!m.isEdit} liveStatus={i === messages.length - 1 ? streamStatus : null} />
                         ) : m.isQuestion ? (
                           <div className="flex items-start gap-2 bg-secondary/60 border border-border rounded-xl px-3 py-2.5">
                             <Icon name="HelpCircle" size={16} className="text-primary shrink-0 mt-0.5" />

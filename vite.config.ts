@@ -39,6 +39,15 @@ export default defineConfig(({mode}) => ({
         host: '0.0.0.0',
         port: 5173,
         allowedHosts: true,
+        // Локальная разработка: проксируем запросы фронта /api/* на backend (deploy/server.py
+        // на :8000), чтобы вход, генерация и SSE-стриминг работали end-to-end без CORS.
+        // В проде этим занимается nginx (см. deploy/nginx.conf); в браузере адреса те же /api/*.
+        proxy: {
+            '/api': {
+                target: 'http://localhost:8000',
+                changeOrigin: true,
+            },
+        },
         hmr: {
             overlay: false, // Disables the error overlay if you only want console errors
             timeout: 7000, // pingInterval @vite/client — нужен <30s для DDoS Guard
