@@ -22,7 +22,7 @@ function renderInline(text: string): ReactNode[] {
       nodes.push(<strong key={key++} className="font-semibold text-foreground">{tok.slice(2, -2)}</strong>);
     } else if (tok.startsWith('`')) {
       nodes.push(
-        <code key={key++} className="font-mono text-[13px] bg-secondary/80 border border-border/60 rounded px-1 py-[1px] text-foreground whitespace-nowrap">
+        <code key={key++} className="font-sans text-[14px] bg-secondary/80 border border-border/60 rounded px-1.5 py-[1px] text-foreground">
           {tok.slice(1, -1)}
         </code>,
       );
