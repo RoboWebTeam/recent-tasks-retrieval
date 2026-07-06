@@ -75,7 +75,10 @@ export default function TypingReport(props: Props) {
   } = props;
 
   // В стрим-режиме шаги уже показаны вживую отдельными пузырями — в отчёте их и чип файла не дублируем.
+  // Вступление («понял задачу — собираю… взялся за дело») тоже прячем: оно написано в «стартовом»
+  // тоне и странно читается ПОСЛЕ готового сайта — ведём отчёт сразу с итога.
   const shownSteps = hideSteps ? [] : steps;
+  const shownIntro = hideSteps ? '' : intro;
 
   // Диалог отправляется частями (фазами), появляющимися по очереди с паузой:
   //   phase 0 — «Жду ответов...» (короткое ожидание перед показом)
@@ -96,14 +99,14 @@ export default function TypingReport(props: Props) {
   // Собираем последовательность «этапов» подробного описания — блоки раскрываются по очереди.
   // Показываем только intro, шаги и итог (блоки дизайна/секций/идей убраны из отчёта).
   const totalStages =
-    (intro ? 1 : 0) + shownSteps.length + (summary ? 1 : 0) + 1; // +1 = финальный
+    (shownIntro ? 1 : 0) + shownSteps.length + (summary ? 1 : 0) + 1; // +1 = финальный
 
   const [stage, setStage] = useState(animate ? 0 : totalStages);
   const next = () => setStage(s => s + 1);
 
   // Вычисляем «границы» этапов для показа
   let cursor = 0;
-  const introStage = intro ? cursor++ : -1;
+  const introStage = shownIntro ? cursor++ : -1;
   const stepStages = shownSteps.map(() => cursor++);
   const summaryStage = summary ? cursor++ : -1;
   const finalStage = cursor;
@@ -153,10 +156,10 @@ export default function TypingReport(props: Props) {
         </div>
       )}
 
-      {/* Вступление */}
-      {phase >= 2 && intro && stage >= introStage && (
+      {/* Вступление (в лайв-режиме скрыто — см. shownIntro) */}
+      {phase >= 2 && shownIntro && stage >= introStage && (
         <p className="text-foreground text-[14px] font-semibold leading-relaxed">
-          <TypingLine text={intro} animate={detailsAnimate && stage === introStage} onDone={next} onTick={onTick} />
+          <TypingLine text={shownIntro} animate={detailsAnimate && stage === introStage} onDone={next} onTick={onTick} />
         </p>
       )}
 
@@ -189,7 +192,7 @@ export default function TypingReport(props: Props) {
       )}
 
       {/* Финальный этап */}
-      {phase >= 2 && stage >= finalStage && !intro && !summary && shownSteps.length === 0 && (
+      {phase >= 2 && stage >= finalStage && !shownIntro && !summary && shownSteps.length === 0 && (
         <p className="text-muted-foreground text-[14px]">{tr('builderReadyDesc', lang)}</p>
       )}
 
