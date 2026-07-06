@@ -69,9 +69,10 @@ interface Message {
   justGenerated?: boolean;
   /** true — это уточняющий вопрос от ИИ (задача была расплывчата), а не ошибка и не готовый сайт */
   isQuestion?: boolean;
-  /** Тип «агентного» пузыря живой сборки: 'file' — карточка файла index.html, 'step' — отдельный
-   *  шаг работы. undefined — обычное сообщение/финальный отчёт. Текст шага хранится в content. */
-  kind?: 'file' | 'step';
+  /** Тип «агентного» пузыря живой сборки: 'plan' — план в начале, 'file' — карточка файла
+   *  index.html, 'step' — отдельный шаг работы. undefined — обычное сообщение/финальный отчёт.
+   *  Текст плана/шага хранится в content. */
+  kind?: 'plan' | 'file' | 'step';
   fileName?: string;
   fileStatus?: 'creating' | 'created' | 'updating' | 'updated';
   stepStatus?: 'running' | 'done';
@@ -686,8 +687,10 @@ export default function Builder() {
           let lastPreview = 0;
           let lastLines = 0;
           let stepsSeen = 0;
+          let planShown = false;
           let settled = false;
           const markerRe = /<!--\s*RW:step:(.*?)-->/g;
+          const planRe = /<!--\s*RW:plan:(.*?)-->/;
           const flushPreview = (force: boolean) => {
             const now = Date.now();
             if ((force || now - lastPreview > 600) && /<body/i.test(acc)) {
@@ -695,6 +698,22 @@ export default function Builder() {
               setHtml(acc);
               setRightTab('preview');
             }
+          };
+          // Показывает «план» в самом начале (маркер <!--RW:plan:...--> перед <!DOCTYPE>) отдельным
+          // пузырём ПЕРЕД карточкой файла — как вступительное «вот что я собираюсь сделать».
+          const showPlan = () => {
+            if (planShown) return;
+            const mm = planRe.exec(acc);
+            const text = mm ? (mm[1] || '').trim() : '';
+            if (!text) return;
+            planShown = true;
+            setMessages(prev => {
+              let fi = -1;
+              for (let k = prev.length - 1; k >= 0; k--) { if (prev[k].kind === 'file') { fi = k; break; } }
+              const planMsg: Message = { role: 'assistant', kind: 'plan', content: text };
+              return fi < 0 ? [...prev, planMsg] : [...prev.slice(0, fi), planMsg, ...prev.slice(fi)];
+            });
+            scrollChatToBottom('auto');
           };
           // Достаёт из накопленного HTML новые ЗАВЕРШЁННЫЕ маркеры <!--RW:step:...--> и превращает
           // каждый в отдельный пузырь-шаг: предыдущий бегущий шаг помечает выполненным, новый — бегущим.
@@ -736,7 +755,7 @@ export default function Builder() {
               if (evName === 'token') {
                 const chunk = (payload.t as string) || '';
                 acc += chunk;
-                if (chunk.includes('-->')) pushSteps();          // появился ли новый завершённый шаг-маркер
+                if (chunk.includes('-->')) { showPlan(); pushSteps(); }   // новый план/шаг-маркер завершился
                 const now = Date.now();
                 if (now - lastLines > 250) { lastLines = now; setStreamLines(acc.split('\n').length); }
                 flushPreview(false);
@@ -1521,7 +1540,14 @@ export default function Builder() {
                         {m.role === 'user' && (
                           <div className="text-[10px] text-muted-foreground mb-1.5">{msgTime}</div>
                         )}
-                        {m.role === 'assistant' && m.content === '' ? (
+                        {m.kind === 'plan' ? (
+                          <div className="animate-fade-in">
+                            <div className="text-[11px] uppercase tracking-widest text-primary font-semibold mb-1 flex items-center gap-1.5">
+                              <Icon name="Route" fallback="ListChecks" size={12} /> {lang === 'ru' ? 'План' : 'Plan'}
+                            </div>
+                            <p className="text-[14px] font-semibold leading-relaxed text-foreground">{m.content}</p>
+                          </div>
+                        ) : m.role === 'assistant' && m.content === '' ? (
                           <GenerationProgress lang={lang} isEdit={!!m.isEdit} liveStatus={i === messages.length - 1 ? streamStatus : null} />
                         ) : m.isQuestion ? (
                           <div className="flex items-start gap-2 bg-secondary/60 border border-border rounded-xl px-3 py-2.5">
