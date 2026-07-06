@@ -215,6 +215,9 @@ export default function Builder() {
   const [isResizingChat, setIsResizingChat] = useState(false);
   const [versions, setVersions] = useState<Version[]>([]);
   const [showVersions, setShowVersions] = useState(false);
+  // Меню «···» с вторичными действиями (скачать, в хранилище, открыть, обновить, домен) —
+  // чтобы разгрузить верхнюю панель от россыпи одинаковых иконок.
+  const [showActionsMenu, setShowActionsMenu] = useState(false);
   const [showQuickEdits, setShowQuickEdits] = useState(false);
   const [showSectionLibrary, setShowSectionLibrary] = useState(false);
   const [totalTokens, setTotalTokens] = useState(0);
@@ -1370,51 +1373,41 @@ export default function Builder() {
             <Icon name={builderTheme === 'dark' ? 'Sun' : 'Moon'} size={13} />
           </button>
 
-          {/* Refresh preview */}
-          {html && (
-            <button onClick={() => setIframeKey(k => k + 1)}
-              className="hidden md:grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-border bg-secondary hover:bg-secondary/70 hover:text-foreground transition-colors text-muted-foreground"
-              title={lang === 'ru' ? 'Обновить превью' : 'Refresh preview'}>
-              <Icon name="RefreshCw" size={13} />
+          {/* Действия — обновить/открыть/скачать/в хранилище/домен в одном меню «···» (разгружаем панель) */}
+          <div className="relative shrink-0">
+            <button onClick={() => setShowActionsMenu(v => !v)}
+              className={`grid h-8 w-8 place-items-center rounded-lg border transition-colors ${showActionsMenu ? 'border-primary/50 bg-primary/10 text-primary' : 'border-border bg-secondary hover:bg-secondary/70 hover:text-foreground text-muted-foreground'}`}
+              title={lang === 'ru' ? 'Ещё действия' : 'More actions'}>
+              <Icon name="MoreHorizontal" fallback="MoreVertical" size={16} />
             </button>
-          )}
+            {showActionsMenu && (
+              <>
+                <div className="fixed inset-0 z-40" onClick={() => setShowActionsMenu(false)} />
+                <div className="absolute right-0 top-10 z-50 w-60 bg-card border border-border rounded-xl shadow-2xl p-1.5">
+                  {([
+                    html ? { key: 'refresh', icon: 'RefreshCw', label: lang === 'ru' ? 'Обновить превью' : 'Refresh preview', onClick: () => setIframeKey(k => k + 1) } : null,
+                    html ? { key: 'open', icon: 'ExternalLink', label: lang === 'ru' ? 'Открыть в новой вкладке' : 'Open in new tab', onClick: openInNewTab } : null,
+                    { key: 'download', icon: 'Download', label: tr('builderDownload', lang), onClick: handleDownload, disabled: !html },
+                    { key: 'store', icon: savingToFiles ? 'Loader' : saveToFilesDone ? 'Check' : 'FolderOpen', spin: savingToFiles, label: saveToFilesDone ? (lang === 'ru' ? 'Сохранено в хранилище' : 'Saved to storage') : (lang === 'ru' ? 'Сохранить в хранилище' : 'Save to storage'), onClick: handleSaveToFiles, disabled: !html || savingToFiles },
+                    { key: 'domain', icon: 'Link', label: lang === 'ru' ? 'Подключить домен' : 'Connect domain', onClick: () => setShowDomainModal(true) },
+                  ].filter(Boolean) as { key: string; icon: string; label: string; onClick: () => void; disabled?: boolean; spin?: boolean }[]).map(a => (
+                    <button key={a.key} onClick={() => { a.onClick(); if (a.key !== 'store') setShowActionsMenu(false); }} disabled={a.disabled}
+                      className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg hover:bg-secondary transition-colors text-left text-[13px] font-medium text-foreground disabled:opacity-40 disabled:cursor-not-allowed">
+                      <Icon name={a.icon} size={15} className={`text-muted-foreground shrink-0 ${a.spin ? 'animate-spin' : ''}`} />
+                      {a.label}
+                    </button>
+                  ))}
+                </div>
+              </>
+            )}
+          </div>
 
-          {/* Open in new tab */}
-          {html && (
-            <button onClick={openInNewTab}
-              className="hidden lg:grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-border bg-secondary hover:bg-secondary/70 hover:text-foreground transition-colors text-muted-foreground"
-              title={lang === 'ru' ? 'Открыть в новой вкладке' : 'Open in new tab'}>
-              <Icon name="ExternalLink" size={13} />
-            </button>
-          )}
-
-          <button onClick={handleDownload} disabled={!html}
-            className="hidden md:flex items-center gap-1.5 h-8 px-2.5 shrink-0 rounded-lg text-xs border border-border bg-secondary hover:bg-secondary/70 hover:text-foreground text-muted-foreground transition-colors disabled:opacity-30">
-            <Icon name="Download" size={13} />
-            <span className="hidden lg:inline">{tr('builderDownload', lang)}</span>
-          </button>
-
-          <button onClick={handleSaveToFiles} disabled={!html || savingToFiles}
-            title={lang === 'ru' ? 'Сохранить в моё хранилище файлов' : 'Save to my file storage'}
-            className="hidden md:flex items-center gap-1.5 h-8 px-2.5 shrink-0 rounded-lg text-xs border border-border bg-secondary hover:bg-secondary/70 hover:text-foreground text-muted-foreground transition-colors disabled:opacity-30">
-            <Icon name={savingToFiles ? 'Loader' : saveToFilesDone ? 'Check' : 'FolderOpen'} size={13} className={savingToFiles ? 'animate-spin' : ''} />
-            <span className="hidden lg:inline">
-              {saveToFilesDone ? (lang === 'ru' ? 'Сохранено' : 'Saved') : (lang === 'ru' ? 'В хранилище' : 'To storage')}
-            </span>
-          </button>
-
-          <Button size="sm" disabled={!html || publishing || !projectId} onClick={publishedSlug ? () => setShowPublishModal(true) : handlePublish} className="h-8 rounded-lg text-xs px-2.5 gap-1.5 shrink-0">
+          <Button size="sm" disabled={!html || publishing || !projectId} onClick={publishedSlug ? () => setShowPublishModal(true) : handlePublish} className="h-8 rounded-lg text-xs px-3 gap-1.5 shrink-0 shadow-md shadow-primary/25 hover:shadow-primary/40 transition-shadow">
             <Icon name={publishing ? 'Loader' : publishedSlug ? 'CheckCircle' : 'Globe'} size={13} className={publishing ? 'animate-spin' : ''} />
             <span className="hidden md:inline">
               {publishing ? (lang === 'ru' ? 'Публикуем…' : 'Publishing…') : publishedSlug ? (lang === 'ru' ? 'Опубликовано' : 'Published') : tr('builderPublish', lang)}
             </span>
           </Button>
-
-          <button type="button" onClick={() => setShowDomainModal(true)}
-            className="flex items-center gap-1.5 h-8 px-2.5 rounded-lg text-xs font-medium border border-border bg-secondary hover:bg-secondary/70 text-muted-foreground hover:text-foreground transition-colors shrink-0">
-            <Icon name="Link" size={13} />
-            <span className="hidden lg:inline">{lang === 'ru' ? 'Домен' : 'Domain'}</span>
-          </button>
 
           <div className="hidden sm:block shrink-0">
             <LangSwitcher lang={lang} />
@@ -1440,15 +1433,19 @@ export default function Builder() {
           >
 
             {/* Chat header */}
-            <div className="flex items-center gap-2.5 px-4 py-3 border-b border-border shrink-0 bg-background">
-              <div className="relative grid h-9 w-9 place-items-center rounded-xl bg-primary text-primary-foreground shrink-0">
+            <div className="flex items-center gap-2.5 px-4 py-3 border-b border-border shrink-0 bg-gradient-to-b from-secondary/40 to-background">
+              <div className="relative grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-primary to-[hsl(258,90%,62%)] text-primary-foreground shrink-0 shadow-lg shadow-primary/25">
                 <Icon name="Bot" size={17} />
                 <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-500 border-2 border-background" />
               </div>
               <div className="flex-1 min-w-0">
-                <div className="text-sm font-bold text-foreground">Roboweb AI</div>
+                <div className="text-sm font-bold text-foreground tracking-tight">Roboweb AI</div>
                 <div className="flex items-center gap-2 mt-0.5">
-                  <span className="text-[11px] text-emerald-500 font-medium">● {lang === 'ru' ? 'онлайн' : 'online'}</span>
+                  <span className="text-[11px] text-muted-foreground font-medium">
+                    {loading
+                      ? (lang === 'ru' ? 'работаю над сайтом…' : 'working on your site…')
+                      : (<><span className="text-emerald-500">●</span> {lang === 'ru' ? 'на связи, готов помочь' : 'online, ready to help'}</>)}
+                  </span>
                 </div>
               </div>
               {messages.length > 0 && (
@@ -1694,7 +1691,7 @@ export default function Builder() {
                 </div>
               )}
 
-              <div className={`flex flex-col bg-secondary/50 border rounded-2xl transition-all ${isRecording ? 'border-red-500/50' : 'border-border focus-within:border-primary/50 focus-within:bg-secondary/70'}`}>
+              <div className={`flex flex-col bg-secondary/40 border rounded-2xl shadow-sm transition-all ${isRecording ? 'border-red-500/50 ring-2 ring-red-500/20' : 'border-border hover:border-border/80 focus-within:border-primary/60 focus-within:bg-card focus-within:ring-2 focus-within:ring-primary/15 focus-within:shadow-md'}`}>
                 <textarea
                   ref={textareaRef}
                   value={input}
@@ -1862,7 +1859,7 @@ export default function Builder() {
                   <button onClick={() => sendMessage()}
                     disabled={loading || quotaExceeded || (!input.trim() && !attachedImage)}
                     title={quotaExceeded ? (lang === 'ru' ? 'Лимит AI-запросов исчерпан' : 'AI request limit reached') : (lang === 'ru' ? 'Отправить' : 'Send')}
-                    className="grid h-8 w-8 place-items-center rounded-xl bg-primary hover:bg-primary/90 text-primary-foreground disabled:opacity-30 transition-all shrink-0 shadow-sm shadow-primary/20">
+                    className="grid h-8 w-8 place-items-center rounded-xl bg-gradient-to-br from-primary to-[hsl(258,90%,60%)] hover:brightness-110 text-primary-foreground disabled:opacity-30 disabled:grayscale enabled:hover:scale-105 active:scale-95 transition-all shrink-0 shadow-md shadow-primary/30">
                     {loading ? <Icon name="Loader" size={14} className="animate-spin" /> : <Icon name="Send" size={14} />}
                   </button>
                 </div>
