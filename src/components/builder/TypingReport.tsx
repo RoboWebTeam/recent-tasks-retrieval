@@ -130,7 +130,7 @@ export default function TypingReport(props: Props) {
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 text-[14px] font-semibold">
+      <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 text-[14px] font-medium">
         <Icon name="CheckCircle" size={14} /> {tr('builderReady', lang)}
       </div>
 
@@ -158,7 +158,7 @@ export default function TypingReport(props: Props) {
 
       {/* Вступление (в лайв-режиме скрыто — см. shownIntro) */}
       {phase >= 2 && shownIntro && stage >= introStage && (
-        <p className="text-foreground text-[14px] font-semibold leading-relaxed">
+        <p className="text-foreground text-[14px] leading-[1.6]">
           <TypingLine text={shownIntro} animate={detailsAnimate && stage === introStage} onDone={next} onTick={onTick} />
         </p>
       )}
@@ -166,13 +166,13 @@ export default function TypingReport(props: Props) {
       {/* Шаги — по одному (в стрим-режиме shownSteps пуст, т.к. шаги уже показаны вживую) */}
       {phase >= 2 && shownSteps.length > 0 && stage > stepStages[0] - 1 && (
         <div className="space-y-1.5">
-          <p className="text-[15px] text-foreground font-semibold">
+          <p className="text-[14px] text-foreground font-medium">
             {lang === 'ru' ? 'Что я сделал' : 'What I did'}
           </p>
           <div className="space-y-1.5">
             {shownSteps.map((step, i) => (
               stage >= stepStages[i] && (
-                <div key={i} className="flex items-start gap-2 text-[14px] font-semibold text-foreground leading-relaxed">
+                <div key={i} className="flex items-start gap-2 text-[14px] text-foreground leading-[1.6]">
                   <span className="grid place-items-center h-4 w-4 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5">
                     <Icon name="Check" size={10} />
                   </span>
@@ -186,7 +186,7 @@ export default function TypingReport(props: Props) {
 
       {/* Итог */}
       {phase >= 2 && summary && stage >= summaryStage && (
-        <p className="text-foreground text-[14px] font-semibold leading-relaxed">
+        <p className="text-foreground text-[14px] leading-[1.6]">
           <TypingLine text={summary} animate={detailsAnimate && stage === summaryStage} onDone={next} onTick={onTick} />
         </p>
       )}
@@ -209,8 +209,8 @@ export default function TypingReport(props: Props) {
           Появляются после того, как отчёт допечатан. */}
       {phase >= 2 && stage >= finalStage && suggestions.length > 0 && (
         <div className="pt-1 animate-fade-in">
-          <p className="text-[11px] uppercase tracking-widest text-muted-foreground font-semibold mb-2 flex items-center gap-1.5">
-            <Icon name="Sparkles" size={12} className="text-primary" />
+          <p className="text-[14px] text-muted-foreground font-medium mb-2 flex items-center gap-1.5">
+            <Icon name="Sparkles" size={13} className="text-primary" />
             {lang === 'ru' ? 'Что дальше' : 'What’s next'}
           </p>
           <div className="flex flex-wrap gap-1.5">
@@ -220,7 +220,7 @@ export default function TypingReport(props: Props) {
                 onClick={() => onSuggestion?.(s.prompt)}
                 disabled={suggestionsDisabled}
                 title={s.prompt}
-                className="group flex items-center gap-1.5 rounded-full border border-border bg-card hover:border-primary/50 hover:bg-primary/5 disabled:opacity-50 disabled:cursor-not-allowed transition-all px-3 py-1.5 text-[12.5px] font-semibold text-foreground"
+                className="group flex items-center gap-1.5 rounded-full border border-border bg-card hover:border-primary/50 hover:bg-primary/5 disabled:opacity-50 disabled:cursor-not-allowed transition-all px-3 py-1.5 text-[14px] font-medium text-foreground"
               >
                 <Icon name={s.icon} fallback="Sparkles" size={13} className="text-primary shrink-0" />
                 <span className="truncate max-w-[180px]">{s.label}</span>

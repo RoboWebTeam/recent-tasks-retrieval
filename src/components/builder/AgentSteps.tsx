@@ -3,10 +3,9 @@ import Icon from '@/components/ui/icon';
 import { type Lang } from '@/lib/i18n';
 
 /**
- * «Агентные» строки живой сборки сайта в чате редактора — в стиле лога разработчика
- * (как транскрипт Claude Code): плоские компактные строки-операции с целью, дифф-
- * статистикой (+добавлено / −удалено), моноширинным именем файла и шевроном. Без
- * крупных иконок-кружков и карточек — приглушённый «служебный» тон.
+ * «Агентные» строки живой сборки сайта в чате редактора — в стиле лога Claude Code:
+ * плоские компактные строки-операции, единый размер текста 14px, обычное (не жирное)
+ * начертание, приглушённый «служебный» тон, дифф-статистика (+добавлено / −удалено).
  */
 
 export const AgentFileCard = memo(function AgentFileCard({
@@ -30,16 +29,16 @@ export const AgentFileCard = memo(function AgentFileCard({
   return (
     <button onClick={onOpen} disabled={active || !onOpen}
       title={active ? undefined : (ru ? 'Открыть код' : 'Open code')}
-      className="group flex items-center gap-2 w-full text-left rounded-md px-1.5 py-1 -mx-1.5 hover:bg-secondary/60 disabled:hover:bg-transparent transition-colors">
-      <Icon name={isCreate ? 'FilePlus2' : 'FilePenLine'} fallback="FileCode" size={13} className="text-muted-foreground shrink-0" />
-      <span className="text-[13px] font-mono text-muted-foreground shrink-0">{verb}</span>
-      <span className="text-[13.5px] font-mono font-medium text-foreground truncate">{fileName}</span>
-      {added > 0 && <span className="text-[13px] font-mono font-semibold text-emerald-600 dark:text-emerald-400 shrink-0">+{added}</span>}
-      {removed > 0 && <span className="text-[13px] font-mono font-semibold text-rose-500 shrink-0">−{removed}</span>}
+      className="group flex items-center gap-2 w-full text-left rounded-md px-1.5 py-1 -mx-1.5 hover:bg-secondary/50 disabled:hover:bg-transparent transition-colors">
+      <Icon name={isCreate ? 'FilePlus2' : 'FilePenLine'} fallback="FileCode" size={14} className="text-muted-foreground shrink-0" />
+      <span className="text-[14px] text-muted-foreground shrink-0">{verb}</span>
+      <span className="text-[14px] text-foreground truncate">{fileName}</span>
+      {added > 0 && <span className="text-[14px] text-emerald-600 dark:text-emerald-400 shrink-0">+{added}</span>}
+      {removed > 0 && <span className="text-[14px] text-rose-500 shrink-0">−{removed}</span>}
       <span className="flex-1" />
       {active
-        ? <Icon name="Loader" size={12} className="animate-spin text-muted-foreground shrink-0" />
-        : onOpen && <Icon name="ChevronRight" size={14} className="text-muted-foreground/40 group-hover:text-muted-foreground transition-colors shrink-0" />}
+        ? <Icon name="Loader" size={13} className="animate-spin text-muted-foreground shrink-0" />
+        : onOpen && <Icon name="ChevronRight" size={15} className="text-muted-foreground/40 group-hover:text-muted-foreground transition-colors shrink-0" />}
     </button>
   );
 });
@@ -51,11 +50,11 @@ export const AgentStep = memo(function AgentStep({
   done: boolean;
 }) {
   return (
-    <div className="flex items-center gap-2 rounded-md px-1.5 py-[3px] -mx-1.5">
+    <div className="flex items-start gap-2 py-[3px]">
       {done
-        ? <Icon name="Check" size={12} className="text-muted-foreground/50 shrink-0" />
-        : <Icon name="Loader" size={12} className="animate-spin text-primary shrink-0" />}
-      <span className={`text-[13px] font-mono leading-relaxed ${done ? 'text-muted-foreground' : 'text-foreground font-medium'}`}>{text}</span>
+        ? <Icon name="Check" size={14} className="text-muted-foreground/50 shrink-0 mt-[3px]" />
+        : <Icon name="Loader" size={14} className="animate-spin text-primary shrink-0 mt-[3px]" />}
+      <span className={`text-[14px] leading-[1.6] ${done ? 'text-muted-foreground' : 'text-foreground'}`}>{text}</span>
     </div>
   );
 });

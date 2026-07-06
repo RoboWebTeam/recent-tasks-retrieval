@@ -653,7 +653,9 @@ export default function Builder() {
               m.kind === 'file' ? { ...m, fileStatus: (m.fileStatus === 'updating' ? 'updated' : 'created') as const, lines: addedLines, removed: removedLines } : m
             );
             const stepTexts = prev.slice(fileIdx + 1).filter(m => m.kind === 'step').map(m => m.content);
-            const groupMsg: Message = { role: 'assistant', kind: 'stepgroup', content: '', stepList: stepTexts, collapsed: true };
+            // Группа развёрнута по умолчанию — пользователь видит подробный ход работы; прошлые
+            // группы к этому моменту уже свёрнуты (при старте новой генерации), чтобы не захламлять.
+            const groupMsg: Message = { role: 'assistant', kind: 'stepgroup', content: '', stepList: stepTexts, collapsed: false };
             return [...head, ...(stepTexts.length ? [groupMsg] : []), reportMsg];
           }
           const updated = [...prev];
@@ -682,7 +684,9 @@ export default function Builder() {
           // Дальше по ходу стрима под ней появляются отдельные пузыри-шаги (лайв-сборка).
           setStreamLines(0);
           setMessages(prev => {
-            const updated = [...prev];
+            // Сворачиваем группы шагов прошлых генераций, чтобы история не разрасталась,
+            // а плейсхолдер превращаем в карточку файла текущей генерации.
+            const updated = prev.map(m => m.kind === 'stepgroup' ? { ...m, collapsed: true } : m);
             updated[updated.length - 1] = {
               role: 'assistant',
               kind: 'file',
@@ -1524,7 +1528,7 @@ export default function Builder() {
                     <div className="grid h-8 w-8 place-items-center rounded-xl bg-primary text-primary-foreground shrink-0 mt-0.5 shadow-sm">
                       <Icon name="Bot" size={15} />
                     </div>
-                    <div className="flex-1 min-w-0 text-[14px] font-semibold leading-[1.55] text-foreground py-1">
+                    <div className="flex-1 min-w-0 text-[14px] leading-[1.6] text-foreground py-1">
                       {WELCOME_MESSAGE(lang)}
                     </div>
                   </div>
@@ -1541,7 +1545,7 @@ export default function Builder() {
                           <button onClick={() => setMessages(prev => prev.map((x, idx) => idx === i ? { ...x, collapsed: !collapsed } : x))}
                             className="group flex items-center gap-2 rounded-md px-1.5 py-1 -mx-1.5 hover:bg-secondary/60 transition-colors text-muted-foreground w-full text-left">
                             <Icon name={collapsed ? 'ChevronRight' : 'ChevronDown'} fallback="ChevronRight" size={14} className="shrink-0" />
-                            <span className="text-[13.5px] font-mono">{n} {lang === 'ru' ? (n % 10 === 1 && n % 100 !== 11 ? 'шаг сборки' : 'шагов сборки') : 'build steps'}</span>
+                            <span className="text-[14px]">{n} {lang === 'ru' ? (n % 10 === 1 && n % 100 !== 11 ? 'шаг сборки' : 'шагов сборки') : 'build steps'}</span>
                           </button>
                           {!collapsed && (
                             <div className="mt-0.5 pl-1">
@@ -1584,16 +1588,16 @@ export default function Builder() {
                           <Icon name="Bot" size={15} />
                         </div>
                       )}
-                      <div className={`text-[14px] font-semibold leading-[1.55] ${
+                      <div className={`text-[14px] leading-[1.6] ${
                         m.role === 'user'
-                          ? 'max-w-[85%] text-foreground text-right px-1 py-1'
+                          ? 'max-w-[85%] text-foreground text-right px-1 py-1 font-medium'
                           : 'flex-1 min-w-0 text-foreground py-1'
                       }`}>
                         {m.role === 'user' && (
                           <div className="text-[10px] text-muted-foreground mb-1.5">{msgTime}</div>
                         )}
                         {m.kind === 'plan' ? (
-                          <p className="text-[14px] leading-relaxed text-foreground font-medium animate-fade-in">{m.content}</p>
+                          <p className="text-[14px] leading-[1.6] text-foreground animate-fade-in">{m.content}</p>
                         ) : m.role === 'assistant' && m.content === '' ? (
                           <GenerationProgress lang={lang} isEdit={!!m.isEdit} liveStatus={i === messages.length - 1 ? streamStatus : null} />
                         ) : m.isQuestion ? (
@@ -1633,7 +1637,7 @@ export default function Builder() {
               {loading && (
                 <div className="flex items-center gap-2 pl-[42px] pt-1 text-muted-foreground animate-fade-in">
                   <Icon name="Sparkles" size={12} className="text-primary shrink-0 animate-pulse" />
-                  <span className="text-[12.5px] font-mono">
+                  <span className="text-[14px]">
                     {streamLines > 0 ? (lang === 'ru' ? 'собираю сайт' : 'building') : (lang === 'ru' ? 'думаю' : 'thinking')}
                     {genElapsed > 0 && ` · ${genElapsed}с`}
                     {streamLines > 0 && ` · ${streamLines} ${lang === 'ru' ? 'строк' : 'lines'}`}
