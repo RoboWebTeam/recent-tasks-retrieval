@@ -11,6 +11,7 @@ import BuilderDomainModal from '@/components/builder/BuilderDomainModal';
 import GenerationProgress from '@/components/builder/GenerationProgress';
 import ReportMessage from '@/components/builder/ReportMessage';
 import ChatMarkdown from '@/components/builder/ChatMarkdown';
+import Typewriter from '@/components/builder/Typewriter';
 import { AgentFileCard, AgentStep } from '@/components/builder/AgentSteps';
 import { trackGoal, GOALS } from '@/lib/analytics';
 import { apiUrl } from '@/lib/apiConfig';
@@ -1303,7 +1304,7 @@ export default function Builder() {
           >
             <Icon name={sidebarOpen ? 'PanelLeftClose' : 'PanelLeft'} fallback="PanelLeft" size={15} />
           </button>
-          <Link to="/dashboard" className="flex items-center gap-2 font-display font-extrabold text-base">
+          <Link to="/dashboard" className="flex items-center gap-2 font-extrabold text-base">
             <span className="grid h-7 w-7 place-items-center rounded-lg bg-primary text-primary-foreground shrink-0">
               <Icon name="Bot" size={14} />
             </span>
@@ -1505,7 +1506,7 @@ export default function Builder() {
             </div>
 
             {/* Messages */}
-            <div ref={messagesContainerRef} onScroll={handleChatScroll} className="flex-1 overflow-y-auto p-4 space-y-4 bg-background">
+            <div ref={messagesContainerRef} onScroll={handleChatScroll} className="flex-1 overflow-y-auto p-4 space-y-3 bg-background">
               {messages.length === 0 ? (
                 <div className="pt-2">
                   {showEnergyBonus && (
@@ -1527,8 +1528,10 @@ export default function Builder() {
                     </div>
                   )}
 
-                  {/* Приветственное сообщение — без аватара, как поток в стиле Claude Code */}
-                  <ChatMarkdown text={WELCOME_MESSAGE(lang)} />
+                  {/* Приветственное сообщение — с эффектом печатающей машинки */}
+                  <div className="text-[14px] leading-[1.6] text-foreground">
+                    <Typewriter text={WELCOME_MESSAGE(lang)} />
+                  </div>
                 </div>
               ) : (
                 messages.map((m, i) => {
@@ -1634,15 +1637,12 @@ export default function Builder() {
                 })
               )}
 
-              {/* Футер-статус генерации (как «✳ 6m 53s · 3.2k tokens · thinking…» в Claude Code) */}
+              {/* Статус во время загрузки — простое человеческое сообщение */}
               {loading && (
                 <div className="flex items-center gap-2 pt-1 text-muted-foreground animate-fade-in">
                   <Icon name="Sparkles" size={12} className="text-primary shrink-0 animate-pulse" />
                   <span className="text-[14px]">
-                    {streamLines > 0 ? (lang === 'ru' ? 'собираю сайт' : 'building') : (lang === 'ru' ? 'думаю' : 'thinking')}
-                    {genElapsed > 0 && ` · ${genElapsed}с`}
-                    {streamLines > 0 && ` · ${streamLines} ${lang === 'ru' ? 'строк' : 'lines'}`}
-                    {'…'}
+                    {lang === 'ru' ? 'Работаю, минуту…' : 'Working on it, one minute…'}
                   </span>
                 </div>
               )}
@@ -1767,7 +1767,7 @@ export default function Builder() {
                   onKeyDown={handleKeyDown}
                   placeholder={isRecording ? (lang === 'ru' ? '🎙 Говорите…' : '🎙 Speaking…') : tr('builderInputPlaceholder', lang)}
                   rows={1}
-                  className={`w-full bg-transparent text-[15px] font-medium resize-none outline-none min-h-[52px] max-h-[220px] px-3.5 pt-3 pb-1.5 leading-relaxed ${isRecording ? 'text-red-400 placeholder:text-red-400/50' : 'text-foreground placeholder:text-muted-foreground/50'}`}
+                  className={`w-full bg-transparent text-[14px] resize-none outline-none min-h-[52px] max-h-[220px] px-3.5 pt-3 pb-1.5 leading-[1.6] ${isRecording ? 'text-red-400 placeholder:text-red-400/50' : 'text-foreground placeholder:text-muted-foreground/50'}`}
                 />
 
                 {/* Toolbar */}
@@ -1964,7 +1964,7 @@ export default function Builder() {
                 <div className="h-20 w-20 rounded-3xl bg-card border border-border grid place-items-center mx-auto mb-6">
                   <Icon name="Database" size={32} className="text-muted-foreground/50" />
                 </div>
-                <h3 className="font-display font-bold text-foreground text-lg mb-2">
+                <h3 className="font-bold text-foreground text-lg mb-2">
                   {lang === 'ru' ? 'Сначала сохраните проект' : 'Save your project first'}
                 </h3>
                 <p className="text-muted-foreground text-sm max-w-xs leading-relaxed">
@@ -2219,7 +2219,7 @@ export default function Builder() {
                       <Icon name="Sparkles" size={11} className="text-primary" />
                     </div>
                   </div>
-                  <h3 className="font-display font-bold text-foreground text-lg mb-2">{tr('builderPreviewEmpty', lang)}</h3>
+                  <h3 className="font-bold text-foreground text-lg mb-2">{tr('builderPreviewEmpty', lang)}</h3>
                   <p className="text-muted-foreground text-sm max-w-xs leading-relaxed">{tr('builderPreviewEmptyDesc', lang)}</p>
                 </div>
               )}
@@ -2359,7 +2359,7 @@ export default function Builder() {
             <div className="grid h-12 w-12 place-items-center rounded-2xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 mx-auto mb-4">
               <Icon name="CheckCircle" size={24} />
             </div>
-            <h3 className="font-display font-bold text-lg text-center mb-1">
+            <h3 className="font-bold text-lg text-center mb-1">
               {lang === 'ru' ? 'Сайт опубликован!' : 'Site published!'}
             </h3>
             <p className="text-sm text-muted-foreground text-center mb-4">

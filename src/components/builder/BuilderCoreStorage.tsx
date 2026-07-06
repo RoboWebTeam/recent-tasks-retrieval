@@ -103,7 +103,7 @@ export default function BuilderCoreStorage({ lang, projectId, onUseInChat, onFil
     <div className="p-4">
       <div className="flex items-center justify-between mb-4 gap-2 flex-wrap">
         <div>
-          <h3 className="font-display font-bold text-base">{isRu ? 'Хранилище файлов' : 'File storage'}</h3>
+          <h3 className="font-bold text-base">{isRu ? 'Хранилище файлов' : 'File storage'}</h3>
           <p className="text-xs text-muted-foreground mt-0.5">{isRu ? 'Изображения, HTML и ZIP для этого проекта' : 'Images, HTML and ZIP for this project'}</p>
         </div>
         <div className="flex items-center gap-1.5 shrink-0">

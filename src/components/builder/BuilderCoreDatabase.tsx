@@ -157,7 +157,7 @@ export default function BuilderCoreDatabase({ lang, projectId }: BuilderCoreData
         </button>
 
         <div className="flex items-center justify-between mb-4">
-          <h3 className="font-display font-bold text-lg flex items-center gap-2">
+          <h3 className="font-bold text-lg flex items-center gap-2">
             <Icon name="Table" size={16} className="text-primary" />
             {selectedTable.table_name}
           </h3>
@@ -212,7 +212,7 @@ export default function BuilderCoreDatabase({ lang, projectId }: BuilderCoreData
         <Dialog open={rowFormOpen} onOpenChange={setRowFormOpen}>
           <DialogContent className="rounded-2xl max-w-sm">
             <DialogHeader>
-              <DialogTitle className="font-display font-bold">{editingRow ? (isRu ? 'Изменить запись' : 'Edit row') : (isRu ? 'Новая запись' : 'New row')}</DialogTitle>
+              <DialogTitle className="font-bold">{editingRow ? (isRu ? 'Изменить запись' : 'Edit row') : (isRu ? 'Новая запись' : 'New row')}</DialogTitle>
             </DialogHeader>
             <div className="space-y-3">
               {selectedTable.columns.map(c => (
@@ -241,7 +241,7 @@ export default function BuilderCoreDatabase({ lang, projectId }: BuilderCoreData
     <div className="p-4">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h3 className="font-display font-bold text-base">{isRu ? 'База данных проекта' : 'Project database'}</h3>
+          <h3 className="font-bold text-base">{isRu ? 'База данных проекта' : 'Project database'}</h3>
           <p className="text-xs text-muted-foreground mt-0.5">{isRu ? 'Простые таблицы для хранения данных сайта (заявки, заказы и т.п.)' : 'Simple tables for storing site data (leads, orders, etc.)'}</p>
         </div>
         <Dialog open={createOpen} onOpenChange={(v) => { setCreateOpen(v); if (!v) { setCreateError(''); } }}>
@@ -252,7 +252,7 @@ export default function BuilderCoreDatabase({ lang, projectId }: BuilderCoreData
           </DialogTrigger>
           <DialogContent className="rounded-2xl max-w-sm">
             <DialogHeader>
-              <DialogTitle className="font-display font-bold">{isRu ? 'Новая таблица' : 'New table'}</DialogTitle>
+              <DialogTitle className="font-bold">{isRu ? 'Новая таблица' : 'New table'}</DialogTitle>
             </DialogHeader>
             <div className="space-y-3">
               <div>

@@ -42,27 +42,12 @@ const STAGES_EDIT_EN = [
  * Индикатор ожидания ответа ИИ с живыми сменяющимися статусами процесса работы.
  */
 export default function GenerationProgress({ lang, isEdit, liveStatus }: Props) {
-  const stages = isEdit
-    ? (lang === 'ru' ? STAGES_EDIT_RU : STAGES_EDIT_EN)
-    : (lang === 'ru' ? STAGES_CREATE_RU : STAGES_CREATE_EN);
-
-  const [idx, setIdx] = useState(0);
-
-  useEffect(() => {
-    // Идём по статусам и останавливаемся на последнем (не зацикливаем — чтобы к концу
-    // генерации показывался финальный «Навожу красоту…», а не прыгал заново).
-    const timer = setInterval(() => {
-      setIdx(i => (i < stages.length - 1 ? i + 1 : i));
-    }, 2500);
-    return () => clearInterval(timer);
-  }, [stages.length]);
-
-  // При стриминге показываем РЕАЛЬНУЮ веху сборки, иначе — имитацию фаз по таймеру.
-  const label = liveStatus || stages[idx];
+  // Во время загрузки — простое человеческое сообщение (или реальная веха при стриминге).
+  const label = liveStatus || (lang === 'ru' ? 'Работаю, минуту…' : 'Working on it, one minute…');
 
   return (
     <div className="flex items-center gap-1.5 py-0.5">
-      <span className="text-muted-foreground text-[14px] font-semibold transition-opacity duration-300">
+      <span className="text-muted-foreground text-[14px] transition-opacity duration-300">
         {label}
       </span>
       <span className="flex gap-1">

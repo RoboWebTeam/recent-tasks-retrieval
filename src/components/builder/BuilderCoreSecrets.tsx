@@ -80,7 +80,7 @@ export default function BuilderCoreSecrets({ lang, projectId }: BuilderCoreSecre
     <div className="p-4">
       <div className="flex items-center justify-between mb-4">
         <div>
-          <h3 className="font-display font-bold text-base">{isRu ? 'Секреты проекта' : 'Project secrets'}</h3>
+          <h3 className="font-bold text-base">{isRu ? 'Секреты проекта' : 'Project secrets'}</h3>
           <p className="text-xs text-muted-foreground mt-0.5">{isRu ? 'Ключи и токены для интеграций сайта — хранятся в зашифрованном виде' : 'Keys and tokens for site integrations — stored securely'}</p>
         </div>
         <Dialog open={addOpen} onOpenChange={(v) => { setAddOpen(v); if (!v) setError(''); }}>
@@ -91,7 +91,7 @@ export default function BuilderCoreSecrets({ lang, projectId }: BuilderCoreSecre
           </DialogTrigger>
           <DialogContent className="rounded-2xl max-w-sm">
             <DialogHeader>
-              <DialogTitle className="font-display font-bold">{isRu ? 'Новый секрет' : 'New secret'}</DialogTitle>
+              <DialogTitle className="font-bold">{isRu ? 'Новый секрет' : 'New secret'}</DialogTitle>
             </DialogHeader>
             <div className="space-y-3">
               <div>
@@ -144,7 +144,7 @@ export default function BuilderCoreSecrets({ lang, projectId }: BuilderCoreSecre
       <Dialog open={!!deleteTarget} onOpenChange={(v) => !v && setDeleteTarget(null)}>
         <DialogContent className="rounded-2xl max-w-sm">
           <DialogHeader>
-            <DialogTitle className="font-display font-bold">{isRu ? 'Удалить секрет?' : 'Delete secret?'}</DialogTitle>
+            <DialogTitle className="font-bold">{isRu ? 'Удалить секрет?' : 'Delete secret?'}</DialogTitle>
           </DialogHeader>
           <p className="text-sm text-muted-foreground">{deleteTarget?.key_name}</p>
           <div className="flex gap-2">

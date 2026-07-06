@@ -50,11 +50,11 @@ export const AgentStep = memo(function AgentStep({
   done: boolean;
 }) {
   return (
-    <div className="flex items-start gap-2 py-[3px]">
+    <div className="flex items-start gap-1.5 py-px">
       {done
-        ? <Icon name="Check" size={14} className="text-muted-foreground/50 shrink-0 mt-[3px]" />
-        : <Icon name="Loader" size={14} className="animate-spin text-primary shrink-0 mt-[3px]" />}
-      <span className={`text-[14px] leading-[1.6] ${done ? 'text-muted-foreground' : 'text-foreground'}`}>{text}</span>
+        ? <Icon name="Check" size={13} className="text-muted-foreground/50 shrink-0 mt-[3px]" />
+        : <Icon name="Loader" size={13} className="animate-spin text-primary shrink-0 mt-[3px]" />}
+      <span className={`text-[14px] leading-[1.5] ${done ? 'text-muted-foreground' : 'text-foreground'}`}>{text}</span>
     </div>
   );
 });

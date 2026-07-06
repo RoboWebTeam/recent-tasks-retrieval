@@ -87,11 +87,11 @@ export default function ChatMarkdown({ text, className = '' }: { text: string; c
         }
         if (b.type === 'ul') {
           return (
-            <ul key={idx} className="space-y-1.5">
+            <ul key={idx} className="space-y-0.5">
               {b.items.map((it, j) => (
-                <li key={j} className="flex gap-2">
-                  <span className="text-primary shrink-0 mt-[1px]">•</span>
-                  <span>{renderInline(it)}</span>
+                <li key={j} className="flex gap-1.5">
+                  <span className="text-primary shrink-0 leading-[1.5]">•</span>
+                  <span className="leading-[1.5]">{renderInline(it)}</span>
                 </li>
               ))}
             </ul>
@@ -99,11 +99,11 @@ export default function ChatMarkdown({ text, className = '' }: { text: string; c
         }
         if (b.type === 'ol') {
           return (
-            <ol key={idx} className="space-y-1.5">
+            <ol key={idx} className="space-y-0.5">
               {b.items.map((it, j) => (
-                <li key={j} className="flex gap-2">
-                  <span className="text-muted-foreground shrink-0 tabular-nums">{j + 1}.</span>
-                  <span>{renderInline(it)}</span>
+                <li key={j} className="flex gap-1.5">
+                  <span className="text-muted-foreground shrink-0 tabular-nums leading-[1.5]">{j + 1}.</span>
+                  <span className="leading-[1.5]">{renderInline(it)}</span>
                 </li>
               ))}
             </ol>

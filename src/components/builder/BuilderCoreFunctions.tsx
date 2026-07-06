@@ -14,7 +14,7 @@ export default function BuilderCoreFunctions({ lang }: BuilderCoreFunctionsProps
         <div className="grid h-14 w-14 place-items-center rounded-2xl bg-primary/10 text-primary mx-auto mb-4">
           <Icon name="Zap" size={26} />
         </div>
-        <h3 className="font-display font-bold text-lg mb-2">{isRu ? 'Функции скоро' : 'Functions coming soon'}</h3>
+        <h3 className="font-bold text-lg mb-2">{isRu ? 'Функции скоро' : 'Functions coming soon'}</h3>
         <p className="text-sm text-muted-foreground leading-relaxed">
           {isRu
             ? 'Сейчас доступны База данных, Секреты и Хранилище для этого проекта. Раздел с готовыми интеграциями (форма → email, счётчики и т.п.) появится здесь позже.'

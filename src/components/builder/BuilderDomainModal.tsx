@@ -176,7 +176,7 @@ export default function BuilderDomainModal({ open, onOpenChange, lang, projectId
         <DialogContent className="rounded-3xl max-w-xl p-0 gap-0 overflow-hidden max-h-[85vh] flex flex-col">
           {/* Header */}
           <DialogHeader className="shrink-0 px-4 sm:px-6 pt-5 sm:pt-6 pb-4 border-b border-border">
-            <DialogTitle className="font-display font-bold text-base sm:text-lg flex items-center gap-2.5">
+            <DialogTitle className="font-bold text-base sm:text-lg flex items-center gap-2.5">
               <span className="grid h-9 w-9 place-items-center rounded-xl bg-primary/10 text-primary shrink-0">
                 <Icon name="Globe" size={18} />
               </span>
