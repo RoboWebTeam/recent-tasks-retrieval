@@ -109,7 +109,14 @@ SYSTEM_PROMPT = """Ты — профессиональный веб-разраб
 - design — 1 живое предложение про дизайн-решение: палитра, шрифты, настроение (зачем именно так).
 - sections — 3-6 коротких названий секций.
 - suggestions — 3-4 УМЕСТНЫЕ именно для этого сайта идеи развития (что добавить дальше). Каждая: icon (Star, Phone, Calendar, MessageSquare, MapPin, ShoppingCart, Image, Users, Award, Mail, CreditCard, Clock), label (2-4 слова), prompt (готовая команда мне на выполнение).
-Никакого markdown и лишнего текста. Только HTML, затем строка метаданных."""
+3) ПОСЛЕ строки метаданных добавь на новой строке ЕЩЁ ОДИН служебный блок — ПОДРОБНЫЙ красивый отчёт о проделанной работе в Markdown, строго в формате (может быть многострочным):
+<!--RW:report:<markdown-отчёт>-->
+Это невидимый служебный блок (НЕ попадает на сайт), но именно он показывается пользователю в чате как красивое развёрнутое сообщение — сделай его отличным. Пиши как опытный разработчик, который по-человечески и с гордостью рассказывает клиенту, что сделал:
+- развёрнуто и живо, от первого лица, 6-10 строк;
+- используй Markdown: **жирным** выделяй ключевое, `инлайн-код` для цветов (#hex), названий шрифтов и технических деталей, маркированные списки «- » для перечислений;
+- структура: 1-2 предложения вступления (что за сайт получился и его настроение) → строка «**Что внутри:**» и под ней маркированный список ключевых секций/фишек с конкретикой → отдельная строка «**Дизайн.**» про палитру (`#hex`) и шрифты (`Название`) → заверши тёплым вопросом-предложением развить проект дальше;
+- эмодзи уместны, но без перебора.
+ИТОГОВЫЙ ПОРЯДОК ОТВЕТА: HTML-документ → строка ROBOWEB_META → блок RW:report. Внутри RW:report Markdown ПРИВЕТСТВУЕТСЯ, в самом HTML — никакого markdown."""
 
 def get_project_images(project_id, user_id: int, schema: str):
     """Возвращает список изображений, загруженных пользователем в хранилище проекта (раздел Ядро)."""
@@ -317,6 +324,22 @@ def strip_progress_markers(html: str) -> str:
     сохранённом/готовом/экспортируемом документе их быть не должно."""
     import re
     return re.sub(r'<!--\s*RW:[a-z]+:.*?-->\s*', '', html, flags=re.DOTALL)
+
+
+def extract_report_block(text: str):
+    """Извлекает подробный markdown-отчёт из служебного блока <!--RW:report:...-->.
+    Возвращает (text_без_блока, report_markdown). Блок может быть многострочным.
+    Если ответ оборвался по лимиту токенов и закрывающего --> нет — берём отчёт до конца
+    (частичный отчёт лучше, чем пустой fallback)."""
+    import re
+    m = re.search(r'<!--\s*RW:report:(.*?)-->', text, re.DOTALL)
+    if m:
+        return (text[:m.start()] + text[m.end():]), m.group(1).strip()[:4000]
+    # Оборванный блок без закрывающего --> (усечён на конце ответа)
+    m2 = re.search(r'<!--\s*RW:report:(.*)$', text, re.DOTALL)
+    if m2:
+        return text[:m2.start()], m2.group(1).strip()[:4000]
+    return text, ''
 
 
 def extract_meta_block(html: str):
@@ -925,8 +948,9 @@ def _handler_impl(event: dict, context) -> dict:
 
                 total_tokens = in_tokens + out_tokens
                 raw_html = ''.join(full_parts).strip()
-                html_out, meta = extract_meta_block(raw_html)
-                html_out = strip_progress_markers(html_out)  # финальный HTML — без маркеров прогресса
+                html_out, report_md = extract_report_block(raw_html)
+                html_out, meta = extract_meta_block(html_out)
+                html_out = strip_progress_markers(html_out)  # финальный HTML — без служебных маркеров
 
                 # Уточняющий вопрос: модель прислала только служебный блок с question, без HTML.
                 question = (meta.get('question') or '').strip() if isinstance(meta, dict) else ''
@@ -973,6 +997,7 @@ def _handler_impl(event: dict, context) -> dict:
                     'remaining': remaining,
                     'large_task': is_large_task,
                     'cost': request_cost,
+                    'report': report_md,
                     'intro': meta.get('intro', ''),
                     'summary': meta.get('summary', ''),
                     'steps': meta.get('steps', []),
@@ -1033,8 +1058,9 @@ def _handler_impl(event: dict, context) -> dict:
 
     # Извлекаем служебный блок метаданных (теперь он в КОНЦЕ ответа, после </html>) и убираем
     # его из HTML. Парсер ищет блок в любом месте, поэтому позиция не важна.
+    html, report_md = extract_report_block(html)
     html, meta = extract_meta_block(html)
-    html = strip_progress_markers(html)  # маркеры живого прогресса нужны только в стриме
+    html = strip_progress_markers(html)  # служебные маркеры нужны только в стриме
 
     # УТОЧНЯЮЩИЙ ВОПРОС: если задача была слишком расплывчата, модель по инструкции присылает
     # ТОЛЬКО служебный блок с полем "question" и без HTML. В этом случае не считаем это сайтом —
@@ -1153,6 +1179,7 @@ def _handler_impl(event: dict, context) -> dict:
         'remaining': remaining,
         'large_task': is_large_task,
         'cost': request_cost,
+        'report': report_md,
         'intro': meta.get('intro', ''),
         'summary': meta.get('summary', ''),
         'steps': meta.get('steps', []),

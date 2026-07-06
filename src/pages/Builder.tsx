@@ -9,7 +9,8 @@ import { useToast } from '@/hooks/use-toast';
 import BuilderCorePanel from '@/components/builder/BuilderCorePanel';
 import BuilderDomainModal from '@/components/builder/BuilderDomainModal';
 import GenerationProgress from '@/components/builder/GenerationProgress';
-import TypingReport from '@/components/builder/TypingReport';
+import ReportMessage from '@/components/builder/ReportMessage';
+import ChatMarkdown from '@/components/builder/ChatMarkdown';
 import { AgentFileCard, AgentStep } from '@/components/builder/AgentSteps';
 import { trackGoal, GOALS } from '@/lib/analytics';
 import { apiUrl } from '@/lib/apiConfig';
@@ -52,6 +53,8 @@ interface Message {
   tokens?: number;
   /** true — этот пустой ответ ассистента относится к правке существующего сайта, а не к генерации с нуля */
   isEdit?: boolean;
+  /** Готовый развёрнутый markdown-отчёт от модели (маркер RW:report) — рендерится как красивое сообщение */
+  report?: string;
   /** Вступление: как ИИ понял задачу */
   intro?: string;
   /** Живое описание от ИИ: что именно он сделал */
@@ -628,6 +631,7 @@ export default function Builder() {
           isHtml: !!generatedHtml,
           isQuestion: !generatedHtml && isQuestion,
           tokens,
+          report: (data as { report?: string }).report || '',
           intro,
           summary,
           steps,
@@ -1523,119 +1527,116 @@ export default function Builder() {
                     </div>
                   )}
 
-                  {/* Приветственное сообщение — вместо блоков с примерами сайтов */}
-                  <div className="flex gap-2.5 justify-start">
-                    <div className="grid h-8 w-8 place-items-center rounded-xl bg-primary text-primary-foreground shrink-0 mt-0.5 shadow-sm">
-                      <Icon name="Bot" size={15} />
-                    </div>
-                    <div className="flex-1 min-w-0 text-[14px] leading-[1.6] text-foreground py-1">
-                      {WELCOME_MESSAGE(lang)}
-                    </div>
-                  </div>
+                  {/* Приветственное сообщение — без аватара, как поток в стиле Claude Code */}
+                  <ChatMarkdown text={WELCOME_MESSAGE(lang)} />
                 </div>
               ) : (
                 messages.map((m, i) => {
-                  // Свёрнутая группа готовых шагов (после завершения) — как свёрнутые группы в Claude Code.
+                  // ЧАТ В СТИЛЕ CLAUDE CODE — плоский поток без аватаров: сообщение пользователя
+                  // в сером «пузыре», ответы ассистента — обычным текстом/markdown, операции —
+                  // компактными строками-логом.
+
+                  // Сообщение пользователя — серый пузырь
+                  if (m.role === 'user') {
+                    return (
+                      <div key={i} className="flex justify-start">
+                        <div className="bg-secondary/70 rounded-2xl px-3.5 py-2.5 text-[14px] leading-[1.6] text-foreground max-w-full whitespace-pre-wrap break-words">
+                          {m.content}
+                        </div>
+                      </div>
+                    );
+                  }
+
+                  // Свёрнутая группа готовых шагов (как свёрнутые группы в Claude Code)
                   if (m.kind === 'stepgroup') {
                     const collapsed = m.collapsed !== false;
                     const n = m.stepList?.length || 0;
                     return (
-                      <div key={i} className="flex justify-start pl-[42px]">
-                        <div className="flex-1 min-w-0">
-                          <button onClick={() => setMessages(prev => prev.map((x, idx) => idx === i ? { ...x, collapsed: !collapsed } : x))}
-                            className="group flex items-center gap-2 rounded-md px-1.5 py-1 -mx-1.5 hover:bg-secondary/60 transition-colors text-muted-foreground w-full text-left">
-                            <Icon name={collapsed ? 'ChevronRight' : 'ChevronDown'} fallback="ChevronRight" size={14} className="shrink-0" />
-                            <span className="text-[14px]">{n} {lang === 'ru' ? (n % 10 === 1 && n % 100 !== 11 ? 'шаг сборки' : 'шагов сборки') : 'build steps'}</span>
-                          </button>
-                          {!collapsed && (
-                            <div className="mt-0.5 pl-1">
-                              {m.stepList?.map((s, j) => <AgentStep key={j} text={s} done />)}
-                            </div>
-                          )}
-                        </div>
+                      <div key={i}>
+                        <button onClick={() => setMessages(prev => prev.map((x, idx) => idx === i ? { ...x, collapsed: !collapsed } : x))}
+                          className="group flex items-center gap-2 rounded-md px-1.5 py-1 -mx-1.5 hover:bg-secondary/60 transition-colors text-muted-foreground w-full text-left">
+                          <Icon name={collapsed ? 'ChevronRight' : 'ChevronDown'} fallback="ChevronRight" size={14} className="shrink-0" />
+                          <span className="text-[14px]">{n} {lang === 'ru' ? (n % 10 === 1 && n % 100 !== 11 ? 'шаг сборки' : 'шагов сборки') : 'build steps'}</span>
+                        </button>
+                        {!collapsed && (
+                          <div className="mt-0.5 space-y-0.5">
+                            {m.stepList?.map((s, j) => <AgentStep key={j} text={s} done />)}
+                          </div>
+                        )}
                       </div>
                     );
                   }
-                  // «Агентные» пузыри лайв-сборки (строка файла / шаг работы) — компактные строки
-                  // без аватара, визуально сгруппированы под ответом ассистента (как лог операций).
+
+                  // Строка файла / шаг работы — компактный лог операций
                   if (m.kind === 'file' || m.kind === 'step') {
                     const activeFile = m.fileStatus === 'creating' || m.fileStatus === 'updating';
                     return (
-                      <div key={i} className="flex justify-start pl-[42px]">
-                        <div className="flex-1 min-w-0">
-                          {m.kind === 'file' ? (
-                            <AgentFileCard
-                              lang={lang}
-                              fileName={m.fileName || 'index.html'}
-                              status={m.fileStatus || 'created'}
-                              added={activeFile ? streamLines : (m.lines || 0)}
-                              removed={activeFile ? 0 : (m.removed || 0)}
-                              active={activeFile}
-                              onOpen={activeFile ? undefined : () => { setRightTab('code'); setCodeEditorValue(html); }}
-                            />
-                          ) : (
-                            <AgentStep text={m.content} done={m.stepStatus === 'done'} />
-                          )}
-                        </div>
+                      <div key={i}>
+                        {m.kind === 'file' ? (
+                          <AgentFileCard
+                            lang={lang}
+                            fileName={m.fileName || 'index.html'}
+                            status={m.fileStatus || 'created'}
+                            added={activeFile ? streamLines : (m.lines || 0)}
+                            removed={activeFile ? 0 : (m.removed || 0)}
+                            active={activeFile}
+                            onOpen={activeFile ? undefined : () => { setRightTab('code'); setCodeEditorValue(html); }}
+                          />
+                        ) : (
+                          <AgentStep text={m.content} done={m.stepStatus === 'done'} />
+                        )}
                       </div>
                     );
                   }
-                  const msgTime = new Date().toLocaleTimeString(lang === 'ru' ? 'ru' : 'en', { hour: '2-digit', minute: '2-digit' });
-                  return (
-                    <div key={i} className={`flex gap-2.5 ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
-                      {m.role === 'assistant' && (
-                        <div className="grid h-8 w-8 place-items-center rounded-xl bg-primary text-primary-foreground shrink-0 mt-0.5 shadow-sm">
-                          <Icon name="Bot" size={15} />
-                        </div>
-                      )}
-                      <div className={`text-[14px] leading-[1.6] ${
-                        m.role === 'user'
-                          ? 'max-w-[85%] text-foreground text-right px-1 py-1'
-                          : 'flex-1 min-w-0 text-foreground py-1'
-                      }`}>
-                        {m.role === 'user' && (
-                          <div className="text-[10px] text-muted-foreground mb-1.5">{msgTime}</div>
-                        )}
-                        {m.kind === 'plan' ? (
-                          <p className="text-[14px] leading-[1.6] text-foreground animate-fade-in">{m.content}</p>
-                        ) : m.role === 'assistant' && m.content === '' ? (
-                          <GenerationProgress lang={lang} isEdit={!!m.isEdit} liveStatus={i === messages.length - 1 ? streamStatus : null} />
-                        ) : m.isQuestion ? (
-                          <div className="flex items-start gap-2 bg-secondary/60 border border-border rounded-xl px-3 py-2.5">
-                            <Icon name="HelpCircle" size={16} className="text-primary shrink-0 mt-0.5" />
-                            <span>{m.content}</span>
-                          </div>
-                        ) : m.isHtml ? (
-                          <TypingReport
-                            lang={lang}
-                            intro={m.intro}
-                            summary={m.summary}
-                            steps={m.steps}
-                            design={m.design}
-                            sections={m.sections}
-                            suggestions={m.suggestions}
-                            isEdit={m.isEdit}
-                            hideSteps={!!m.liveSteps}
-                            animate={!!m.justGenerated && i === messages.length - 1 && !loading}
-                            onTick={() => scrollChatToBottom('auto')}
-                            onSuggestion={(prompt) => sendMessage(prompt)}
-                            suggestionsDisabled={loading}
-                          />
-                        ) : m.content}
+
+                  // План — короткая проза-нарратор
+                  if (m.kind === 'plan') {
+                    return <p key={i} className="text-[14px] leading-[1.6] text-foreground animate-fade-in">{m.content}</p>;
+                  }
+
+                  // Ассистент в процессе (пустой ответ) — индикатор генерации
+                  if (m.content === '') {
+                    return <GenerationProgress key={i} lang={lang} isEdit={!!m.isEdit} liveStatus={i === messages.length - 1 ? streamStatus : null} />;
+                  }
+
+                  // Уточняющий вопрос
+                  if (m.isQuestion) {
+                    return (
+                      <div key={i} className="flex items-start gap-2 bg-secondary/60 border border-border rounded-xl px-3 py-2.5 text-[14px] leading-[1.6] text-foreground">
+                        <Icon name="HelpCircle" size={16} className="text-primary shrink-0 mt-0.5" />
+                        <span>{m.content}</span>
                       </div>
-                      {m.role === 'user' && (
-                        <div className="grid h-8 w-8 place-items-center rounded-xl bg-primary text-primary-foreground text-xs font-bold shrink-0 mt-0.5 shadow-sm">
-                          {initials}
-                        </div>
-                      )}
-                    </div>
-                  );
+                    );
+                  }
+
+                  // Готовый развёрнутый отчёт (markdown)
+                  if (m.isHtml) {
+                    return (
+                      <ReportMessage
+                        key={i}
+                        lang={lang}
+                        report={m.report}
+                        intro={m.intro}
+                        summary={m.summary}
+                        steps={m.steps}
+                        design={m.design}
+                        sections={m.sections}
+                        suggestions={m.suggestions}
+                        liveSteps={!!m.liveSteps}
+                        onSuggestion={(prompt) => sendMessage(prompt)}
+                        suggestionsDisabled={loading}
+                      />
+                    );
+                  }
+
+                  // Обычный текст ассистента (ошибки, короткие ответы) — рендерим как markdown
+                  return <ChatMarkdown key={i} text={m.content} />;
                 })
               )}
 
               {/* Футер-статус генерации (как «✳ 6m 53s · 3.2k tokens · thinking…» в Claude Code) */}
               {loading && (
-                <div className="flex items-center gap-2 pl-[42px] pt-1 text-muted-foreground animate-fade-in">
+                <div className="flex items-center gap-2 pt-1 text-muted-foreground animate-fade-in">
                   <Icon name="Sparkles" size={12} className="text-primary shrink-0 animate-pulse" />
                   <span className="text-[14px]">
                     {streamLines > 0 ? (lang === 'ru' ? 'собираю сайт' : 'building') : (lang === 'ru' ? 'думаю' : 'thinking')}
