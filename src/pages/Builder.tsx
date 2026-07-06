@@ -1590,7 +1590,7 @@ export default function Builder() {
                       )}
                       <div className={`text-[14px] leading-[1.6] ${
                         m.role === 'user'
-                          ? 'max-w-[85%] text-foreground text-right px-1 py-1 font-medium'
+                          ? 'max-w-[85%] text-foreground text-right px-1 py-1'
                           : 'flex-1 min-w-0 text-foreground py-1'
                       }`}>
                         {m.role === 'user' && (
