@@ -12,6 +12,11 @@ dist
 dist-ssr
 *.local
 
+# Python (локальный запуск backend через deploy/server.py)
+.venv/
+__pycache__/
+*.pyc
+
 # Editor directories and files
 .vscode/*
 !.vscode/extensions.json
