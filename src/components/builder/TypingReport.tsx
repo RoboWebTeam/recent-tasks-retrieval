@@ -23,6 +23,8 @@ interface Props {
   onTick: () => void;
   /** true — это правка существующего сайта, false — создание нового */
   isEdit?: boolean;
+  /** true — шаги уже показаны вживую отдельными пузырями (стрим), поэтому отчёт их и чип файла не дублирует */
+  hideSteps?: boolean;
   /** Клик по предложению улучшения — отправляет его как новую команду в чат */
   onSuggestion?: (prompt: string) => void;
   /** Блокировать кнопки предложений (во время генерации), чтобы не запустить второй запрос */
@@ -68,8 +70,12 @@ function TypingLine({ text, animate, onDone, onTick, className }: {
 export default function TypingReport(props: Props) {
   const {
     lang, intro, summary, steps = [],
-    animate, onTick, isEdit,
+    animate, onTick, isEdit, hideSteps,
+    suggestions = [], onSuggestion, suggestionsDisabled,
   } = props;
+
+  // В стрим-режиме шаги уже показаны вживую отдельными пузырями — в отчёте их и чип файла не дублируем.
+  const shownSteps = hideSteps ? [] : steps;
 
   // Диалог отправляется частями (фазами), появляющимися по очереди с паузой:
   //   phase 0 — «Жду ответов...» (короткое ожидание перед показом)
@@ -90,7 +96,7 @@ export default function TypingReport(props: Props) {
   // Собираем последовательность «этапов» подробного описания — блоки раскрываются по очереди.
   // Показываем только intro, шаги и итог (блоки дизайна/секций/идей убраны из отчёта).
   const totalStages =
-    (intro ? 1 : 0) + steps.length + (summary ? 1 : 0) + 1; // +1 = финальный
+    (intro ? 1 : 0) + shownSteps.length + (summary ? 1 : 0) + 1; // +1 = финальный
 
   const [stage, setStage] = useState(animate ? 0 : totalStages);
   const next = () => setStage(s => s + 1);
@@ -98,7 +104,7 @@ export default function TypingReport(props: Props) {
   // Вычисляем «границы» этапов для показа
   let cursor = 0;
   const introStage = intro ? cursor++ : -1;
-  const stepStages = steps.map(() => cursor++);
+  const stepStages = shownSteps.map(() => cursor++);
   const summaryStage = summary ? cursor++ : -1;
   const finalStage = cursor;
 
@@ -125,16 +131,18 @@ export default function TypingReport(props: Props) {
         <Icon name="CheckCircle" size={14} /> {tr('builderReady', lang)}
       </div>
 
-      {/* ФАЗА 1 — какой файл читается/создаётся */}
-      <div className="flex items-center gap-2 text-[14px] font-semibold text-muted-foreground bg-secondary/60 border border-border rounded-lg px-2.5 py-1.5 w-fit">
-        <Icon name={isEdit ? 'FilePenLine' : 'FilePlus2'} fallback="FileCode" size={14} className="text-primary shrink-0" />
-        <span className="font-mono">index.html</span>
-        <span className="text-muted-foreground/70">
-          {phase < 2
-            ? (lang === 'ru' ? 'читаю…' : 'reading…')
-            : isEdit ? (lang === 'ru' ? 'обновлён' : 'updated') : (lang === 'ru' ? 'создан' : 'created')}
-        </span>
-      </div>
+      {/* ФАЗА 1 — какой файл читается/создаётся. В стрим-режиме уже есть карточка файла — не дублируем. */}
+      {!hideSteps && (
+        <div className="flex items-center gap-2 text-[14px] font-semibold text-muted-foreground bg-secondary/60 border border-border rounded-lg px-2.5 py-1.5 w-fit">
+          <Icon name={isEdit ? 'FilePenLine' : 'FilePlus2'} fallback="FileCode" size={14} className="text-primary shrink-0" />
+          <span className="font-mono">index.html</span>
+          <span className="text-muted-foreground/70">
+            {phase < 2
+              ? (lang === 'ru' ? 'читаю…' : 'reading…')
+              : isEdit ? (lang === 'ru' ? 'обновлён' : 'updated') : (lang === 'ru' ? 'создан' : 'created')}
+          </span>
+        </div>
+      )}
 
       {/* ФАЗА 2 — подробное описание работы. До неё показываем индикатор ожидания. */}
       {phase < 2 && (
@@ -152,14 +160,14 @@ export default function TypingReport(props: Props) {
         </p>
       )}
 
-      {/* Шаги — по одному */}
-      {phase >= 2 && steps.length > 0 && stage > stepStages[0] - 1 && (
+      {/* Шаги — по одному (в стрим-режиме shownSteps пуст, т.к. шаги уже показаны вживую) */}
+      {phase >= 2 && shownSteps.length > 0 && stage > stepStages[0] - 1 && (
         <div className="space-y-1.5">
           <p className="text-[15px] text-foreground font-semibold">
             {lang === 'ru' ? 'Что я сделал' : 'What I did'}
           </p>
           <div className="space-y-1.5">
-            {steps.map((step, i) => (
+            {shownSteps.map((step, i) => (
               stage >= stepStages[i] && (
                 <div key={i} className="flex items-start gap-2 text-[14px] font-semibold text-foreground leading-relaxed">
                   <span className="grid place-items-center h-4 w-4 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5">
@@ -181,7 +189,7 @@ export default function TypingReport(props: Props) {
       )}
 
       {/* Финальный этап */}
-      {phase >= 2 && stage >= finalStage && !intro && !summary && steps.length === 0 && (
+      {phase >= 2 && stage >= finalStage && !intro && !summary && shownSteps.length === 0 && (
         <p className="text-muted-foreground text-[14px]">{tr('builderReadyDesc', lang)}</p>
       )}
 
@@ -191,6 +199,32 @@ export default function TypingReport(props: Props) {
           {[0, 1, 2].map(j => (
             <span key={j} className="h-1.5 w-1.5 rounded-full bg-primary/60 animate-bounce" style={{ animationDelay: `${j * 0.15}s` }} />
           ))}
+        </div>
+      )}
+
+      {/* ИНТЕРАКТИВНЫЕ ИДЕИ — кликабельные чипы: клик отправляет готовую команду в чат.
+          Появляются после того, как отчёт допечатан. */}
+      {phase >= 2 && stage >= finalStage && suggestions.length > 0 && (
+        <div className="pt-1 animate-fade-in">
+          <p className="text-[11px] uppercase tracking-widest text-muted-foreground font-semibold mb-2 flex items-center gap-1.5">
+            <Icon name="Sparkles" size={12} className="text-primary" />
+            {lang === 'ru' ? 'Что дальше' : 'What’s next'}
+          </p>
+          <div className="flex flex-wrap gap-1.5">
+            {suggestions.slice(0, 4).map((s, i) => (
+              <button
+                key={i}
+                onClick={() => onSuggestion?.(s.prompt)}
+                disabled={suggestionsDisabled}
+                title={s.prompt}
+                className="group flex items-center gap-1.5 rounded-full border border-border bg-card hover:border-primary/50 hover:bg-primary/5 disabled:opacity-50 disabled:cursor-not-allowed transition-all px-3 py-1.5 text-[12.5px] font-semibold text-foreground"
+              >
+                <Icon name={s.icon} fallback="Sparkles" size={13} className="text-primary shrink-0" />
+                <span className="truncate max-w-[180px]">{s.label}</span>
+                <Icon name="Plus" size={12} className="text-muted-foreground/60 group-hover:text-primary shrink-0" />
+              </button>
+            ))}
+          </div>
         </div>
       )}
     </div>

@@ -10,6 +10,7 @@ import BuilderCorePanel from '@/components/builder/BuilderCorePanel';
 import BuilderDomainModal from '@/components/builder/BuilderDomainModal';
 import GenerationProgress from '@/components/builder/GenerationProgress';
 import TypingReport from '@/components/builder/TypingReport';
+import { AgentFileCard, AgentStep } from '@/components/builder/AgentSteps';
 import { trackGoal, GOALS } from '@/lib/analytics';
 import { apiUrl } from '@/lib/apiConfig';
 
@@ -68,6 +69,16 @@ interface Message {
   justGenerated?: boolean;
   /** true — это уточняющий вопрос от ИИ (задача была расплывчата), а не ошибка и не готовый сайт */
   isQuestion?: boolean;
+  /** Тип «агентного» пузыря живой сборки: 'file' — карточка файла index.html, 'step' — отдельный
+   *  шаг работы. undefined — обычное сообщение/финальный отчёт. Текст шага хранится в content. */
+  kind?: 'file' | 'step';
+  fileName?: string;
+  fileStatus?: 'creating' | 'created' | 'updating' | 'updated';
+  stepStatus?: 'running' | 'done';
+  /** Итоговое число строк файла (для карточки файла после завершения) */
+  lines?: number;
+  /** true — шаги уже показаны вживую отдельными пузырями, поэтому финальный отчёт их не дублирует */
+  liveSteps?: boolean;
 }
 
 interface Version {
@@ -240,6 +251,8 @@ export default function Builder() {
   const [showModelMenu, setShowModelMenu] = useState(false);
   // Живой статус SSE-стриминга генерации (реальная веха: «Собираю секцию 3…»). null — стрима нет.
   const [streamStatus, setStreamStatus] = useState<string | null>(null);
+  // Живой счётчик строк генерируемого файла (для карточки index.html во время стрима).
+  const [streamLines, setStreamLines] = useState(0);
   const [showDomainModal, setShowDomainModal] = useState(false);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
@@ -490,9 +503,16 @@ export default function Builder() {
         return raw.body as Record<string, unknown>;
       };
 
-      // Применяет ФИНАЛЬНЫЙ результат (успех или ошибка). Общий код для стрим- и буфер-режима:
-      // на событии `done`/`question` стрима и на ответе обычного запроса.
-      const applyResult = (data: Record<string, unknown>, statusCode: number) => {
+      // Применяет ФИНАЛЬНЫЙ результат (успех или ошибка). Общий код для стрим- и буфер-режима.
+      // mode='append' (стрим-успех): отмечает шаги/файл готовыми и добавляет отчёт ОТДЕЛЬНЫМ
+      // пузырём (шаги уже показаны вживую). mode='replace' (буфер/вопрос/ошибка): заменяет
+      // последний пузырь. liveSteps=true — шаги показаны вживую, отчёт их не дублирует.
+      const applyResult = (
+        data: Record<string, unknown>,
+        statusCode: number,
+        opts: { mode?: 'replace' | 'append'; liveSteps?: boolean } = {},
+      ) => {
+        const mode = opts.mode || 'replace';
         const ok = statusCode >= 200 && statusCode < 300;
 
         if (!ok) {
@@ -582,24 +602,37 @@ export default function Builder() {
 
         const isQuestion = (data as { is_question?: boolean }).is_question === true;
 
+        const reportMsg: Message = {
+          role: 'assistant',
+          content: generatedHtml
+            ? tr('builderDone', lang)
+            : (data as { message?: string }).message || tr('builderError', lang),
+          isHtml: !!generatedHtml,
+          isQuestion: !generatedHtml && isQuestion,
+          tokens,
+          intro,
+          summary,
+          steps,
+          design,
+          sections,
+          suggestions,
+          justGenerated: true,
+          liveSteps: !!opts.liveSteps,
+        };
+
         setMessages(prev => {
+          if (mode === 'append' && generatedHtml) {
+            // Стрим-успех: фиксируем карточку файла и шаги как завершённые, отчёт — отдельным пузырём.
+            const finalLines = generatedHtml.split('\n').length;
+            const updated = prev.map(m => {
+              if (m.kind === 'step' && m.stepStatus === 'running') return { ...m, stepStatus: 'done' as const };
+              if (m.kind === 'file') return { ...m, fileStatus: (m.fileStatus === 'updating' ? 'updated' : 'created') as const, lines: finalLines };
+              return m;
+            });
+            return [...updated, reportMsg];
+          }
           const updated = [...prev];
-          updated[updated.length - 1] = {
-            role: 'assistant',
-            content: generatedHtml
-              ? tr('builderDone', lang)
-              : (data as { message?: string }).message || tr('builderError', lang),
-            isHtml: !!generatedHtml,
-            isQuestion: !generatedHtml && isQuestion,
-            tokens,
-            intro,
-            summary,
-            steps,
-            design,
-            sections,
-            suggestions,
-            justGenerated: true,
-          };
+          updated[updated.length - 1] = reportMsg;
           return updated;
         });
       };
@@ -620,14 +653,41 @@ export default function Builder() {
         });
         const ctype = sres.headers.get('content-type') || '';
         if (sres.ok && ctype.includes('text/event-stream') && sres.body) {
+          // Стрим подтверждён — превращаем пустой плейсхолдер в «карточку файла» index.html.
+          // Дальше по ходу стрима под ней появляются отдельные пузыри-шаги (лайв-сборка).
+          setStreamLines(0);
+          setMessages(prev => {
+            const updated = [...prev];
+            updated[updated.length - 1] = {
+              role: 'assistant',
+              kind: 'file',
+              fileName: 'index.html',
+              fileStatus: isEditRequest ? 'updating' : 'creating',
+              isEdit: isEditRequest,
+            };
+            return updated;
+          });
+          // Прерванную попытку сворачиваем: убираем ХВОСТОВЫЕ пузыри file/step текущей генерации
+          // (не трогая такие же из прошлых генераций выше) и добавляем сообщение ошибки.
+          const abortWith = (msg: string) => {
+            setHtml(prevHtml);
+            setMessages(prev => {
+              let cut = prev.length;
+              for (let k = prev.length - 1; k >= 0; k--) {
+                if (prev[k].kind === 'file' || prev[k].kind === 'step') cut = k; else break;
+              }
+              return [...prev.slice(0, cut), { role: 'assistant', content: msg } as Message];
+            });
+          };
           const reader = sres.body.getReader();
           const decoder = new TextDecoder();
           let buf = '';
           let acc = '';
           let lastPreview = 0;
-          let lastSection = 0;
-          let headDone = false, bodyDone = false;
+          let lastLines = 0;
+          let stepsSeen = 0;
           let settled = false;
+          const markerRe = /<!--\s*RW:step:(.*?)-->/g;
           const flushPreview = (force: boolean) => {
             const now = Date.now();
             if ((force || now - lastPreview > 600) && /<body/i.test(acc)) {
@@ -635,6 +695,25 @@ export default function Builder() {
               setHtml(acc);
               setRightTab('preview');
             }
+          };
+          // Достаёт из накопленного HTML новые ЗАВЕРШЁННЫЕ маркеры <!--RW:step:...--> и превращает
+          // каждый в отдельный пузырь-шаг: предыдущий бегущий шаг помечает выполненным, новый — бегущим.
+          const pushSteps = () => {
+            const found: string[] = [];
+            let m: RegExpExecArray | null;
+            markerRe.lastIndex = 0;
+            while ((m = markerRe.exec(acc)) !== null) { const t = (m[1] || '').trim(); if (t) found.push(t); }
+            if (found.length <= stepsSeen) return;
+            const fresh = found.slice(stepsSeen);
+            stepsSeen = found.length;
+            setMessages(prev => {
+              const updated = prev.map(x => x.kind === 'step' && x.stepStatus === 'running' ? { ...x, stepStatus: 'done' as const } : x);
+              fresh.forEach((text, idx) => {
+                updated.push({ role: 'assistant', kind: 'step', content: text, stepStatus: idx === fresh.length - 1 ? 'running' : 'done' });
+              });
+              return updated;
+            });
+            scrollChatToBottom('auto');
           };
           streamLoop: while (true) {
             const { done, value } = await reader.read();
@@ -655,47 +734,36 @@ export default function Builder() {
               try { payload = JSON.parse(dataStr); } catch { continue; }
               receivedAny = true;
               if (evName === 'token') {
-                acc += (payload.t as string) || '';
-                if (!headDone && /<\/head>/i.test(acc)) { headDone = true; setStreamStatus(lang === 'ru' ? 'Стили и шрифты готовы' : 'Styles & fonts ready'); }
-                const sec = (acc.match(/<section/gi) || []).length;
-                if (sec > lastSection) { lastSection = sec; setStreamStatus(lang === 'ru' ? `Собираю секцию ${sec}…` : `Building section ${sec}…`); }
-                if (!bodyDone && /<\/body>/i.test(acc)) { bodyDone = true; setStreamStatus(lang === 'ru' ? 'Свожу всё воедино…' : 'Putting it all together…'); }
+                const chunk = (payload.t as string) || '';
+                acc += chunk;
+                if (chunk.includes('-->')) pushSteps();          // появился ли новый завершённый шаг-маркер
+                const now = Date.now();
+                if (now - lastLines > 250) { lastLines = now; setStreamLines(acc.split('\n').length); }
                 flushPreview(false);
-                scrollChatToBottom('auto');
               } else if (evName === 'done') {
-                settled = true; setStreamStatus(null);
-                applyResult(payload, 200);
+                settled = true; setStreamStatus(null); setStreamLines(0);
+                applyResult(payload, 200, { mode: 'append', liveSteps: stepsSeen > 0 });
                 streamedOk = true;
                 break streamLoop;
               } else if (evName === 'question') {
-                settled = true; setStreamStatus(null);
+                settled = true; setStreamStatus(null); setStreamLines(0);
                 setHtml(prevHtml); // отбрасываем стримленный служебный блок вопроса
-                applyResult({ ...payload, html: '', is_question: true }, 200);
+                applyResult({ ...payload, html: '', is_question: true }, 200, { mode: 'replace' });
                 streamedOk = true;
                 break streamLoop;
               } else if (evName === 'error') {
-                settled = true; setStreamStatus(null);
-                setHtml(prevHtml);
-                setMessages(prev => {
-                  const updated = [...prev];
-                  updated[updated.length - 1] = { role: 'assistant', content: (payload.message as string) || tr('builderError', lang) };
-                  return updated;
-                });
+                settled = true; setStreamStatus(null); setStreamLines(0);
+                abortWith((payload.message as string) || tr('builderError', lang));
                 streamedOk = true;
                 break streamLoop;
               }
             }
           }
-          setStreamStatus(null);
+          setStreamStatus(null); setStreamLines(0);
           if (!settled) {
             // Стрим оборвался без финального события — откатываем превью и показываем ошибку,
             // но НЕ дублируем буферным запросом (частичная генерация уже могла списать/сохранить).
-            setHtml(prevHtml);
-            setMessages(prev => {
-              const updated = [...prev];
-              updated[updated.length - 1] = { role: 'assistant', content: tr('builderError', lang) };
-              return updated;
-            });
+            abortWith(tr('builderError', lang));
             streamedOk = true;
           }
         } else {
@@ -1415,6 +1483,28 @@ export default function Builder() {
                 </div>
               ) : (
                 messages.map((m, i) => {
+                  // «Агентные» пузыри лайв-сборки (карточка файла / шаг работы) — компактные строки
+                  // без аватара, визуально сгруппированы под ответом ассистента (как лог операций).
+                  if (m.kind === 'file' || m.kind === 'step') {
+                    const activeFile = m.fileStatus === 'creating' || m.fileStatus === 'updating';
+                    return (
+                      <div key={i} className="flex justify-start pl-[42px]">
+                        <div className="flex-1 min-w-0">
+                          {m.kind === 'file' ? (
+                            <AgentFileCard
+                              lang={lang}
+                              fileName={m.fileName || 'index.html'}
+                              status={m.fileStatus || 'created'}
+                              lines={activeFile ? streamLines : (m.lines || 0)}
+                              active={activeFile}
+                            />
+                          ) : (
+                            <AgentStep text={m.content} done={m.stepStatus === 'done'} />
+                          )}
+                        </div>
+                      </div>
+                    );
+                  }
                   const msgTime = new Date().toLocaleTimeString(lang === 'ru' ? 'ru' : 'en', { hour: '2-digit', minute: '2-digit' });
                   return (
                     <div key={i} className={`flex gap-2.5 ${m.role === 'user' ? 'justify-end' : 'justify-start'}`}>
@@ -1448,6 +1538,7 @@ export default function Builder() {
                             sections={m.sections}
                             suggestions={m.suggestions}
                             isEdit={m.isEdit}
+                            hideSteps={!!m.liveSteps}
                             animate={!!m.justGenerated && i === messages.length - 1 && !loading}
                             onTick={() => scrollChatToBottom('auto')}
                             onSuggestion={(prompt) => sendMessage(prompt)}
