@@ -51,30 +51,6 @@ export default function ReportMessage({
       </div>
 
       {md && <ChatMarkdown text={md} />}
-
-      {suggestions.length > 0 && (
-        <div className="pt-1">
-          <p className="text-[14px] text-muted-foreground font-medium mb-2 flex items-center gap-1.5">
-            <Icon name="Sparkles" size={13} className="text-primary" />
-            {lang === 'ru' ? 'Что дальше' : 'What’s next'}
-          </p>
-          <div className="flex flex-wrap gap-1.5">
-            {suggestions.slice(0, 4).map((s, i) => (
-              <button
-                key={i}
-                onClick={() => onSuggestion?.(s.prompt)}
-                disabled={suggestionsDisabled}
-                title={s.prompt}
-                className="group flex items-center gap-1.5 rounded-full border border-border bg-card hover:border-primary/50 hover:bg-primary/5 disabled:opacity-50 disabled:cursor-not-allowed transition-all px-3 py-1.5 text-[14px] font-sans font-normal text-foreground"
-              >
-                <Icon name={s.icon} fallback="Sparkles" size={13} className="text-primary shrink-0" />
-                <span className="truncate max-w-[180px]">{s.label}</span>
-                <Icon name="Plus" size={12} className="text-muted-foreground/60 group-hover:text-primary shrink-0" />
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
     </div>
   );
 }

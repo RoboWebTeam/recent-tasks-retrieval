@@ -498,6 +498,8 @@ export default function Builder() {
     const content = rawContent + imageNote;
 
     const isEditRequest = !!html;
+    // Снимок текущего сайта — чтобы ЛЮБАЯ ошибка генерации НИКОГДА не стирала уже готовый сайт.
+    const siteBeforeGen = html;
     const newMessages: Message[] = [...messages, { role: 'user', content }];
     // Добавляем сообщение пользователя И пустой ответ ассистента одним обновлением —
     // без гонки между двумя setState (иначе при быстрых кликах история могла рассинхронизироваться).
@@ -864,6 +866,8 @@ export default function Builder() {
       }
     } catch {
       setStreamStatus(null);
+      // Восстанавливаем прежний сайт — ошибка правки НЕ должна оставлять пустое превью.
+      if (siteBeforeGen) { setHtml(siteBeforeGen); setIframeKey(k => k + 1); }
       setMessages(prev => {
         const updated = [...prev];
         updated[updated.length - 1] = { role: 'assistant', content: tr('builderError', lang) };
@@ -871,6 +875,8 @@ export default function Builder() {
       });
     } finally {
       setLoading(false);
+      // Финальная страховка: если после генерации сайт был, а стал пустым (любой сбой) — вернём его.
+      setHtml(h => (!h && siteBeforeGen ? siteBeforeGen : h));
     }
   };
 
