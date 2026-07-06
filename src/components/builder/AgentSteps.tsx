@@ -32,7 +32,7 @@ export const AgentFileCard = memo(function AgentFileCard({
       title={active ? undefined : (ru ? 'Открыть код' : 'Open code')}
       className="group flex items-center gap-2 w-full text-left rounded-md px-1.5 py-1 -mx-1.5 hover:bg-secondary/60 disabled:hover:bg-transparent transition-colors">
       <Icon name={isCreate ? 'FilePlus2' : 'FilePenLine'} fallback="FileCode" size={13} className="text-muted-foreground shrink-0" />
-      <span className="text-[13.5px] text-muted-foreground shrink-0">{verb}</span>
+      <span className="text-[13px] font-mono text-muted-foreground shrink-0">{verb}</span>
       <span className="text-[13.5px] font-mono font-medium text-foreground truncate">{fileName}</span>
       {added > 0 && <span className="text-[13px] font-mono font-semibold text-emerald-600 dark:text-emerald-400 shrink-0">+{added}</span>}
       {removed > 0 && <span className="text-[13px] font-mono font-semibold text-rose-500 shrink-0">−{removed}</span>}
@@ -55,7 +55,7 @@ export const AgentStep = memo(function AgentStep({
       {done
         ? <Icon name="Check" size={12} className="text-muted-foreground/50 shrink-0" />
         : <Icon name="Loader" size={12} className="animate-spin text-primary shrink-0" />}
-      <span className={`text-[13.5px] leading-relaxed ${done ? 'text-muted-foreground' : 'text-foreground font-medium'}`}>{text}</span>
+      <span className={`text-[13px] font-mono leading-relaxed ${done ? 'text-muted-foreground' : 'text-foreground font-medium'}`}>{text}</span>
     </div>
   );
 });

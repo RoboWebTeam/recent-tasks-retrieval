@@ -69,13 +69,17 @@ interface Message {
   justGenerated?: boolean;
   /** true — это уточняющий вопрос от ИИ (задача была расплывчата), а не ошибка и не готовый сайт */
   isQuestion?: boolean;
-  /** Тип «агентного» пузыря живой сборки: 'plan' — план в начале, 'file' — карточка файла
-   *  index.html, 'step' — отдельный шаг работы. undefined — обычное сообщение/финальный отчёт.
-   *  Текст плана/шага хранится в content. */
-  kind?: 'plan' | 'file' | 'step';
+  /** Тип «агентного» пузыря живой сборки: 'plan' — план в начале, 'file' — строка файла
+   *  index.html, 'step' — отдельный шаг работы (во время сборки), 'stepgroup' — свёрнутая
+   *  группа готовых шагов (после завершения). undefined — обычное сообщение/отчёт. */
+  kind?: 'plan' | 'file' | 'step' | 'stepgroup';
   fileName?: string;
   fileStatus?: 'creating' | 'created' | 'updating' | 'updated';
   stepStatus?: 'running' | 'done';
+  /** Список текстов шагов для свёрнутой группы (kind='stepgroup') */
+  stepList?: string[];
+  /** true — группа шагов свёрнута (по умолчанию так и есть — как в Claude Code) */
+  collapsed?: boolean;
   /** Добавлено строк (дифф-статистика файла, зелёное +N) */
   lines?: number;
   /** Удалено строк (дифф-статистика правки, красное −N) */
@@ -259,6 +263,14 @@ export default function Builder() {
   const [streamStatus, setStreamStatus] = useState<string | null>(null);
   // Живой счётчик строк генерируемого файла (для карточки index.html во время стрима).
   const [streamLines, setStreamLines] = useState(0);
+  // Секунды с начала текущей генерации — для футера-статуса «✳ собираю… · Nс · N строк».
+  const [genElapsed, setGenElapsed] = useState(0);
+  useEffect(() => {
+    if (!loading) { setGenElapsed(0); return; }
+    const start = Date.now();
+    const t = setInterval(() => setGenElapsed(Math.floor((Date.now() - start) / 1000)), 1000);
+    return () => clearInterval(t);
+  }, [loading]);
   const [showDomainModal, setShowDomainModal] = useState(false);
   const imageInputRef = useRef<HTMLInputElement>(null);
   const recognitionRef = useRef<SpeechRecognition | null>(null);
@@ -628,16 +640,21 @@ export default function Builder() {
 
         setMessages(prev => {
           if (mode === 'append' && generatedHtml) {
-            // Стрим-успех: фиксируем строку файла (с дифф-статистикой) и шаги как завершённые,
-            // отчёт — отдельным пузырём.
+            // Стрим-успех: фиксируем строку файла (с дифф-статистикой), а отдельные пузыри-шаги
+            // текущей генерации СВОРАЧИВАЕМ в одну группу «N шагов ›» (как свёрнутые группы в
+            // Claude Code) — их видно вживую во время сборки, а после завершения они убираются
+            // под спойлер, чтобы не захламлять историю. Отчёт — отдельным пузырём.
             const addedLines = opts.fileAdded ?? generatedHtml.split('\n').length;
             const removedLines = opts.fileRemoved ?? 0;
-            const updated = prev.map(m => {
-              if (m.kind === 'step' && m.stepStatus === 'running') return { ...m, stepStatus: 'done' as const };
-              if (m.kind === 'file') return { ...m, fileStatus: (m.fileStatus === 'updating' ? 'updated' : 'created') as const, lines: addedLines, removed: removedLines };
-              return m;
-            });
-            return [...updated, reportMsg];
+            // Находим строку файла текущей генерации и собираем шаги ПОСЛЕ неё.
+            let fileIdx = -1;
+            for (let k = prev.length - 1; k >= 0; k--) { if (prev[k].kind === 'file') { fileIdx = k; break; } }
+            const head = prev.slice(0, fileIdx + 1).map(m =>
+              m.kind === 'file' ? { ...m, fileStatus: (m.fileStatus === 'updating' ? 'updated' : 'created') as const, lines: addedLines, removed: removedLines } : m
+            );
+            const stepTexts = prev.slice(fileIdx + 1).filter(m => m.kind === 'step').map(m => m.content);
+            const groupMsg: Message = { role: 'assistant', kind: 'stepgroup', content: '', stepList: stepTexts, collapsed: true };
+            return [...head, ...(stepTexts.length ? [groupMsg] : []), reportMsg];
           }
           const updated = [...prev];
           updated[updated.length - 1] = reportMsg;
@@ -1514,7 +1531,28 @@ export default function Builder() {
                 </div>
               ) : (
                 messages.map((m, i) => {
-                  // «Агентные» пузыри лайв-сборки (карточка файла / шаг работы) — компактные строки
+                  // Свёрнутая группа готовых шагов (после завершения) — как свёрнутые группы в Claude Code.
+                  if (m.kind === 'stepgroup') {
+                    const collapsed = m.collapsed !== false;
+                    const n = m.stepList?.length || 0;
+                    return (
+                      <div key={i} className="flex justify-start pl-[42px]">
+                        <div className="flex-1 min-w-0">
+                          <button onClick={() => setMessages(prev => prev.map((x, idx) => idx === i ? { ...x, collapsed: !collapsed } : x))}
+                            className="group flex items-center gap-2 rounded-md px-1.5 py-1 -mx-1.5 hover:bg-secondary/60 transition-colors text-muted-foreground w-full text-left">
+                            <Icon name={collapsed ? 'ChevronRight' : 'ChevronDown'} fallback="ChevronRight" size={14} className="shrink-0" />
+                            <span className="text-[13.5px] font-mono">{n} {lang === 'ru' ? (n % 10 === 1 && n % 100 !== 11 ? 'шаг сборки' : 'шагов сборки') : 'build steps'}</span>
+                          </button>
+                          {!collapsed && (
+                            <div className="mt-0.5 pl-1">
+                              {m.stepList?.map((s, j) => <AgentStep key={j} text={s} done />)}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  }
+                  // «Агентные» пузыри лайв-сборки (строка файла / шаг работы) — компактные строки
                   // без аватара, визуально сгруппированы под ответом ассистента (как лог операций).
                   if (m.kind === 'file' || m.kind === 'step') {
                     const activeFile = m.fileStatus === 'creating' || m.fileStatus === 'updating';
@@ -1589,6 +1627,19 @@ export default function Builder() {
                     </div>
                   );
                 })
+              )}
+
+              {/* Футер-статус генерации (как «✳ 6m 53s · 3.2k tokens · thinking…» в Claude Code) */}
+              {loading && (
+                <div className="flex items-center gap-2 pl-[42px] pt-1 text-muted-foreground animate-fade-in">
+                  <Icon name="Sparkles" size={12} className="text-primary shrink-0 animate-pulse" />
+                  <span className="text-[12.5px] font-mono">
+                    {streamLines > 0 ? (lang === 'ru' ? 'собираю сайт' : 'building') : (lang === 'ru' ? 'думаю' : 'thinking')}
+                    {genElapsed > 0 && ` · ${genElapsed}с`}
+                    {streamLines > 0 && ` · ${streamLines} ${lang === 'ru' ? 'строк' : 'lines'}`}
+                    {'…'}
+                  </span>
+                </div>
               )}
               <div ref={messagesEndRef} />
             </div>
