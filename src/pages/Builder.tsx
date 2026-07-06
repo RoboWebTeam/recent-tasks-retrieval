@@ -76,8 +76,10 @@ interface Message {
   fileName?: string;
   fileStatus?: 'creating' | 'created' | 'updating' | 'updated';
   stepStatus?: 'running' | 'done';
-  /** Итоговое число строк файла (для карточки файла после завершения) */
+  /** Добавлено строк (дифф-статистика файла, зелёное +N) */
   lines?: number;
+  /** Удалено строк (дифф-статистика правки, красное −N) */
+  removed?: number;
   /** true — шаги уже показаны вживую отдельными пузырями, поэтому финальный отчёт их не дублирует */
   liveSteps?: boolean;
 }
@@ -514,7 +516,7 @@ export default function Builder() {
       const applyResult = (
         data: Record<string, unknown>,
         statusCode: number,
-        opts: { mode?: 'replace' | 'append'; liveSteps?: boolean } = {},
+        opts: { mode?: 'replace' | 'append'; liveSteps?: boolean; fileAdded?: number; fileRemoved?: number } = {},
       ) => {
         const mode = opts.mode || 'replace';
         const ok = statusCode >= 200 && statusCode < 300;
@@ -626,11 +628,13 @@ export default function Builder() {
 
         setMessages(prev => {
           if (mode === 'append' && generatedHtml) {
-            // Стрим-успех: фиксируем карточку файла и шаги как завершённые, отчёт — отдельным пузырём.
-            const finalLines = generatedHtml.split('\n').length;
+            // Стрим-успех: фиксируем строку файла (с дифф-статистикой) и шаги как завершённые,
+            // отчёт — отдельным пузырём.
+            const addedLines = opts.fileAdded ?? generatedHtml.split('\n').length;
+            const removedLines = opts.fileRemoved ?? 0;
             const updated = prev.map(m => {
               if (m.kind === 'step' && m.stepStatus === 'running') return { ...m, stepStatus: 'done' as const };
-              if (m.kind === 'file') return { ...m, fileStatus: (m.fileStatus === 'updating' ? 'updated' : 'created') as const, lines: finalLines };
+              if (m.kind === 'file') return { ...m, fileStatus: (m.fileStatus === 'updating' ? 'updated' : 'created') as const, lines: addedLines, removed: removedLines };
               return m;
             });
             return [...updated, reportMsg];
@@ -764,7 +768,18 @@ export default function Builder() {
                 flushPreview(false);
               } else if (evName === 'done') {
                 settled = true; setStreamStatus(null); setStreamLines(0);
-                applyResult(payload, 200, { mode: 'append', liveSteps: stepsSeen > 0 });
+                // Дифф-статистика для строки файла: новый сайт → +всего строк; правка → +добавлено/−удалено
+                // (приблизительно, по разнице множеств строк old/new — как в логе разработчика).
+                const finalHtml = (payload.html as string) || '';
+                let fileAdded = finalHtml ? finalHtml.split('\n').length : 0;
+                let fileRemoved = 0;
+                if (isEditRequest && prevHtml) {
+                  const oldLines = prevHtml.split('\n'), newLines = finalHtml.split('\n');
+                  const oldSet = new Set(oldLines), newSet = new Set(newLines);
+                  fileAdded = newLines.filter(l => !oldSet.has(l)).length;
+                  fileRemoved = oldLines.filter(l => !newSet.has(l)).length;
+                }
+                applyResult(payload, 200, { mode: 'append', liveSteps: stepsSeen > 0, fileAdded, fileRemoved });
                 streamedOk = true;
                 break streamLoop;
               } else if (evName === 'question') {
@@ -1511,8 +1526,10 @@ export default function Builder() {
                               lang={lang}
                               fileName={m.fileName || 'index.html'}
                               status={m.fileStatus || 'created'}
-                              lines={activeFile ? streamLines : (m.lines || 0)}
+                              added={activeFile ? streamLines : (m.lines || 0)}
+                              removed={activeFile ? 0 : (m.removed || 0)}
                               active={activeFile}
+                              onOpen={activeFile ? undefined : () => { setRightTab('code'); setCodeEditorValue(html); }}
                             />
                           ) : (
                             <AgentStep text={m.content} done={m.stepStatus === 'done'} />
@@ -1538,12 +1555,7 @@ export default function Builder() {
                           <div className="text-[10px] text-muted-foreground mb-1.5">{msgTime}</div>
                         )}
                         {m.kind === 'plan' ? (
-                          <div className="animate-fade-in">
-                            <div className="text-[11px] uppercase tracking-widest text-primary font-semibold mb-1 flex items-center gap-1.5">
-                              <Icon name="Route" fallback="ListChecks" size={12} /> {lang === 'ru' ? 'План' : 'Plan'}
-                            </div>
-                            <p className="text-[14px] font-semibold leading-relaxed text-foreground">{m.content}</p>
-                          </div>
+                          <p className="text-[14px] leading-relaxed text-foreground font-medium animate-fade-in">{m.content}</p>
                         ) : m.role === 'assistant' && m.content === '' ? (
                           <GenerationProgress lang={lang} isEdit={!!m.isEdit} liveStatus={i === messages.length - 1 ? streamStatus : null} />
                         ) : m.isQuestion ? (
