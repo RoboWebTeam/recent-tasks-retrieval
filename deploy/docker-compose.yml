@@ -39,6 +39,24 @@ services:
     expose:
       - "8000"
 
+  # Бутстрап HTTPS: если реального сертификата ещё нет — кладём самоподписанный dummy,
+  # чтобы nginx с 443-блоком гарантированно стартовал. Реальный сертификат выпускается позже
+  # (deploy/init-letsencrypt.sh), после чего этот шаг видит его и ничего не делает.
+  certbot-init:
+    image: alpine:3.20
+    volumes:
+      - certbot_certs:/etc/letsencrypt
+    command: >
+      sh -ec '
+      D=/etc/letsencrypt/live/roboweb.dev;
+      if [ ! -f "$$D/fullchain.pem" ]; then
+        apk add --no-cache openssl >/dev/null 2>&1;
+        mkdir -p "$$D";
+        openssl req -x509 -nodes -newkey rsa:2048 -days 3650
+          -keyout "$$D/privkey.pem" -out "$$D/fullchain.pem" -subj "/CN=roboweb.dev";
+        echo "dummy cert created";
+      else echo "cert already present"; fi'
+
   frontend:
     build:
       context: ..
@@ -47,9 +65,30 @@ services:
         VITE_API_BASE_URL: ${SITE_URL}
     restart: unless-stopped
     depends_on:
-      - backend
+      backend:
+        condition: service_started
+      certbot-init:
+        condition: service_completed_successfully
     ports:
       - "80:80"
+      - "443:443"
+    volumes:
+      - certbot_certs:/etc/letsencrypt:ro
+      - certbot_webroot:/var/www/certbot
+
+  # Автопродление сертификата (каждые 12ч проверяет и продлевает через webroot-челлендж).
+  certbot:
+    image: certbot/certbot
+    restart: unless-stopped
+    volumes:
+      - certbot_certs:/etc/letsencrypt
+      - certbot_webroot:/var/www/certbot
+    entrypoint: >
+      sh -c 'trap exit TERM; while :; do
+        certbot renew --webroot -w /var/www/certbot --quiet;
+        sleep 12h & wait $${!}; done'
 
 volumes:
   roboweb_pgdata:
+  certbot_certs:
+  certbot_webroot:
