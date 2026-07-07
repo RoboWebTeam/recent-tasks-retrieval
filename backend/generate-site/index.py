@@ -826,7 +826,7 @@ def inject_data_runtime(html: str, project_id, tables, has_fns=False) -> str:
     if not project_id or not html or not trigger:
         return html or ''
     runtime = (
-        "<script>(function(){var PID=" + str(int(project_id)) + ";"
+        "<script>(function(){if(window.rw&&window.rw.__spa)return;var PID=" + str(int(project_id)) + ";"
         # Сайт исполняется в srcdoc-iframe (about:srcdoc), где относительный /api не резолвится —
         # строим АБСОЛЮТНЫЙ адрес от origin родителя (iframe same-origin с платформой).
         "var B='';try{B=(window.parent&&window.parent.location&&window.parent.location.origin)||'';}catch(e){}"
@@ -837,17 +837,18 @@ def inject_data_runtime(html: str, project_id, tables, has_fns=False) -> str:
         "function post(p,bd){return fetch(B+p,{method:'POST',headers:hdr(),body:JSON.stringify(bd)}).then(function(r){return r.json().then(function(j){return {s:r.status,j:j};});});}"
         # Серверные функции проекта: rw.call('имя',{...}); аккаунты посетителей: rw.auth.*
         "window.rw={call:function(fn,a){return post('/api/public-fn',{project_id:PID,fn:fn,args:a||{}}).then(function(x){if(!x.j||!x.j.ok)throw (x.j&&x.j.error)||'error';return x.j.result;});},"
-        "auth:{user:null,"
+        "auth:{user:null,ready:false,"
         "register:function(email,password,name){return post('/api/site-auth',{project_id:PID,action:'register',email:email,password:password,name:name}).then(function(x){if(x.s>=400)throw (x.j&&x.j.error)||'error';setTok(x.j.token);rw.auth.user=x.j.user;ui();return x.j.user;});},"
         "login:function(email,password){return post('/api/site-auth',{project_id:PID,action:'login',email:email,password:password}).then(function(x){if(x.s>=400)throw (x.j&&x.j.error)||'error';setTok(x.j.token);rw.auth.user=x.j.user;ui();return x.j.user;});},"
         "logout:function(){return post('/api/site-auth',{project_id:PID,action:'logout'}).then(function(){setTok('');rw.auth.user=null;ui();});},"
-        "me:function(){if(!tok())return Promise.resolve(null);return fetch(B+'/api/site-auth?project_id='+PID+'&action=me',{headers:hdr()}).then(function(r){return r.json();}).then(function(j){rw.auth.user=(j&&j.user)||null;ui();return rw.auth.user;}).catch(function(){return null;});}}};"
+        "me:function(){if(!tok()){rw.auth.ready=true;ui();return Promise.resolve(null);}return fetch(B+'/api/site-auth?project_id='+PID+'&action=me',{headers:hdr()}).then(function(r){return r.json();}).then(function(j){rw.auth.user=(j&&j.user)||null;rw.auth.ready=true;ui();return rw.auth.user;}).catch(function(){rw.auth.ready=true;ui();return null;});}}};"
         # Показ/скрытие блоков по состоянию входа + подстановка имени + загрузка кабинета.
         "function ui(){var u=rw.auth.user;document.body.classList.toggle('rw-authed',!!u);"
         "document.querySelectorAll('[data-rw-user]').forEach(function(el){el.textContent=u?(u.name||u.email):'';});"
         "document.querySelectorAll('[data-rw-when=in]').forEach(function(el){el.style.display=u?'':'none';});"
         "document.querySelectorAll('[data-rw-when=out]').forEach(function(el){el.style.display=u?'none':'';});"
-        "if(u)document.querySelectorAll('[data-rw-cabinet]').forEach(function(box){fill(box,box.getAttribute('data-rw-cabinet'));});}"
+        "if(u)document.querySelectorAll('[data-rw-cabinet]').forEach(function(box){fill(box,box.getAttribute('data-rw-cabinet'));});"
+        "if(rw._route&&rw.route)rw._route(rw.route,false);}"  # перепроверяем гард текущей страницы при смене входа
         # Формы: auth (data-rw-auth) и данные (data-rw-table / обычная заявка).
         "document.querySelectorAll('form').forEach(function(f){var AU=f.getAttribute('data-rw-auth');"
         "if(AU==='register'||AU==='login'){f.addEventListener('submit',function(e){e.preventDefault();var d={};new FormData(f).forEach(function(v,k){d[k]=v;});"
@@ -873,7 +874,46 @@ def inject_data_runtime(html: str, project_id, tables, has_fns=False) -> str:
         "n.querySelectorAll('[data-rw-field]').forEach(function(el){var v=row.data[el.getAttribute('data-rw-field')];"
         "if(el.tagName==='IMG'){if(v)el.src=v;}else{el.textContent=(v==null?'':v);}});host.appendChild(n);});}).catch(function(){});}"
         "document.querySelectorAll('[data-rw-catalog]').forEach(function(box){fill(box,box.getAttribute('data-rw-catalog'));});"
-        "ui();rw.auth.me();})();</script>"
+        # ── SPA (Этап 4): корзина/состояние + hash-роутер по data-rw-page ──
+        "var STK='rw_store_'+PID;"
+        "function loadStore(){try{var s=JSON.parse(localStorage.getItem(STK));return (s&&typeof s==='object')?s:{cart:[]};}catch(e){return {cart:[]};}}"
+        "function saveStore(){try{localStorage.setItem(STK,JSON.stringify({cart:rw.store.cart}));}catch(e){}}"
+        "rw.store=loadStore();if(!Array.isArray(rw.store.cart))rw.store.cart=[];"
+        "function cCount(){return rw.store.cart.reduce(function(n,i){return n+(i.qty||1);},0);}"
+        "function cTotal(){return rw.store.cart.reduce(function(s,i){return s+(+i.price||0)*(i.qty||1);},0);}"
+        "function renderCart(){document.querySelectorAll('[data-rw-bind]').forEach(function(el){var k=el.getAttribute('data-rw-bind');"
+        "if(k==='cart.count')el.textContent=cCount();else if(k==='cart.total')el.textContent=cTotal();});"
+        "document.querySelectorAll('[data-rw-cart]').forEach(function(box){var tpl=box.querySelector('template[data-rw-cart-item]');if(!tpl)return;"
+        "var host=box.querySelector('[data-rw-items]')||box;host.querySelectorAll('[data-rw-row]').forEach(function(x){x.remove();});"
+        "rw.store.cart.forEach(function(it,idx){var n=tpl.content.cloneNode(true);var root=n.firstElementChild;if(root)root.setAttribute('data-rw-row','');"
+        "n.querySelectorAll('[data-rw-field]').forEach(function(el){var f=el.getAttribute('data-rw-field');el.textContent=(it[f]==null?'':it[f]);});"
+        "n.querySelectorAll('[data-rw-cart-remove]').forEach(function(b){b.addEventListener('click',function(e){e.preventDefault();rw.store.cart.splice(idx,1);saveStore();renderCart();});});"
+        "host.appendChild(n);});});}"
+        "rw.cart={add:function(it){var ex=rw.store.cart.filter(function(x){return String(x.id)===String(it.id);})[0];"
+        "if(ex)ex.qty=(ex.qty||1)+1;else rw.store.cart.push({id:it.id,item:it.item,price:+it.price||0,qty:1});saveStore();renderCart();},"
+        "clear:function(){rw.store.cart=[];saveStore();renderCart();},count:cCount,total:cTotal};"
+        "document.querySelectorAll('[data-rw-add-to-cart]').forEach(function(b){b.addEventListener('click',function(e){e.preventDefault();"
+        "rw.cart.add({id:b.getAttribute('data-id')||b.getAttribute('data-item'),item:b.getAttribute('data-item'),price:b.getAttribute('data-price')});});});"
+        "document.querySelectorAll('[data-rw-cart-clear]').forEach(function(b){b.addEventListener('click',function(e){e.preventDefault();rw.cart.clear();});});"
+        "var PAGES=[].slice.call(document.querySelectorAll('[data-rw-page]'));"
+        "if(PAGES.length){var DEF=(document.querySelector('[data-rw-page-default]')||PAGES[0]).getAttribute('data-rw-page');"
+        "function pageEl(name){for(var i=0;i<PAGES.length;i++){if(PAGES[i].getAttribute('data-rw-page')===name)return PAGES[i];}return null;}"
+        "function route(name,push){var el=pageEl(name);if(!el){name=DEF;el=pageEl(DEF);}if(!el)return;"
+        # Гард редиректит на вход ТОЛЬКО когда auth уже резолвнут (иначе валидный токен ложно уводит на логин).
+        "if(el.hasAttribute('data-rw-auth')&&rw.auth.ready&&!rw.auth.user){var lp=document.querySelector('[data-rw-login-page]');var ln=lp?lp.getAttribute('data-rw-page'):null;if(ln&&ln!==name){return route(ln,push);}}"
+        "var changed=(rw.route!==name);"
+        "PAGES.forEach(function(p){p.style.display=(p===el)?'':'none';});"
+        # На показанной странице проявляем reveal-элементы (IntersectionObserver не сработает на display:none).
+        "try{el.querySelectorAll('.reveal').forEach(function(r){r.classList.add('in');});}catch(e){}"
+        "document.querySelectorAll('[data-rw-link],a[href^=\"#/\"]').forEach(function(a){var t=a.getAttribute('data-rw-link')||(a.getAttribute('href')||'').replace('#/','');a.classList.toggle('rw-active',t===name);});"
+        "if(changed){try{window.scrollTo(0,0);}catch(e){}}"  # скролл вверх только при реальной смене страницы
+        "if(push!==false&&location.hash!=='#/'+name){try{location.hash='#/'+name;}catch(e){}}rw.route=name;renderCart();}"
+        "rw._route=route;rw.go=function(n){route(n,true);};"
+        # Роутер реагирует ТОЛЬКО на хеши вида #/page; обычные якоря (#section, наверх) отдаём браузеру.
+        "function fromHash(){var h=location.hash||'';if(h===''){route(DEF,false);return;}if(h.indexOf('#/')!==0)return;route(h.replace(/^#\\//,'')||DEF,false);}"
+        "document.querySelectorAll('[data-rw-link]').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();route(a.getAttribute('data-rw-link'),true);});});"
+        "window.addEventListener('hashchange',fromHash);fromHash();}else{renderCart();}"
+        "rw.__spa=true;ui();rw.auth.me();})();</script>"
     )
     lower = html.lower()
     idx = lower.rfind('</body>')
@@ -1192,7 +1232,15 @@ function handler(input){
 - Личный кабинет (СВОИ строки посетителя): контейнер с data-rw-cabinet="имя_таблицы" + <template data-rw-item> (как каталог). Показывает ТОЛЬКО строки текущего вошедшего посетителя.
 - Личная таблица (заказы/брони пользователя) объявляется в схеме с "owner_scoped":true — платформа сама привяжет строки к посетителю (сервер ставит владельца, клиент подделать не может). Личную таблицу НЕ делай public_read.
 Пример: <form data-rw-auth="login"><input name="email" type="email" placeholder="E-mail" required><input name="password" type="password" placeholder="Пароль" required><button type="submit" class="btn">Войти</button></form>
-Форма заказа в кабинете (пишет в личную таблицу): <form data-rw-table="orders"> … </form> — если orders помечена owner_scoped, заявка привяжется к вошедшему; неавторизованному вернётся требование входа. Обычному сайту без личных кабинетов аккаунты НЕ нужны."""
+Форма заказа в кабинете (пишет в личную таблицу): <form data-rw-table="orders"> … </form> — если orders помечена owner_scoped, заявка привяжется к вошедшему; неавторизованному вернётся требование входа. Обычному сайту без личных кабинетов аккаунты НЕ нужны.
+
+5. МНОГОСТРАНИЧНОЕ ПРИЛОЖЕНИЕ (SPA: страницы, навигация, корзина). Для приложений (интернет-магазин, каталог+корзина+оформление, многоэкранный сервис) делай НЕСКОЛЬКО экранов в ОДНОМ файле — платформа даёт клиентский роутер и корзину, тебе нужна только разметка. НЕ пиши свой роутер/JS.
+- Каждый экран — <section data-rw-page="имя"> (латиницей: home, catalog, cart, account…). Стартовый помечай data-rw-page-default (иначе первый). Прячутся/показываются автоматически.
+- Навигация: ссылки/кнопки с data-rw-link="имя" (или обычные <a href="#/имя">). Активной добавляется класс rw-active. Программно — window.rw.go('cart').
+- Гардированная страница (только для вошедших): <section data-rw-page="account" data-rw-auth>. Странице входа добавь data-rw-login-page — неавторизованного перекинет туда. Это удобство; сами ДАННЫЕ защищены на сервере (owner_scoped).
+- КОРЗИНА. Кнопка «в корзину»: <button data-rw-add-to-cart data-id="p1" data-item="Пицца" data-price="590">В корзину</button>. Счётчик/сумма: <span data-rw-bind="cart.count"></span>, <span data-rw-bind="cart.total"></span> (обновляются сами). Список корзины: <div data-rw-cart><div data-rw-items></div><template data-rw-cart-item><div class="row"><span data-rw-field="item"></span> ×<span data-rw-field="qty"></span> — <span data-rw-field="price"></span>₽ <button data-rw-cart-remove>×</button></div></template></div>. Очистка: <button data-rw-cart-clear>Очистить</button>. Корзина хранится у посетителя (localStorage).
+- ОФОРМЛЕНИЕ (безопасность — ВАЖНО). Клиентская корзина, цены из data-price и любой total/price из args — НЕДОВЕРЕННЫЕ (посетитель их подменяет). Поэтому: (а) checkout — только СЕРВЕРНОЙ функцией rw.call('checkout',{items:[{id,qty}]}); из args бери лишь id и qty, а цену каждой позиции и сумму считай САМ из своей таблицы каталога (reads), игнорируя присланные цены; (б) таблицу заказов делай owner_scoped (НЕ public_write) — тогда сервер сам привяжет заказ к вошедшему (input.user); если input.user==null — откажи в оформлении; (в) валидируй qty (целое 1..N) и что id есть в каталоге. Пример: <button onclick="rw.call('checkout',{items:rw.store.cart.map(function(i){return {id:i.id,qty:i.qty};})}).then(function(r){alert('Заказ на '+r.total+'₽ оформлен');rw.cart.clear();rw.go('account');}).catch(function(){alert('Войдите, чтобы оформить заказ');})">Оформить</button>.
+Простому лендингу страницы/корзина НЕ нужны — не усложняй."""
 
 
 # Ключевые слова, по которым запрос считаем "крупной задачей" — тогда включается
