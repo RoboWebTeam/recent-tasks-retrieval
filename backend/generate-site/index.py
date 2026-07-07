@@ -289,9 +289,10 @@ addEventListener('DOMContentLoaded',()=>{
   1) секцию тарифов/цен (3 плана, средний выделен бейджем «ХИТ»), если её ещё нет;
   2) секцию отзывов (2-3 карточки с аватаром, именем, 5 звёздами);
   3) FAQ — <section class="faq"> с нативным <details>-аккордеоном на 4-6 реальных вопросов с развёрнутыми ответами;
-  4) финальный CTA-баннер на градиенте;
-  5) <footer> из 4 колонок: бренд+описание, навигация по разделам, услуги/ссылки, контакты (адрес, телефон, email, режим работы) + строка соцсетей инлайн-SVG в кружках + нижняя строка с © и годом.
-Только ПОСЛЕ полноценного <footer> идёт </body></html>. Сайт без FAQ и без футера с контактами — НЕДОДЕЛАННЫЙ, это брак. Места в бюджете достаточно — доводи до конца, не «сворачивайся» преждевременно."""
+  4) секцию ЗАЯВКИ/ЗАПИСИ/КОНТАКТОВ с НАСТОЯЩЕЙ рабочей формой — именно тег <form data-rw-table="...">, а НЕ кнопка-ссылка «Записаться». Внутри поля <input name="..."> / <textarea name="..."> и <button type="submit">. Это обязательно, если сайт хоть как-то собирает заявки, записи, брони, заказы или обратную связь (см. блок «РЕАЛЬНЫЕ ДАННЫЕ»). Без настоящего <form> заявки НЕ сохранятся — это брак;
+  5) финальный CTA-баннер на градиенте;
+  6) <footer> из 4 колонок: бренд+описание, навигация по разделам, услуги/ссылки, контакты (адрес, телефон, email, режим работы) + строка соцсетей инлайн-SVG в кружках + нижняя строка с © и годом.
+Только ПОСЛЕ полноценного <footer> идёт </body></html>. Сайт без FAQ, без рабочей формы <form> (если он собирает заявки) или без футера с контактами — НЕДОДЕЛАННЫЙ, это брак. Места в бюджете достаточно — доводи до конца, не «сворачивайся» преждевременно."""
 
 def get_project_images(project_id, user_id: int, schema: str):
     """Возвращает список изображений, загруженных пользователем в хранилище проекта (раздел Ядро)."""
@@ -777,6 +778,295 @@ def save_html(project_id: int, html: str, schema: str):
         conn.close()
 
 
+# ─────────────────────────────────────────────────────────────────────────────
+# ЭТАП 1 ФУЛЛСТЕКА «ДАННЫЕ»: AI объявляет таблицы БД маркером ROBOWEB_SCHEMA, а формы/каталоги
+# сгенерированного сайта читают/пишут в них через публичный /api/public-data.
+# Механизм опциональный (флаг RW_DATA_ENABLED) и грациозный: нет маркера → ничего не меняется.
+# ─────────────────────────────────────────────────────────────────────────────
+RW_DATA_ENABLED = os.environ.get('RW_DATA_ENABLED', '1') != '0'
+ALLOWED_COL_TYPES = ('text', 'number', 'boolean')
+
+
+def _valid_db_identifier(name: str) -> bool:
+    import re
+    return bool(re.match(r'^[a-zA-Z_][a-zA-Z0-9_]{0,63}$', name or ''))
+
+
+def extract_schema_block(html: str):
+    """Достаёт маркер <!--ROBOWEB_SCHEMA:{...}--> (модель ставит его после </html>).
+    Возвращает (html_без_маркера, list_таблиц). Нет маркера/битый JSON → (html, [])."""
+    import re
+    m = re.search(r'<!--\s*ROBOWEB_SCHEMA:(.*?)-->', html, re.DOTALL)
+    if not m:
+        return html, []
+    cleaned = (html[:m.start()] + html[m.end():]).strip()
+    raw = m.group(1).strip()
+    s = raw.find('{'); e = raw.rfind('}')
+    if s == -1 or e == -1:
+        return cleaned, []
+    try:
+        parsed = json.loads(raw[s:e + 1])
+        tables = parsed.get('tables', []) if isinstance(parsed, dict) else []
+    except (ValueError, TypeError):
+        tables = []
+    return cleaned, tables if isinstance(tables, list) else []
+
+
+def inject_data_runtime(html: str, project_id, tables) -> str:
+    """Вставляет перед </body> стандартный клиентский runtime data-слоя с уже вшитым project_id.
+    Модель пишет ТОЛЬКО декларативную разметку (data-rw-table на форме, data-rw-catalog +
+    <template data-rw-item> на каталоге) — всю логику fetch к /api/public-data берёт на себя этот
+    инжектируемый скрипт (надёжнее, чем просить модель писать JS, и переживает правки сайта).
+    Вставляется только если объявлена схема (есть таблицы) и в HTML есть маркеры data-rw-*."""
+    if not project_id or not isinstance(tables, list) or not tables:
+        return html or ''
+    low = (html or '').lower()
+    if not html or ('data-rw-' not in html and '<form' not in low):
+        return html or ''
+    runtime = (
+        "<script>(function(){var PID=" + str(int(project_id)) + ";"
+        # Сайт исполняется в srcdoc-iframe (about:srcdoc), где относительный /api не резолвится —
+        # строим АБСОЛЮТНЫЙ адрес от origin родителя (iframe same-origin с платформой).
+        "var B='';try{B=(window.parent&&window.parent.location&&window.parent.location.origin)||'';}catch(e){}"
+        "if(!B){try{B=location.origin;}catch(e){}}var API=B+'/api/public-data';"
+        "document.querySelectorAll('form').forEach(function(f){"
+        "var TB=f.getAttribute('data-rw-table');"
+        "if(!TB){var nm=f.querySelectorAll('[name]');var sb=f.querySelector('[type=submit],button');"
+        "if(!sb||nm.length<2)return;TB='zayavki';}"  # обычную форму-заявку тоже подключаем
+        "f.addEventListener('submit',function(e){e.preventDefault();var d={};"
+        "new FormData(f).forEach(function(v,k){d[k]=v;});"
+        "var b=f.querySelector('[type=submit],button');if(b)b.disabled=true;"
+        "fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},"
+        "body:JSON.stringify({project_id:PID,table:TB,data:d})})"
+        ".then(function(r){if(!r.ok)throw 0;return r.json();}).then(function(){"
+        "var m=f.getAttribute('data-rw-success')||'Спасибо! Заявка отправлена.';"
+        "f.innerHTML='<p style=\"padding:1.2rem;text-align:center;font-weight:600\">'+m+'</p>';})"
+        ".catch(function(){if(b)b.disabled=false;alert('Не удалось отправить. Попробуйте позже.');});});});"
+        "document.querySelectorAll('[data-rw-catalog]').forEach(function(box){"
+        "var tpl=box.querySelector('template[data-rw-item]');if(!tpl)return;"
+        "fetch(API+'?project_id='+PID+'&table='+encodeURIComponent(box.getAttribute('data-rw-catalog')))"
+        ".then(function(r){if(!r.ok)throw 0;return r.json();}).then(function(res){"
+        "var rows=(res&&res.rows)||[];if(!rows.length)return;"
+        "var host=box.querySelector('[data-rw-items]')||box;"
+        "host.querySelectorAll('[data-rw-demo]').forEach(function(x){x.remove();});"
+        "rows.forEach(function(row){var n=tpl.content.cloneNode(true);"
+        "n.querySelectorAll('[data-rw-field]').forEach(function(el){var v=row.data[el.getAttribute('data-rw-field')];"
+        "if(el.tagName==='IMG'){if(v)el.src=v;}else{el.textContent=(v==null?'':v);}});"
+        "host.appendChild(n);});}).catch(function(){});});})();</script>"
+    )
+    lower = html.lower()
+    idx = lower.rfind('</body>')
+    if idx == -1:
+        return html + runtime
+    return html[:idx] + runtime + html[idx:]
+
+
+def apply_project_schema(project_id, user_id, tables, schema):
+    """Идемпотентно создаёт/обновляет виртуальные таблицы проекта (project_db_tables) из схемы.
+    ON CONFLICT (project_id, table_name) — повторная правка сайта не дублирует таблицы и НЕ трогает
+    уже накопленные строки. Ошибки глотаем с логом: генерация сайта не должна падать из-за схемы."""
+    if not RW_DATA_ENABLED or not project_id or not user_id or not isinstance(tables, list) or not tables:
+        return
+    try:
+        conn = psycopg2.connect(os.environ['DATABASE_URL'])
+        try:
+            with conn.cursor() as cur:
+                for t in tables[:20]:
+                    if not isinstance(t, dict):
+                        continue
+                    tname = (t.get('table_name') or '').strip()
+                    if not _valid_db_identifier(tname):
+                        continue
+                    cols = []
+                    for c in (t.get('columns') or [])[:50]:
+                        if not isinstance(c, dict):
+                            continue
+                        cname = (c.get('name') or '').strip()
+                        if not _valid_db_identifier(cname):
+                            continue
+                        ctype = c.get('type') if c.get('type') in ALLOWED_COL_TYPES else 'text'
+                        col = {'name': cname, 'type': ctype}
+                        if c.get('label'):
+                            col['label'] = str(c['label'])[:200]
+                        cols.append(col)
+                    if not cols:
+                        continue
+                    col_names = {c['name'] for c in cols}
+                    public_read = bool(t.get('public_read'))
+                    public_write = bool(t.get('public_write'))
+                    write_fields = [f for f in (t.get('write_fields') or []) if f in col_names]
+                    cur.execute(
+                        f"""INSERT INTO {schema}.project_db_tables
+                                (project_id, user_id, table_name, columns, public_read, public_write, write_fields, label)
+                            VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
+                            ON CONFLICT (project_id, table_name) DO UPDATE SET
+                                columns=EXCLUDED.columns, public_read=EXCLUDED.public_read,
+                                public_write=EXCLUDED.public_write, write_fields=EXCLUDED.write_fields,
+                                label=EXCLUDED.label""",
+                        (project_id, user_id, tname, json.dumps(cols),
+                         public_read, public_write, json.dumps(write_fields),
+                         (str(t.get('label'))[:200] if t.get('label') else None))
+                    )
+            conn.commit()
+        finally:
+            conn.close()
+    except Exception as ex:
+        log(f'apply_project_schema error: {repr(ex)[:200]}')
+
+
+def derive_schema_from_html(html):
+    """Выводит таблицы БД прямо из декларативной разметки сайта (data-rw-table на форме,
+    data-rw-catalog + data-rw-field в <template>). Это ОСНОВНОЙ механизм: он работает, даже
+    если модель не выдала отдельный невидимый маркер ROBOWEB_SCHEMA (что она делает ненадёжно).
+    Модель пишет только видимую разметку — бэкенд сам понимает, какие таблицы нужны."""
+    import re
+    if not html:
+        return []
+    tables, seen = [], set()
+    # Формы записи: <form ... data-rw-table="Y" ...> ... name="..." ... </form>
+    for fm in re.finditer(r'<form\b[^>]*\bdata-rw-table=["\']([^"\']+)["\'][^>]*>(.*?)</form>',
+                          html, re.IGNORECASE | re.DOTALL):
+        tname = fm.group(1).strip()
+        if not _valid_db_identifier(tname) or tname in seen:
+            continue
+        fields = []
+        for nm in re.finditer(r'\bname=["\']([^"\']+)["\']', fm.group(2)):
+            fn = nm.group(1).strip()
+            if _valid_db_identifier(fn) and fn not in fields:
+                fields.append(fn)
+        if not fields:
+            continue
+        seen.add(tname)
+        tables.append({'table_name': tname, 'label': tname,
+                       'columns': [{'name': f, 'type': 'text'} for f in fields],
+                       'public_write': True, 'public_read': False, 'write_fields': fields})
+    # Fallback: обычные <form> БЕЗ data-rw-table (модель забыла атрибут) — сводим в одну таблицу
+    # заявок "zayavki", чтобы присланные данные не терялись. Только настоящие формы-заявки:
+    # есть submit-кнопка и минимум 2 именованных поля (чтобы не задеть поиск/подписку одним полем).
+    untagged = []
+    for fm in re.finditer(r'<form\b(?![^>]*data-rw-table)[^>]*>(.*?)</form>', html, re.IGNORECASE | re.DOTALL):
+        block = fm.group(1)
+        if not re.search(r'type=["\']submit["\']|<button', block, re.IGNORECASE):
+            continue
+        names = [n.group(1).strip() for n in re.finditer(r'\bname=["\']([^"\']+)["\']', block)]
+        names = [n for n in names if _valid_db_identifier(n)]
+        if len(names) < 2:
+            continue
+        for n in names:
+            if n not in untagged:
+                untagged.append(n)
+    if untagged and 'zayavki' not in seen:
+        seen.add('zayavki')
+        tables.append({'table_name': 'zayavki', 'label': 'Заявки с сайта',
+                       'columns': [{'name': f, 'type': 'text'} for f in untagged],
+                       'public_write': True, 'public_read': False, 'write_fields': untagged})
+    # Каталоги чтения: data-rw-catalog="X" + ближайший <template data-rw-item> с data-rw-field
+    for cm in re.finditer(r'data-rw-catalog=["\']([^"\']+)["\']', html, re.IGNORECASE):
+        tname = cm.group(1).strip()
+        if not _valid_db_identifier(tname) or tname in seen:
+            continue
+        tpl = re.search(r'<template\b[^>]*\bdata-rw-item\b[^>]*>(.*?)</template>',
+                        html[cm.end():], re.IGNORECASE | re.DOTALL)
+        fields = []
+        if tpl:
+            for fm2 in re.finditer(r'data-rw-field=["\']([^"\']+)["\']', tpl.group(1)):
+                fn = fm2.group(1).strip()
+                if _valid_db_identifier(fn) and fn not in fields:
+                    fields.append(fn)
+        if not fields:
+            fields = ['title', 'descr', 'price', 'photo']
+        seen.add(tname)
+        tables.append({'table_name': tname, 'label': tname,
+                       'columns': [{'name': f, 'type': 'text'} for f in fields],
+                       'public_read': True, 'public_write': False})
+    return tables
+
+
+def merge_schema(primary, derived):
+    """Объединяет таблицы из маркера (primary, приоритет) с выведенными из разметки (derived)."""
+    primary = primary if isinstance(primary, list) else []
+    names = {t.get('table_name') for t in primary if isinstance(t, dict)}
+    return primary + [t for t in derived if t.get('table_name') not in names]
+
+
+# HTML рабочей формы-заявки (вставляется бэкендом, если сайт собирает заявки, а модель формы не сделала).
+# Стили инлайновые и адаптивные: тянут переменные темы сайта (var(--surface/--accent/…)) с фолбэками.
+_LEAD_FORM_INNER = (
+    '<div class="rw-lead" style="max-width:560px;margin:2rem auto 0;background:var(--surface,rgba(127,127,127,.06));'
+    'border:1px solid var(--line,rgba(127,127,127,.25));border-radius:var(--r-lg,20px);padding:clamp(1.5rem,4vw,2.5rem);'
+    'box-shadow:var(--shadow-md,0 10px 30px rgba(0,0,0,.12))">'
+    '<h3 style="margin:0 0 .4rem;font-size:1.4rem">Записаться</h3>'
+    '<p style="margin:0 0 1.4rem;opacity:.7">Оставьте контакты — перезвоним и подтвердим запись.</p>'
+    '<form data-rw-table="zayavki" data-rw-success="Спасибо! Заявка отправлена — скоро свяжемся." style="display:grid;gap:.85rem">'
+    '<input name="name" placeholder="Ваше имя" required style="padding:.9rem 1rem;border:1px solid var(--line,rgba(127,127,127,.35));border-radius:var(--r-md,12px);background:transparent;color:inherit;font:inherit;width:100%">'
+    '<input name="phone" placeholder="Телефон" required style="padding:.9rem 1rem;border:1px solid var(--line,rgba(127,127,127,.35));border-radius:var(--r-md,12px);background:transparent;color:inherit;font:inherit;width:100%">'
+    '<textarea name="comment" placeholder="Комментарий (необязательно)" rows="3" style="padding:.9rem 1rem;border:1px solid var(--line,rgba(127,127,127,.35));border-radius:var(--r-md,12px);background:transparent;color:inherit;font:inherit;width:100%;resize:vertical"></textarea>'
+    '<button type="submit" class="btn" style="padding:1rem;border:none;border-radius:var(--r-md,12px);background:var(--accent,#2563eb);color:#fff;font:inherit;font-weight:700;cursor:pointer">Отправить заявку</button>'
+    '</form></div>'
+)
+
+
+def ensure_lead_form(html):
+    """Если сайт явно собирает заявки (кнопки-якоря #booking/#contact/… или слова «запись/заявка/бронь»),
+    но модель НЕ сделала настоящую <form> — вставляем рабочую форму, чтобы заявки реально сохранялись.
+    Форму кладём в секцию, на которую ведут CTA-кнопки (тогда мёртвые «Записаться» начинают работать),
+    иначе — отдельной секцией перед футером. Возвращает изменённый html."""
+    import re
+    if not html or '<form' in html.lower():
+        return html
+    low = html.lower()
+    anchor = re.search(r'href=["\']#([a-z0-9_-]*(?:book|zapis|zayav|contact|order|reserve|priem|priem|zayavk)[a-z0-9_-]*)["\']', low)
+    keyword = re.search(r'(запис[аь]|заявк|брониров|на\s+при[её]м|обратн\w*\s+связ)', low)
+    if not anchor and not keyword:
+        return html
+    # 1) Пытаемся вставить форму ВНУТРЬ существующей секции-цели якоря (id совпадает с href="#...").
+    if anchor:
+        target_id = anchor.group(1)
+        m = re.search(r'(<(?:section|div)\b[^>]*\bid=["\']' + re.escape(target_id) + r'["\'][^>]*>)', html, re.IGNORECASE)
+        if m:
+            return html[:m.end()] + _LEAD_FORM_INNER + html[m.end():]
+    # 2) Иначе — отдельная секция с id="booking" (чтобы CTA #booking заработали) перед футером/</body>.
+    section = ('<section id="booking" style="padding:clamp(3rem,8vh,6rem) 1.5rem">'
+               + _LEAD_FORM_INNER + '</section>')
+    for anchor_tag in ('<footer', '</main>', '</body>'):
+        idx = low.rfind(anchor_tag)
+        if idx != -1:
+            return html[:idx] + section + html[idx:]
+    return html + section
+
+
+# Промпт-вставка о работе с реальными данными. Добавляется к системному промпту только при
+# RW_DATA_ENABLED. Логику fetch пишет НЕ модель, а инжектируемый платформой runtime (inject_data_runtime),
+# поэтому модель должна выдавать лишь декларативную разметку data-rw-* и маркер схемы.
+DATA_PROMPT = """
+
+═══════════════════════════════════════════════════════════════════════════
+РЕАЛЬНЫЕ ДАННЫЕ: РАБОЧИЕ ФОРМЫ И КАТАЛОГИ (Front+Back — сайт с базой данных)
+═══════════════════════════════════════════════════════════════════════════
+Формы и каталоги на сайте должны РАБОТАТЬ по-настоящему: заявки/брони/заказы сохраняются в базу данных проекта (владелец видит их в разделе «Ядро → База данных»), а каталоги/меню можно наполнять из базы. Тебе НЕ нужно писать JS, fetch или адреса сервера — достаточно правильной РАЗМЕТКИ, остальное платформа подключит сама и создаст нужные таблицы.
+
+1. ЛЮБАЯ форма сбора данных (заявка, бронь, заказ, запись, подписка, отзыв, обратная связь) — ОБЯЗАТЕЛЬНО настоящий <form> с атрибутом data-rw-table="имя_таблицы_латиницей", где у каждого поля свой name="имя_поля_латиницей" и есть кнопка type="submit". НЕ делай «форму» из голых div/кнопок и НЕ пиши onsubmit/fetch — платформа сама сохранит заявку в БД и покажет благодарность. По желанию добавь data-rw-success="Текст после отправки". Пример:
+<form data-rw-table="bookings" data-rw-success="Заявка принята, скоро перезвоним!">
+  <input name="name" placeholder="Ваше имя" required>
+  <input name="phone" placeholder="Телефон" required>
+  <input name="date" placeholder="Удобная дата">
+  <textarea name="comment" placeholder="Комментарий"></textarea>
+  <button type="submit" class="btn">Оставить заявку</button>
+</form>
+Имена таблиц/полей — только латиница, цифры, подчёркивание, с буквы (bookings, order_items, name, phone).
+
+2. КАТАЛОГ/меню/товары/услуги, которые логично хранить и пополнять из базы — оберни контейнер в data-rw-catalog="имя_таблицы". Внутри: (а) блок data-rw-items с 3-4 заранее свёрстанными премиум-карточками, каждая с атрибутом data-rw-demo (видны сразу, служат фолбэком), и (б) <template data-rw-item> с одной карточкой-образцом, где у элементов стоит data-rw-field="имя_поля" (в <img data-rw-field="photo"> подставится ссылка на фото, в текстовые теги — значение). Платформа подгрузит реальные строки из базы и заменит демо. Пример:
+<div data-rw-catalog="menu_items">
+  <div class="grid" data-rw-items>
+    <div class="card" data-rw-demo><img src="ФОТО" alt=""><h3>Том Ям</h3><p>Острый суп с креветками</p><span>590 ₽</span></div>
+    <div class="card" data-rw-demo><img src="ФОТО" alt=""><h3>Стейк Рибай</h3><p>Мраморная говядина</p><span>1290 ₽</span></div>
+  </div>
+  <template data-rw-item><div class="card"><img data-rw-field="photo" alt=""><h3 data-rw-field="title"></h3><p data-rw-field="descr"></p><span data-rw-field="price"></span></div></template>
+</div>
+
+ПРАВИЛА: демо-карточки и обычная вёрстка формы должны быть на месте ВСЕГДА — тогда сайт целостен, даже если база пуста. Никаких абсолютных URL, IP и своих fetch — только разметка data-rw-*. Если сайт чисто информационный и ничего не собирает и не каталогизирует — эти атрибуты не нужны."""
+
+
 # Ключевые слова, по которым запрос считаем "крупной задачей" — тогда включается
 # усиленная генерация (детальнее сайт, больше секций) и списывается больше энергии.
 LARGE_TASK_KEYWORDS = [
@@ -998,6 +1288,9 @@ def _handler_impl(event: dict, context) -> dict:
         max_tokens = min(needed, hard_ceiling)
 
     effective_system_prompt = system_prompt
+    # Работа с реальными данными (Этап 1 фуллстека): подключаем инструкцию только при включённом флаге.
+    if RW_DATA_ENABLED:
+        effective_system_prompt += DATA_PROMPT
     # Выбранный стиль-пресет — точная эстетика вместо угадывания.
     if style_choice in STYLE_PRESETS and not current_html:
         effective_system_prompt += "\n\n" + STYLE_PRESETS[style_choice]
@@ -1145,6 +1438,7 @@ def _handler_impl(event: dict, context) -> dict:
                 raw_html = ''.join(full_parts).strip()
                 html_out, report_md = extract_report_block(raw_html)
                 html_out, meta = extract_meta_block(html_out)
+                html_out, schema_tables = extract_schema_block(html_out)  # таблицы БД из маркера ROBOWEB_SCHEMA (до проверки </html>)
                 html_out = strip_progress_markers(html_out)  # финальный HTML — без служебных маркеров
 
                 # Уточняющий вопрос: модель прислала только служебный блок с question, без HTML.
@@ -1187,7 +1481,12 @@ def _handler_impl(event: dict, context) -> dict:
 
                 if not meta.get('intro') and not meta.get('steps'):
                     meta = build_meta_from_html(html_out, is_edit)
+                if RW_DATA_ENABLED:
+                    html_out = ensure_lead_form(html_out)  # если модель не сделала форму заявок — вставляем рабочую
+                schema_tables = merge_schema(schema_tables, derive_schema_from_html(html_out))  # схема из разметки data-rw-*
                 if project_id:
+                    apply_project_schema(int(project_id), user_id, schema_tables, schema)  # создаём таблицы БД из схемы
+                    html_out = inject_data_runtime(html_out, project_id, schema_tables)  # runtime data-слоя с project_id
                     save_html(int(project_id), html_out, schema)
                 maybe_notify_low_balance(user_id, remaining, schema)
 
@@ -1260,6 +1559,7 @@ def _handler_impl(event: dict, context) -> dict:
     # его из HTML. Парсер ищет блок в любом месте, поэтому позиция не важна.
     html, report_md = extract_report_block(html)
     html, meta = extract_meta_block(html)
+    html, schema_tables = extract_schema_block(html)  # таблицы БД из маркера ROBOWEB_SCHEMA (до проверки </html>)
     html = strip_progress_markers(html)  # служебные маркеры нужны только в стриме
 
     # УТОЧНЯЮЩИЙ ВОПРОС: если задача была слишком расплывчата, модель по инструкции присылает
@@ -1371,8 +1671,18 @@ def _handler_impl(event: dict, context) -> dict:
     if not meta.get('intro') and not meta.get('steps'):
         meta = build_meta_from_html(html, is_edit)
 
+    # Данные (Этап 1): подстраховка — снимаем маркер схемы, если его вернул 2-й проход,
+    # затем создаём таблицы БД проекта и вставляем runtime data-слоя с реальным project_id.
+    html, _extra_tables = extract_schema_block(html)
+    schema_tables = schema_tables or _extra_tables
+    if RW_DATA_ENABLED:
+        html = ensure_lead_form(html)  # если модель не сделала форму заявок — вставляем рабочую
+    schema_tables = merge_schema(schema_tables, derive_schema_from_html(html))  # схема из разметки data-rw-*
+
     # Сохраняем HTML в проект если передан project_id
     if project_id:
+        apply_project_schema(int(project_id), user_id, schema_tables, schema)
+        html = inject_data_runtime(html, project_id, schema_tables)
         save_html(int(project_id), html, schema)
 
     # Уведомление шлём только теперь, когда сайт уже готов — чтобы никак не задерживать генерацию

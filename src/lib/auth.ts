@@ -429,6 +429,7 @@ export interface ProjectSecret {
 export interface ProjectTableColumn {
   name: string;
   type: 'text' | 'number' | 'boolean';
+  label?: string;
 }
 
 export interface ProjectTable {
@@ -437,6 +438,12 @@ export interface ProjectTable {
   columns: ProjectTableColumn[];
   created_at: string;
   rows_count: number;
+  /** Таблицу-каталог сгенерированный сайт может ЧИТАТЬ публично (меню, товары, отзывы). */
+  public_read?: boolean;
+  /** В таблицу можно ПИСАТЬ из публичной формы сайта (заявки, брони, заказы). */
+  public_write?: boolean;
+  /** Человекочитаемое имя таблицы (может быть на кириллице), заданное AI при генерации. */
+  label?: string;
 }
 
 export interface ProjectRow {

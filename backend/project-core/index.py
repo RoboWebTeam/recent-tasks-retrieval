@@ -128,13 +128,15 @@ def handler(event: dict, context) -> dict:
                 if method == 'GET':
                     cur.execute(
                         f"""SELECT t.id, t.table_name, t.columns, t.created_at,
-                                   (SELECT COUNT(*) FROM {schema}.project_db_rows r WHERE r.table_id = t.id) as rows_count
+                                   (SELECT COUNT(*) FROM {schema}.project_db_rows r WHERE r.table_id = t.id) as rows_count,
+                                   COALESCE(t.public_read, false), COALESCE(t.public_write, false), t.label
                             FROM {schema}.project_db_tables t
                             WHERE t.project_id = %s ORDER BY t.created_at DESC""",
                         (project_id,)
                     )
                     tables = [
-                        {'id': r[0], 'table_name': r[1], 'columns': r[2], 'created_at': r[3].isoformat(), 'rows_count': r[4]}
+                        {'id': r[0], 'table_name': r[1], 'columns': r[2], 'created_at': r[3].isoformat(),
+                         'rows_count': r[4], 'public_read': r[5], 'public_write': r[6], 'label': r[7]}
                         for r in cur.fetchall()
                     ]
                     return ok({'tables': tables})

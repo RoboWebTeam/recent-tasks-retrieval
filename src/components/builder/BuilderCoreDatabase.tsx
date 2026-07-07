@@ -320,7 +320,19 @@ export default function BuilderCoreDatabase({ lang, projectId }: BuilderCoreData
                   <Icon name="Table" size={16} />
                 </div>
                 <div className="min-w-0">
-                  <p className="text-sm font-semibold truncate">{t.table_name}</p>
+                  <div className="flex items-center gap-1.5 min-w-0">
+                    <p className="text-sm font-semibold truncate">{t.label || t.table_name}</p>
+                    {t.public_write && (
+                      <span className="shrink-0 inline-flex items-center gap-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-medium px-1.5 py-0.5">
+                        <Icon name="Inbox" size={10} /> {isRu ? 'Заявки с сайта' : 'Site leads'}
+                      </span>
+                    )}
+                    {t.public_read && (
+                      <span className="shrink-0 inline-flex items-center gap-1 rounded-full bg-primary/10 text-primary text-[10px] font-medium px-1.5 py-0.5">
+                        <Icon name="Globe" size={10} /> {isRu ? 'Каталог сайта' : 'Site catalog'}
+                      </span>
+                    )}
+                  </div>
                   <p className="text-xs text-muted-foreground">{t.columns.length} {isRu ? 'колонок' : 'columns'} · {t.rows_count} {isRu ? 'записей' : 'rows'}</p>
                 </div>
               </button>
