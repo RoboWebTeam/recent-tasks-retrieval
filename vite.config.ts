@@ -37,7 +37,9 @@ export default defineConfig(({mode}) => ({
     },
     server: {
         host: '0.0.0.0',
-        port: 5173,
+        // По умолчанию 5173; можно переопределить через PORT (нужно для авто-порта дев-инструментов,
+        // если 5173 занят). На прод-сборку не влияет — она отдаётся через nginx.
+        port: Number(process.env.PORT) || 5173,
         allowedHosts: true,
         // Локальная разработка: проксируем запросы фронта /api/* на backend (deploy/server.py
         // на :8000), чтобы вход, генерация и SSE-стриминг работали end-to-end без CORS.

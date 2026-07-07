@@ -2,7 +2,7 @@ import { useState, useEffect, useRef, type CSSProperties } from 'react';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
-import { getSession, getStoredUser, apiUploadFile, apiGetProject, apiPublishProject, apiSaveChatHistory, LOW_BALANCE_THRESHOLD } from '@/lib/auth';
+import { getSession, getStoredUser, apiUploadFile, apiGetProject, apiPublishProject, apiSaveChatHistory, apiCreateProject, LOW_BALANCE_THRESHOLD } from '@/lib/auth';
 import { getLang, tr } from '@/lib/i18n';
 import LangSwitcher from '@/components/LangSwitcher';
 import { useToast } from '@/hooks/use-toast';
@@ -92,6 +92,17 @@ interface Message {
   liveSteps?: boolean;
 }
 
+// Приводит восстановленное из истории сообщение к «спокойному» виду: без повторной анимации печати
+// и без незавершённых статусов (если сессию закрыли посреди сборки — карточка файла/шаг «зависли» бы
+// в статусе creating/updating/running; переводим их в финальные, чтобы не крутился вечный спиннер).
+function normalizeRestored({ justGenerated, ...rest }: Message): Message {
+  const fileStatus =
+    rest.fileStatus === 'creating' ? 'created' :
+    rest.fileStatus === 'updating' ? 'updated' : rest.fileStatus;
+  const stepStatus = rest.stepStatus === 'running' ? 'done' : rest.stepStatus;
+  return { ...rest, fileStatus, stepStatus };
+}
+
 interface Version {
   html: string;
   label: string;
@@ -174,8 +185,12 @@ export default function Builder() {
   const SECTION_LIBRARY = lang === 'ru' ? SECTION_LIBRARY_RU : SECTION_LIBRARY_EN;
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [searchParams] = useSearchParams();
+  const [searchParams, setSearchParams] = useSearchParams();
   const projectId = searchParams.get('project');
+  // Проект, который мы сами создали в этой сессии (сценарий «с лендинга»: /builder?prompt=… без id).
+  // После создания подставляем его id в URL, чтобы автосохранение чата и HTML пошло в БД, а история
+  // сохранялась при повторном входе. Гвард-реф не даёт эффекту загрузки затереть уже готовое состояние.
+  const ownedIdRef = useRef<string | null>(null);
 
   // Ключ для хранения истории чата в localStorage — свой для каждого проекта
   const chatStorageKey = `builder_chat_${projectId || 'new'}`;
@@ -193,10 +208,12 @@ export default function Builder() {
         .filter((m): m is Message =>
           m && typeof m === 'object' &&
           (m.role === 'user' || m.role === 'assistant') &&
-          typeof m.content === 'string'
+          (typeof m.content === 'string' || m.kind === 'file')
         )
         // Восстановленные сообщения НИКОГДА не анимируются повторно — сбрасываем флаг.
-        .map(({ justGenerated, ...rest }: Message) => rest);
+        // Незавершённые статусы (сессию закрыли посреди сборки) приводим к финальным,
+        // чтобы в истории не осталось «вечных» спиннеров.
+        .map(normalizeRestored);
     } catch {
       return [];
     }
@@ -311,6 +328,9 @@ export default function Builder() {
   // Загрузка сохранённого проекта при открытии по ссылке /builder?project=ID
   useEffect(() => {
     if (!session || !projectId) return;
+    // Мы сами создали этот проект в текущей сессии и уже держим актуальные messages/html —
+    // НЕ перезагружаем из БД, иначе затрём только что сгенерированный сайт и живой чат.
+    if (ownedIdRef.current === projectId) { setChatLoaded(true); return; }
     setLoadingProject(true);
     apiGetProject(session, projectId)
       .then(project => {
@@ -330,10 +350,10 @@ export default function Builder() {
           .filter((m): m is Message =>
             !!m && typeof m === 'object' &&
             ((m as Message).role === 'user' || (m as Message).role === 'assistant') &&
-            typeof (m as Message).content === 'string'
+            (typeof (m as Message).content === 'string' || (m as Message).kind === 'file')
           )
-          // Гарантируем: восстановленные из БД сообщения не анимируются повторно.
-          .map(({ justGenerated, ...rest }: Message) => rest);
+          // Восстановленные из БД сообщения не анимируются повторно; незавершённые статусы → финальные.
+          .map(normalizeRestored);
         if (validHistory.length > 0) {
           setMessages(validHistory);
         } else {
@@ -480,6 +500,22 @@ export default function Builder() {
     setShowQuickEdits(false);
     setLoading(true);
 
+    // Ленивое создание проекта. Если пользователь пришёл «с лендинга» (/builder?prompt=… без id),
+    // проекта ещё нет — создаём его при первом же запросе и подставляем id в URL. С этого момента
+    // автосохранение чата и HTML идёт в БД, и история сохраняется при выходе и повторном входе.
+    let activePid = projectId;
+    if (!activePid && session) {
+      try {
+        const created = await apiCreateProject(session, projectTitle || (lang === 'ru' ? 'Новый сайт' : 'New site'), '');
+        activePid = String(created.id);
+        ownedIdRef.current = activePid;       // гвард: эффект загрузки не должен перезагружать этот проект
+        setChatLoaded(true);                  // разрешаем автосохранение истории сразу
+        setSearchParams(prev => { const n = new URLSearchParams(prev); n.set('project', activePid!); return n; }, { replace: true });
+      } catch {
+        /* не удалось создать проект (лимит/сеть) — продолжаем без сохранения в БД, только локально */
+      }
+    }
+
     // Если прикреплено изображение — используем готовую ссылку (если файл уже в хранилище)
     // или загружаем его туда, чтобы AI мог вставить в сайт реальную ссылку, а не выдумывать путь
     let imageNote = '';
@@ -488,7 +524,7 @@ export default function Builder() {
     } else if (pendingImage && session) {
       try {
         const base64 = pendingImage.url.split(',')[1] || '';
-        const uploaded = await apiUploadFile(session, pendingImage.name, base64, false, projectId ? Number(projectId) : undefined);
+        const uploaded = await apiUploadFile(session, pendingImage.name, base64, false, activePid ? Number(activePid) : undefined);
         imageNote = `\n[Изображение загружено, используй эту ссылку в src: ${uploaded.file_url}]`;
       } catch {
         imageNote = `\n[Изображение прикреплено: ${pendingImage.name}]`;
@@ -508,7 +544,7 @@ export default function Builder() {
     try {
       const reqBody = {
         messages: newMessages.map(m => ({ role: m.role, content: m.content })),
-        project_id: projectId,
+        project_id: activePid,
         // Выбранная пользователем модель: 'sonnet' (Sonnet 5) или 'opus' (Opus 4.8)
         model: aiModel,
         // Стиль-пресет применяется только к новым сайтам (при правке html уже есть)
@@ -726,14 +762,11 @@ export default function Builder() {
           let settled = false;
           const markerRe = /<!--\s*RW:step:(.*?)-->/g;
           const planRe = /<!--\s*RW:plan:(.*?)-->/;
-          const flushPreview = (force: boolean) => {
-            const now = Date.now();
-            if ((force || now - lastPreview > 600) && /<body/i.test(acc)) {
-              lastPreview = now;
-              setHtml(acc);
-              setRightTab('preview');
-            }
-          };
+          // Во время стрима НЕ обновляем превью по кусочкам — это перегружало iframe (srcDoc) и
+          // превью МОРГАЛО. Теперь показываем состояние «строится» (превью-скелет), а готовый
+          // сайт загружаем ОДИН раз на событии done — без мигания. lastPreview больше не нужен.
+          const flushPreview = (_force: boolean) => { /* no-op: см. коммент выше */ };
+          void lastPreview;
           // Показывает «план» в самом начале (маркер <!--RW:plan:...--> перед <!DOCTYPE>) отдельным
           // пузырём ПЕРЕД карточкой файла — как вступительное «вот что я собираюсь сделать».
           const showPlan = () => {
@@ -2217,16 +2250,38 @@ export default function Builder() {
                 </>
               ) : (
                 <div className="flex-1 flex flex-col items-center justify-center text-center px-8">
-                  <div className="relative mb-6">
-                    <div className="h-20 w-20 rounded-3xl bg-card border border-border grid place-items-center mx-auto">
-                      <Icon name="Globe" size={32} className="text-muted-foreground/50" />
-                    </div>
-                    <div className="absolute -top-1 -right-1 h-6 w-6 rounded-full bg-primary/10 border border-primary/20 grid place-items-center">
-                      <Icon name="Sparkles" size={11} className="text-primary" />
-                    </div>
-                  </div>
-                  <h3 className="font-bold text-foreground text-lg mb-2">{tr('builderPreviewEmpty', lang)}</h3>
-                  <p className="text-muted-foreground text-sm max-w-xs leading-relaxed">{tr('builderPreviewEmptyDesc', lang)}</p>
+                  {loading ? (
+                    // Состояние «строится» во время генерации нового сайта — без мигания превью.
+                    <>
+                      <div className="h-20 w-20 rounded-3xl bg-card border border-border grid place-items-center mx-auto mb-6 shadow-sm">
+                        <Icon name="Loader" size={30} className="text-primary animate-spin" />
+                      </div>
+                      <h3 className="font-bold text-foreground text-lg mb-2">{lang === 'ru' ? 'Собираю ваш сайт…' : 'Building your site…'}</h3>
+                      <p className="text-muted-foreground text-sm max-w-xs leading-relaxed">{lang === 'ru' ? 'Готовый сайт появится здесь через несколько секунд — ход сборки виден в чате слева.' : 'Your finished site appears here shortly — follow the build in the chat on the left.'}</p>
+                      <div className="w-full max-w-sm mt-8 space-y-3">
+                        <div className="h-8 w-2/3 mx-auto rounded-lg bg-secondary animate-pulse" />
+                        <div className="h-24 rounded-2xl bg-secondary animate-pulse" />
+                        <div className="grid grid-cols-3 gap-3">
+                          <div className="h-16 rounded-xl bg-secondary animate-pulse" />
+                          <div className="h-16 rounded-xl bg-secondary animate-pulse" />
+                          <div className="h-16 rounded-xl bg-secondary animate-pulse" />
+                        </div>
+                      </div>
+                    </>
+                  ) : (
+                    <>
+                      <div className="relative mb-6">
+                        <div className="h-20 w-20 rounded-3xl bg-card border border-border grid place-items-center mx-auto">
+                          <Icon name="Globe" size={32} className="text-muted-foreground/50" />
+                        </div>
+                        <div className="absolute -top-1 -right-1 h-6 w-6 rounded-full bg-primary/10 border border-primary/20 grid place-items-center">
+                          <Icon name="Sparkles" size={11} className="text-primary" />
+                        </div>
+                      </div>
+                      <h3 className="font-bold text-foreground text-lg mb-2">{tr('builderPreviewEmpty', lang)}</h3>
+                      <p className="text-muted-foreground text-sm max-w-xs leading-relaxed">{tr('builderPreviewEmptyDesc', lang)}</p>
+                    </>
+                  )}
                 </div>
               )}
             </div>
