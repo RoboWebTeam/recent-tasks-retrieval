@@ -1643,10 +1643,19 @@ def _handler_impl(event: dict, context) -> dict:
                     },
                     method='POST',
                 )
-                # Таймаут на КАЖДОЕ чтение из сокета (не на весь стрим). Первый токен может
-                # прийти с задержкой (модель «думает»), поэтому запас щедрый.
-                with urllib.request.urlopen(req, timeout=max(90, ai_timeout)) as response:
+                # Таймаут на КАЖДОЕ чтение из сокета (не на весь стрим). Первый токен может прийти
+                # с большой задержкой (Sonnet 5 на слабом проде долго «думает»), поэтому запас
+                # большой — 240с на один чанк. Иначе фаза рассуждения рвёт стрим (read timed out).
+                import time as _time
+                _last_beat = _time.time()
+                with urllib.request.urlopen(req, timeout=max(240, ai_timeout)) as response:
                     for raw_line in response:
+                        # Keepalive: пока идёт рассуждение (текст ещё не пошёл) или редкие чанки —
+                        # раз в ~10с шлём SSE-комментарий, чтобы nginx (proxy_read_timeout) и клиент
+                        # не оборвали соединение из-за тишины.
+                        if _time.time() - _last_beat > 10:
+                            _last_beat = _time.time()
+                            yield ': keepalive\n\n'
                         line = raw_line.decode('utf-8', 'ignore').strip()
                         if not line or not line.startswith('data:'):
                             continue
@@ -1664,6 +1673,7 @@ def _handler_impl(event: dict, context) -> dict:
                                 if chunk:
                                     full_parts.append(chunk)
                                     yield _sse('token', {'t': chunk})
+                                    _last_beat = _time.time()  # активный стрим — keepalive не нужен
                         elif etype == 'message_delta':
                             out_tokens = (evt.get('usage') or {}).get('output_tokens', out_tokens)
                         elif etype == 'error':
