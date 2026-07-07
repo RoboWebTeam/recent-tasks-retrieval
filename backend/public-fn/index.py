@@ -59,13 +59,39 @@ MAX_WRITES = 10
 MAX_VALUE_LEN = 5000
 FN_RATE_PER_MIN = 60      # на (project_id, fn)
 IP_RATE_PER_MIN = 30      # на IP
-_DANGER_KEYS = {'__proto__', 'constructor', 'prototype'}
+# Ключи, которые клиент/код функции НЕ может проставить в data: прототипное загрязнение и владелец
+# строки (owner_id ставит ТОЛЬКО сервер из сессии, иначе IDOR — подмена владельца заказа).
+_DANGER_KEYS = {'__proto__', 'constructor', 'prototype', 'owner_id', 'owner', 'site_user_id', 'user_id'}
 _SAFE_ENV = {'PATH': os.environ.get('PATH', '/usr/bin'), 'LANG': 'C.UTF-8'}
 
 
 def _valid_ident(name):
     import re
     return bool(re.match(r'^[a-zA-Z_][a-zA-Z0-9_]{0,63}$', name or ''))
+
+
+def _resolve_site_user(cur, schema, token, project_id):
+    """Токен посетителя → {id,email,name}, СТРОГО в рамках project_id (защита от кражи токена
+    из общего localStorage). None если невалиден/просрочен/чужой проект."""
+    if not token:
+        return None
+    cur.execute(
+        f"""SELECT u.id, u.email, u.name FROM {schema}.project_site_sessions s
+            JOIN {schema}.project_site_users u ON u.id = s.site_user_id
+            WHERE s.token = %s AND s.project_id = %s AND s.expires_at > NOW()""",
+        (token, project_id)
+    )
+    r = cur.fetchone()
+    return {'id': r[0], 'email': r[1], 'name': r[2]} if r else None
+
+
+def _client_ip(headers, event):
+    """Доверенный IP: ПОСЛЕДНИЙ элемент X-Forwarded-For (его дописывает наш nginx через
+    $proxy_add_x_forwarded_for), а не первый — первый подделывает клиент и обходит rate-limit."""
+    xff = headers.get('x-forwarded-for', '')
+    if xff:
+        return xff.split(',')[-1].strip()
+    return ((event.get('requestContext', {}) or {}).get('identity', {}) or {}).get('sourceIp', '') or 'unknown'
 
 
 def _json_depth(o, d=0):
@@ -147,8 +173,8 @@ def handler(event, context):
         return err('Метод не поддерживается', 405)
 
     headers = {k.lower(): v for k, v in (event.get('headers') or {}).items()}
-    ip = (headers.get('x-forwarded-for', '').split(',')[0].strip()
-          or (event.get('requestContext', {}).get('identity', {}) or {}).get('sourceIp', '') or 'unknown')
+    ip = _client_ip(headers, event)
+    site_token = headers.get('x-rw-token', '')
     try:
         body = json.loads(event.get('body') or '{}')
     except (json.JSONDecodeError, TypeError):
@@ -191,7 +217,11 @@ def handler(event, context):
             code, reads = row
             reads = reads if isinstance(reads, list) else []
 
-            # prefetch: только таблицы проекта с public_read=true; общий объём ограничен.
+            # Залогиненный посетитель (если прислал токен) — для input.user и owner_id при записи.
+            site_user = _resolve_site_user(cur, schema, site_token, project_id)
+
+            # prefetch: только ПУБЛИЧНЫЕ таблицы (public_read=true), НЕ личные (owner_scoped) — иначе
+            # функция получила бы строки всех посетителей. Общий объём ограничен.
             tables = {}
             total = 0
             for tname in reads[:MAX_READS]:
@@ -199,7 +229,8 @@ def handler(event, context):
                     continue
                 cur.execute(
                     f"""SELECT id FROM {schema}.project_db_tables
-                        WHERE project_id = %s AND table_name = %s AND public_read = true""",
+                        WHERE project_id = %s AND table_name = %s
+                          AND public_read = true AND NOT COALESCE(owner_scoped, false)""",
                     (project_id, tname)
                 )
                 tr = cur.fetchone()
@@ -222,7 +253,10 @@ def handler(event, context):
     if not _SEM.acquire(timeout=0.05):
         return err('Сервис занят, повторите через мгновение', 503)
     try:
-        sandbox = _run_sandbox(code, {'args': args, 'tables': tables})
+        # input.user — {id,email,name} залогиненного посетителя или null; owner_id функция
+        # проставить НЕ может (сервер игнорирует любой owner_id из возврата).
+        sandbox = _run_sandbox(code, {'args': args, 'tables': tables,
+                                      'user': ({'id': site_user['id'], 'email': site_user['email'], 'name': site_user['name']} if site_user else None)})
     finally:
         _SEM.release()
 
@@ -250,15 +284,27 @@ def handler(event, context):
                     if not _valid_ident(tname) or not isinstance(data, dict):
                         continue
                     cur.execute(
-                        f"""SELECT id, columns FROM {schema}.project_db_tables
-                            WHERE project_id = %s AND table_name = %s AND public_write = true""",
+                        f"""SELECT id, columns, COALESCE(public_write,false), COALESCE(owner_scoped,false)
+                            FROM {schema}.project_db_tables
+                            WHERE project_id = %s AND table_name = %s""",
                         (project_id, tname)
                     )
                     tr = cur.fetchone()
                     if not tr:
                         continue
+                    tbl_id, tbl_cols, tbl_pubw, tbl_owned = tr
+                    # Личная таблица — писать можно только за залогиненного посетителя (его owner_id);
+                    # обычная — нужен public_write. Иначе строку не пишем.
+                    if tbl_owned:
+                        if not site_user:
+                            continue
+                        row_owner = site_user['id']
+                    elif tbl_pubw:
+                        row_owner = None
+                    else:
+                        continue
                     col_types = {c.get('name'): c.get('type', 'text')
-                                 for c in (tr[1] or []) if isinstance(c, dict)}
+                                 for c in (tbl_cols or []) if isinstance(c, dict)}
                     clean = {}
                     for k, v in data.items():
                         if k in _DANGER_KEYS or k not in col_types:
@@ -269,8 +315,8 @@ def handler(event, context):
                     if not clean:
                         continue
                     cur.execute(
-                        f"INSERT INTO {schema}.project_db_rows (table_id, data) VALUES (%s, %s)",
-                        (tr[0], json.dumps(clean))
+                        f"INSERT INTO {schema}.project_db_rows (table_id, data, owner_id) VALUES (%s, %s, %s)",
+                        (tbl_id, json.dumps(clean), row_owner)
                     )
                     applied += 1
             conn.commit()

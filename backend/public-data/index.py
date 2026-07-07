@@ -24,6 +24,9 @@ MAX_FIELDS = 20            # не больше полей в одной заяв
 MAX_TEXT_LEN = 5000        # обрезаем длинные текстовые значения
 INSERT_WINDOW_SEC = 60     # окно анти-спама
 INSERT_WINDOW_MAX = 30     # макс. вставок в таблицу за окно
+# Ключи, которые клиент НЕ может проставить в data: владелец строки ставит ТОЛЬКО сервер (IDOR),
+# плюс защита от прототипного загрязнения.
+_DATA_BLACKLIST = {'__proto__', 'constructor', 'prototype', 'owner_id', 'owner', 'site_user_id', 'user_id'}
 
 
 def get_conn():
@@ -67,6 +70,19 @@ def _coerce(value, ctype):
     return str(value)[:MAX_TEXT_LEN]
 
 
+def _resolve_site_user(cur, schema, token, project_id):
+    """Токен посетителя → его site_user_id, СТРОГО в рамках project_id. None если невалиден."""
+    if not token:
+        return None
+    cur.execute(
+        f"""SELECT s.site_user_id FROM {schema}.project_site_sessions s
+            WHERE s.token = %s AND s.project_id = %s AND s.expires_at > NOW()""",
+        (token, project_id)
+    )
+    r = cur.fetchone()
+    return r[0] if r else None
+
+
 def handler(event: dict, context) -> dict:
     """Публичное чтение каталогов и приём заявок для сгенерированных сайтов."""
 
@@ -76,6 +92,8 @@ def handler(event: dict, context) -> dict:
     method = event.get('httpMethod', 'GET')
     schema = get_schema()
     params = event.get('queryStringParameters') or {}
+    headers = {k.lower(): v for k, v in (event.get('headers') or {}).items()}
+    site_token = headers.get('x-rw-token', '')
     try:
         body = json.loads(event.get('body') or '{}')
     except (json.JSONDecodeError, TypeError):
@@ -102,7 +120,8 @@ def handler(event: dict, context) -> dict:
             # Таблица проекта + её флаги публичности. Имя таблицы идёт в SQL как ЗНАЧЕНИЕ (%s),
             # а не как идентификатор — инъекция через table_name невозможна.
             cur.execute(
-                f"""SELECT id, columns, public_read, public_write, write_fields
+                f"""SELECT id, columns, public_read, public_write, write_fields,
+                           COALESCE(owner_scoped, false)
                     FROM {schema}.project_db_tables
                     WHERE project_id = %s AND table_name = %s""",
                 (project_id, table_name)
@@ -110,14 +129,26 @@ def handler(event: dict, context) -> dict:
             trow = cur.fetchone()
             if not trow:
                 return err('Не найдено', 404)
-            table_id, columns, public_read, public_write, write_fields = trow
+            table_id, columns, public_read, public_write, write_fields, owner_scoped = trow
             columns = columns or []
             write_fields = write_fields or []
             col_types = {c.get('name'): c.get('type', 'text') for c in columns if isinstance(c, dict)}
+            # Личный кабинет: строки принадлежат посетителю. owner_id проставляет ТОЛЬКО сервер
+            # из резолвнутой сессии — клиент подделать его не может.
+            site_user_id = _resolve_site_user(cur, schema, site_token, project_id) if owner_scoped else None
 
-            # ─────────────── ЧТЕНИЕ КАТАЛОГА ───────────────
+            # ─────────────── ЧТЕНИЕ ───────────────
             if method == 'GET':
-                if not public_read:
+                if owner_scoped:
+                    # Личная таблица: только свои строки, обязателен вход посетителя.
+                    if not site_user_id:
+                        return err('Требуется вход', 401)
+                    order_where = 'table_id = %s AND owner_id = %s'
+                    order_args = (table_id, site_user_id)
+                elif public_read:
+                    order_where = 'table_id = %s'
+                    order_args = (table_id,)
+                else:
                     return err('Не найдено', 404)  # маскируем существование приватной таблицы
                 try:
                     limit = int(params.get('limit') or DEFAULT_LIMIT)
@@ -126,8 +157,8 @@ def handler(event: dict, context) -> dict:
                 limit = max(1, min(limit, MAX_LIMIT))
                 cur.execute(
                     f"""SELECT id, data, created_at FROM {schema}.project_db_rows
-                        WHERE table_id = %s ORDER BY created_at DESC LIMIT %s""",
-                    (table_id, limit)
+                        WHERE {order_where} ORDER BY created_at DESC LIMIT %s""",
+                    order_args + (limit,)
                 )
                 rows = [
                     {'id': r[0], 'data': r[1], 'created_at': r[2].isoformat()}
@@ -141,7 +172,11 @@ def handler(event: dict, context) -> dict:
 
             # ─────────────── ЗАПИСЬ ЗАЯВКИ/БРОНИ ───────────────
             if method == 'POST':
-                if not public_write:
+                # Личная таблица: писать может только вошедший посетитель, строка привяжется к нему.
+                if owner_scoped:
+                    if not site_user_id:
+                        return err('Требуется вход', 401)
+                elif not public_write:
                     return err('Запись в эту таблицу недоступна', 403)
 
                 incoming = body.get('data')
@@ -151,7 +186,8 @@ def handler(event: dict, context) -> dict:
                     return err('Слишком много полей')
 
                 # Белый список полей: write_fields, а если не задан — все колонки таблицы.
-                allowed = set(write_fields) if write_fields else set(col_types.keys())
+                # Служебные ключи (владелец строки, прототип) не принимаем ни при каких условиях.
+                allowed = (set(write_fields) if write_fields else set(col_types.keys())) - _DATA_BLACKLIST
                 clean = {}
                 for key, val in incoming.items():
                     if key not in allowed:
@@ -174,8 +210,8 @@ def handler(event: dict, context) -> dict:
                     return err('Слишком много заявок, попробуйте позже', 429)
 
                 cur.execute(
-                    f"INSERT INTO {schema}.project_db_rows (table_id, data) VALUES (%s, %s) RETURNING id",
-                    (table_id, json.dumps(clean))
+                    f"INSERT INTO {schema}.project_db_rows (table_id, data, owner_id) VALUES (%s, %s, %s) RETURNING id",
+                    (table_id, json.dumps(clean), site_user_id)  # owner_id из сессии (None для публичных)
                 )
                 row_id = cur.fetchone()[0]
                 conn.commit()

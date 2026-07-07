@@ -582,3 +582,28 @@ export async function apiDeleteProjectFunction(sessionId: string, projectId: num
   if (!res.ok) throw new Error((data as {error?: string}).error || 'Ошибка удаления функции');
   return data;
 }
+
+// ── Пользователи сайта (посетители, Этап 3) ───────────────────────────────
+export interface SiteUser {
+  id: number;
+  email: string;
+  name?: string;
+  created_at: string;
+}
+
+export async function apiGetSiteUsers(sessionId: string, projectId: number): Promise<{ users: SiteUser[]; total: number }> {
+  const { res, data } = await apiFetch(`${PROJECT_CORE_URL}?resource=site_users&project_id=${projectId}`, {
+    headers: { 'x-session-id': sessionId },
+  });
+  if (!res.ok) throw new Error((data as {error?: string}).error || 'Ошибка загрузки пользователей');
+  return data as { users: SiteUser[]; total: number };
+}
+
+export async function apiDeleteSiteUser(sessionId: string, projectId: number, id: number) {
+  const { res, data } = await apiFetch(`${PROJECT_CORE_URL}?resource=site_users&project_id=${projectId}&id=${id}`, {
+    method: 'DELETE',
+    headers: { 'x-session-id': sessionId },
+  });
+  if (!res.ok) throw new Error((data as {error?: string}).error || 'Ошибка удаления пользователя');
+  return data;
+}

@@ -286,7 +286,34 @@ def handler(event: dict, context) -> dict:
 
                 return err('Метод не поддерживается', 405)
 
-            return err('Неизвестный resource. Ожидается: secrets, tables, rows, functions')
+            # ───────────────────────── ПОЛЬЗОВАТЕЛИ САЙТА (Этап 3) ─────────────────────────
+            if resource == 'site_users':
+                if method == 'GET':
+                    cur.execute(f"SELECT COUNT(*) FROM {schema}.project_site_users WHERE project_id = %s", (project_id,))
+                    total = cur.fetchone()[0]
+                    cur.execute(
+                        f"""SELECT id, email, name, created_at FROM {schema}.project_site_users
+                            WHERE project_id = %s ORDER BY created_at DESC LIMIT 200""",
+                        (project_id,)
+                    )
+                    users = [
+                        {'id': r[0], 'email': r[1], 'name': r[2], 'created_at': r[3].isoformat()}
+                        for r in cur.fetchall()
+                    ]
+                    return ok({'users': users, 'total': total})
+
+                if method == 'DELETE':
+                    su_id = params.get('id')
+                    if not su_id:
+                        return err('Укажите id пользователя')
+                    cur.execute(f"DELETE FROM {schema}.project_site_sessions WHERE site_user_id = %s AND project_id = %s", (su_id, project_id))
+                    cur.execute(f"DELETE FROM {schema}.project_site_users WHERE id = %s AND project_id = %s", (su_id, project_id))
+                    conn.commit()
+                    return ok({'ok': True})
+
+                return err('Метод не поддерживается', 405)
+
+            return err('Неизвестный resource. Ожидается: secrets, tables, rows, functions, site_users')
 
     except Exception:
         # Любая ошибка БД/логики — откатываем транзакцию, чтобы не оставить её «битой»,

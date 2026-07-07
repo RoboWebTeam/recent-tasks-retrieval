@@ -819,45 +819,61 @@ def inject_data_runtime(html: str, project_id, tables, has_fns=False) -> str:
     инжектируемый скрипт. Также публикует window.rw.call(fn,args) для серверных функций проекта.
     Вставляется, если есть таблицы (формы/каталоги) ИЛИ серверные функции."""
     has_tables = isinstance(tables, list) and bool(tables)
-    if not project_id or (not has_tables and not has_fns):
-        return html or ''
     low = (html or '').lower()
-    if not html or (not has_fns and 'data-rw-' not in html and '<form' not in low):
+    # Инжектим runtime при ЛЮБОМ триггере: таблицы, серверные функции, разметка data-rw-*
+    # (формы данных, аккаунты data-rw-auth, кабинеты data-rw-cabinet) или обычная форма.
+    trigger = has_tables or has_fns or ('data-rw-' in html) or ('<form' in low)
+    if not project_id or not html or not trigger:
         return html or ''
     runtime = (
         "<script>(function(){var PID=" + str(int(project_id)) + ";"
         # Сайт исполняется в srcdoc-iframe (about:srcdoc), где относительный /api не резолвится —
         # строим АБСОЛЮТНЫЙ адрес от origin родителя (iframe same-origin с платформой).
         "var B='';try{B=(window.parent&&window.parent.location&&window.parent.location.origin)||'';}catch(e){}"
-        "if(!B){try{B=location.origin;}catch(e){}}var API=B+'/api/public-data';"
-        # Серверные функции проекта: сайт зовёт rw.call('имя',{...}).then(res=>...).
-        "window.rw={call:function(fn,args){return fetch(B+'/api/public-fn',{method:'POST',"
-        "headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:PID,fn:fn,args:args||{}})})"
-        ".then(function(r){return r.json();}).then(function(j){if(!j||!j.ok)throw (j&&j.error)||'error';return j.result;})}};"
-        "document.querySelectorAll('form').forEach(function(f){"
+        "if(!B){try{B=location.origin;}catch(e){}}var API=B+'/api/public-data';var TK='rw_tok_'+PID;"
+        "function tok(){try{return localStorage.getItem(TK)||'';}catch(e){return '';}}"
+        "function setTok(t){try{if(t)localStorage.setItem(TK,t);else localStorage.removeItem(TK);}catch(e){}}"
+        "function hdr(){var h={'Content-Type':'application/json'};var t=tok();if(t)h['X-RW-Token']=t;return h;}"
+        "function post(p,bd){return fetch(B+p,{method:'POST',headers:hdr(),body:JSON.stringify(bd)}).then(function(r){return r.json().then(function(j){return {s:r.status,j:j};});});}"
+        # Серверные функции проекта: rw.call('имя',{...}); аккаунты посетителей: rw.auth.*
+        "window.rw={call:function(fn,a){return post('/api/public-fn',{project_id:PID,fn:fn,args:a||{}}).then(function(x){if(!x.j||!x.j.ok)throw (x.j&&x.j.error)||'error';return x.j.result;});},"
+        "auth:{user:null,"
+        "register:function(email,password,name){return post('/api/site-auth',{project_id:PID,action:'register',email:email,password:password,name:name}).then(function(x){if(x.s>=400)throw (x.j&&x.j.error)||'error';setTok(x.j.token);rw.auth.user=x.j.user;ui();return x.j.user;});},"
+        "login:function(email,password){return post('/api/site-auth',{project_id:PID,action:'login',email:email,password:password}).then(function(x){if(x.s>=400)throw (x.j&&x.j.error)||'error';setTok(x.j.token);rw.auth.user=x.j.user;ui();return x.j.user;});},"
+        "logout:function(){return post('/api/site-auth',{project_id:PID,action:'logout'}).then(function(){setTok('');rw.auth.user=null;ui();});},"
+        "me:function(){if(!tok())return Promise.resolve(null);return fetch(B+'/api/site-auth?project_id='+PID+'&action=me',{headers:hdr()}).then(function(r){return r.json();}).then(function(j){rw.auth.user=(j&&j.user)||null;ui();return rw.auth.user;}).catch(function(){return null;});}}};"
+        # Показ/скрытие блоков по состоянию входа + подстановка имени + загрузка кабинета.
+        "function ui(){var u=rw.auth.user;document.body.classList.toggle('rw-authed',!!u);"
+        "document.querySelectorAll('[data-rw-user]').forEach(function(el){el.textContent=u?(u.name||u.email):'';});"
+        "document.querySelectorAll('[data-rw-when=in]').forEach(function(el){el.style.display=u?'':'none';});"
+        "document.querySelectorAll('[data-rw-when=out]').forEach(function(el){el.style.display=u?'none':'';});"
+        "if(u)document.querySelectorAll('[data-rw-cabinet]').forEach(function(box){fill(box,box.getAttribute('data-rw-cabinet'));});}"
+        # Формы: auth (data-rw-auth) и данные (data-rw-table / обычная заявка).
+        "document.querySelectorAll('form').forEach(function(f){var AU=f.getAttribute('data-rw-auth');"
+        "if(AU==='register'||AU==='login'){f.addEventListener('submit',function(e){e.preventDefault();var d={};new FormData(f).forEach(function(v,k){d[k]=v;});"
+        "var b=f.querySelector('[type=submit],button');if(b)b.disabled=true;"
+        "(AU==='register'?rw.auth.register(d.email,d.password,d.name):rw.auth.login(d.email,d.password))"
+        ".then(function(){if(b)b.disabled=false;}).catch(function(err){if(b)b.disabled=false;alert(err||'Ошибка');});});return;}"
         "var TB=f.getAttribute('data-rw-table');"
         "if(!TB){var nm=f.querySelectorAll('[name]');var sb=f.querySelector('[type=submit],button');"
-        "if(!sb||nm.length<2)return;TB='zayavki';}"  # обычную форму-заявку тоже подключаем
-        "f.addEventListener('submit',function(e){e.preventDefault();var d={};"
-        "new FormData(f).forEach(function(v,k){d[k]=v;});"
+        "if(!sb||nm.length<2)return;TB='zayavki';}"
+        "f.addEventListener('submit',function(e){e.preventDefault();var d={};new FormData(f).forEach(function(v,k){d[k]=v;});"
         "var b=f.querySelector('[type=submit],button');if(b)b.disabled=true;"
-        "fetch(API,{method:'POST',headers:{'Content-Type':'application/json'},"
-        "body:JSON.stringify({project_id:PID,table:TB,data:d})})"
-        ".then(function(r){if(!r.ok)throw 0;return r.json();}).then(function(){"
+        "post('/api/public-data',{project_id:PID,table:TB,data:d}).then(function(x){if(x.s>=400)throw 0;"
         "var m=f.getAttribute('data-rw-success')||'Спасибо! Заявка отправлена.';"
         "f.innerHTML='<p style=\"padding:1.2rem;text-align:center;font-weight:600\">'+m+'</p>';})"
         ".catch(function(){if(b)b.disabled=false;alert('Не удалось отправить. Попробуйте позже.');});});});"
-        "document.querySelectorAll('[data-rw-catalog]').forEach(function(box){"
-        "var tpl=box.querySelector('template[data-rw-item]');if(!tpl)return;"
-        "fetch(API+'?project_id='+PID+'&table='+encodeURIComponent(box.getAttribute('data-rw-catalog')))"
-        ".then(function(r){if(!r.ok)throw 0;return r.json();}).then(function(res){"
-        "var rows=(res&&res.rows)||[];if(!rows.length)return;"
-        "var host=box.querySelector('[data-rw-items]')||box;"
-        "host.querySelectorAll('[data-rw-demo]').forEach(function(x){x.remove();});"
+        "document.querySelectorAll('[data-rw-logout]').forEach(function(el){el.addEventListener('click',function(e){e.preventDefault();rw.auth.logout();});});"
+        # Каталоги (публичные) и личные кабинеты (owner_scoped, с токеном) — общий рендер.
+        "function fill(box,table){var tpl=box.querySelector('template[data-rw-item]');if(!tpl)return;"
+        "fetch(API+'?project_id='+PID+'&table='+encodeURIComponent(table),{headers:hdr()})"
+        ".then(function(r){if(!r.ok)throw 0;return r.json();}).then(function(res){var rows=(res&&res.rows)||[];if(!rows.length)return;"
+        "var host=box.querySelector('[data-rw-items]')||box;host.querySelectorAll('[data-rw-demo]').forEach(function(x){x.remove();});"
         "rows.forEach(function(row){var n=tpl.content.cloneNode(true);"
         "n.querySelectorAll('[data-rw-field]').forEach(function(el){var v=row.data[el.getAttribute('data-rw-field')];"
-        "if(el.tagName==='IMG'){if(v)el.src=v;}else{el.textContent=(v==null?'':v);}});"
-        "host.appendChild(n);});}).catch(function(){});});})();</script>"
+        "if(el.tagName==='IMG'){if(v)el.src=v;}else{el.textContent=(v==null?'':v);}});host.appendChild(n);});}).catch(function(){});}"
+        "document.querySelectorAll('[data-rw-catalog]').forEach(function(box){fill(box,box.getAttribute('data-rw-catalog'));});"
+        "ui();rw.auth.me();})();</script>"
     )
     lower = html.lower()
     idx = lower.rfind('</body>')
@@ -897,20 +913,23 @@ def apply_project_schema(project_id, user_id, tables, schema):
                     if not cols:
                         continue
                     col_names = {c['name'] for c in cols}
-                    public_read = bool(t.get('public_read'))
+                    owner_scoped = bool(t.get('owner_scoped'))
+                    # Личная таблица (кабинет) НИКОГДА не публично-читаема — иначе чужие строки утекут
+                    # в каталог/в песочницу функций. owner_scoped и public_read взаимоисключающи.
+                    public_read = bool(t.get('public_read')) and not owner_scoped
                     public_write = bool(t.get('public_write'))
                     write_fields = [f for f in (t.get('write_fields') or []) if f in col_names]
                     cur.execute(
                         f"""INSERT INTO {schema}.project_db_tables
-                                (project_id, user_id, table_name, columns, public_read, public_write, write_fields, label)
-                            VALUES (%s,%s,%s,%s,%s,%s,%s,%s)
+                                (project_id, user_id, table_name, columns, public_read, public_write, write_fields, label, owner_scoped)
+                            VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s)
                             ON CONFLICT (project_id, table_name) DO UPDATE SET
                                 columns=EXCLUDED.columns, public_read=EXCLUDED.public_read,
                                 public_write=EXCLUDED.public_write, write_fields=EXCLUDED.write_fields,
-                                label=EXCLUDED.label""",
+                                label=EXCLUDED.label, owner_scoped=EXCLUDED.owner_scoped""",
                         (project_id, user_id, tname, json.dumps(cols),
                          public_read, public_write, json.dumps(write_fields),
-                         (str(t.get('label'))[:200] if t.get('label') else None))
+                         (str(t.get('label'))[:200] if t.get('label') else None), owner_scoped)
                     )
             conn.commit()
         finally:
@@ -1163,7 +1182,17 @@ function handler(input){
 - name — латиница/цифры/подчёркивание. reads — список таблиц проекта (через запятую), которые функция читает; читаются ТОЛЬКО таблицы с public_read, приходят как input.tables.имя (массив, у каждого элемента поле data).
 - Функция возвращает { result: <любой JSON для сайта> } и по желанию { writes: [{table:"имя", data:{...}}] } — вставит строки в таблицу с public_write (заявки/заказы). Никаких сети/файлов/циклов-навечно — есть лимит времени.
 - На сайте вызывай так: rw.call('calc_delivery', {weight: 7}).then(function(res){ /* res.price */ }).catch(function(e){ /* ошибка */ });
-- Не злоупотребляй: обычно 1-3 функции. Простому сайту функции НЕ нужны."""
+- Не злоупотребляй: обычно 1-3 функции. Простому сайту функции НЕ нужны.
+
+4. АККАУНТЫ ПОСЕТИТЕЛЕЙ (регистрация/вход + личный кабинет). Если сайту нужны личные кабинеты (посетитель входит и видит СВОИ заказы/брони/записи) — сделай формы входа и регистрации, а логику подключит платформа через window.rw.auth. Пиши ТОЛЬКО разметку:
+- Форма регистрации: <form data-rw-auth="register"> с полями name="name", name="email", name="password" и кнопкой submit.
+- Форма входа: <form data-rw-auth="login"> с полями name="email", name="password" и кнопкой submit.
+- Кнопка выхода: любой элемент с атрибутом data-rw-logout.
+- Показ блоков по состоянию входа: элементу для ВОШЕДШИХ добавь data-rw-when="in", для ГОСТЕЙ — data-rw-when="out" (платформа сама покажет/скроет). Имя пользователя подставится в элемент с data-rw-user.
+- Личный кабинет (СВОИ строки посетителя): контейнер с data-rw-cabinet="имя_таблицы" + <template data-rw-item> (как каталог). Показывает ТОЛЬКО строки текущего вошедшего посетителя.
+- Личная таблица (заказы/брони пользователя) объявляется в схеме с "owner_scoped":true — платформа сама привяжет строки к посетителю (сервер ставит владельца, клиент подделать не может). Личную таблицу НЕ делай public_read.
+Пример: <form data-rw-auth="login"><input name="email" type="email" placeholder="E-mail" required><input name="password" type="password" placeholder="Пароль" required><button type="submit" class="btn">Войти</button></form>
+Форма заказа в кабинете (пишет в личную таблицу): <form data-rw-table="orders"> … </form> — если orders помечена owner_scoped, заявка привяжется к вошедшему; неавторизованному вернётся требование входа. Обычному сайту без личных кабинетов аккаунты НЕ нужны."""
 
 
 # Ключевые слова, по которым запрос считаем "крупной задачей" — тогда включается

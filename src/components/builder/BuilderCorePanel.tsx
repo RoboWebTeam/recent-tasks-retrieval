@@ -6,9 +6,10 @@ import BuilderCoreDatabase from './BuilderCoreDatabase';
 import BuilderCoreSecrets from './BuilderCoreSecrets';
 import BuilderCoreStorage from './BuilderCoreStorage';
 import BuilderCoreFunctions from './BuilderCoreFunctions';
+import BuilderCoreUsers from './BuilderCoreUsers';
 
 
-type CoreTab = 'database' | 'functions' | 'secrets' | 'storage';
+type CoreTab = 'database' | 'functions' | 'users' | 'secrets' | 'storage';
 
 interface BuilderCorePanelProps {
   lang: Lang;
@@ -34,6 +35,7 @@ export default function BuilderCorePanel({ lang, projectId, onUseFileInChat }: B
   const tabs: { id: CoreTab; label: string; icon: string }[] = [
     { id: 'database', label: lang === 'ru' ? 'База данных' : 'Database', icon: 'Database' },
     { id: 'functions', label: lang === 'ru' ? 'Функции' : 'Functions', icon: 'Zap' },
+    { id: 'users', label: lang === 'ru' ? 'Пользователи' : 'Users', icon: 'Users' },
     { id: 'secrets', label: lang === 'ru' ? 'Секреты' : 'Secrets', icon: 'KeyRound' },
     { id: 'storage', label: lang === 'ru' ? 'Хранилище' : 'Storage', icon: 'FolderOpen' },
   ];
@@ -84,6 +86,7 @@ export default function BuilderCorePanel({ lang, projectId, onUseFileInChat }: B
       <div className="flex-1 overflow-y-auto">
         {tab === 'database' && <BuilderCoreDatabase lang={lang} projectId={projectId} />}
         {tab === 'functions' && <BuilderCoreFunctions lang={lang} projectId={projectId} />}
+        {tab === 'users' && <BuilderCoreUsers lang={lang} projectId={projectId} />}
         {tab === 'secrets' && <BuilderCoreSecrets lang={lang} projectId={projectId} />}
         {tab === 'storage' && <BuilderCoreStorage lang={lang} projectId={projectId} onUseInChat={onUseFileInChat} onFilesChanged={loadImages} />}
       </div>

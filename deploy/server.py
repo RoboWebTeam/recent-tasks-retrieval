@@ -99,7 +99,10 @@ def make_handler(func_name: str, rel_path: str):
         try:
             result = module.handler(event, context)
         except Exception as e:
-            return Response(json.dumps({'error': str(e)}), status=500, mimetype='application/json')
+            # Детали ошибки — только в лог сервера; клиенту общий текст (иначе утечёт имя схемы,
+            # структура запросов, traceback psycopg2 — помощь атакующему).
+            print(f'[deploy] handler {func_name} error: {repr(e)[:400]}', flush=True)
+            return Response(json.dumps({'error': 'Ошибка сервера'}), status=500, mimetype='application/json')
 
         # Стриминг (SSE): если handler вернул генератор в поле 'stream' — отдаём его как
         # потоковый ответ text/event-stream, не буферизуя. Используется generate-site для
