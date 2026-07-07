@@ -46,16 +46,12 @@ services:
     image: alpine:3.20
     volumes:
       - certbot_certs:/etc/letsencrypt
-    command: >
-      sh -ec '
-      D=/etc/letsencrypt/live/roboweb.dev;
-      if [ ! -f "$$D/fullchain.pem" ]; then
-        apk add --no-cache openssl >/dev/null 2>&1;
-        mkdir -p "$$D";
-        openssl req -x509 -nodes -newkey rsa:2048 -days 3650
-          -keyout "$$D/privkey.pem" -out "$$D/fullchain.pem" -subj "/CN=roboweb.dev";
-        echo "dummy cert created";
-      else echo "cert already present"; fi'
+    # ВАЖНО: весь скрипт одним аргументом одной строкой (exec-форма) — иначе YAML-фолдинг рвёт
+    # openssl-команду по строкам, теряется -subj и openssl уходит в интерактивный промпт (падение).
+    command:
+      - sh
+      - -ec
+      - 'D=/etc/letsencrypt/live/roboweb.dev; if [ ! -f "$$D/fullchain.pem" ]; then apk add --no-cache openssl >/dev/null 2>&1; mkdir -p "$$D"; openssl req -x509 -nodes -newkey rsa:2048 -days 3650 -keyout "$$D/privkey.pem" -out "$$D/fullchain.pem" -subj "/CN=roboweb.dev"; echo "dummy cert created"; else echo "cert already present"; fi'
 
   frontend:
     build:
