@@ -543,3 +543,42 @@ export async function apiDeleteProjectRow(sessionId: string, projectId: number, 
   if (!res.ok) throw new Error((data as {error?: string}).error || 'Ошибка удаления записи');
   return data;
 }
+
+// ── Серверные функции проекта (Этап 2 фуллстека) ──────────────────────────
+export interface ProjectFunction {
+  id: number;
+  name: string;
+  description?: string;
+  reads: string[];
+  enabled: boolean;
+  code: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export async function apiGetProjectFunctions(sessionId: string, projectId: number): Promise<ProjectFunction[]> {
+  const { res, data } = await apiFetch(`${PROJECT_CORE_URL}?resource=functions&project_id=${projectId}`, {
+    headers: { 'x-session-id': sessionId },
+  });
+  if (!res.ok) throw new Error((data as {error?: string}).error || 'Ошибка загрузки функций');
+  return (data as {functions: ProjectFunction[]}).functions;
+}
+
+export async function apiToggleProjectFunction(sessionId: string, projectId: number, id: number, enabled: boolean) {
+  const { res, data } = await apiFetch(`${PROJECT_CORE_URL}?resource=functions&project_id=${projectId}`, {
+    method: 'PUT',
+    headers: { 'x-session-id': sessionId },
+    body: JSON.stringify({ id, enabled }),
+  });
+  if (!res.ok) throw new Error((data as {error?: string}).error || 'Ошибка обновления функции');
+  return data;
+}
+
+export async function apiDeleteProjectFunction(sessionId: string, projectId: number, id: number) {
+  const { res, data } = await apiFetch(`${PROJECT_CORE_URL}?resource=functions&project_id=${projectId}&id=${id}`, {
+    method: 'DELETE',
+    headers: { 'x-session-id': sessionId },
+  });
+  if (!res.ok) throw new Error((data as {error?: string}).error || 'Ошибка удаления функции');
+  return data;
+}

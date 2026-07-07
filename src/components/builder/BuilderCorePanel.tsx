@@ -83,7 +83,7 @@ export default function BuilderCorePanel({ lang, projectId, onUseFileInChat }: B
       {/* Content */}
       <div className="flex-1 overflow-y-auto">
         {tab === 'database' && <BuilderCoreDatabase lang={lang} projectId={projectId} />}
-        {tab === 'functions' && <BuilderCoreFunctions lang={lang} />}
+        {tab === 'functions' && <BuilderCoreFunctions lang={lang} projectId={projectId} />}
         {tab === 'secrets' && <BuilderCoreSecrets lang={lang} projectId={projectId} />}
         {tab === 'storage' && <BuilderCoreStorage lang={lang} projectId={projectId} onUseInChat={onUseFileInChat} onFilesChanged={loadImages} />}
       </div>

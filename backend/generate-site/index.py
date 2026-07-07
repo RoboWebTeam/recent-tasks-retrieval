@@ -812,16 +812,17 @@ def extract_schema_block(html: str):
     return cleaned, tables if isinstance(tables, list) else []
 
 
-def inject_data_runtime(html: str, project_id, tables) -> str:
+def inject_data_runtime(html: str, project_id, tables, has_fns=False) -> str:
     """Вставляет перед </body> стандартный клиентский runtime data-слоя с уже вшитым project_id.
     Модель пишет ТОЛЬКО декларативную разметку (data-rw-table на форме, data-rw-catalog +
     <template data-rw-item> на каталоге) — всю логику fetch к /api/public-data берёт на себя этот
-    инжектируемый скрипт (надёжнее, чем просить модель писать JS, и переживает правки сайта).
-    Вставляется только если объявлена схема (есть таблицы) и в HTML есть маркеры data-rw-*."""
-    if not project_id or not isinstance(tables, list) or not tables:
+    инжектируемый скрипт. Также публикует window.rw.call(fn,args) для серверных функций проекта.
+    Вставляется, если есть таблицы (формы/каталоги) ИЛИ серверные функции."""
+    has_tables = isinstance(tables, list) and bool(tables)
+    if not project_id or (not has_tables and not has_fns):
         return html or ''
     low = (html or '').lower()
-    if not html or ('data-rw-' not in html and '<form' not in low):
+    if not html or (not has_fns and 'data-rw-' not in html and '<form' not in low):
         return html or ''
     runtime = (
         "<script>(function(){var PID=" + str(int(project_id)) + ";"
@@ -829,6 +830,10 @@ def inject_data_runtime(html: str, project_id, tables) -> str:
         # строим АБСОЛЮТНЫЙ адрес от origin родителя (iframe same-origin с платформой).
         "var B='';try{B=(window.parent&&window.parent.location&&window.parent.location.origin)||'';}catch(e){}"
         "if(!B){try{B=location.origin;}catch(e){}}var API=B+'/api/public-data';"
+        # Серверные функции проекта: сайт зовёт rw.call('имя',{...}).then(res=>...).
+        "window.rw={call:function(fn,args){return fetch(B+'/api/public-fn',{method:'POST',"
+        "headers:{'Content-Type':'application/json'},body:JSON.stringify({project_id:PID,fn:fn,args:args||{}})})"
+        ".then(function(r){return r.json();}).then(function(j){if(!j||!j.ok)throw (j&&j.error)||'error';return j.result;})}};"
         "document.querySelectorAll('form').forEach(function(f){"
         "var TB=f.getAttribute('data-rw-table');"
         "if(!TB){var nm=f.querySelectorAll('[name]');var sb=f.querySelector('[type=submit],button');"
@@ -989,6 +994,84 @@ def merge_schema(primary, derived):
     return primary + [t for t in derived if t.get('table_name') not in names]
 
 
+# ── Этап 2 «Логика/API»: серверные функции проекта ───────────────────────────
+def extract_fn_blocks(html):
+    """Линейным сканом (НЕ backtracking-regex — защита от ReDoS) достаёт блоки серверных функций:
+    <!--RW_FN name="calc" reads="prices" desc="..."-->function handler(input){...}<!--/RW_FN-->
+    Возвращает (html_без_блоков, list функций). Дубли name отбрасываем (не last-wins)."""
+    import re
+    if not html or '<!--RW_FN' not in html:
+        return html, []
+    OPEN, CLOSE = '<!--RW_FN', '<!--/RW_FN-->'
+    out_parts, fns, seen = [], [], set()
+    pos, last = 0, 0
+    scanned = 0
+    while True:
+        i = html.find(OPEN, pos)
+        if i == -1 or scanned > 30:  # не больше 30 блоков за проход
+            break
+        scanned += 1
+        head_end = html.find('-->', i)
+        if head_end == -1:
+            break
+        close = html.find(CLOSE, head_end)
+        if close == -1:
+            break
+        head = html[i:head_end]
+        code = html[head_end + 3:close]
+        pos = close + len(CLOSE)
+        # ЛЮБОЙ найденный блок вырезаем из HTML (даже отклонённый) — маркеры не должны утечь в сайт.
+        out_parts.append(html[last:i])
+        last = pos
+        name_m = re.search(r'name="([a-zA-Z0-9_]{1,40})"', head)
+        if not name_m:
+            continue
+        name = name_m.group(1)
+        if name in seen or not _valid_db_identifier(name) or len(code) > 20000:
+            continue
+        if OPEN in code:   # тело не должно содержать вложенный открывающий маркер
+            continue
+        reads_m = re.search(r'reads="([^"]*)"', head)
+        reads = [r.strip() for r in (reads_m.group(1).split(',') if reads_m else []) if _valid_db_identifier(r.strip())][:5]
+        desc_m = re.search(r'desc="([^"]{0,300})"', head)
+        seen.add(name)
+        fns.append({'name': name, 'reads': reads, 'code': code.strip(),
+                    'description': (desc_m.group(1) if desc_m else '')})
+    out_parts.append(html[last:])
+    return ''.join(out_parts).strip(), fns
+
+
+def apply_project_functions(project_id, user_id, fns, schema):
+    """Идемпотентно сохраняет серверные функции проекта. Ошибки глотаем с логом."""
+    if not RW_DATA_ENABLED or not project_id or not user_id or not isinstance(fns, list) or not fns:
+        return
+    try:
+        conn = psycopg2.connect(os.environ['DATABASE_URL'])
+        try:
+            with conn.cursor() as cur:
+                for f in fns[:30]:
+                    name = (f.get('name') or '').strip()
+                    code = f.get('code') or ''
+                    if not _valid_db_identifier(name) or not code:
+                        continue
+                    reads = [r for r in (f.get('reads') or []) if _valid_db_identifier(r)][:5]
+                    cur.execute(
+                        f"""INSERT INTO {schema}.project_functions
+                                (project_id, user_id, name, description, code, reads, enabled, updated_at)
+                            VALUES (%s,%s,%s,%s,%s,%s,true,NOW())
+                            ON CONFLICT (project_id, name) DO UPDATE SET
+                                description=EXCLUDED.description, code=EXCLUDED.code,
+                                reads=EXCLUDED.reads, updated_at=NOW()""",
+                        (project_id, user_id, name, (str(f.get('description') or '')[:300]),
+                         code, json.dumps(reads))
+                    )
+            conn.commit()
+        finally:
+            conn.close()
+    except Exception as ex:
+        log(f'apply_project_functions error: {repr(ex)[:200]}')
+
+
 # HTML рабочей формы-заявки (вставляется бэкендом, если сайт собирает заявки, а модель формы не сделала).
 # Стили инлайновые и адаптивные: тянут переменные темы сайта (var(--surface/--accent/…)) с фолбэками.
 _LEAD_FORM_INNER = (
@@ -1064,7 +1147,23 @@ DATA_PROMPT = """
   <template data-rw-item><div class="card"><img data-rw-field="photo" alt=""><h3 data-rw-field="title"></h3><p data-rw-field="descr"></p><span data-rw-field="price"></span></div></template>
 </div>
 
-ПРАВИЛА: демо-карточки и обычная вёрстка формы должны быть на месте ВСЕГДА — тогда сайт целостен, даже если база пуста. Никаких абсолютных URL, IP и своих fetch — только разметка data-rw-*. Если сайт чисто информационный и ничего не собирает и не каталогизирует — эти атрибуты не нужны."""
+ПРАВИЛА: демо-карточки и обычная вёрстка формы должны быть на месте ВСЕГДА — тогда сайт целостен, даже если база пуста. Никаких абсолютных URL, IP и своих fetch — только разметка data-rw-*. Если сайт чисто информационный и ничего не собирает и не каталогизирует — эти атрибуты не нужны.
+
+3. СЕРВЕРНЫЕ ФУНКЦИИ (динамическая логика: расчёты, проверки, оформление). Если сайту нужна логика на сервере (калькулятор стоимости/ипотеки/доставки, проверка промокода, оформление заказа с записью в БД, бронирование с проверкой) — объяви серверную функцию служебным блоком ПОСЛЕ </html> (рядом с ROBOWEB_META), и вызывай её на сайте через window.rw.call. Логику fetch НЕ пиши — платформа даёт готовый window.rw.
+Формат блока функции (тело — обычный JavaScript, функция ОБЯЗАНА называться handler и принимать input):
+<!--RW_FN name="calc_delivery" reads="zones" desc="Расчёт доставки"-->
+function handler(input){
+  // input.args — аргументы от сайта; input.tables — строки таблиц из reads (каждая r.data — объект)
+  var w = input.args.weight || 0;
+  var base = w > 5 ? 500 : 300;
+  return { result: { price: base } };
+}
+<!--/RW_FN-->
+Правила функций:
+- name — латиница/цифры/подчёркивание. reads — список таблиц проекта (через запятую), которые функция читает; читаются ТОЛЬКО таблицы с public_read, приходят как input.tables.имя (массив, у каждого элемента поле data).
+- Функция возвращает { result: <любой JSON для сайта> } и по желанию { writes: [{table:"имя", data:{...}}] } — вставит строки в таблицу с public_write (заявки/заказы). Никаких сети/файлов/циклов-навечно — есть лимит времени.
+- На сайте вызывай так: rw.call('calc_delivery', {weight: 7}).then(function(res){ /* res.price */ }).catch(function(e){ /* ошибка */ });
+- Не злоупотребляй: обычно 1-3 функции. Простому сайту функции НЕ нужны."""
 
 
 # Ключевые слова, по которым запрос считаем "крупной задачей" — тогда включается
@@ -1439,6 +1538,7 @@ def _handler_impl(event: dict, context) -> dict:
                 html_out, report_md = extract_report_block(raw_html)
                 html_out, meta = extract_meta_block(html_out)
                 html_out, schema_tables = extract_schema_block(html_out)  # таблицы БД из маркера ROBOWEB_SCHEMA (до проверки </html>)
+                html_out, fn_blocks = extract_fn_blocks(html_out)  # серверные функции из маркеров RW_FN
                 html_out = strip_progress_markers(html_out)  # финальный HTML — без служебных маркеров
 
                 # Уточняющий вопрос: модель прислала только служебный блок с question, без HTML.
@@ -1486,7 +1586,8 @@ def _handler_impl(event: dict, context) -> dict:
                 schema_tables = merge_schema(schema_tables, derive_schema_from_html(html_out))  # схема из разметки data-rw-*
                 if project_id:
                     apply_project_schema(int(project_id), user_id, schema_tables, schema)  # создаём таблицы БД из схемы
-                    html_out = inject_data_runtime(html_out, project_id, schema_tables)  # runtime data-слоя с project_id
+                    apply_project_functions(int(project_id), user_id, fn_blocks, schema)  # сохраняем серверные функции
+                    html_out = inject_data_runtime(html_out, project_id, schema_tables, has_fns=bool(fn_blocks))
                     save_html(int(project_id), html_out, schema)
                 maybe_notify_low_balance(user_id, remaining, schema)
 
@@ -1560,6 +1661,7 @@ def _handler_impl(event: dict, context) -> dict:
     html, report_md = extract_report_block(html)
     html, meta = extract_meta_block(html)
     html, schema_tables = extract_schema_block(html)  # таблицы БД из маркера ROBOWEB_SCHEMA (до проверки </html>)
+    html, fn_blocks = extract_fn_blocks(html)  # серверные функции из маркеров RW_FN
     html = strip_progress_markers(html)  # служебные маркеры нужны только в стриме
 
     # УТОЧНЯЮЩИЙ ВОПРОС: если задача была слишком расплывчата, модель по инструкции присылает
@@ -1675,6 +1777,8 @@ def _handler_impl(event: dict, context) -> dict:
     # затем создаём таблицы БД проекта и вставляем runtime data-слоя с реальным project_id.
     html, _extra_tables = extract_schema_block(html)
     schema_tables = schema_tables or _extra_tables
+    html, _extra_fns = extract_fn_blocks(html)
+    fn_blocks = fn_blocks or _extra_fns
     if RW_DATA_ENABLED:
         html = ensure_lead_form(html)  # если модель не сделала форму заявок — вставляем рабочую
     schema_tables = merge_schema(schema_tables, derive_schema_from_html(html))  # схема из разметки data-rw-*
@@ -1682,7 +1786,8 @@ def _handler_impl(event: dict, context) -> dict:
     # Сохраняем HTML в проект если передан project_id
     if project_id:
         apply_project_schema(int(project_id), user_id, schema_tables, schema)
-        html = inject_data_runtime(html, project_id, schema_tables)
+        apply_project_functions(int(project_id), user_id, fn_blocks, schema)
+        html = inject_data_runtime(html, project_id, schema_tables, has_fns=bool(fn_blocks))
         save_html(int(project_id), html, schema)
 
     # Уведомление шлём только теперь, когда сайт уже готов — чтобы никак не задерживать генерацию

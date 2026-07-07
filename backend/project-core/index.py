@@ -245,7 +245,48 @@ def handler(event: dict, context) -> dict:
 
                 return err('Метод не поддерживается', 405)
 
-            return err('Неизвестный resource. Ожидается: secrets, tables, rows')
+            # ───────────────────────── СЕРВЕРНЫЕ ФУНКЦИИ (Этап 2) ─────────────────────────
+            if resource == 'functions':
+                if method == 'GET':
+                    cur.execute(
+                        f"""SELECT id, name, description, reads, enabled, code, created_at, updated_at
+                            FROM {schema}.project_functions WHERE project_id = %s ORDER BY created_at DESC""",
+                        (project_id,)
+                    )
+                    fns = [
+                        {'id': r[0], 'name': r[1], 'description': r[2], 'reads': r[3],
+                         'enabled': r[4], 'code': r[5], 'created_at': r[6].isoformat(),
+                         'updated_at': r[7].isoformat()}
+                        for r in cur.fetchall()
+                    ]
+                    return ok({'functions': fns})
+
+                if method == 'PUT':      # включить/выключить функцию
+                    fn_id = body.get('id')
+                    enabled = bool(body.get('enabled'))
+                    if not fn_id:
+                        return err('Укажите id функции')
+                    cur.execute(
+                        f"UPDATE {schema}.project_functions SET enabled = %s, updated_at = NOW() WHERE id = %s AND project_id = %s",
+                        (enabled, fn_id, project_id)
+                    )
+                    conn.commit()
+                    return ok({'ok': True})
+
+                if method == 'DELETE':
+                    fn_id = params.get('id')
+                    if not fn_id:
+                        return err('Укажите id функции')
+                    cur.execute(
+                        f"DELETE FROM {schema}.project_functions WHERE id = %s AND project_id = %s",
+                        (fn_id, project_id)
+                    )
+                    conn.commit()
+                    return ok({'ok': True})
+
+                return err('Метод не поддерживается', 405)
+
+            return err('Неизвестный resource. Ожидается: secrets, tables, rows, functions')
 
     except Exception:
         # Любая ошибка БД/логики — откатываем транзакцию, чтобы не оставить её «битой»,
