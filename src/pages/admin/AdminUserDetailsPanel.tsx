@@ -33,7 +33,7 @@ function ProjectsList({ projects }: { projects: UserProject[] }) {
             </div>
             <div className="flex items-center gap-2 shrink-0">
               {p.slug && (
-                <a href={`https://roboweb.site/site/${p.slug}`} target="_blank" rel="noopener noreferrer"
+                <a href={`https://roboweb.dev/site/${p.slug}`} target="_blank" rel="noopener noreferrer"
                   className="text-muted-foreground hover:text-primary transition-colors" title="Открыть сайт">
                   <Icon name="ExternalLink" size={13} />
                 </a>

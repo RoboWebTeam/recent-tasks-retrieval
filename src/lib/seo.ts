@@ -1,4 +1,4 @@
-const BASE_URL = 'https://roboweb.site';
+const BASE_URL = 'https://roboweb.dev';
 const DEFAULT_IMAGE = 'https://s3-nl.hostkey.com/robo/demo/4ad7a664-b53c-40fe-8519-d34d7d589413.jpg';
 
 interface SeoMeta {

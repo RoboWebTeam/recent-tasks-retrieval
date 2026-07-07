@@ -183,7 +183,7 @@ export default function BuilderDomainModal({ open, onOpenChange, lang, projectId
               {isRu ? 'Домен сайта' : 'Site domain'}
             </DialogTitle>
             <p className="text-xs text-muted-foreground pl-[46px] -mt-1">
-              {isRu ? 'Подключите свой домен вместо адреса на roboweb.site' : 'Connect your own domain instead of a roboweb.site address'}
+              {isRu ? 'Подключите свой домен вместо адреса на roboweb.dev' : 'Connect your own domain instead of a roboweb.dev address'}
             </p>
           </DialogHeader>
 

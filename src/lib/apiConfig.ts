@@ -3,7 +3,7 @@
 // По умолчанию запросы идут на тот же домен, что и фронтенд: `/api/<имя-функции>`
 // (backend проксируется через nginx — см. deploy/README.md).
 // Можно указать другой адрес backend через VITE_API_BASE_URL при сборке
-// (например: VITE_API_BASE_URL=https://roboweb.site) — тогда запросы пойдут на
+// (например: VITE_API_BASE_URL=https://roboweb.dev) — тогда запросы пойдут на
 // `${VITE_API_BASE_URL}/api/<имя-функции>`.
 
 const FUNCTION_NAMES = [

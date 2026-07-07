@@ -18,7 +18,7 @@ export function DemoPreviewPanel({ lang, progress }: Props) {
             <Icon name="Globe" size={11} className="text-slate-300 shrink-0" />
           )}
           <span className="text-xs font-mono text-slate-400 truncate">
-            {progress >= 100 ? 'https://brewco.roboweb.site' : 'brewco.roboweb.site'}
+            {progress >= 100 ? 'https://brewco.roboweb.dev' : 'brewco.roboweb.dev'}
           </span>
           {progress >= 100 && (
             <span className="ml-auto bg-emerald-100 text-emerald-600 text-[10px] font-bold px-1.5 py-0.5 rounded-full shrink-0">

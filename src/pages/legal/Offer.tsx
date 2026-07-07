@@ -22,7 +22,7 @@ export default function Offer() {
     return (
       <LegalPageLayout title="Public Offer Agreement" updatedAt="July 4, 2026">
         <p>
-          This Public Offer Agreement (the "Agreement") is published at roboweb.site (the "Service") and constitutes
+          This Public Offer Agreement (the "Agreement") is published at roboweb.dev (the "Service") and constitutes
           a formal offer by Individual Entrepreneur Arakelov Stanislav Vladislavovich (OGRNIP 324508100357892, TIN 501210007760),
           hereinafter referred to as the "Contractor", to any individual or legal entity (the "User") to use the Service
           on the terms set out below, in accordance with Article 437 of the Civil Code of the Russian Federation.
@@ -32,7 +32,7 @@ export default function Offer() {
           1.1. The Contractor grants the User access to Roboweb — a cloud-based AI service for generating, editing,
           hosting and publishing websites based on the User's text descriptions.
         </p>
-        <p>1.2. The Service is provided remotely, via the website roboweb.site, without signing a paper agreement.</p>
+        <p>1.2. The Service is provided remotely, via the website roboweb.dev, without signing a paper agreement.</p>
         <p>
           1.3. Acceptance of this offer (registering an account and/or paying for a plan) means the User fully and
           unconditionally accepts all terms of this Agreement.
@@ -113,7 +113,7 @@ export default function Offer() {
         Настоящий документ является публичной офертой (далее — «Оферта») индивидуального предпринимателя
         Аракелова Станислава Владиславовича (ОГРНИП 324508100357892, ИНН 501210007760), далее — «Исполнитель»,
         адресованной любому физическому или юридическому лицу (далее — «Пользователь») на оказание услуг сервиса
-        Roboweb, размещённого по адресу roboweb.site (далее — «Сервис»), в соответствии со ст. 437 Гражданского
+        Roboweb, размещённого по адресу roboweb.dev (далее — «Сервис»), в соответствии со ст. 437 Гражданского
         кодекса РФ.
       </p>
 
@@ -123,7 +123,7 @@ export default function Offer() {
         генерации, редактирования, размещения (хостинга) и публикации сайтов на основе текстового описания
         Пользователя.
       </p>
-      <p>1.2. Услуги оказываются дистанционно через сайт roboweb.site без подписания бумажного договора.</p>
+      <p>1.2. Услуги оказываются дистанционно через сайт roboweb.dev без подписания бумажного договора.</p>
       <p>
         1.3. Акцептом (принятием) настоящей Оферты является регистрация аккаунта на Сервисе и/или оплата
         любого платного тарифа. Акцепт означает полное и безоговорочное согласие Пользователя со всеми условиями

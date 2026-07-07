@@ -134,10 +134,10 @@ poehali.dev — это значит, что **текущий сайт на poeha
 
 ```bash
 npm install
-VITE_API_BASE_URL=https://roboweb.site npm run build
+VITE_API_BASE_URL=https://roboweb.dev npm run build
 ```
 
-Тогда все запросы автоматически пойдут на `https://roboweb.site/api/<имя-функции>`
+Тогда все запросы автоматически пойдут на `https://roboweb.dev/api/<имя-функции>`
 (соответствие имён функций и путей — в `backend/func2url.json`, роутинг настроен
 в `deploy/server.py`).
 
@@ -151,7 +151,7 @@ VITE_API_BASE_URL=https://roboweb.site npm run build
 ```nginx
 server {
     listen 80;
-    server_name roboweb.site www.roboweb.site;
+    server_name roboweb.dev www.roboweb.dev;
 
     root /var/www/roboweb/dist;
     index index.html;
@@ -175,7 +175,7 @@ sudo nginx -t && sudo systemctl reload nginx
 Для HTTPS — Let's Encrypt:
 ```bash
 sudo apt install certbot python3-certbot-nginx
-sudo certbot --nginx -d roboweb.site -d www.roboweb.site
+sudo certbot --nginx -d roboweb.dev -d www.roboweb.dev
 ```
 
 ## Шаг 6. Файловое хранилище (S3)
@@ -188,7 +188,7 @@ sudo certbot --nginx -d roboweb.site -d www.roboweb.site
 ## Шаг 7. Внешние интеграции — проверить домены/redirect URI
 
 У OAuth-провайдеров (GitHub, Яндекс, Telegram) прописан callback URL на текущий домен.
-После переноса на новый сервер (если домен останется тот же — `roboweb.site`, ничего менять не надо; если домен меняется — обновите redirect URI в настройках каждого приложения):
+После переноса на новый сервер (если домен останется тот же — `roboweb.dev`, ничего менять не надо; если домен меняется — обновите redirect URI в настройках каждого приложения):
 - GitHub OAuth App → Authorization callback URL
 - Яндекс OAuth → Redirect URI
 - Telegram @BotFather → `/setdomain`

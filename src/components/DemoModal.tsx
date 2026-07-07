@@ -24,7 +24,7 @@ const SCRIPT_RU = [
   { time: 35, type: 'bot',  text: '⚡ Готово! Баннер с акцией добавлен в Hero и в меню — с обратным отсчётом!' },
   { time: 38, type: 'progress', value: 92, label: 'Финальная сборка' },
   { time: 41, type: 'progress', value: 100, label: 'Публикую сайт' },
-  { time: 43, type: 'done', text: '🚀 Сайт «Brew & Co» опубликован!\nbrewco.roboweb.site\n\n⏱ 47 секунд · 📱 Адаптивный · ✅ SEO' },
+  { time: 43, type: 'done', text: '🚀 Сайт «Brew & Co» опубликован!\nbrewco.roboweb.dev\n\n⏱ 47 секунд · 📱 Адаптивный · ✅ SEO' },
 ];
 
 const SCRIPT_EN = [
@@ -41,7 +41,7 @@ const SCRIPT_EN = [
   { time: 35, type: 'bot',  text: '⚡ Done! Promo banner added to Hero and menu — with countdown timer!' },
   { time: 38, type: 'progress', value: 92, label: 'Final build' },
   { time: 41, type: 'progress', value: 100, label: 'Publishing site' },
-  { time: 43, type: 'done', text: '🚀 "Brew & Co" site is live!\nbrewco.roboweb.site\n\n⏱ 47 sec · 📱 Responsive · ✅ SEO' },
+  { time: 43, type: 'done', text: '🚀 "Brew & Co" site is live!\nbrewco.roboweb.dev\n\n⏱ 47 sec · 📱 Responsive · ✅ SEO' },
 ];
 
 const TOTAL = 47;
@@ -109,7 +109,7 @@ export default function DemoModal({ open, onClose, lang }: Props) {
             </div>
             <div className="flex items-center gap-2 bg-slate-100 rounded-lg px-3 py-1.5">
               <Icon name="Globe" size={12} className="text-slate-400" />
-              <span className="text-slate-500 text-xs font-mono">roboweb.site</span>
+              <span className="text-slate-500 text-xs font-mono">roboweb.dev</span>
             </div>
           </div>
           <div className="flex items-center gap-3">

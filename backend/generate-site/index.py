@@ -453,7 +453,7 @@ def send_low_balance_email(to_email: str, remaining: int):
       <h2 style="color: #3b4cff; margin: 0 0 16px;">{'Лимит запросов исчерпан' if is_zero else 'Запросы заканчиваются'}</h2>
       <p style="color: #444; font-size: 16px; margin: 0 0 16px;">{text}</p>
       <p style="color: #666; font-size: 14px; margin: 0 0 20px;">Пополните энергию или смените тариф, чтобы продолжить создавать сайты с AI.</p>
-      <a href="https://roboweb.site/pricing" style="display:inline-block; background:#3b4cff; color:#fff; text-decoration:none; padding:10px 20px; border-radius:10px; font-weight:600;">Перейти к тарифам</a>
+      <a href="https://roboweb.dev/pricing" style="display:inline-block; background:#3b4cff; color:#fff; text-decoration:none; padding:10px 20px; border-radius:10px; font-weight:600;">Перейти к тарифам</a>
       <p style="color: #888; font-size: 13px; margin-top: 24px;">Письмо отправлено автоматически с сайта Roboweb</p>
     </div>
     """
@@ -1051,6 +1051,65 @@ def merge_schema(primary, derived):
     primary = primary if isinstance(primary, list) else []
     names = {t.get('table_name') for t in primary if isinstance(t, dict)}
     return primary + [t for t in derived if t.get('table_name') not in names]
+
+
+# ── Премиум-фото Unsplash (опционально, по ключу UNSPLASH_ACCESS_KEY) ─────────
+# Модель пишет тематические loremflickr-URL; если задан ключ Unsplash — заменяем их на реальные
+# профессиональные фото Unsplash по тем же ключевым словам. Без ключа/при ошибке — оставляем loremflickr.
+_UNSPLASH_KEY = os.environ.get('UNSPLASH_ACCESS_KEY', '').strip()
+
+
+def _unsplash_search(query, orientation):
+    """Список raw-URL фото Unsplash по запросу (пусто при ошибке/без ключа)."""
+    if not _UNSPLASH_KEY:
+        return []
+    try:
+        import urllib.parse
+        url = ('https://api.unsplash.com/search/photos?per_page=12&content_filter=high&orientation='
+               + orientation + '&query=' + urllib.parse.quote(query))
+        req = urllib.request.Request(url, headers={
+            'Authorization': 'Client-ID ' + _UNSPLASH_KEY, 'Accept-Version': 'v1'})
+        with urllib.request.urlopen(req, timeout=6) as r:
+            data = json.loads(r.read().decode('utf-8'))
+        return [it['urls']['raw'] for it in (data.get('results') or [])
+                if isinstance(it, dict) and it.get('urls', {}).get('raw')]
+    except Exception as ex:
+        log(f'unsplash search error: {repr(ex)[:150]}')
+        return []
+
+
+def upgrade_images_to_unsplash(html):
+    """Заменяет тематические loremflickr-фото на премиум-фото Unsplash (если задан ключ).
+    Кэш по (запрос, ориентация) в пределах одной генерации; при любой осечке — оставляем loremflickr."""
+    if not _UNSPLASH_KEY or not html or 'loremflickr.com' not in html:
+        return html
+    import re
+    cache = {}
+
+    def repl(m):
+        w, h, kw, lock = m.group(1), m.group(2), m.group(3), (m.group(4) or '0')
+        try:
+            W, H = int(w), int(h)
+        except ValueError:
+            return m.group(0)
+        query = kw.replace(',', ' ').replace('-', ' ').strip()
+        if not query:
+            return m.group(0)
+        orient = 'landscape' if W > H * 1.15 else ('portrait' if H > W * 1.15 else 'squarish')
+        key = (query, orient)
+        if key not in cache:
+            cache[key] = _unsplash_search(query, orient)
+        photos = cache[key]
+        if not photos:
+            return m.group(0)  # нет фото — оставляем loremflickr
+        try:
+            raw = photos[int(lock) % len(photos)]  # lock: стабильный, но разный для разных картинок выбор
+        except (ValueError, TypeError, ZeroDivisionError):
+            raw = photos[0]
+        sep = '&' if '?' in raw else '?'
+        return raw + sep + 'w=%s&h=%s&fit=crop&crop=entropy&q=80&fm=jpg' % (w, h)
+
+    return re.sub(r'https://loremflickr\.com/(\d+)/(\d+)/([^"\'?\s>]+)(?:\?lock=(\d+))?', repl, html)
 
 
 # ── Этап 2 «Логика/API»: серверные функции проекта ───────────────────────────
@@ -1661,6 +1720,7 @@ def _handler_impl(event: dict, context) -> dict:
                 if RW_DATA_ENABLED:
                     html_out = ensure_lead_form(html_out)  # если модель не сделала форму заявок — вставляем рабочую
                 schema_tables = merge_schema(schema_tables, derive_schema_from_html(html_out))  # схема из разметки data-rw-*
+                html_out = upgrade_images_to_unsplash(html_out)  # премиум-фото Unsplash (если задан ключ)
                 if project_id:
                     apply_project_schema(int(project_id), user_id, schema_tables, schema)  # создаём таблицы БД из схемы
                     apply_project_functions(int(project_id), user_id, fn_blocks, schema)  # сохраняем серверные функции
@@ -1859,6 +1919,7 @@ def _handler_impl(event: dict, context) -> dict:
     if RW_DATA_ENABLED:
         html = ensure_lead_form(html)  # если модель не сделала форму заявок — вставляем рабочую
     schema_tables = merge_schema(schema_tables, derive_schema_from_html(html))  # схема из разметки data-rw-*
+    html = upgrade_images_to_unsplash(html)  # премиум-фото Unsplash (если задан ключ)
 
     # Сохраняем HTML в проект если передан project_id
     if project_id:

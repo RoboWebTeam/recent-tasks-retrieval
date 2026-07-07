@@ -6,7 +6,7 @@ import urllib.parse
 import psycopg2
 
 SERVER_IP = '185.230.209.10'
-CNAME_VALUE = 'cname.roboweb.site'
+CNAME_VALUE = 'cname.roboweb.dev'
 
 REGISTRAR_PATTERNS = [
     ('Reg.ru', re.compile(r'reg\.ru$', re.I)),

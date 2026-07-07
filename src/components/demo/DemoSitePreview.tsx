@@ -186,7 +186,7 @@ export function DemoSitePreview({ progress, lang }: { progress: number; lang: 'r
             <div className="font-bold text-emerald-800 text-sm mb-1">
               {isRu ? 'Сайт опубликован!' : 'Site published!'}
             </div>
-            <div className="text-xs text-emerald-600 font-mono">brewco.roboweb.site</div>
+            <div className="text-xs text-emerald-600 font-mono">brewco.roboweb.dev</div>
           </div>
         </div>
       )}

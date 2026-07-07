@@ -2,7 +2,7 @@ import { useState } from 'react';
 import Icon from '@/components/ui/icon';
 
 export const SERVER_IP = '185.230.209.10';
-export const CNAME_VALUE = 'cname.roboweb.site';
+export const CNAME_VALUE = 'cname.roboweb.dev';
 
 // Официальные разделы поддержки (главные страницы — реже меняют адрес, чем ссылки на конкретные статьи)
 const REGISTRAR_LINKS: Record<string, string> = {
@@ -173,7 +173,7 @@ export function DomainInfoCards({ isRu }: DomainInfoCardsProps) {
         { icon: 'Shield', title: isRu ? 'SSL бесплатно' : 'Free SSL', desc: isRu ? 'HTTPS сертификат активируется автоматически' : 'HTTPS certificate activates automatically' },
         { icon: 'Zap', title: isRu ? 'CDN и кэш' : 'CDN & Cache', desc: isRu ? 'Быстрая загрузка по всему миру' : 'Fast loading worldwide' },
         { icon: 'RefreshCw', title: isRu ? 'Обновление' : 'Updates', desc: isRu ? 'Сайт обновляется мгновенно' : 'Site updates instantly' },
-        { icon: 'Search', title: isRu ? 'Лучше для SEO' : 'Better for SEO', desc: isRu ? 'Свой домен индексируется в Яндекс и Google — в отличие от адреса на roboweb.site' : 'Your domain gets indexed by Yandex & Google — unlike a roboweb.site address' },
+        { icon: 'Search', title: isRu ? 'Лучше для SEO' : 'Better for SEO', desc: isRu ? 'Свой домен индексируется в Яндекс и Google — в отличие от адреса на roboweb.dev' : 'Your domain gets indexed by Yandex & Google — unlike a roboweb.dev address' },
       ].map(item => (
         <div key={item.title} className="bg-card border border-border rounded-2xl p-4 flex flex-col gap-2">
           <div className="grid h-8 w-8 place-items-center rounded-xl bg-primary/10 text-primary">

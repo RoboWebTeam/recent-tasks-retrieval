@@ -3,7 +3,7 @@ import urllib.request
 import urllib.parse
 
 SERVER_IP = '185.230.209.10'
-CNAME_VALUE = 'cname.roboweb.site'
+CNAME_VALUE = 'cname.roboweb.dev'
 
 def cors():
     return {

@@ -130,7 +130,7 @@ function PortfolioSection({ lang, portfolio }: { lang: Lang; portfolio: DemoItem
                   <span className="h-2 w-2 rounded-full bg-amber-400/80" />
                   <span className="h-2 w-2 rounded-full bg-emerald-400/80" />
                   <span className="ml-2 flex flex-1 items-center gap-1 truncate rounded-md bg-background/80 px-2 py-0.5 text-[9px] text-muted-foreground">
-                    <Icon name="Lock" size={8} /> roboweb.site
+                    <Icon name="Lock" size={8} /> roboweb.dev
                   </span>
                 </div>
                 <div className="relative aspect-[16/10] overflow-hidden">

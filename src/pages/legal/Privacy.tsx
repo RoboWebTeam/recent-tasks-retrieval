@@ -23,7 +23,7 @@ export default function Privacy() {
       <LegalPageLayout title="Privacy Policy" updatedAt="July 4, 2026">
         <p>
           This Privacy Policy describes how Individual Entrepreneur Arakelov Stanislav Vladislavovich
-          (OGRNIP 324508100357892, TIN 501210007760), operating the Roboweb service at roboweb.site
+          (OGRNIP 324508100357892, TIN 501210007760), operating the Roboweb service at roboweb.dev
           (the "Operator"), collects, uses, stores and protects personal data of Service users.
         </p>
         <h2>1. What Data We Collect</h2>
@@ -97,7 +97,7 @@ export default function Privacy() {
         </p>
         <h2>9. Changes to this Policy</h2>
         <p>
-          We may update this Policy from time to time. The current version is always available at roboweb.site/privacy.
+          We may update this Policy from time to time. The current version is always available at roboweb.dev/privacy.
           Continued use of the Service after changes constitutes acceptance of the updated Policy.
         </p>
         <h2>10. Operator Contact Details</h2>
@@ -116,7 +116,7 @@ export default function Privacy() {
     <LegalPageLayout title="Политика конфиденциальности" updatedAt="4 июля 2026 г.">
       <p>
         Настоящая Политика конфиденциальности (далее — «Политика») описывает порядок сбора, использования, хранения
-        и защиты персональных данных пользователей сервиса Roboweb (roboweb.site), оператором которого является
+        и защиты персональных данных пользователей сервиса Roboweb (roboweb.dev), оператором которого является
         индивидуальный предприниматель Аракелов Станислав Владиславович (ОГРНИП 324508100357892, ИНН 501210007760),
         далее — «Оператор».
       </p>
@@ -214,7 +214,7 @@ export default function Privacy() {
       <h2>9. Изменения Политики</h2>
       <p>
         Мы можем время от времени обновлять настоящую Политику. Актуальная версия всегда доступна по адресу
-        roboweb.site/privacy. Продолжение использования Сервиса после внесения изменений означает согласие
+        roboweb.dev/privacy. Продолжение использования Сервиса после внесения изменений означает согласие
         с обновлённой Политикой.
       </p>
 

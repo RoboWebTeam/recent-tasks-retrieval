@@ -22,7 +22,7 @@ export default function PersonalData() {
     return (
       <LegalPageLayout title="Consent to Personal Data Processing" updatedAt="July 4, 2026">
         <p>
-          By registering an account on the Roboweb service (roboweb.site), I confirm that I give my consent to the
+          By registering an account on the Roboweb service (roboweb.dev), I confirm that I give my consent to the
           processing of my personal data to Individual Entrepreneur Arakelov Stanislav Vladislavovich
           (OGRNIP 324508100357892, TIN 501210007760), hereinafter — the "Operator", on the terms below, in
           accordance with Federal Law No. 152-FZ "On Personal Data" dated July 27, 2006.
@@ -84,7 +84,7 @@ export default function PersonalData() {
   return (
     <LegalPageLayout title="Согласие на обработку персональных данных" updatedAt="4 июля 2026 г.">
       <p>
-        Регистрируясь на сервисе Roboweb (roboweb.site), я подтверждаю своё согласие на обработку моих персональных
+        Регистрируясь на сервисе Roboweb (roboweb.dev), я подтверждаю своё согласие на обработку моих персональных
         данных индивидуальным предпринимателем Аракеловым Станиславом Владиславовичем (ОГРНИП 324508100357892,
         ИНН 501210007760), далее — «Оператор», на изложенных ниже условиях, в соответствии с Федеральным законом
         от 27.07.2006 № 152-ФЗ «О персональных данных».

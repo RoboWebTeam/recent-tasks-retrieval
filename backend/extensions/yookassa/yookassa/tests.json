@@ -10,7 +10,7 @@
       "name": "POST without email returns 400",
       "method": "POST",
       "path": "/",
-      "body": {"amount": 100, "return_url": "https://roboweb.site/pricing/status"},
+      "body": {"amount": 100, "return_url": "https://roboweb.dev/pricing/status"},
       "expectedStatus": 400
     }
   ]
