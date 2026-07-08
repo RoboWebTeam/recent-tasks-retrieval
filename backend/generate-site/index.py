@@ -915,11 +915,31 @@ def inject_data_runtime(html: str, project_id, tables, has_fns=False) -> str:
         "window.addEventListener('hashchange',fromHash);fromHash();}else{renderCart();}"
         "rw.__spa=true;ui();rw.auth.me();})();</script>"
     )
+    # Оборачиваем маркерами, чтобы на ПРАВКЕ надёжно вырезать этот скрипт из current_html
+    # (модель не должна воспроизводить плотный минифицированный JS — портит его → краш превью).
+    runtime = '<!--RW-RUNTIME-->' + runtime + '<!--/RW-RUNTIME-->'
     lower = html.lower()
     idx = lower.rfind('</body>')
     if idx == -1:
         return html + runtime
     return html[:idx] + runtime + html[idx:]
+
+
+def strip_injected_runtime(html):
+    """Убирает ранее вставленный платформой runtime-скрипт (window.rw…) из HTML — чтобы на правках
+    модель не воспроизводила его (портит минифицированный JS → сломанный <script> → краш превью)
+    и не тратила на него токены. Runtime заново вставит inject_data_runtime после генерации.
+    Ловит и по маркеру (новые сайты), и по сигнатуре window.rw (старые, без маркера)."""
+    if not html:
+        return html
+    import re
+    html = re.sub(r'<!--\s*RW-RUNTIME\s*-->.*?<!--\s*/RW-RUNTIME\s*-->', '', html, flags=re.DOTALL)
+
+    def _drop(m):
+        blob = m.group(0)
+        return '' if ('window.rw' in blob or 'rw.__spa' in blob or '/api/public-data' in blob) else blob
+    html = re.sub(r'<script\b[^>]*>.*?</script>', _drop, html, flags=re.DOTALL | re.IGNORECASE)
+    return html
 
 
 def apply_project_schema(project_id, user_id, tables, schema):
@@ -1381,6 +1401,11 @@ def _handler_impl(event: dict, context) -> dict:
     messages = body.get('messages', [])
     project_id = body.get('project_id')
     current_html = body.get('current_html', '')
+    # На ПРАВКЕ убираем ранее вставленный платформой runtime-скрипт (window.rw…): модель не должна
+    # его воспроизводить (портит минифицированный JS → краш превью) и тратить на него токены.
+    # Чистый HTML идёт в промпт и в проверки; runtime заново вставится после генерации.
+    if current_html:
+        current_html = strip_injected_runtime(current_html)
     style_choice = body.get('style', '')  # выбранный стиль-пресет (minimal/premium/bright/dark)
     stream_mode = bool(body.get('stream'))  # true → отдаём генерацию потоком (SSE, лайв-сборка)
 
