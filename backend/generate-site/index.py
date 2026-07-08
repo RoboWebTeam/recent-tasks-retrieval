@@ -903,6 +903,9 @@ def inject_data_runtime(html: str, project_id, tables, has_fns=False) -> str:
         "if(el.hasAttribute('data-rw-auth')&&rw.auth.ready&&!rw.auth.user){var lp=document.querySelector('[data-rw-login-page]');var ln=lp?lp.getAttribute('data-rw-page'):null;if(ln&&ln!==name){return route(ln,push);}}"
         "var changed=(rw.route!==name);"
         "PAGES.forEach(function(p){p.style.display=(p===el)?'':'none';});"
+        # Если модель спрятала страницы через CSS ([data-rw-page]{display:none}) — пустой inline-display
+        # не перебивает правило и страница остаётся невидимой (пустой экран). Форсируем block.
+        "if(getComputedStyle(el).display==='none')el.style.display='block';"
         # На показанной странице проявляем reveal-элементы (IntersectionObserver не сработает на display:none).
         "try{el.querySelectorAll('.reveal').forEach(function(r){r.classList.add('in');});}catch(e){}"
         "document.querySelectorAll('[data-rw-link],a[href^=\"#/\"]').forEach(function(a){var t=a.getAttribute('data-rw-link')||(a.getAttribute('href')||'').replace('#/','');a.classList.toggle('rw-active',t===name);});"
