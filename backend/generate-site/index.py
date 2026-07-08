@@ -723,10 +723,19 @@ def repair_truncated_html(html: str) -> str:
     """Если сгенерированный HTML оборвался (модель упёрлась в лимит токенов) — закрываем
     незавершённые ключевые теги, чтобы браузер смог отрендерить хотя бы часть сайта,
     а не показывал пустой белый экран. Если документ целый — возвращаем как есть."""
+    import re as _re
     low = html.lower()
     # Документ уже завершён корректно
     if low.rstrip().endswith('</html>'):
         return html
+
+    # Обрыв ВНУТРИ тега: последний '<' не закрыт '>' (напр. `<img src="https://...`). Незакрытый тег
+    # «съедает» весь последующий контент как значение атрибута → ломает разметку и SPA. Обрезаем
+    # незавершённый хвост до последнего целого '>'.
+    lt, gt = html.rfind('<'), html.rfind('>')
+    if lt > gt:
+        html = html[:lt].rstrip()
+        low = html.lower()
 
     # Обрыв внутри <style> (частый случай — превью полностью белое): закрываем стиль,
     # добавляем тело с уведомлением, чтобы страница не была пустой.
@@ -743,6 +752,15 @@ def repair_truncated_html(html: str) -> str:
         html += '\n<body></body>'
         low = html.lower()
     elif '</body>' not in low:
+        # Закрываем незакрытые крупные блоки, чтобы структура (в т.ч. отдельные SPA-страницы
+        # <section data-rw-page>) не ломалась: незакрытая секция поглощает соседние. Закрываем
+        # от внутренних к внешним (div → section → main).
+        for tag in ('div', 'section', 'main'):
+            opens = len(_re.findall(r'<' + tag + r'\b', low))
+            closes = low.count('</' + tag + '>')
+            if opens > closes:
+                html += ('</' + tag + '>') * (opens - closes)
+                low = html.lower()
         html += '\n</body>'
         low = html.lower()
 
@@ -1066,6 +1084,25 @@ def derive_schema_from_html(html):
         tables.append({'table_name': tname, 'label': tname,
                        'columns': [{'name': f, 'type': 'text'} for f in fields],
                        'public_read': True, 'public_write': False})
+    # Личные кабинеты: data-rw-cabinet="X" — таблица СВОИХ строк посетителя (owner_scoped, НЕ public_read).
+    for cm in re.finditer(r'data-rw-cabinet=["\']([^"\']+)["\']', html, re.IGNORECASE):
+        tname = cm.group(1).strip()
+        if not _valid_db_identifier(tname) or tname in seen:
+            continue
+        tpl = re.search(r'<template\b[^>]*\bdata-rw-item\b[^>]*>(.*?)</template>',
+                        html[cm.end():], re.IGNORECASE | re.DOTALL)
+        fields = []
+        if tpl:
+            for fm3 in re.finditer(r'data-rw-field=["\']([^"\']+)["\']', tpl.group(1)):
+                fn = fm3.group(1).strip()
+                if _valid_db_identifier(fn) and fn not in fields:
+                    fields.append(fn)
+        if not fields:
+            fields = ['item', 'qty', 'price', 'status', 'date']
+        seen.add(tname)
+        tables.append({'table_name': tname, 'label': tname,
+                       'columns': [{'name': f, 'type': 'text'} for f in fields],
+                       'public_read': False, 'public_write': False, 'owner_scoped': True})
     return tables
 
 
@@ -1259,6 +1296,99 @@ def ensure_lead_form(html):
     return html + section
 
 
+# Единый inline-стиль поля/кнопки (совпадает с _LEAD_FORM_INNER, адаптируется к токенам дизайна).
+_RW_INP = ('padding:.9rem 1rem;border:1px solid var(--line,rgba(127,127,127,.35));border-radius:var(--r-md,12px);'
+           'background:transparent;color:inherit;font:inherit;width:100%')
+_RW_BTN = ('padding:1rem;border:none;border-radius:var(--r-md,12px);background:var(--accent,#2563eb);'
+           'color:#fff;font:inherit;font-weight:700;cursor:pointer')
+_RW_CARD = ('background:var(--surface,rgba(127,127,127,.06));border:1px solid var(--line,rgba(127,127,127,.25));'
+            'border-radius:var(--r-lg,20px);padding:clamp(1.5rem,4vw,2.2rem);box-shadow:var(--shadow-md,0 10px 30px rgba(0,0,0,.12))')
+
+# Готовый блок аккаунтов (вход/регистрация + личный кабинет). Логику даёт платформенный runtime
+# (window.rw.auth); тут только разметка data-rw-*. Вставляется фолбэком, если модель забыла аккаунты.
+_ACCOUNT_INNER = (
+    '<div data-rw-when="out" style="max-width:520px;margin:0 auto;display:grid;gap:1.2rem">'
+    '<div style="' + _RW_CARD + '">'
+    '<h3 style="margin:0 0 1.2rem;font-size:1.4rem">Вход</h3>'
+    '<form data-rw-auth="login" style="display:grid;gap:.85rem">'
+    '<input name="email" type="email" placeholder="E-mail" required style="' + _RW_INP + '">'
+    '<input name="password" type="password" placeholder="Пароль" required style="' + _RW_INP + '">'
+    '<button type="submit" class="btn" style="' + _RW_BTN + '">Войти</button></form></div>'
+    '<div style="' + _RW_CARD + '">'
+    '<h3 style="margin:0 0 1.2rem;font-size:1.4rem">Регистрация</h3>'
+    '<form data-rw-auth="register" style="display:grid;gap:.85rem">'
+    '<input name="name" placeholder="Ваше имя" style="' + _RW_INP + '">'
+    '<input name="email" type="email" placeholder="E-mail" required style="' + _RW_INP + '">'
+    '<input name="password" type="password" placeholder="Пароль" required style="' + _RW_INP + '">'
+    '<button type="submit" class="btn" style="' + _RW_BTN + '">Создать аккаунт</button></form></div></div>'
+    '<div data-rw-when="in" style="max-width:640px;margin:0 auto">'
+    '<div style="' + _RW_CARD + '">'
+    '<div style="display:flex;justify-content:space-between;align-items:center;gap:1rem;flex-wrap:wrap;margin-bottom:1.2rem">'
+    '<h3 style="margin:0;font-size:1.4rem">Здравствуйте, <span data-rw-user></span>!</h3>'
+    '<a href="#" data-rw-logout style="color:inherit;opacity:.7;text-decoration:underline;cursor:pointer">Выйти</a></div>'
+    '<h4 style="margin:0 0 .8rem;opacity:.8">Мои заказы</h4>'
+    '<div data-rw-cabinet="orders"><div data-rw-items style="display:grid;gap:.6rem"></div>'
+    '<template data-rw-item><div style="padding:.8rem 1rem;border:1px solid var(--line,rgba(127,127,127,.25));border-radius:var(--r-md,12px)">'
+    '<b data-rw-field="item"></b> — <span data-rw-field="qty"></span> шт</div></template>'
+    '<p data-rw-empty style="opacity:.6">Заказов пока нет.</p></div></div></div>'
+)
+
+
+def ensure_account_section(html, wants_accounts):
+    """Если пользователь ЯВНО просил аккаунты (вход/регистрация/личный кабинет), а модель НЕ сделала
+    ни одной <form data-rw-auth> — вставляем рабочую секцию аккаунтов. Вход/регистрация работают на
+    уровне платформы (rw.auth), поэтому это реально функционально, а не заглушка.
+    В SPA (есть data-rw-page) кладём отдельной <section data-rw-page> и чиним висячую nav-ссылку «Кабинет»;
+    на лендинге — обычной секцией перед футером. Возвращает изменённый html."""
+    import re
+    if not wants_accounts or not html:
+        return html
+    if re.search(r'data-rw-auth\s*=\s*["\'](?:login|register)', html, re.IGNORECASE):
+        return html  # модель уже сделала формы аккаунта — не трогаем
+    low = html.lower()
+    is_spa = 'data-rw-page' in low
+    if is_spa:
+        # Имя страницы: если в навигации есть висячая account-подобная ссылка без своей страницы — берём её
+        # (чтобы существующий пункт «Кабинет» начал работать), иначе 'account'.
+        pages = set(re.findall(r'data-rw-page\s*=\s*["\']([a-z0-9_-]+)', low))
+        link_targets = re.findall(r'data-rw-link\s*=\s*["\']([a-z0-9_-]+)', low)
+        link_targets += [h.replace('#/', '') for h in re.findall(r'href\s*=\s*["\']#/([a-z0-9_-]+)', low)]
+        acc_re = re.compile(r'account|cabinet|kabinet|lichn|profile|lk|login|auth')
+        dangling = [t for t in link_targets if t not in pages]
+        page_name = next((t for t in dangling if acc_re.search(t)), 'account')
+        section = ('<section data-rw-page="' + page_name + '" data-rw-login-page '
+                   'style="padding:clamp(3rem,8vh,6rem) 1.5rem">'
+                   '<h2 style="text-align:center;margin:0 0 2rem;font-size:clamp(1.6rem,4vw,2.4rem)">Личный кабинет</h2>'
+                   + _ACCOUNT_INNER + '</section>')
+        # Вставляем секцию перед футером/концом.
+        for tag in ('<footer', '</main>', '</body>'):
+            idx = low.rfind(tag)
+            if idx != -1:
+                html = html[:idx] + section + html[idx:]
+                break
+        else:
+            html = html + section
+        # Если на страницу аккаунта не ведёт ни одна ссылка — добавляем пункт в первую <nav>.
+        low2 = html.lower()
+        has_link = ('data-rw-link="' + page_name + '"') in low2 or ('data-rw-link=\'' + page_name + '\'') in low2 \
+            or ('#/' + page_name) in low2
+        if not has_link:
+            nm = re.search(r'(<nav\b[^>]*>)', html, re.IGNORECASE)
+            if nm:
+                link = '<a href="#/' + page_name + '" data-rw-link="' + page_name + '">Кабинет</a>'
+                html = html[:nm.end()] + link + html[nm.end():]
+        return html
+    # Лендинг: отдельная секция перед футером.
+    section = ('<section id="account" style="padding:clamp(3rem,8vh,6rem) 1.5rem">'
+               '<h2 style="text-align:center;margin:0 0 2rem;font-size:clamp(1.6rem,4vw,2.4rem)">Личный кабинет</h2>'
+               + _ACCOUNT_INNER + '</section>')
+    for tag in ('<footer', '</main>', '</body>'):
+        idx = low.rfind(tag)
+        if idx != -1:
+            return html[:idx] + section + html[idx:]
+    return html + section
+
+
 # Промпт-вставка о работе с реальными данными. Добавляется к системному промпту только при
 # RW_DATA_ENABLED. Логику fetch пишет НЕ модель, а инжектируемый платформой runtime (inject_data_runtime),
 # поэтому модель должна выдавать лишь декларативную разметку data-rw-* и маркер схемы.
@@ -1306,7 +1436,7 @@ function handler(input){
 - На сайте вызывай так: rw.call('calc_delivery', {weight: 7}).then(function(res){ /* res.price */ }).catch(function(e){ /* ошибка */ });
 - Не злоупотребляй: обычно 1-3 функции. Простому сайту функции НЕ нужны.
 
-4. АККАУНТЫ ПОСЕТИТЕЛЕЙ (регистрация/вход + личный кабинет). Если сайту нужны личные кабинеты (посетитель входит и видит СВОИ заказы/брони/записи) — сделай формы входа и регистрации, а логику подключит платформа через window.rw.auth. Пиши ТОЛЬКО разметку:
+4. АККАУНТЫ ПОСЕТИТЕЛЕЙ (регистрация/вход + личный кабинет). Если пользователь В ЗАПРОСЕ упомянул вход, регистрацию, аккаунт, «личный кабинет», «мои заказы», «история заказов» — это ОБЯЗАТЕЛЬНО, НЕ пропускай и НЕ заменяй просто пунктом меню «Кабинет»: сделай РЕАЛЬНЫЕ формы входа и регистрации + секцию кабинета. Логику подключит платформа через window.rw.auth — пиши ТОЛЬКО разметку:
 - Форма регистрации: <form data-rw-auth="register"> с полями name="name", name="email", name="password" и кнопкой submit.
 - Форма входа: <form data-rw-auth="login"> с полями name="email", name="password" и кнопкой submit.
 - Кнопка выхода: любой элемент с атрибутом data-rw-logout.
@@ -1318,10 +1448,23 @@ function handler(input){
 
 5. МНОГОСТРАНИЧНОЕ ПРИЛОЖЕНИЕ (SPA: страницы, навигация, корзина). Для приложений (интернет-магазин, каталог+корзина+оформление, многоэкранный сервис) делай НЕСКОЛЬКО экранов в ОДНОМ файле — платформа даёт клиентский роутер и корзину, тебе нужна только разметка. НЕ пиши свой роутер/JS.
 - Каждый экран — <section data-rw-page="имя"> (латиницей: home, catalog, cart, account…). Стартовый помечай data-rw-page-default (иначе первый). Прячутся/показываются автоматически.
+- КРИТИЧНО: КАЖДЫЙ пункт навигации ОБЯЗАН иметь свою <section data-rw-page> с реальным содержимым. Если в меню есть «Корзина» — сделай страницу data-rw-page="cart" со списком корзины; если «Кабинет» — data-rw-page="account". НЕ оставляй пункт меню без страницы (клик уведёт в никуда = пустой экран). Число пунктов меню = числу data-rw-page.
 - Навигация: ссылки/кнопки с data-rw-link="имя" (или обычные <a href="#/имя">). Активной добавляется класс rw-active. Программно — window.rw.go('cart').
 - Гардированная страница (только для вошедших): <section data-rw-page="account" data-rw-auth>. Странице входа добавь data-rw-login-page — неавторизованного перекинет туда. Это удобство; сами ДАННЫЕ защищены на сервере (owner_scoped).
 - КОРЗИНА. Кнопка «в корзину»: <button data-rw-add-to-cart data-id="p1" data-item="Пицца" data-price="590">В корзину</button>. Счётчик/сумма: <span data-rw-bind="cart.count"></span>, <span data-rw-bind="cart.total"></span> (обновляются сами). Список корзины: <div data-rw-cart><div data-rw-items></div><template data-rw-cart-item><div class="row"><span data-rw-field="item"></span> ×<span data-rw-field="qty"></span> — <span data-rw-field="price"></span>₽ <button data-rw-cart-remove>×</button></div></template></div>. Очистка: <button data-rw-cart-clear>Очистить</button>. Корзина хранится у посетителя (localStorage).
 - ОФОРМЛЕНИЕ (безопасность — ВАЖНО). Клиентская корзина, цены из data-price и любой total/price из args — НЕДОВЕРЕННЫЕ (посетитель их подменяет). Поэтому: (а) checkout — только СЕРВЕРНОЙ функцией rw.call('checkout',{items:[{id,qty}]}); из args бери лишь id и qty, а цену каждой позиции и сумму считай САМ из своей таблицы каталога (reads), игнорируя присланные цены; (б) таблицу заказов делай owner_scoped (НЕ public_write) — тогда сервер сам привяжет заказ к вошедшему (input.user); если input.user==null — откажи в оформлении; (в) валидируй qty (целое 1..N) и что id есть в каталоге. Пример: <button onclick="rw.call('checkout',{items:rw.store.cart.map(function(i){return {id:i.id,qty:i.qty};})}).then(function(r){alert('Заказ на '+r.total+'₽ оформлен');rw.cart.clear();rw.go('account');}).catch(function(){alert('Войдите, чтобы оформить заказ');})">Оформить</button>.
+ГОТОВЫЙ СКЕЛЕТ МАГАЗИНА С АККАУНТОМ (копируй ЭТУ структуру, наполняй контентом/стилями — все пункты меню имеют страницы, аккаунты размечены):
+<nav>…логотип…<a data-rw-link="home">Главная</a><a data-rw-link="catalog">Каталог</a><a data-rw-link="cart">Корзина <span data-rw-bind="cart.count">0</span></a><a data-rw-link="account">Кабинет</a></nav>
+<section data-rw-page="home" data-rw-page-default>…hero, преимущества, CTA «В каталог» (data-rw-link="catalog")…</section>
+<section data-rw-page="catalog">…карточки товаров, у каждой <button data-rw-add-to-cart data-id="p1" data-item="…" data-price="…">В корзину</button>…</section>
+<section data-rw-page="cart"><h2>Корзина</h2><div data-rw-cart><div data-rw-items></div><template data-rw-cart-item><div class="row"><span data-rw-field="item"></span> ×<span data-rw-field="qty"></span> — <span data-rw-field="price"></span>₽ <button data-rw-cart-remove>×</button></div></template></div><p>Итого: <b data-rw-bind="cart.total">0</b>₽</p><button data-rw-cart-clear>Очистить</button></section>
+<section data-rw-page="account" data-rw-login-page>
+  <div data-rw-when="out"><form data-rw-auth="login"><input name="email" type="email" placeholder="E-mail" required><input name="password" type="password" placeholder="Пароль" required><button type="submit" class="btn">Войти</button></form>
+    <form data-rw-auth="register"><input name="name" placeholder="Имя"><input name="email" type="email" required><input name="password" type="password" required><button type="submit" class="btn">Регистрация</button></form></div>
+  <div data-rw-when="in">Привет, <b data-rw-user></b>! <a href="#" data-rw-logout>Выйти</a>
+    <h3>Мои заказы</h3><div data-rw-cabinet="orders"><div data-rw-items></div><template data-rw-item><div class="row"><b data-rw-field="item"></b> — <span data-rw-field="qty"></span> шт</div></template></div></div>
+</section>
++ в схеме объяви таблицу orders с "owner_scoped":true. САМОПРОВЕРКА приложения: каждый пункт меню имеет свою data-rw-page? если просили вход/кабинет — есть <form data-rw-auth="login"> И <form data-rw-auth="register"> И data-rw-cabinet? Если чего-то нет — добавь ПЕРЕД выдачей.
 Простому лендингу страницы/корзина НЕ нужны — не усложняй."""
 
 
@@ -1421,6 +1564,11 @@ def _handler_impl(event: dict, context) -> dict:
     is_edit = bool(current_html)
     last_user_text = (messages[-1].get('content', '') or '') if messages else ''
     is_large_task = detect_large_task(last_user_text, is_edit)
+    # Явные намерения из запроса: приложение (страницы/корзина) и аккаунты (вход/регистрация/кабинет).
+    # Используются и для усиления промпта, и для детерминированных фолбэков после генерации.
+    _lu_intent = (last_user_text or '').lower()
+    wants_app = any(k in _lu_intent for k in ('магазин', 'корзин', 'маркетплейс', 'checkout', 'приложени', 'многостранич', 'оформить заказ', 'оформление заказ'))
+    wants_accounts = any(k in _lu_intent for k in ('регистрац', 'аккаунт', 'логин', 'авториз', 'личный кабинет', 'мои заказ', 'история заказ', 'войти в'))
     request_cost = 3 if is_large_task else 1
 
     allowed, quota_error, remaining = check_and_consume_quota(user_id, schema, request_cost)
@@ -1521,6 +1669,12 @@ def _handler_impl(event: dict, context) -> dict:
     # Усиленная генерация (крупная задача): максимум места на детальный многосекционный сайт.
     if is_large_task:
         max_tokens = 6500 if function_timeout <= 35 else 22000
+        # В СТРИМ-режиме сокет-таймаут срабатывает НА КАЖДЫЙ чанк, а не на всю генерацию, поэтому
+        # длинная генерация безопасно дописывается целиком. Премиум-ПРИЛОЖЕНИЯ (магазин с 4 экранами
+        # + корзина + аккаунты) заметно крупнее лендинга и при 22000 обрывались на середине (битый
+        # <img>/незакрытая секция → сломанный SPA). Даём заметно больший бюджет именно приложениям.
+        if stream_mode and function_timeout > 35:
+            max_tokens = 40000 if (wants_app or wants_accounts) else 30000
 
     # КРИТИЧНО ДЛЯ ПРАВОК: модель возвращает ВЕСЬ сайт целиком заново. Нужен баланс:
     #  - max_tokens должен вмещать весь текущий HTML + запас на изменения (иначе обрыв и потеря блоков),
@@ -1566,6 +1720,18 @@ def _handler_impl(event: dict, context) -> dict:
             "«как мы работаем», CTA-баннер, тарифы, отзывы, FAQ-аккордеон, финальный CTA, футер). "
             "Не экономь на секциях и контенте — доведи ВСЕ до конца. ОБЯЗАТЕЛЬНО заверши документ на </body></html>."
         )
+
+    # App/аккаунты: хинт крупной задачи выше описывает скелет ЛЕНДИНГА (hero/услуги/тарифы/FAQ/футер)
+    # и идёт последним → из-за эффекта недавности уводит модель в одностраничник и глушит разделы 4-5.
+    # Поэтому для явных app/account-запросов добавляем реинфорсмент ПОСЛЕ него — он должен доминировать.
+    if not current_html and (wants_app or wants_accounts):
+        _rf = ["\n\nВАЖНО — это перекрывает общий скелет лендинга выше."]
+        if wants_app:
+            _rf.append("Пользователь просит ВЕБ-ПРИЛОЖЕНИЕ, а не одностраничный лендинг: сделай НЕСКОЛЬКО экранов <section data-rw-page> — ОТДЕЛЬНЫЙ экран на КАЖДЫЙ пункт меню (в т.ч. cart и account), с рабочей корзиной. Строго по разделу 5 (МНОГОСТРАНИЧНОЕ ПРИЛОЖЕНИЕ).")
+        if wants_accounts:
+            _rf.append("Пользователь просит аккаунты — ОБЯЗАТЕЛЬНО добавь РЕАЛЬНЫЕ <form data-rw-auth=\"login\"> и <form data-rw-auth=\"register\"> и личный кабинет data-rw-cabinet (раздел 4). НЕ заменяй их просто пунктом меню «Кабинет».")
+        _rf.append("Дизайн — премиальный, но доведи ВСЮ функциональность до конца на </body></html>.")
+        effective_system_prompt += " ".join(_rf)
 
     def call_anthropic(model_id: str, override_messages=None, override_max_tokens=None, override_timeout=None):
         """Прямой вызов Anthropic Messages API. Возвращает (result_dict | None, error_info).
@@ -1757,6 +1923,7 @@ def _handler_impl(event: dict, context) -> dict:
                     meta = build_meta_from_html(html_out, is_edit)
                 if RW_DATA_ENABLED:
                     html_out = ensure_lead_form(html_out)  # если модель не сделала форму заявок — вставляем рабочую
+                    html_out = ensure_account_section(html_out, wants_accounts)  # если просили аккаунты, а их нет — вставляем
                 schema_tables = merge_schema(schema_tables, derive_schema_from_html(html_out))  # схема из разметки data-rw-*
                 html_out = upgrade_images_to_unsplash(html_out)  # премиум-фото Unsplash (если задан ключ)
                 if project_id:
@@ -1956,6 +2123,7 @@ def _handler_impl(event: dict, context) -> dict:
     fn_blocks = fn_blocks or _extra_fns
     if RW_DATA_ENABLED:
         html = ensure_lead_form(html)  # если модель не сделала форму заявок — вставляем рабочую
+        html = ensure_account_section(html, wants_accounts)  # если просили аккаунты, а их нет — вставляем
     schema_tables = merge_schema(schema_tables, derive_schema_from_html(html))  # схема из разметки data-rw-*
     html = upgrade_images_to_unsplash(html)  # премиум-фото Unsplash (если задан ключ)
 
