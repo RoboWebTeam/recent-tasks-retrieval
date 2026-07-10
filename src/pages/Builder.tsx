@@ -260,6 +260,7 @@ export default function Builder() {
   const [savingToFiles, setSavingToFiles] = useState(false);
   const [saveToFilesDone, setSaveToFilesDone] = useState(false);
   const [exporting, setExporting] = useState(false);
+  const [exportingGh, setExportingGh] = useState(false);
   const [projectTitle, setProjectTitle] = useState('');
   const [loadingProject, setLoadingProject] = useState(false);
   // Флаг: история чата из БД уже загружена. До этого момента не сохраняем автоматически,
@@ -958,6 +959,29 @@ export default function Builder() {
     setExporting(false);
   };
 
+  const handleExportGithub = async () => {
+    if (!html || !projectId) return;
+    const session = getSession();
+    if (!session) return;
+    setExportingGh(true);
+    try {
+      const resp = await fetch(EXPORT_CODE_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-session-id': session },
+        body: JSON.stringify({ project_id: Number(projectId), target: 'github' }),
+      });
+      const data = await resp.json();
+      if (!resp.ok || data.error) {
+        alert(data.error || (lang === 'ru' ? 'Не удалось экспортировать в GitHub' : 'GitHub export failed'));
+      } else if (data.repo_url) {
+        window.open(data.repo_url, '_blank', 'noopener');
+      }
+    } catch {
+      alert(lang === 'ru' ? 'Ошибка экспорта в GitHub' : 'GitHub export error');
+    }
+    setExportingGh(false);
+  };
+
   const handleSaveToFiles = async () => {
     if (!html) return;
     const session = getSession();
@@ -1502,9 +1526,10 @@ export default function Builder() {
                     { key: 'download', icon: 'Download', label: tr('builderDownload', lang), onClick: handleDownload, disabled: !html },
                     { key: 'store', icon: savingToFiles ? 'Loader' : saveToFilesDone ? 'Check' : 'FolderOpen', spin: savingToFiles, label: saveToFilesDone ? (lang === 'ru' ? 'Сохранено в хранилище' : 'Saved to storage') : (lang === 'ru' ? 'Сохранить в хранилище' : 'Save to storage'), onClick: handleSaveToFiles, disabled: !html || savingToFiles },
                     { key: 'exportcode', icon: exporting ? 'Loader' : 'Code', spin: exporting, label: exporting ? (lang === 'ru' ? 'Собираем проект…' : 'Building project…') : (lang === 'ru' ? 'Экспорт в код (Next.js)' : 'Export to code (Next.js)'), onClick: handleExportCode, disabled: !html || !projectId || exporting },
+                    { key: 'exportgh', icon: exportingGh ? 'Loader' : 'Github', spin: exportingGh, label: exportingGh ? (lang === 'ru' ? 'Пушим в GitHub…' : 'Pushing to GitHub…') : (lang === 'ru' ? 'Экспорт в GitHub (репозиторий)' : 'Export to GitHub (repo)'), onClick: handleExportGithub, disabled: !html || !projectId || exportingGh },
                     { key: 'domain', icon: 'Link', label: lang === 'ru' ? 'Подключить домен' : 'Connect domain', onClick: () => setShowDomainModal(true) },
                   ].filter(Boolean) as { key: string; icon: string; label: string; onClick: () => void; disabled?: boolean; spin?: boolean }[]).map(a => (
-                    <button key={a.key} onClick={() => { a.onClick(); if (a.key !== 'store' && a.key !== 'exportcode') setShowActionsMenu(false); }} disabled={a.disabled}
+                    <button key={a.key} onClick={() => { a.onClick(); if (a.key !== 'store' && a.key !== 'exportcode' && a.key !== 'exportgh') setShowActionsMenu(false); }} disabled={a.disabled}
                       className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg hover:bg-secondary transition-colors text-left text-[13px] font-medium text-foreground disabled:opacity-40 disabled:cursor-not-allowed">
                       <Icon name={a.icon} size={15} className={`text-muted-foreground shrink-0 ${a.spin ? 'animate-spin' : ''}`} />
                       {a.label}
