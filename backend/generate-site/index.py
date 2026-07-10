@@ -1228,6 +1228,41 @@ def ensure_account_section(html, wants_accounts):
     return html + section
 
 
+def ensure_reveal_script(html):
+    """ЧАСТАЯ ПРИЧИНА «ПУСТОГО САЙТА»: модель ставит CSS `.reveal{opacity:0}` + `.reveal.in{opacity:1}`
+    (появление при скролле), но ИНОГДА забывает включить JS, который добавляет класс .in → весь контент
+    остаётся невидимым → под шапкой пустой экран. Платформенный runtime проявляет .reveal только внутри
+    SPA-роутера (при показе страницы), поэтому на ЛЕНДИНГЕ (нет data-rw-page) reveal не активируется вовсе.
+    Если reveal-скрытие в CSS есть, а активатора в разметке НЕТ — вставляем безопасный активатор
+    (IntersectionObserver + failsafe-таймер, который гарантированно проявит всё). Идемпотентно."""
+    import re
+    if not html:
+        return html
+    # есть ли reveal-элементы, спрятанные через opacity:0?
+    if not re.search(r'\.reveal\b[^{}]*\{[^}]*opacity\s*:\s*0', html, re.IGNORECASE):
+        return html
+    low = html.lower()
+    # уже есть активатор (модель включила свой reveal-JS)? тогда не трогаем
+    has_activator = ('intersectionobserver' in low) or bool(
+        re.search(r'queryselectorall\([\'"]\.reveal', low) and 'classlist' in low)
+    if has_activator:
+        return html
+    # добавляем набор частых «активных» классов (in/visible/show/...) — какой бы ни использовал CSS модели
+    script = (
+        "<script>(function(){var C=['in','visible','show','active','revealed','shown','is-visible'];"
+        "function on(el){C.forEach(function(c){el.classList.add(c);});}"
+        "try{var R=[].slice.call(document.querySelectorAll('.reveal'));if(!R.length)return;"
+        "var o=new IntersectionObserver(function(es){es.forEach(function(e){if(e.isIntersecting){on(e.target);o.unobserve(e.target);}});},{threshold:0.04,rootMargin:'0px 0px -40px 0px'});"
+        "R.forEach(function(el){o.observe(el);});"
+        "setTimeout(function(){R.forEach(on);},1400);}"  # failsafe: через 1.4с проявляем всё — сайт НИКОГДА не остаётся пустым
+        "catch(e){try{[].slice.call(document.querySelectorAll('.reveal')).forEach(on);}catch(_){}}})();</script>"
+    )
+    idx = low.rfind('</body>')
+    if idx != -1:
+        return html[:idx] + script + html[idx:]
+    return html + script
+
+
 # Промпт-вставка о работе с реальными данными. Добавляется к системному промпту только при
 # RW_DATA_ENABLED. Логику fetch пишет НЕ модель, а инжектируемый платформой runtime (inject_data_runtime),
 # поэтому модель должна выдавать лишь декларативную разметку data-rw-* и маркер схемы.
@@ -1763,6 +1798,7 @@ def _handler_impl(event: dict, context) -> dict:
                 if RW_DATA_ENABLED:
                     html_out = ensure_lead_form(html_out)  # если модель не сделала форму заявок — вставляем рабочую
                     html_out = ensure_account_section(html_out, wants_accounts)  # если просили аккаунты, а их нет — вставляем
+                    html_out = ensure_reveal_script(html_out)  # reveal-контент без активатора → «пустой сайт»; чиним
                 schema_tables = merge_schema(schema_tables, derive_schema_from_html(html_out))  # схема из разметки data-rw-*
                 html_out = upgrade_images_to_unsplash(html_out)  # премиум-фото Unsplash (если задан ключ)
                 if project_id:
@@ -1963,6 +1999,7 @@ def _handler_impl(event: dict, context) -> dict:
     if RW_DATA_ENABLED:
         html = ensure_lead_form(html)  # если модель не сделала форму заявок — вставляем рабочую
         html = ensure_account_section(html, wants_accounts)  # если просили аккаунты, а их нет — вставляем
+        html = ensure_reveal_script(html)  # reveal-контент без активатора → «пустой сайт»; чиним
     schema_tables = merge_schema(schema_tables, derive_schema_from_html(html))  # схема из разметки data-rw-*
     html = upgrade_images_to_unsplash(html)  # премиум-фото Unsplash (если задан ключ)
 
