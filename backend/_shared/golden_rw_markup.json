@@ -1,0 +1,194 @@
+{
+ "strip_injected_runtime": {
+  "runtime_marker": "<body>hi<p>tail</p></body>",
+  "runtime_legacy": "<script>console.log(\"keep me\")</script>",
+  "plainform": "<form><input name=\"email\"><input name=\"msg\"></form>",
+  "lumora_len": 39316
+ },
+ "derive_schema_from_html": {
+  "catalog": [
+   {
+    "table_name": "menu_items",
+    "label": "menu_items",
+    "columns": [
+     {
+      "name": "photo",
+      "type": "text"
+     },
+     {
+      "name": "title",
+      "type": "text"
+     },
+     {
+      "name": "price",
+      "type": "text"
+     }
+    ],
+    "public_read": true,
+    "public_write": false
+   }
+  ],
+  "form": [
+   {
+    "table_name": "bookings",
+    "label": "bookings",
+    "columns": [
+     {
+      "name": "name",
+      "type": "text"
+     },
+     {
+      "name": "phone",
+      "type": "text"
+     },
+     {
+      "name": "comment",
+      "type": "text"
+     }
+    ],
+    "public_write": true,
+    "public_read": false,
+    "write_fields": [
+     "name",
+     "phone",
+     "comment"
+    ]
+   }
+  ],
+  "cabinet": [
+   {
+    "table_name": "orders",
+    "label": "orders",
+    "columns": [
+     {
+      "name": "item",
+      "type": "text"
+     },
+     {
+      "name": "qty",
+      "type": "text"
+     }
+    ],
+    "public_read": false,
+    "public_write": false,
+    "owner_scoped": true
+   }
+  ],
+  "plainform": [],
+  "lumora": [
+   {
+    "table_name": "subscribers",
+    "label": "subscribers",
+    "columns": [
+     {
+      "name": "email",
+      "type": "text"
+     }
+    ],
+    "public_write": true,
+    "public_read": false,
+    "write_fields": [
+     "email"
+    ]
+   },
+   {
+    "table_name": "zayavki",
+    "label": "Заявки с сайта",
+    "columns": [
+     {
+      "name": "email",
+      "type": "text"
+     },
+     {
+      "name": "password",
+      "type": "text"
+     },
+     {
+      "name": "name",
+      "type": "text"
+     }
+    ],
+    "public_write": true,
+    "public_read": false,
+    "write_fields": [
+     "email",
+     "password",
+     "name"
+    ]
+   },
+   {
+    "table_name": "orders",
+    "label": "orders",
+    "columns": [
+     {
+      "name": "created_at",
+      "type": "text"
+     },
+     {
+      "name": "total",
+      "type": "text"
+     },
+     {
+      "name": "summary",
+      "type": "text"
+     }
+    ],
+    "public_read": false,
+    "public_write": false,
+    "owner_scoped": true
+   }
+  ]
+ },
+ "extract_schema_block": {
+  "schema_marker": {
+   "cleaned": "<html><body>x</body></html>",
+   "tables": [
+    {
+     "table_name": "leads",
+     "columns": [
+      {
+       "name": "email",
+       "type": "text"
+      }
+     ],
+     "public_write": true
+    }
+   ]
+  }
+ },
+ "extract_fn_blocks": {
+  "fn_block": {
+   "cleaned": "AB",
+   "fns": [
+    {
+     "name": "calc_x",
+     "reads": [
+      "prices"
+     ],
+     "code": "function handler(input){ return { result: 1 }; }",
+     "description": "Расчёт"
+    }
+   ]
+  }
+ },
+ "merge_schema": {
+  "basic": [
+   {
+    "table_name": "a"
+   },
+   {
+    "table_name": "b"
+   }
+  ]
+ },
+ "_valid_db_identifier": {
+  "ok_name": true,
+  "1bad": false,
+  "good_1": true,
+  "": false,
+  "xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx": false,
+  "select": true,
+  "has space": false,
+  "_u": true
+ }
+}
