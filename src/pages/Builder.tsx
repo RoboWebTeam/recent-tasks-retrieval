@@ -17,6 +17,7 @@ import { trackGoal, GOALS } from '@/lib/analytics';
 import { apiUrl } from '@/lib/apiConfig';
 
 const GENERATE_URL = apiUrl('generate-site');
+const EXPORT_CODE_URL = apiUrl('export-code');
 
 /** Повторяет запрос генерации при временной недоступности AI-сервиса (502/503), с нарастающей паузой.
  * Реальный статус может быть внутри JSON-тела (raw.statusCode), а не только в res.status.
@@ -258,6 +259,7 @@ export default function Builder() {
   const [showExtensions, setShowExtensions] = useState(false);
   const [savingToFiles, setSavingToFiles] = useState(false);
   const [saveToFilesDone, setSaveToFilesDone] = useState(false);
+  const [exporting, setExporting] = useState(false);
   const [projectTitle, setProjectTitle] = useState('');
   const [loadingProject, setLoadingProject] = useState(false);
   // Флаг: история чата из БД уже загружена. До этого момента не сохраняем автоматически,
@@ -926,6 +928,36 @@ export default function Builder() {
     URL.revokeObjectURL(url);
   };
 
+  const handleExportCode = async () => {
+    if (!html || !projectId) return;
+    const session = getSession();
+    if (!session) return;
+    setExporting(true);
+    try {
+      const resp = await fetch(EXPORT_CODE_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'x-session-id': session },
+        body: JSON.stringify({ project_id: Number(projectId) }),
+      });
+      const data = await resp.json();
+      if (!resp.ok || data.error) {
+        alert(data.error || (lang === 'ru' ? 'Не удалось экспортировать проект' : 'Export failed'));
+      } else {
+        // zip приходит base64 (server.py отдаёт JSON) → декодируем в Blob и скачиваем
+        const bin = atob(data.zip_b64);
+        const bytes = new Uint8Array(bin.length);
+        for (let i = 0; i < bin.length; i++) bytes[i] = bin.charCodeAt(i);
+        const url = URL.createObjectURL(new Blob([bytes], { type: 'application/zip' }));
+        const a = document.createElement('a');
+        a.href = url; a.download = data.filename || 'project.zip'; a.click();
+        URL.revokeObjectURL(url);
+      }
+    } catch {
+      alert(lang === 'ru' ? 'Ошибка экспорта' : 'Export error');
+    }
+    setExporting(false);
+  };
+
   const handleSaveToFiles = async () => {
     if (!html) return;
     const session = getSession();
@@ -1469,9 +1501,10 @@ export default function Builder() {
                     html ? { key: 'open', icon: 'ExternalLink', label: lang === 'ru' ? 'Открыть в новой вкладке' : 'Open in new tab', onClick: openInNewTab } : null,
                     { key: 'download', icon: 'Download', label: tr('builderDownload', lang), onClick: handleDownload, disabled: !html },
                     { key: 'store', icon: savingToFiles ? 'Loader' : saveToFilesDone ? 'Check' : 'FolderOpen', spin: savingToFiles, label: saveToFilesDone ? (lang === 'ru' ? 'Сохранено в хранилище' : 'Saved to storage') : (lang === 'ru' ? 'Сохранить в хранилище' : 'Save to storage'), onClick: handleSaveToFiles, disabled: !html || savingToFiles },
+                    { key: 'exportcode', icon: exporting ? 'Loader' : 'Code', spin: exporting, label: exporting ? (lang === 'ru' ? 'Собираем проект…' : 'Building project…') : (lang === 'ru' ? 'Экспорт в код (Next.js)' : 'Export to code (Next.js)'), onClick: handleExportCode, disabled: !html || !projectId || exporting },
                     { key: 'domain', icon: 'Link', label: lang === 'ru' ? 'Подключить домен' : 'Connect domain', onClick: () => setShowDomainModal(true) },
                   ].filter(Boolean) as { key: string; icon: string; label: string; onClick: () => void; disabled?: boolean; spin?: boolean }[]).map(a => (
-                    <button key={a.key} onClick={() => { a.onClick(); if (a.key !== 'store') setShowActionsMenu(false); }} disabled={a.disabled}
+                    <button key={a.key} onClick={() => { a.onClick(); if (a.key !== 'store' && a.key !== 'exportcode') setShowActionsMenu(false); }} disabled={a.disabled}
                       className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg hover:bg-secondary transition-colors text-left text-[13px] font-medium text-foreground disabled:opacity-40 disabled:cursor-not-allowed">
                       <Icon name={a.icon} size={15} className={`text-muted-foreground shrink-0 ${a.spin ? 'animate-spin' : ''}`} />
                       {a.label}

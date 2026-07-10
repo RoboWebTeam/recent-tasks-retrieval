@@ -25,6 +25,7 @@ const FUNCTION_NAMES = [
   'yookassa-yookassa',
   'order-status',
   'energy-pricing',
+  'export-code',
 ] as const;
 
 export type FunctionName = typeof FUNCTION_NAMES[number];
