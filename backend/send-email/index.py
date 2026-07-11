@@ -1,9 +1,30 @@
 import os
 import smtplib
 import json
+import urllib.request
+import urllib.parse
 import psycopg2
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+
+
+def notify_telegram(email: str) -> bool:
+    """Уведомление о заявке в Telegram (HTTPS/443 — работает, в отличие от заблокированного SMTP).
+    Токен/чат берутся из env (TELEGRAM_BOT_TOKEN, TELEGRAM_CHAT_ID). Не заданы или сбой — тихо пропускаем."""
+    token = os.environ.get('TELEGRAM_BOT_TOKEN', '').strip()
+    chat_id = os.environ.get('TELEGRAM_CHAT_ID', '').strip()
+    if not token or not chat_id:
+        return False
+    try:
+        text = f'📩 Новая заявка с Roboweb\nE-mail: {email}'
+        data = urllib.parse.urlencode({'chat_id': chat_id, 'text': text}).encode('utf-8')
+        req = urllib.request.Request(f'https://api.telegram.org/bot{token}/sendMessage', data=data)
+        with urllib.request.urlopen(req, timeout=8) as r:
+            r.read()
+        return True
+    except Exception as ex:
+        print(f'[send-email] telegram не сработал (лид сохранён): {repr(ex)[:200]}', flush=True)
+        return False
 
 
 def handler(event: dict, context) -> dict:
@@ -44,7 +65,11 @@ def handler(event: dict, context) -> dict:
     finally:
         conn.close()
 
-    # Отправляем письмо
+    # Основной канал уведомления — Telegram (SMTP-порты на VPS заблокированы провайдером).
+    notify_telegram(email)
+
+    # SMTP оставлен как опциональный запасной канал (работает только если провайдер откроет порт
+    # и задан SMTP_PASSWORD). Сейчас на проде порты закрыты — блок тихо пропускается.
     smtp_user = 'roboweb.site@yandex.ru'
     smtp_password = os.environ.get('SMTP_PASSWORD', '')
 
