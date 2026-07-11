@@ -161,6 +161,27 @@ def _push_tree(files, token, title, name):
     return (repo.get('html_url') or f'https://github.com/{full}'), repo.get('name', name)
 
 
+def _log_export_metrics(project, files, target, project_id):
+    """Пишет структурную строку метрик на КАЖДЫЙ экспорт (Фаза 3: копим данные для решения по «Подходу D»).
+    Грепается из логов: `docker compose logs backend | grep RW_EXPORT_METRIC`."""
+    try:
+        low = (project.get('html') or '').lower()
+        ck = files.get('app/api/fn/checkout/route.ts', '')
+        m = {
+            'project_id': project_id, 'target': target, 'files': len(files),
+            'kind': 'app' if 'data-rw-page' in low else 'landing',
+            'html_size': len(project.get('html') or ''),
+            'tables': len(project.get('tables') or []), 'fns': len(project.get('functions') or []),
+            'mk_form': int('data-rw-table' in low or '<form' in low),
+            'mk_catalog': int('data-rw-catalog' in low), 'mk_auth': int('data-rw-auth' in low),
+            'mk_cabinet': int('data-rw-cabinet' in low), 'mk_cart': int('data-rw-add-to-cart' in low),
+            'checkout': ('special' if ('byId' in ck) else ('ported' if ck else 'none')),
+        }
+        print('[RW_EXPORT_METRIC] ' + json.dumps(m, ensure_ascii=False), flush=True)
+    except Exception:
+        pass
+
+
 def handler(event, context):
     if (event.get('httpMethod') or 'GET').upper() != 'POST':
         return _resp(405, {'error': 'Метод не поддерживается'})
@@ -206,15 +227,18 @@ def handler(event, context):
             _refund_energy(user_id, schema, EXPORT_COST)
             return _resp(422, {'error': 'В проекте пока нет сайта — сначала сгенерируйте его.'})
 
+        files = compiler.build_files(project)   # собираем один раз: для метрик, zip и github
+        _log_export_metrics(project, files, target, project_id)
+
         if target == 'github':
-            files = compiler.build_files(project)
             repo_name = _slug_repo((body.get('repo_name') or '').strip()
                                    or ((project.get('title') or 'roboweb-export') + '-code'))
             repo_url, repo_name = _push_tree(files, gh_token, project.get('title') or 'site', repo_name)
             return _resp(200, {'repo_url': repo_url, 'repo_name': repo_name,
                                'files': len(files), 'cost': EXPORT_COST})
 
-        filename, zip_bytes = compiler.build_zip(project)
+        _, zip_bytes = compiler.build_zip(project)
+        filename = _slug_repo(project.get('title') or 'roboweb-site') + '.zip'
     except Exception as ex:
         _refund_energy(user_id, schema, EXPORT_COST)
         print(f'[export-code] build error ({target}): {repr(ex)[:300]}', flush=True)
@@ -225,6 +249,6 @@ def handler(event, context):
     return _resp(200, {
         'filename': filename,
         'zip_b64': base64.b64encode(zip_bytes).decode('ascii'),
-        'files': len(compiler.build_files(project)),
+        'files': len(files),
         'cost': EXPORT_COST,
     })
