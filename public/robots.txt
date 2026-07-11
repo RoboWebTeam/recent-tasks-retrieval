@@ -32,4 +32,4 @@ Allow: /
 User-agent: vk.com
 Allow: /
 
-Sitemap: https://roboweb.site/sitemap.xml
+Sitemap: https://roboweb.dev/sitemap.xml

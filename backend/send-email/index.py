@@ -46,7 +46,7 @@ def handler(event: dict, context) -> dict:
 
     # Отправляем письмо
     smtp_user = 'roboweb.site@yandex.ru'
-    smtp_password = os.environ['SMTP_PASSWORD']
+    smtp_password = os.environ.get('SMTP_PASSWORD', '')
 
     msg = MIMEMultipart('alternative')
     msg['Subject'] = '🚀 Новая заявка с сайта Roboweb'
@@ -67,9 +67,18 @@ def handler(event: dict, context) -> dict:
 
     msg.attach(MIMEText(html, 'html'))
 
-    with smtplib.SMTP_SSL('smtp.yandex.ru', 465) as server:
-        server.login(smtp_user, smtp_password)
-        server.sendmail(smtp_user, smtp_user, msg.as_string())
+    # Отправка письма НЕ должна ронять заявку: лид уже сохранён в БД. Любой сбой SMTP
+    # (нет пароля, заблокирован исходящий 465, таймаут) — логируем и всё равно отдаём 200,
+    # иначе посетитель видит ошибку, а воркер gunicorn висит на TCP-коннекте без таймаута.
+    if smtp_password:
+        try:
+            with smtplib.SMTP_SSL('smtp.yandex.ru', 465, timeout=10) as server:
+                server.login(smtp_user, smtp_password)
+                server.sendmail(smtp_user, smtp_user, msg.as_string())
+        except Exception as ex:
+            print(f'[send-email] SMTP не сработал (лид сохранён в БД): {repr(ex)[:200]}', flush=True)
+    else:
+        print('[send-email] SMTP_PASSWORD не задан — письмо пропущено, лид сохранён в БД', flush=True)
 
     return {
         'statusCode': 200,
