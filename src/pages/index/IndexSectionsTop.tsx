@@ -12,6 +12,15 @@ export function IndexSectionsTop({ lang }: Props) {
   const TRUST         = getTRUST(lang);
   const STEPS         = getSTEPS(lang);
   const MARQUEE_ITEMS = getMARQUEE(lang);
+  const DOORS = lang === 'ru' ? [
+    { icon: 'Briefcase', tag: 'Фрилансерам и студиям', title: 'Делай сайты клиентам за час', text: 'Собери рабочий сайт по брифу и отдай настоящий код на Next.js прямо в GitHub клиента. Фикс-цена вместо почасовки — твоя ИИ-команда разработки.', cta: 'Стать быстрее', hot: true },
+    { icon: 'Store', tag: 'Бизнесу и самозанятым', title: 'Сайт, который принимает заявки', text: 'Формы пишут в базу, живой каталог, корзина и оформление заказа — без разработчика и без кода. Сайт, который работает, а не просто выглядит.', cta: 'Запуститься онлайн', hot: false },
+    { icon: 'Code2', tag: 'Разработчикам', title: 'Готовый каркас за минуту', text: 'Next.js + Prisma + аккаунты + корзина — экспортом в твой GitHub. Скелет собран и собирается, дальше допиливаешь сам.', cta: 'Забрать код', hot: false },
+  ] : [
+    { icon: 'Briefcase', tag: 'Freelancers & studios', title: 'Ship client sites in an hour', text: 'Build a working site from a brief and hand over real Next.js code straight to the client\'s GitHub. Fixed price instead of hourly — your AI dev team.', cta: 'Get faster', hot: true },
+    { icon: 'Store', tag: 'Small business', title: 'A site that takes orders', text: 'Forms save to a database, a live catalog, cart and checkout — no developer, no code. A site that works, not just looks good.', cta: 'Launch online', hot: false },
+    { icon: 'Code2', tag: 'Developers', title: 'A ready scaffold in a minute', text: 'Next.js + Prisma + accounts + cart, exported to your GitHub. The skeleton is built and compiles — you finish the rest.', cta: 'Grab the code', hot: false },
+  ];
 
   return (
     <>
@@ -23,6 +32,46 @@ export function IndexSectionsTop({ lang }: Props) {
           ))}
         </div>
       </div>
+
+      {/* 3 ДВЕРИ — под 3 аудитории (позиционирование: ИИ-разработчик, не конструктор) */}
+      <section id="doors" className="py-16 md:py-24">
+        <div className="container">
+          <Reveal>
+            <div className="text-center max-w-2xl mx-auto px-2">
+              <span className="text-xs sm:text-sm font-semibold uppercase tracking-widest text-primary">{lang === 'ru' ? 'Кому это' : 'Who it\'s for'}</span>
+              <h2 className="mt-3 font-display font-black text-3xl sm:text-4xl md:text-5xl tracking-tight">
+                {lang === 'ru' ? 'Три способа использовать RoboWeb' : 'Three ways to use RoboWeb'}
+              </h2>
+              <p className="mt-4 text-muted-foreground text-base sm:text-lg">
+                {lang === 'ru' ? 'Не просто «сделай сайт». Выберите свой сценарий.' : 'Not just "make a site". Pick your path.'}
+              </p>
+            </div>
+          </Reveal>
+          <div className="mt-10 md:mt-14 grid md:grid-cols-3 gap-4 md:gap-6">
+            {DOORS.map((d, i) => (
+              <Reveal key={d.tag} delay={i * 80}>
+                <div className={`group relative h-full rounded-2xl md:rounded-3xl border p-6 md:p-8 transition-all duration-300 hover:shadow-xl ${d.hot ? 'border-primary/40 bg-primary/[0.04] hover:shadow-primary/15' : 'border-border bg-card hover:border-primary/30 hover:shadow-primary/10'}`}>
+                  {d.hot && (
+                    <span className="absolute top-5 right-5 text-[11px] font-bold uppercase tracking-wide text-primary bg-primary/10 rounded-full px-2.5 py-1">
+                      {lang === 'ru' ? 'рекомендуем' : 'top pick'}
+                    </span>
+                  )}
+                  <span className="grid h-12 w-12 place-items-center rounded-2xl bg-primary/10 text-primary transition-all duration-300 group-hover:bg-primary group-hover:text-primary-foreground group-hover:scale-110">
+                    <Icon name={d.icon} size={22} />
+                  </span>
+                  <p className="mt-5 text-xs font-semibold uppercase tracking-widest text-primary">{d.tag}</p>
+                  <h3 className="mt-1.5 font-display font-bold text-xl md:text-2xl">{d.title}</h3>
+                  <p className="mt-3 text-muted-foreground text-sm md:text-base">{d.text}</p>
+                  <a href="/register" className="mt-5 inline-flex items-center gap-1.5 font-semibold text-primary group/link">
+                    {d.cta}
+                    <Icon name="ArrowRight" size={16} className="transition-transform group-hover/link:translate-x-1" />
+                  </a>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+        </div>
+      </section>
 
       {/* FEATURES */}
       <section id="features" className="py-16 md:py-24">
