@@ -472,6 +472,31 @@ def refund_quota(user_id: int, schema: str, cost: int = 1):
     finally:
         conn.close()
 
+def record_generation_metric(schema, user_id, project_id, model, in_tok, out_tok,
+                             cache_read, cache_write, cost_units, is_large, is_edit, stream):
+    """Персистит расход токенов одной генерации в generation_metrics — для факт-калибровки
+    себестоимости и маржи по реальному миксу моделей/размеров и доле попаданий в кэш промпта.
+    НИКОГДА не роняет генерацию: любые ошибки БД проглатываются (метрика вторична к результату)."""
+    try:
+        conn = psycopg2.connect(os.environ['DATABASE_URL'])
+        try:
+            with conn.cursor() as cur:
+                cur.execute(
+                    f"""INSERT INTO {schema}.generation_metrics
+                        (user_id, project_id, model, is_large, is_edit, stream,
+                         in_tokens, out_tokens, cache_read, cache_write, cost_units)
+                        VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""",
+                    (user_id, int(project_id) if project_id else None, str(model)[:40],
+                     bool(is_large), bool(is_edit), bool(stream),
+                     int(in_tok or 0), int(out_tok or 0), int(cache_read or 0),
+                     int(cache_write or 0), int(cost_units or 0))
+                )
+            conn.commit()
+        finally:
+            conn.close()
+    except Exception as e:
+        log(f'generation_metrics insert failed (ignored): {repr(e)[:150]}')
+
 def send_low_balance_email(to_email: str, remaining: int):
     """Отправляет предупреждение о заканчивающихся AI-запросах."""
     smtp_password = os.environ.get('SMTP_PASSWORD')
@@ -1712,6 +1737,9 @@ def _handler_impl(event: dict, context) -> dict:
         # эффективность кэша (cache_read близко к размеру промпта = кэш работает). Пишется в логи;
         # можно агрегировать в аналитику. Ключевой рычаг управления юнит-экономикой.
         log(f"[RW_GEN_METRIC]{json.dumps({'model': model_id, 'in': usage.get('input_tokens', 0), 'out': usage.get('output_tokens', 0), 'cache_read': cache_read, 'cache_write': cache_write, 'cost_units': request_cost}, ensure_ascii=False)}")
+        record_generation_metric(schema, user_id, project_id, model_id, usage.get('input_tokens', 0),
+                                 usage.get('output_tokens', 0), cache_read, cache_write, request_cost,
+                                 is_large_task, is_edit, False)
         normalized = {
             'choices': [{'message': {'content': text}}],
             'usage': {
@@ -1803,6 +1831,9 @@ def _handler_impl(event: dict, context) -> dict:
                 total_tokens = in_tokens + out_tokens
                 # Метрика расхода токенов и эффективности кэша по стрим-генерации (см. RW_GEN_METRIC выше).
                 log(f"[RW_GEN_METRIC]{json.dumps({'model': ANTHROPIC_MODEL, 'in': in_tokens, 'out': out_tokens, 'cache_read': cache_read, 'cache_write': cache_write, 'cost_units': request_cost, 'stream': True}, ensure_ascii=False)}")
+                record_generation_metric(schema, user_id, project_id, ANTHROPIC_MODEL, in_tokens,
+                                         out_tokens, cache_read, cache_write, request_cost,
+                                         is_large_task, is_edit, True)
                 raw_html = ''.join(full_parts).strip()
                 html_out, report_md = extract_report_block(raw_html)
                 html_out, meta = extract_meta_block(html_out)
