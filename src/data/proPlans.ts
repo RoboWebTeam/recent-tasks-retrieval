@@ -9,11 +9,11 @@ export interface ProPlanOption {
 export const PLAN_PRICING_URL = apiUrl('plan-pricing');
 
 export const FALLBACK_PRO_PLANS: ProPlanOption[] = [
-  { plan_code: 'pro_60', requests: 60, price: 2999 },
-  { plan_code: 'pro_80', requests: 80, price: 4999 },
-  { plan_code: 'pro_200', requests: 200, price: 9999 },
-  { plan_code: 'pro_400', requests: 400, price: 19999 },
-  { plan_code: 'pro_800', requests: 800, price: 49999 },
+  { plan_code: 'pro_60', requests: 60, price: 1990 },
+  { plan_code: 'pro_80', requests: 80, price: 2990 },
+  { plan_code: 'pro_200', requests: 200, price: 4990 },
+  { plan_code: 'pro_400', requests: 400, price: 9990 },
+  { plan_code: 'pro_800', requests: 800, price: 19990 },
 ];
 
 export const PRO_PLAN_DETAILS: Record<string, { ru: string[]; en: string[] }> = {

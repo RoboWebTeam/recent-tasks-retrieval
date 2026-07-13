@@ -41,8 +41,8 @@ export default function Offer() {
         <p>2.1. The Service is provided under several plans:</p>
         <ul>
           <li><strong>Free</strong> — free of charge, 10 one-time AI requests, up to 3 projects.</li>
-          <li><strong>Premium</strong> — 999 ₽/month, 40 AI requests per month, custom domain connection.</li>
-          <li><strong>Pro (60/80/200/400/800)</strong> — from 2,999 ₽ to 49,999 ₽ per month, with a corresponding
+          <li><strong>Premium</strong> — 990 ₽/month, 40 AI requests per month, custom domain connection.</li>
+          <li><strong>Pro (60/80/200/400/800)</strong> — from 1,990 ₽ to 19,990 ₽ per month, with a corresponding
             number of monthly AI requests and increased database/storage/compute limits.</li>
         </ul>
         <p>
@@ -134,8 +134,8 @@ export default function Offer() {
       <p>2.1. Сервис предоставляется на условиях одного из следующих тарифов:</p>
       <ul>
         <li><strong>Пробный (Free)</strong> — бесплатно, 10 запросов к AI разово, до 3 проектов;</li>
-        <li><strong>Премиум</strong> — 999 ₽ в месяц, 40 запросов к AI ежемесячно, подключение собственного домена;</li>
-        <li><strong>Профи (Pro 60/80/200/400/800)</strong> — от 2 999 ₽ до 49 999 ₽ в месяц, с соответствующим
+        <li><strong>Премиум</strong> — 990 ₽ в месяц, 40 запросов к AI ежемесячно, подключение собственного домена;</li>
+        <li><strong>Профи (Pro 60/80/200/400/800)</strong> — от 1 990 ₽ до 19 990 ₽ в месяц, с соответствующим
           количеством ежемесячных запросов к AI и увеличенными лимитами базы данных, хранилища и вычислений.</li>
       </ul>
       <p>

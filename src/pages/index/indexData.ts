@@ -198,10 +198,10 @@ export const getSTEPS = (lang: Lang) => lang === 'ru' ? [
 
 export const getPLANS = (lang: Lang) => lang === 'ru' ? [
   { name: 'Пробный', badge: 'сейчас', price: 'Бесплатно', note: '', tag: '10 генераций разово', features: ['Фуллстек: формы в базу, каталог','Серверные функции','Публикация по ссылке','До 3 проектов','Облачный хостинг + SSL','Без своего домена','Без экспорта кода'], cta: 'Начать бесплатно', hot: false },
-  { name: 'Премиум', badge: 'популярный', price: '999 ₽', note: 'в месяц', tag: '40 генераций ежемесячно', features: ['Свой домен, без бейджа','Фуллстек-бэкенд: заявки, каталог, корзина, кабинеты','Экспорт кода Next.js + Prisma в GitHub','Публикация в GitHub Pages','Серверные функции и оформление заказа','Приоритетная сборка'], cta: 'Выбрать Премиум', hot: true },
+  { name: 'Премиум', badge: 'популярный', price: '990 ₽', note: 'в месяц', tag: '40 генераций ежемесячно', features: ['Свой домен, без бейджа','Фуллстек-бэкенд: заявки, каталог, корзина, кабинеты','Экспорт кода Next.js + Prisma в GitHub','Публикация в GitHub Pages','Серверные функции и оформление заказа','Приоритетная сборка'], cta: 'Выбрать Премиум', hot: true },
 ] : [
   { name: 'Free', badge: 'now', price: 'Free', note: '', tag: '10 generations once', features: ['Fullstack: forms to DB, catalog','Server functions','Publish via link','Up to 3 projects','Cloud hosting + SSL','No custom domain','No code export'], cta: 'Start free', hot: false },
-  { name: 'Premium', badge: 'popular', price: '999 ₽', note: 'per month', tag: '40 generations/month', features: ['Custom domain, no badge','Fullstack backend: leads, catalog, cart, accounts','Export Next.js + Prisma code to GitHub','Publish to GitHub Pages','Server functions & checkout','Priority build'], cta: 'Choose Premium', hot: true },
+  { name: 'Premium', badge: 'popular', price: '990 ₽', note: 'per month', tag: '40 generations/month', features: ['Custom domain, no badge','Fullstack backend: leads, catalog, cart, accounts','Export Next.js + Prisma code to GitHub','Publish to GitHub Pages','Server functions & checkout','Priority build'], cta: 'Choose Premium', hot: true },
 ];
 
 export const getFAQ = (lang: Lang) => lang === 'ru' ? [

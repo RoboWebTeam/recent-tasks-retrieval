@@ -203,7 +203,7 @@ export default function Pricing() {
                 {isRu ? 'Премиум' : 'Premium'}
               </div>
               <div className="flex items-baseline gap-1 mb-1">
-                <span className="text-3xl font-black text-foreground">999</span>
+                <span className="text-3xl font-black text-foreground">990</span>
                 <span className="text-lg font-bold text-muted-foreground">₽</span>
                 <span className="text-sm text-muted-foreground">/{isRu ? 'мес' : 'mo'}</span>
               </div>
@@ -216,7 +216,7 @@ export default function Pricing() {
             <Button
               className="w-full h-11 rounded-xl font-semibold mb-6 shadow-lg shadow-primary/20 hover:scale-[1.02] transition-transform"
               disabled={payingPlan === 'premium'}
-              onClick={() => handleSelectPlan('premium', 999, isRu ? 'Премиум' : 'Premium')}
+              onClick={() => handleSelectPlan('premium', 990, isRu ? 'Премиум' : 'Premium')}
             >
               {payingPlan === 'premium'
                 ? <><Icon name="Loader" size={15} className="mr-1.5 animate-spin" />{isRu ? 'Переходим к оплате…' : 'Redirecting…'}</>
