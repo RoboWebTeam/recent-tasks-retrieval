@@ -9,8 +9,8 @@ export interface EnergyPackage {
 export const ENERGY_PRICING_URL = apiUrl('energy-pricing');
 
 export const FALLBACK_ENERGY_PACKAGES: EnergyPackage[] = [
-  { code: 'small', requests: 20, price: 500 },
-  { code: 'medium', requests: 40, price: 1000 },
-  { code: 'large', requests: 100, price: 2500 },
-  { code: 'xlarge', requests: 200, price: 5000 },
+  { code: 'small', requests: 12, price: 490 },
+  { code: 'medium', requests: 25, price: 990 },
+  { code: 'large', requests: 54, price: 1990 },
+  { code: 'xlarge', requests: 145, price: 4990 },
 ];

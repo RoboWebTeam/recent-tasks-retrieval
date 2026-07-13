@@ -331,6 +331,24 @@ def build_system_prompt(project_images: list) -> str:
 
 Если пользователь просит использовать своё изображение, логотип или фото — вставляй в <img src="..."> ТОЧНУЮ ссылку из списка выше, ничего не выдумывай. Если подходящего изображения в списке нет — используй только надёжные источники из правила 6a (picsum.photos с seed, placehold.co) или CSS-градиент. НИКОГДА не придумывай URL картинок."""
 
+def build_system_blocks(effective_system_prompt: str):
+    """Разбивает системный промпт на кэшируемый статический префикс и динамический хвост.
+    Статическая часть SYSTEM_PROMPT (~32,5К символов, идентична для ВСЕХ запросов всех
+    пользователей) помечается cache_control=ephemeral — Anthropic кэширует её и на последующих
+    вызовах читает по ~10% цены входа вместо полной. Это снижает себестоимость генерации на ~22%.
+    Динамический хвост (картинки проекта, DATA_PROMPT, пресеты, уточнения запроса) идёт отдельным
+    некэшируемым блоком, чтобы не ломать общий префикс-кэш. Возвращает список content-блоков для
+    поля system Anthropic Messages API."""
+    sp = effective_system_prompt or ''
+    if sp.startswith(SYSTEM_PROMPT):
+        tail = sp[len(SYSTEM_PROMPT):]
+        blocks = [{'type': 'text', 'text': SYSTEM_PROMPT, 'cache_control': {'type': 'ephemeral'}}]
+        if tail:
+            blocks.append({'type': 'text', 'text': tail})
+        return blocks
+    # Фолбэк: промпт не начинается со статики (не должно случаться) — кэшируем целиком.
+    return [{'type': 'text', 'text': sp, 'cache_control': {'type': 'ephemeral'}}]
+
 def cors():
     return {
         'Access-Control-Allow-Origin': '*',
@@ -355,16 +373,33 @@ def get_user_id(session_id: str, schema: str):
     finally:
         conn.close()
 
+# Месячные лимиты единиц по тарифам. Калибровка: net-выручка за единицу (цена×0,965/лимит)
+# держится ≥30₽ — выше себестоимости худшего случая (Sonnet-normal 24₽/ед с включённым кэшем),
+# поэтому тариф прибылен даже при 100% выборке лимита и на любой модели (Opus списывает больше
+# единиц по MODEL_UNIT_COST). ВАЖНО: значения обязаны совпадать с requests в plan_pricing (для
+# pro-*) и с ценником на фронте — иначе юзер получит не тот лимит при сбросе квоты.
 PLAN_LIMITS = {
-    'free': 10, 'premium': 40,
-    'pro_60': 60, 'pro_80': 80, 'pro_200': 200, 'pro_400': 400, 'pro_800': 800,
+    'free': 10, 'premium': 30,
+    'pro_60': 60, 'pro_80': 80, 'pro_200': 160, 'pro_400': 320, 'pro_800': 660,
+}
+
+# Матрица списания единиц по (модель, размер задачи). Откалибрована так, чтобы реальная
+# себестоимость ОДНОЙ единицы была примерно одинаковой (~23–24₽) независимо от модели:
+#   Sonnet-normal ≈ 24₽ → 1 ед;  Sonnet-large ≈ 36₽ → 2 ед;
+#   Opus-normal   ≈ 210₽ → 9 ед (23,3₽/ед);  Opus-large ≈ 300₽ → 13 ед (23,1₽/ед).
+# Sonnet-normal (1 ед, 24₽) — единственный «пол» себестоимости, и цена любого тарифа держится
+# выше него с запасом. Матрица-лукап, а НЕ перемножение множителей: перемножение давало
+# Opus-large = 3×8 = 24 ед (переоценка, нестабильная себест/ед).
+MODEL_UNIT_COST = {
+    ('sonnet', 'normal'): 1, ('sonnet', 'large'): 2,
+    ('opus', 'normal'): 9, ('opus', 'large'): 13,
 }
 
 def check_and_consume_quota(user_id: int, schema: str, cost: int = 1):
     """Проверяет лимит AI-запросов (тариф + энергия) и списывает `cost` единиц.
     cost=1 — обычная генерация, cost=3 — усиленная (крупная задача, детальный сайт).
     Списание идёт сначала из лимита тарифа, затем из энергии (может частично из обоих).
-    Возвращает (allowed: bool, error_message: str|None, remaining: int)"""
+    Возвращает (allowed: bool, error_message: str|None, remaining: int, plan: str|None)"""
     conn = psycopg2.connect(os.environ['DATABASE_URL'])
     try:
         with conn.cursor() as cur:
@@ -375,7 +410,7 @@ def check_and_consume_quota(user_id: int, schema: str, cost: int = 1):
             )
             row = cur.fetchone()
             if not row:
-                return False, 'Пользователь не найден', 0
+                return False, 'Пользователь не найден', 0, None
             plan, used, limit, reset_at, energy = row
 
             from datetime import datetime, timezone
@@ -394,7 +429,7 @@ def check_and_consume_quota(user_id: int, schema: str, cost: int = 1):
             available = (limit - used) + energy
             if available < cost:
                 conn.commit()
-                return False, 'Лимит AI-запросов исчерпан. Пополните энергию или смените тариф.', 0
+                return False, 'Лимит AI-запросов исчерпан. Пополните энергию или смените тариф.', 0, plan
 
             # Списываем cost: сначала из лимита тарифа, остаток — из энергии.
             from_limit = min(cost, max(0, limit - used))
@@ -404,7 +439,7 @@ def check_and_consume_quota(user_id: int, schema: str, cost: int = 1):
             if from_energy:
                 cur.execute(f"UPDATE {schema}.users SET energy_balance = energy_balance - %s WHERE id = %s", (from_energy, user_id))
             conn.commit()
-            return True, None, available - cost
+            return True, None, available - cost, plan
     finally:
         conn.close()
 
@@ -1443,9 +1478,14 @@ def _handler_impl(event: dict, context) -> dict:
     _lu_intent = (last_user_text or '').lower()
     wants_app = any(k in _lu_intent for k in ('магазин', 'корзин', 'маркетплейс', 'checkout', 'приложени', 'многостранич', 'оформить заказ', 'оформление заказ'))
     wants_accounts = any(k in _lu_intent for k in ('регистрац', 'аккаунт', 'логин', 'авториз', 'личный кабинет', 'мои заказ', 'история заказ', 'войти в'))
-    request_cost = 3 if is_large_task else 1
+    # Стоимость генерации в единицах — по матрице (модель × размер задачи). Opus дороже нам в ~9×,
+    # поэтому списывает 9/13 единиц против 1/2 у Sonnet — так квота расходуется соразмерно затратам,
+    # и Opus не создаёт убыток. Модель выбирается пользователем в теле запроса.
+    _model_key = 'opus' if str(body.get('model', '') or '').strip().lower() == 'opus' else 'sonnet'
+    _size_key = 'large' if is_large_task else 'normal'
+    request_cost = MODEL_UNIT_COST[(_model_key, _size_key)]
 
-    allowed, quota_error, remaining = check_and_consume_quota(user_id, schema, request_cost)
+    allowed, quota_error, remaining, user_plan = check_and_consume_quota(user_id, schema, request_cost)
     if not allowed:
         maybe_notify_low_balance(user_id, 0, schema)
         return err(quota_error, 402)
@@ -1627,7 +1667,7 @@ def _handler_impl(event: dict, context) -> dict:
         call_timeout = override_timeout or ai_timeout
         payload = json.dumps({
             'model': model_id,
-            'system': sys_prompt,
+            'system': build_system_blocks(sys_prompt),  # кэш статического префикса промпта
             'messages': anthropic_messages,
             'max_tokens': override_max_tokens or max_tokens,
         }).encode('utf-8')
@@ -1666,11 +1706,19 @@ def _handler_impl(event: dict, context) -> dict:
         content_blocks = res.get('content') or []
         text = ''.join(b.get('text', '') for b in content_blocks if isinstance(b, dict) and b.get('type') == 'text')
         usage = res.get('usage') or {}
+        cache_read = usage.get('cache_read_input_tokens', 0) or 0
+        cache_write = usage.get('cache_creation_input_tokens', 0) or 0
+        # Метрика расхода токенов по каждой генерации — чтобы видеть реальную себестоимость и
+        # эффективность кэша (cache_read близко к размеру промпта = кэш работает). Пишется в логи;
+        # можно агрегировать в аналитику. Ключевой рычаг управления юнит-экономикой.
+        log(f"[RW_GEN_METRIC]{json.dumps({'model': model_id, 'in': usage.get('input_tokens', 0), 'out': usage.get('output_tokens', 0), 'cache_read': cache_read, 'cache_write': cache_write, 'cost_units': request_cost}, ensure_ascii=False)}")
         normalized = {
             'choices': [{'message': {'content': text}}],
             'usage': {
                 'prompt_tokens': usage.get('input_tokens', 0),
                 'completion_tokens': usage.get('output_tokens', 0),
+                'cache_read_input_tokens': cache_read,
+                'cache_creation_input_tokens': cache_write,
             },
         }
         return normalized, None
@@ -1687,6 +1735,8 @@ def _handler_impl(event: dict, context) -> dict:
             full_parts = []
             in_tokens = 0
             out_tokens = 0
+            cache_read = 0
+            cache_write = 0
             refunded = False
             try:
                 yield _sse('start', {'model': ANTHROPIC_MODEL, 'is_edit': is_edit, 'cost': request_cost})
@@ -1696,7 +1746,7 @@ def _handler_impl(event: dict, context) -> dict:
                 ]
                 payload = json.dumps({
                     'model': ANTHROPIC_MODEL,
-                    'system': effective_system_prompt,
+                    'system': build_system_blocks(effective_system_prompt),  # кэш статического префикса промпта
                     'messages': anthropic_messages,
                     'max_tokens': max_tokens,
                     'stream': True,
@@ -1733,7 +1783,10 @@ def _handler_impl(event: dict, context) -> dict:
                             continue
                         etype = evt.get('type')
                         if etype == 'message_start':
-                            in_tokens = ((evt.get('message') or {}).get('usage') or {}).get('input_tokens', 0)
+                            _u = ((evt.get('message') or {}).get('usage') or {})
+                            in_tokens = _u.get('input_tokens', 0)
+                            cache_read = _u.get('cache_read_input_tokens', 0) or 0
+                            cache_write = _u.get('cache_creation_input_tokens', 0) or 0
                         elif etype == 'content_block_delta':
                             delta = evt.get('delta') or {}
                             if delta.get('type') == 'text_delta':
@@ -1748,6 +1801,8 @@ def _handler_impl(event: dict, context) -> dict:
                             raise RuntimeError(str(evt.get('error'))[:300])
 
                 total_tokens = in_tokens + out_tokens
+                # Метрика расхода токенов и эффективности кэша по стрим-генерации (см. RW_GEN_METRIC выше).
+                log(f"[RW_GEN_METRIC]{json.dumps({'model': ANTHROPIC_MODEL, 'in': in_tokens, 'out': out_tokens, 'cache_read': cache_read, 'cache_write': cache_write, 'cost_units': request_cost, 'stream': True}, ensure_ascii=False)}")
                 raw_html = ''.join(full_parts).strip()
                 html_out, report_md = extract_report_block(raw_html)
                 html_out, meta = extract_meta_block(html_out)
@@ -1950,8 +2005,10 @@ def _handler_impl(event: dict, context) -> dict:
     elapsed = _time.monotonic() - started_at
     remaining_time = function_timeout - elapsed - 15  # -15 сек буфер на завершение и запись в БД
     second_pass_tokens = min(max_tokens, int(remaining_time * 130)) if remaining_time > 0 else 0
+    # 2-й (арт-директорский) проход почти удваивает токены генерации. Оставляем его только для
+    # платных тарифов — на бесплатном это чистая себестоимость привлечения (CAC), режем её.
     # Запас времени должен быть большим (>=35 сек), иначе 2-й проход рискует упереться в таймаут.
-    if function_timeout >= 60 and not is_edit and 1500 < len(html) < 50000 and remaining_time >= 35 and second_pass_tokens >= 2000:
+    if (user_plan or 'free') != 'free' and function_timeout >= 60 and not is_edit and 1500 < len(html) < 50000 and remaining_time >= 35 and second_pass_tokens >= 2000:
         improve_prompt = (
             "Ты — придирчивый арт-директор и копирайтер. Вот готовый HTML-сайт. "
             "Критически улучши его как финальную версию: усиль дизайн (контраст, отступы, единый визуальный ритм, "

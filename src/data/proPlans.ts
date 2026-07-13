@@ -11,9 +11,9 @@ export const PLAN_PRICING_URL = apiUrl('plan-pricing');
 export const FALLBACK_PRO_PLANS: ProPlanOption[] = [
   { plan_code: 'pro_60', requests: 60, price: 1990 },
   { plan_code: 'pro_80', requests: 80, price: 2990 },
-  { plan_code: 'pro_200', requests: 200, price: 4990 },
-  { plan_code: 'pro_400', requests: 400, price: 9990 },
-  { plan_code: 'pro_800', requests: 800, price: 19990 },
+  { plan_code: 'pro_200', requests: 160, price: 4990 },
+  { plan_code: 'pro_400', requests: 320, price: 9990 },
+  { plan_code: 'pro_800', requests: 660, price: 19990 },
 ];
 
 export const PRO_PLAN_DETAILS: Record<string, { ru: string[]; en: string[] }> = {

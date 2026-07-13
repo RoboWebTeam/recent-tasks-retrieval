@@ -208,7 +208,7 @@ export default function Pricing() {
                 <span className="text-sm text-muted-foreground">/{isRu ? 'мес' : 'mo'}</span>
               </div>
               <span className="inline-block rounded-full bg-primary/10 text-primary text-xs font-semibold px-2.5 py-1 mb-2">
-                {isRu ? '40 запросов ежемесячно' : '40 requests/month'}
+                {isRu ? '30 генераций в месяц' : '30 generations/month'}
               </span>
               <p className="text-sm text-muted-foreground">{isRu ? 'Для малого бизнеса и фрилансеров' : 'For small business & freelancers'}</p>
             </div>

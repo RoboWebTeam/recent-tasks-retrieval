@@ -135,7 +135,7 @@ export default function DashboardPlanTab({
       <div className="grid sm:grid-cols-3 gap-4">
         {[
           { id: 'free', name: tr('planFree', lang), price: lang === 'ru' ? 'Бесплатно' : 'Free', requests: lang === 'ru' ? '10 запросов разово' : '10 requests once', features: lang === 'ru' ? ['Облачный хостинг', 'До 3 проектов', 'БД 128 МБ', 'Хранилище 512 МБ'] : ['Cloud hosting', 'Up to 3 projects', '128 MB DB', '512 MB storage'], current: user?.plan === 'free' },
-          { id: 'premium', name: tr('planPremium', lang), price: '990 ₽/мес', requests: `40 ${tr('requestsMonthly', lang)}`, features: lang === 'ru' ? ['Свой домен + экспорт кода в GitHub', 'Фуллстек-бэкенд: формы, каталог, корзина', 'До 3 проектов', 'БД 128 МБ'] : ['Custom domain + code export to GitHub', 'Fullstack backend: forms, catalog, cart', 'Up to 3 projects', '128 MB DB'], current: user?.plan === 'premium', hot: true },
+          { id: 'premium', name: tr('planPremium', lang), price: '990 ₽/мес', requests: `30 ${tr('requestsMonthly', lang)}`, features: lang === 'ru' ? ['Свой домен + экспорт кода в GitHub', 'Фуллстек-бэкенд: формы, каталог, корзина', 'До 3 проектов', 'БД 128 МБ'] : ['Custom domain + code export to GitHub', 'Fullstack backend: forms, catalog, cart', 'Up to 3 projects', '128 MB DB'], current: user?.plan === 'premium', hot: true },
         ].map(p => (
           <div key={p.id} className={`rounded-2xl border p-5 ${p.current ? 'border-primary bg-primary/5' : 'border-border bg-card'}`}>
             {p.hot && <span className="inline-block bg-primary text-primary-foreground text-xs font-bold rounded-full px-2.5 py-0.5 mb-2">{lang === 'ru' ? 'Популярный' : 'Popular'}</span>}

@@ -1916,8 +1916,8 @@ export default function Builder() {
                     {showModelMenu && (
                       <div className="absolute bottom-10 left-0 z-50 w-60 max-w-[calc(100vw-2rem)] bg-secondary border border-border rounded-2xl shadow-2xl p-1.5">
                         {[
-                          { id: 'sonnet' as const, name: 'Sonnet 5', desc: lang === 'ru' ? 'Быстро и универсально' : 'Fast & versatile' },
-                          { id: 'opus' as const, name: 'Opus 4.8', desc: lang === 'ru' ? 'Мощнее для сложных сайтов' : 'Stronger for complex sites' },
+                          { id: 'sonnet' as const, name: 'Sonnet 5', desc: lang === 'ru' ? 'Быстро и универсально' : 'Fast & versatile', cost: lang === 'ru' ? '1 единица / генерация' : '1 unit / generation' },
+                          { id: 'opus' as const, name: 'Opus 4.8', desc: lang === 'ru' ? 'Мощнее для сложных сайтов' : 'Stronger for complex sites', cost: lang === 'ru' ? '9 единиц / генерация' : '9 units / generation' },
                         ].map(m => (
                           <button key={m.id}
                             onClick={() => { setAiModel(m.id); try { localStorage.setItem('builder_model', m.id); } catch { /* приватный режим */ } setShowModelMenu(false); }}
@@ -1928,6 +1928,7 @@ export default function Builder() {
                             <div>
                               <div className="text-xs font-medium text-foreground">{m.name}</div>
                               <div className="text-[10px] text-muted-foreground">{m.desc}</div>
+                              <div className={`text-[10px] font-semibold mt-0.5 ${m.id === 'opus' ? 'text-amber-600' : 'text-emerald-600'}`}>{m.cost}</div>
                             </div>
                           </button>
                         ))}
