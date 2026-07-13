@@ -155,18 +155,18 @@ export const getFEATURES = (lang: Lang) => lang === 'ru' ? [
 
 export const getCOMPARE = (lang: Lang) => lang === 'ru' ? [
   { label: 'Стоимость', roboweb: 'от 0 ₽', agency: 'от 80 000 ₽', freelancer: 'от 15 000 ₽' },
-  { label: 'Срок', roboweb: '47 секунд', agency: '3–6 недель', freelancer: '1–3 недели' },
-  { label: 'Правки', roboweb: 'Мгновенно', agency: 'Долго и дорого', freelancer: 'По договору' },
-  { label: 'Поддержка', roboweb: '24/7', agency: 'В рабочее время', freelancer: 'Не гарантировано' },
-  { label: 'SEO', roboweb: 'Из коробки', agency: 'Дополнительно', freelancer: 'Редко' },
-  { label: 'Хостинг', roboweb: 'Включён', agency: 'Отдельно', freelancer: 'Отдельно' },
+  { label: 'Срок', roboweb: 'Минуты', agency: '3–6 недель', freelancer: '1–3 недели' },
+  { label: 'Рабочий бэкенд: формы, каталог, корзина', roboweb: 'Из коробки', agency: 'Отдельно, дорого', freelancer: 'Зависит' },
+  { label: 'Код проекта на вынос (Next.js в GitHub)', roboweb: 'Да', agency: 'За доплату', freelancer: 'Редко' },
+  { label: 'Правки', roboweb: 'Мгновенно, в диалоге', agency: 'Долго и дорого', freelancer: 'По договору' },
+  { label: 'Хостинг + SSL', roboweb: 'Включён', agency: 'Отдельно', freelancer: 'Отдельно' },
 ] : [
   { label: 'Cost', roboweb: 'from $0', agency: 'from $1000', freelancer: 'from $200' },
-  { label: 'Timeline', roboweb: '47 seconds', agency: '3–6 weeks', freelancer: '1–3 weeks' },
-  { label: 'Revisions', roboweb: 'Instant', agency: 'Slow & costly', freelancer: 'By contract' },
-  { label: 'Support', roboweb: '24/7', agency: 'Business hours', freelancer: 'Not guaranteed' },
-  { label: 'SEO', roboweb: 'Built-in', agency: 'Extra cost', freelancer: 'Rarely' },
-  { label: 'Hosting', roboweb: 'Included', agency: 'Separate', freelancer: 'Separate' },
+  { label: 'Timeline', roboweb: 'Minutes', agency: '3–6 weeks', freelancer: '1–3 weeks' },
+  { label: 'Real backend: forms, catalog, cart', roboweb: 'Out of the box', agency: 'Extra, costly', freelancer: 'Depends' },
+  { label: 'Own the code (Next.js to GitHub)', roboweb: 'Yes', agency: 'Extra cost', freelancer: 'Rarely' },
+  { label: 'Revisions', roboweb: 'Instant, in chat', agency: 'Slow & costly', freelancer: 'By contract' },
+  { label: 'Hosting + SSL', roboweb: 'Included', agency: 'Separate', freelancer: 'Separate' },
 ];
 
 export const getTRUST = (lang: Lang) => lang === 'ru' ? [
@@ -197,11 +197,11 @@ export const getSTEPS = (lang: Lang) => lang === 'ru' ? [
 // который подгружается асинхронно на главной странице — см. IndexSectionsMiddle.tsx.
 
 export const getPLANS = (lang: Lang) => lang === 'ru' ? [
-  { name: 'Пробный', badge: 'сейчас', price: 'Бесплатно', note: '', tag: '10 запросов разово', features: ['Без подключения домена','Без скачивания кода','Облачный хостинг','До 3 проектов','База данных 128 МБ','Хранилище 512 МБ','5 функций','8 ч вычислений'], cta: 'Начать бесплатно', hot: false },
-  { name: 'Премиум', badge: 'популярный', price: '999 ₽', note: 'в месяц', tag: '40 запросов ежемесячно', features: ['Подключение домена','Бесплатные расширения','Облачный хостинг','До 3 проектов','База данных 128 МБ','Хранилище 512 МБ','5 функций','8 ч вычислений'], cta: 'Выбрать Премиум', hot: true },
+  { name: 'Пробный', badge: 'сейчас', price: 'Бесплатно', note: '', tag: '10 генераций разово', features: ['Фуллстек: формы в базу, каталог','Серверные функции','Публикация по ссылке','До 3 проектов','Облачный хостинг + SSL','Без своего домена','Без экспорта кода'], cta: 'Начать бесплатно', hot: false },
+  { name: 'Премиум', badge: 'популярный', price: '999 ₽', note: 'в месяц', tag: '40 генераций ежемесячно', features: ['Свой домен, без бейджа','Фуллстек-бэкенд: заявки, каталог, корзина, кабинеты','Экспорт кода Next.js + Prisma в GitHub','Публикация в GitHub Pages','Серверные функции и оформление заказа','Приоритетная сборка'], cta: 'Выбрать Премиум', hot: true },
 ] : [
-  { name: 'Free', badge: 'now', price: 'Free', note: '', tag: '10 requests once', features: ['No custom domain','No code download','Cloud hosting','Up to 3 projects','128 MB database','512 MB storage','5 functions','8h compute'], cta: 'Start free', hot: false },
-  { name: 'Premium', badge: 'popular', price: '999 ₽', note: 'per month', tag: '40 requests/month', features: ['Custom domain','Free extensions','Cloud hosting','Up to 3 projects','128 MB database','512 MB storage','5 functions','8h compute'], cta: 'Choose Premium', hot: true },
+  { name: 'Free', badge: 'now', price: 'Free', note: '', tag: '10 generations once', features: ['Fullstack: forms to DB, catalog','Server functions','Publish via link','Up to 3 projects','Cloud hosting + SSL','No custom domain','No code export'], cta: 'Start free', hot: false },
+  { name: 'Premium', badge: 'popular', price: '999 ₽', note: 'per month', tag: '40 generations/month', features: ['Custom domain, no badge','Fullstack backend: leads, catalog, cart, accounts','Export Next.js + Prisma code to GitHub','Publish to GitHub Pages','Server functions & checkout','Priority build'], cta: 'Choose Premium', hot: true },
 ];
 
 export const getFAQ = (lang: Lang) => lang === 'ru' ? [
