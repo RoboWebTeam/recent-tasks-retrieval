@@ -317,7 +317,7 @@ export default function Pricing() {
         {/* Compare with alternatives */}
         <div className="mb-12 sm:mb-16">
           <h2 className="font-display font-black text-xl sm:text-2xl text-center mb-6 sm:mb-8">
-            {isRu ? 'Дешевле любого исполнителя' : 'Cheaper than any freelancer'}
+            {isRu ? 'Рабочий продукт с кодом — дешевле исполнителя' : 'A working product with code — cheaper than a freelancer'}
           </h2>
           <div className="rounded-3xl border border-border bg-card overflow-hidden overflow-x-auto">
             <table className="w-full text-sm min-w-[480px]">
