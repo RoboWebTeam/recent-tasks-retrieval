@@ -16,7 +16,7 @@ import DashboardProfileTab from '@/components/dashboard/DashboardProfileTab';
 import { trackGoal, GOALS } from '@/lib/analytics';
 import { apiUrl } from '@/lib/apiConfig';
 
-const YOOKASSA_URL = apiUrl('yookassa-yookassa');
+const YOOKASSA_URL = apiUrl('yookassa');
 
 const getPlanLabels = (lang: ReturnType<typeof getLang>) => ({
   free:     { label: tr('planFree', lang),    color: 'bg-secondary text-secondary-foreground', requests: '10' },

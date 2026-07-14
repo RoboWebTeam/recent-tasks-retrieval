@@ -22,7 +22,7 @@ const FUNCTION_NAMES = [
   'site-leads',
   'activity-log',
   'support-chat',
-  'yookassa-yookassa',
+  'yookassa',
   'order-status',
   'energy-pricing',
   'export-code',

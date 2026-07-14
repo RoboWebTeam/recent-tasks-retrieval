@@ -9,7 +9,7 @@ import { SiteFooter } from '@/components/SiteFooter';
 import { trackGoal, GOALS } from '@/lib/analytics';
 import { apiUrl } from '@/lib/apiConfig';
 
-const YOOKASSA_URL = apiUrl('yookassa-yookassa');
+const YOOKASSA_URL = apiUrl('yookassa');
 
 const getLangData = (isRu: boolean) => ({
   title: isRu ? 'Тарифы' : 'Pricing',
