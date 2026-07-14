@@ -106,7 +106,7 @@ export default {
 					'50%': { transform: 'translateY(-18px)' }
 				},
 				'glow': {
-					'0%, 100%': { opacity: '0.6' },
+					'0%, 100%': { opacity: '0.9' },
 					'50%': { opacity: '1' }
 				},
 				'blink': {

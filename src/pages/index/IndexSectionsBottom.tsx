@@ -73,7 +73,7 @@ export function IndexSectionsBottom({ lang }: Props) {
                   <ul className="mt-5 space-y-2 flex-1">
                     {p.features.map((f) => (
                       <li key={f} className="flex items-center gap-2.5 text-sm">
-                        <Icon name="Check" size={14} className="text-[hsl(88,60%,40%)] shrink-0" />
+                        <Icon name="Check" size={14} className="text-[hsl(195,46%,40%)] shrink-0" />
                         {f}
                       </li>
                     ))}
@@ -115,13 +115,13 @@ export function IndexSectionsBottom({ lang }: Props) {
                     : ['Priority support', 'All Premium features', 'Cloud hosting']
                   ).map((f) => (
                     <li key={f} className="flex items-center gap-2.5 text-sm">
-                      <Icon name="Check" size={14} className="text-[hsl(88,60%,40%)] shrink-0" />
+                      <Icon name="Check" size={14} className="text-[hsl(195,46%,40%)] shrink-0" />
                       {f}
                     </li>
                   ))}
                   {(PRO_PLAN_DETAILS[selectedPro.plan_code]?.[lang] ?? []).map((f) => (
                     <li key={f} className="flex items-center gap-2.5 text-sm">
-                      <Icon name="Check" size={14} className="text-[hsl(88,60%,40%)] shrink-0" />
+                      <Icon name="Check" size={14} className="text-[hsl(195,46%,40%)] shrink-0" />
                       {f}
                     </li>
                   ))}

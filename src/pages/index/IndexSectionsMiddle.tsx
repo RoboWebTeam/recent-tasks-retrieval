@@ -91,7 +91,7 @@ function PortfolioSection({ lang, portfolio }: { lang: Lang; portfolio: DemoItem
                 onClick={() => handleFilter(cat.id)}
                 className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all duration-200 ${
                   activeFilter === cat.id
-                    ? 'bg-gradient-to-r from-primary to-[hsl(258,90%,62%)] text-white shadow-lg shadow-primary/30 scale-105'
+                    ? 'bg-gradient-to-r from-primary to-[hsl(224,60%,46%)] text-white shadow-lg shadow-primary/30 scale-105'
                     : 'bg-card border border-border text-muted-foreground hover:text-foreground hover:border-primary/40 hover:-translate-y-0.5'
                 }`}
               >
@@ -121,7 +121,7 @@ function PortfolioSection({ lang, portfolio }: { lang: Lang; portfolio: DemoItem
               style={isNew ? { animation: `cardIn 0.4s ease both`, animationDelay: delay } : undefined}
             >
               {/* Цветное свечение под карточкой на ховере — уникальный градиент элемента */}
-              <div className={`pointer-events-none absolute -inset-0.5 -z-10 rounded-[1.1rem] bg-gradient-to-br ${p.color} opacity-0 blur-xl transition-opacity duration-300 group-hover:opacity-30`} />
+              <div className={`pointer-events-none absolute -inset-0.5 -z-10 rounded-[1.1rem] bg-gradient-to-br ${p.color} opacity-0 blur-xl transition-opacity duration-300 group-hover:opacity-15`} />
 
               {/* Скриншот в рамке браузера */}
               <div className="relative overflow-hidden rounded-xl border border-border bg-muted shadow-sm">
@@ -147,7 +147,7 @@ function PortfolioSection({ lang, portfolio }: { lang: Lang; portfolio: DemoItem
                     <p className="text-xs italic leading-relaxed text-white line-clamp-3">«{p.prompt}»</p>
                   </div>
                   <span className="absolute right-2 top-2 flex items-center gap-1 rounded-full bg-black/55 px-2.5 py-1 text-[10px] font-semibold text-white backdrop-blur">
-                    <Icon name="Zap" size={10} className="text-[hsl(88,80%,60%)]" />
+                    <Icon name="Zap" size={10} className="text-[hsl(195,50%,60%)]" />
                     {lang === 'ru' ? 'ИИ за минуты' : 'AI in minutes'}
                   </span>
                 </div>
@@ -241,29 +241,29 @@ export function IndexSectionsMiddle({ lang }: Props) {
           </Reveal>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {(lang === 'ru' ? [
-              { name: "Анна Петрова", role: "Кофейня", avatar: "АП", color: "from-amber-400 to-orange-500", stars: 5, text: "Просила не просто сайт, а онлайн-заказ. Получила рабочий: меню, корзина, оформление, заявки падают прямо в базу и видны в панели. Это не картинка, а точка приёма заказов." },
-              { name: "Дмитрий Козлов", role: "Стартап", avatar: "ДК", color: "from-indigo-500 to-blue-500", stars: 5, text: "За вечер собрали MVP с регистрацией и кабинетами, показали инвесторам, а код на Next.js + Prisma забрали в свой GitHub. Команда продолжила с готового каркаса — сэкономили месяцы старта." },
-              { name: "Марина Соколова", role: "Веб-студия", avatar: "МС", color: "from-violet-500 to-fuchsia-500", stars: 5, text: "Отдаём клиентам рабочие сайты с бэкендом за час и передаём код в их репозиторий. Раньше такой бэкенд занимал недели — теперь берём больше проектов и не заперты в чужой платформе." },
-              { name: "Игорь Новиков", role: "Фитнес-клуб", avatar: "ИН", color: "from-emerald-400 to-teal-500", stars: 5, text: "Нужна была запись на тренировки с кабинетами клиентов. Всё работает: заявки в базе, расписание живое, люди бронируют сами. Администратор перестал вести таблицы вручную." },
-              { name: "Светлана Кравцова", role: "Маркетинг", avatar: "СК", color: "from-rose-500 to-pink-500", stars: 5, text: "Раньше лендинг был просто витриной. Теперь формы пишут лиды в базу и уходят в CRM, ничего не теряется, всё видно в панели. Тестирую по несколько оферов в день без разработчика." },
-              { name: "Алексей Громов", role: "Барбершоп", avatar: "АГ", color: "from-cyan-400 to-sky-500", stars: 5, text: "Хотел онлайн-запись, а не визитку. Получил сайт, где клиент выбирает мастера и время, и запись падает в базу. Все заявки в одном месте — блокнот больше не нужен." },
-              { name: "Юлия Волкова", role: "Флорист", avatar: "ЮВ", color: "from-pink-400 to-rose-500", stars: 5, text: "Собрала магазин с каталогом букетов, корзиной и оформлением заказа. Букеты продаются онлайн по-настоящему, а не через директ — заказы приходят с адресом и составом прямо в панель." },
-              { name: "Роман Ефимов", role: "Автомойка", avatar: "РЕ", color: "from-blue-500 to-slate-700", stars: 5, text: "В сайтах не разбираюсь, но описал по-русски, что нужно — и получил рабочую онлайн-запись с выбором времени и сохранением в базу. Не макет на согласование, а инструмент, который приносит заявки." },
-              { name: "Ксения Орлова", role: "HR", avatar: "КО", color: "from-teal-500 to-emerald-600", stars: 5, text: "Собрала карьерный сайт с формой отклика в базу и кабинетом для просмотра заявок. Анкеты кандидатов не теряются, вижу их в панели — рекрутинг перестал жить в почте. Сделали за день без разработчика." },
-              { name: "Павел Соловьёв", role: "IT-школа", avatar: "ПС", color: "from-violet-600 to-indigo-800", stars: 5, text: "Как разработчик оценил главное: получил каркас на Next.js + Prisma с аккаунтами и оплатой курсов за минуту, забрал в GitHub и допилил под свою логику. Сэкономил дни рутины на старте." },
-              { name: "Наталья Волошина", role: "Отель", avatar: "НВ", color: "from-amber-600 to-emerald-800", stars: 5, text: "Сайт с бронированием и кабинетом гостя работает: заявки на номера падают в базу с датами, подтверждаем в пару кликов. Видим загрузку и не путаемся в бронях — работает, а не просто красиво." }
+              { name: "Анна Петрова", role: "Кофейня", avatar: "АП", color: "from-slate-500 to-slate-700", stars: 5, text: "Просила не просто сайт, а онлайн-заказ. Получила рабочий: меню, корзина, оформление, заявки падают прямо в базу и видны в панели. Это не картинка, а точка приёма заказов." },
+              { name: "Дмитрий Козлов", role: "Стартап", avatar: "ДК", color: "from-slate-500 to-slate-700", stars: 5, text: "За вечер собрали MVP с регистрацией и кабинетами, показали инвесторам, а код на Next.js + Prisma забрали в свой GitHub. Команда продолжила с готового каркаса — сэкономили месяцы старта." },
+              { name: "Марина Соколова", role: "Веб-студия", avatar: "МС", color: "from-slate-500 to-slate-700", stars: 5, text: "Отдаём клиентам рабочие сайты с бэкендом за час и передаём код в их репозиторий. Раньше такой бэкенд занимал недели — теперь берём больше проектов и не заперты в чужой платформе." },
+              { name: "Игорь Новиков", role: "Фитнес-клуб", avatar: "ИН", color: "from-slate-500 to-slate-700", stars: 5, text: "Нужна была запись на тренировки с кабинетами клиентов. Всё работает: заявки в базе, расписание живое, люди бронируют сами. Администратор перестал вести таблицы вручную." },
+              { name: "Светлана Кравцова", role: "Маркетинг", avatar: "СК", color: "from-slate-500 to-slate-700", stars: 5, text: "Раньше лендинг был просто витриной. Теперь формы пишут лиды в базу и уходят в CRM, ничего не теряется, всё видно в панели. Тестирую по несколько оферов в день без разработчика." },
+              { name: "Алексей Громов", role: "Барбершоп", avatar: "АГ", color: "from-slate-500 to-slate-700", stars: 5, text: "Хотел онлайн-запись, а не визитку. Получил сайт, где клиент выбирает мастера и время, и запись падает в базу. Все заявки в одном месте — блокнот больше не нужен." },
+              { name: "Юлия Волкова", role: "Флорист", avatar: "ЮВ", color: "from-slate-500 to-slate-700", stars: 5, text: "Собрала магазин с каталогом букетов, корзиной и оформлением заказа. Букеты продаются онлайн по-настоящему, а не через директ — заказы приходят с адресом и составом прямо в панель." },
+              { name: "Роман Ефимов", role: "Автомойка", avatar: "РЕ", color: "from-slate-500 to-slate-700", stars: 5, text: "В сайтах не разбираюсь, но описал по-русски, что нужно — и получил рабочую онлайн-запись с выбором времени и сохранением в базу. Не макет на согласование, а инструмент, который приносит заявки." },
+              { name: "Ксения Орлова", role: "HR", avatar: "КО", color: "from-slate-500 to-slate-700", stars: 5, text: "Собрала карьерный сайт с формой отклика в базу и кабинетом для просмотра заявок. Анкеты кандидатов не теряются, вижу их в панели — рекрутинг перестал жить в почте. Сделали за день без разработчика." },
+              { name: "Павел Соловьёв", role: "IT-школа", avatar: "ПС", color: "from-slate-500 to-slate-700", stars: 5, text: "Как разработчик оценил главное: получил каркас на Next.js + Prisma с аккаунтами и оплатой курсов за минуту, забрал в GitHub и допилил под свою логику. Сэкономил дни рутины на старте." },
+              { name: "Наталья Волошина", role: "Отель", avatar: "НВ", color: "from-slate-500 to-slate-700", stars: 5, text: "Сайт с бронированием и кабинетом гостя работает: заявки на номера падают в базу с датами, подтверждаем в пару кликов. Видим загрузку и не путаемся в бронях — работает, а не просто красиво." }
             ] : [
-              { name: "Anna P.", role: "Coffee shop", avatar: "AP", color: "from-amber-400 to-orange-500", stars: 5, text: "I asked for more than a page — online ordering. Got a working one: menu, cart, checkout, leads landing right in the database and shown in a dashboard. Not a picture, an order desk." },
-              { name: "David K.", role: "Startup", avatar: "DK", color: "from-indigo-500 to-blue-500", stars: 5, text: "In an evening we built an MVP with sign-up and accounts, showed investors, then pulled the Next.js + Prisma code into our GitHub. The team continued from a ready scaffold — saved months of setup." },
-              { name: "Marina S.", role: "Web studio", avatar: "MS", color: "from-violet-500 to-fuchsia-500", stars: 5, text: "We ship clients working sites with a backend in an hour and hand the code to their repo. A backend like this used to take weeks — now we take on more projects and aren't locked into anyone's platform." },
-              { name: "Igor N.", role: "Fitness club", avatar: "IN", color: "from-emerald-400 to-teal-500", stars: 5, text: "We needed class booking with member accounts. It all works: leads in the database, a live schedule, people book themselves. The admin stopped keeping manual spreadsheets." },
-              { name: "Svetlana K.", role: "Marketing", avatar: "SK", color: "from-rose-500 to-pink-500", stars: 5, text: "Our landing used to be just a showcase. Now forms write leads to a database and push to CRM, nothing gets lost, all visible in one panel. I test several offers a day without a developer." },
-              { name: "Alex G.", role: "Barbershop", avatar: "AG", color: "from-cyan-400 to-sky-500", stars: 5, text: "I wanted online booking, not a business card. Got a site where the client picks a barber and time, and the booking saves to a database. Every request in one place — no more notebook." },
-              { name: "Julia V.", role: "Florist", avatar: "JV", color: "from-pink-400 to-rose-500", stars: 5, text: "Built a store with a bouquet catalog, cart and checkout. Bouquets sell online for real, not via DMs — orders arrive with the address and contents right in the panel." },
-              { name: "Roman E.", role: "Car wash", avatar: "RE", color: "from-blue-500 to-slate-700", stars: 5, text: "I know nothing about websites, but I described what I needed in plain words — and got working online booking with time slots saved to a database. Not a mockup to approve, a tool that brings in leads." },
-              { name: "Kate O.", role: "HR", avatar: "KO", color: "from-teal-500 to-emerald-600", stars: 5, text: "I built a careers site with an application form saving to a database and a dashboard to review responses. Candidate entries never get lost, I see them in the panel — recruiting left the inbox. Built in a day without a developer." },
-              { name: "Paul S.", role: "IT school", avatar: "PS", color: "from-violet-600 to-indigo-800", stars: 5, text: "As a developer I valued the main thing: a ready Next.js + Prisma scaffold with accounts and course payments in a minute, exported to GitHub and finished to my own logic. Saved days of boilerplate at the start." },
-              { name: "Natalie V.", role: "Hotel", avatar: "NV", color: "from-amber-600 to-emerald-800", stars: 5, text: "A site with booking and a guest account works: room requests land in a database with dates and we confirm in a couple of clicks. We see occupancy and never mix up reservations — it works, not just looks good." }
+              { name: "Anna P.", role: "Coffee shop", avatar: "AP", color: "from-slate-500 to-slate-700", stars: 5, text: "I asked for more than a page — online ordering. Got a working one: menu, cart, checkout, leads landing right in the database and shown in a dashboard. Not a picture, an order desk." },
+              { name: "David K.", role: "Startup", avatar: "DK", color: "from-slate-500 to-slate-700", stars: 5, text: "In an evening we built an MVP with sign-up and accounts, showed investors, then pulled the Next.js + Prisma code into our GitHub. The team continued from a ready scaffold — saved months of setup." },
+              { name: "Marina S.", role: "Web studio", avatar: "MS", color: "from-slate-500 to-slate-700", stars: 5, text: "We ship clients working sites with a backend in an hour and hand the code to their repo. A backend like this used to take weeks — now we take on more projects and aren't locked into anyone's platform." },
+              { name: "Igor N.", role: "Fitness club", avatar: "IN", color: "from-slate-500 to-slate-700", stars: 5, text: "We needed class booking with member accounts. It all works: leads in the database, a live schedule, people book themselves. The admin stopped keeping manual spreadsheets." },
+              { name: "Svetlana K.", role: "Marketing", avatar: "SK", color: "from-slate-500 to-slate-700", stars: 5, text: "Our landing used to be just a showcase. Now forms write leads to a database and push to CRM, nothing gets lost, all visible in one panel. I test several offers a day without a developer." },
+              { name: "Alex G.", role: "Barbershop", avatar: "AG", color: "from-slate-500 to-slate-700", stars: 5, text: "I wanted online booking, not a business card. Got a site where the client picks a barber and time, and the booking saves to a database. Every request in one place — no more notebook." },
+              { name: "Julia V.", role: "Florist", avatar: "JV", color: "from-slate-500 to-slate-700", stars: 5, text: "Built a store with a bouquet catalog, cart and checkout. Bouquets sell online for real, not via DMs — orders arrive with the address and contents right in the panel." },
+              { name: "Roman E.", role: "Car wash", avatar: "RE", color: "from-slate-500 to-slate-700", stars: 5, text: "I know nothing about websites, but I described what I needed in plain words — and got working online booking with time slots saved to a database. Not a mockup to approve, a tool that brings in leads." },
+              { name: "Kate O.", role: "HR", avatar: "KO", color: "from-slate-500 to-slate-700", stars: 5, text: "I built a careers site with an application form saving to a database and a dashboard to review responses. Candidate entries never get lost, I see them in the panel — recruiting left the inbox. Built in a day without a developer." },
+              { name: "Paul S.", role: "IT school", avatar: "PS", color: "from-slate-500 to-slate-700", stars: 5, text: "As a developer I valued the main thing: a ready Next.js + Prisma scaffold with accounts and course payments in a minute, exported to GitHub and finished to my own logic. Saved days of boilerplate at the start." },
+              { name: "Natalie V.", role: "Hotel", avatar: "NV", color: "from-slate-500 to-slate-700", stars: 5, text: "A site with booking and a guest account works: room requests land in a database with dates and we confirm in a couple of clicks. We see occupancy and never mix up reservations — it works, not just looks good." }
             ]).map((r, i) => (
               <Reveal key={r.name} delay={i * 70}>
                 <div className="h-full rounded-2xl md:rounded-3xl bg-card border border-border p-5 md:p-6 flex flex-col gap-4 hover:shadow-lg transition-shadow duration-300">
@@ -301,7 +301,7 @@ export function IndexSectionsMiddle({ lang }: Props) {
       </section>
 
       {/* CTA 2 */}
-      <section className="py-16 md:py-20 bg-gradient-to-r from-primary to-[hsl(250,90%,60%)]">
+      <section className="py-16 md:py-20 bg-gradient-to-r from-primary to-[hsl(224,60%,44%)]">
         <Reveal>
           <div className="container text-center text-white">
             <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-1.5 text-sm font-medium mb-5">
