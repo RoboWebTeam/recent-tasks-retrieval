@@ -306,6 +306,12 @@ export default function Pricing() {
           </div>
         </div>
 
+        <p className="text-center text-xs sm:text-sm text-muted-foreground max-w-2xl mx-auto mb-10">
+          {isRu
+            ? 'Одна генерация на Sonnet 5 списывает 1 единицу тарифа, на Opus 4.8 — 9 (модель мощнее для сложных задач). Указанные числа — это генерации на Sonnet 5.'
+            : 'One generation on Sonnet 5 uses 1 plan unit; on Opus 4.8 — 9 (a stronger model for complex tasks). The numbers shown are Sonnet 5 generations.'}
+        </p>
+
         {payError && (
           <div className="flex items-center gap-2 bg-destructive/10 text-destructive rounded-2xl px-4 py-3 mb-8 text-sm max-w-lg mx-auto">
             <Icon name="AlertCircle" size={15} className="shrink-0" />

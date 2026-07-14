@@ -17,6 +17,7 @@ from _shared.rw_markup import (  # noqa: E402
     _valid_db_identifier, extract_schema_block, strip_injected_runtime,
     derive_schema_from_html, merge_schema, extract_fn_blocks,
 )
+from _shared.plans import PLAN_LIMITS  # noqa: E402  # единый источник лимитов тарифов
 
 
 def log(msg: str):
@@ -373,15 +374,7 @@ def get_user_id(session_id: str, schema: str):
     finally:
         conn.close()
 
-# Месячные лимиты единиц по тарифам. Калибровка: net-выручка за единицу (цена×0,965/лимит)
-# держится ≥30₽ — выше себестоимости худшего случая (Sonnet-normal 24₽/ед с включённым кэшем),
-# поэтому тариф прибылен даже при 100% выборке лимита и на любой модели (Opus списывает больше
-# единиц по MODEL_UNIT_COST). ВАЖНО: значения обязаны совпадать с requests в plan_pricing (для
-# pro-*) и с ценником на фронте — иначе юзер получит не тот лимит при сбросе квоты.
-PLAN_LIMITS = {
-    'free': 10, 'premium': 30,
-    'pro_60': 60, 'pro_80': 80, 'pro_200': 160, 'pro_400': 320, 'pro_800': 660,
-}
+# PLAN_LIMITS импортирован из _shared.plans (единый источник для generate-site/auth/webhook).
 
 # Матрица списания единиц по (модель, размер задачи). Откалибрована так, чтобы реальная
 # себестоимость ОДНОЙ единицы была примерно одинаковой (~23–24₽) независимо от модели:

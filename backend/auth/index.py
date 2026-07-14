@@ -1,4 +1,5 @@
 import os
+import sys
 import json
 import uuid
 import secrets
@@ -15,13 +16,15 @@ def new_session_id() -> str:
 
 SCHEMA = None
 
-# Месячные лимиты единиц по тарифам. ДОЛЖНЫ совпадать с PLAN_LIMITS в generate-site и
-# yookassa-webhook и с requests в таблице plan_pricing (иначе после оплаты/сброса выдаётся не тот
-# лимит). Актуальная калибровка: premium 30, pro 60/80/160/320/660.
-PLAN_LIMITS = {
-    'free': 10, 'premium': 30,
-    'pro_60': 60, 'pro_80': 80, 'pro_200': 160, 'pro_400': 320, 'pro_800': 660,
-}
+# Лимиты тарифов — единый источник в backend/_shared/plans.py (общий с generate-site и webhook,
+# чтобы значения не расходились). Путь до backend/ ищем «вверх» до папки с _shared (работает на
+# любой вложенности функции); server.py кладёт в путь только саму папку функции.
+_bd = os.path.dirname(os.path.abspath(__file__))
+while _bd != os.path.dirname(_bd) and not os.path.isdir(os.path.join(_bd, '_shared')):
+    _bd = os.path.dirname(_bd)
+if _bd not in sys.path:
+    sys.path.insert(0, _bd)
+from _shared.plans import PLAN_LIMITS  # noqa: E402
 
 # Стартовый бонус энергии для новых пользователей — чтобы можно было протестировать
 # AI-редактор чуть дольше, чем базовый лимит тарифа Free

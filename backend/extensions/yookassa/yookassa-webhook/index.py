@@ -1,6 +1,7 @@
 """YooKassa webhook handler for payment notifications."""
 import json
 import os
+import sys
 import base64
 import smtplib
 from datetime import datetime
@@ -21,14 +22,15 @@ HEADERS = {
 
 YOOKASSA_API_URL = "https://api.yookassa.ru/v3/payments"
 
-# Лимит AI-запросов по тарифу (месячная квота)
-# Месячные лимиты единиц по тарифам. КРИТИЧНО: используются при выставлении requests_limit
-# ПОСЛЕ ОПЛАТЫ — должны совпадать с PLAN_LIMITS в generate-site/auth и с requests в plan_pricing.
-# Актуальная калибровка: premium 30, pro 60/80/160/320/660.
-PLAN_LIMITS = {
-    'free': 10, 'premium': 30,
-    'pro_60': 60, 'pro_80': 80, 'pro_200': 160, 'pro_400': 320, 'pro_800': 660,
-}
+# Лимиты тарифов — единый источник backend/_shared/plans.py (общий с generate-site и auth).
+# КРИТИЧНО: используются при выставлении requests_limit ПОСЛЕ ОПЛАТЫ. Путь до backend/ ищем
+# «вверх» до папки с _shared (функция лежит глубоко: extensions/yookassa/yookassa-webhook).
+_bd = os.path.dirname(os.path.abspath(__file__))
+while _bd != os.path.dirname(_bd) and not os.path.isdir(os.path.join(_bd, '_shared')):
+    _bd = os.path.dirname(_bd)
+if _bd not in sys.path:
+    sys.path.insert(0, _bd)
+from _shared.plans import PLAN_LIMITS  # noqa: E402
 
 # Подробности возможностей тарифа для письма пользователю
 PLAN_NAMES = {

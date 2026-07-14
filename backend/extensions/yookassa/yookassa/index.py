@@ -58,6 +58,39 @@ def get_schema() -> str:
     return f"{schema}." if schema else ""
 
 
+# Цена Премиума фиксирована на сервере (в plan_pricing только pro-*). Держать в синхроне
+# с Pricing.tsx (handleSelectPlan('premium', 990)).
+PREMIUM_PRICE = 990.0
+PRO_CODES = ('pro_60', 'pro_80', 'pro_200', 'pro_400', 'pro_800')
+
+
+def resolve_server_amount(cur, sp: str, order_type: str, plan: str, energy_amount):
+    """Авторитетная сумма заказа — СО СТОРОНЫ СЕРВЕРА, а не от клиента. Иначе можно оплатить тариф
+    или энергию за 1₽ (сумма приходила из тела запроса и не сверялась с ценой). Возвращает
+    (amount: float, energy_amount: int|None) либо None, если заказ некорректен (неизвестный
+    план/пакет). Для энергии пакет опознаём по количеству единиц (energy_amount) в energy_pricing."""
+    if order_type == 'energy':
+        try:
+            ea = int(energy_amount)
+        except (TypeError, ValueError):
+            return None
+        cur.execute(f"SELECT price FROM {sp}energy_pricing WHERE requests = %s", (ea,))
+        row = cur.fetchone()
+        if not row:
+            return None
+        return float(row[0]), ea
+    # Покупка тарифа
+    if plan == 'premium':
+        return PREMIUM_PRICE, None
+    if plan in PRO_CODES:
+        cur.execute(f"SELECT price FROM {sp}plan_pricing WHERE plan_code = %s", (plan,))
+        row = cur.fetchone()
+        if not row:
+            return None
+        return float(row[0]), None
+    return None  # неизвестный план / нельзя купить (например free)
+
+
 # =============================================================================
 # YOOKASSA API
 # =============================================================================
@@ -225,6 +258,20 @@ def handler(event, context):
     try:
         cur = conn.cursor()
         now = datetime.utcnow().isoformat()
+
+        # СЕРВЕРНАЯ СВЕРКА СУММЫ: сумму и объём берём авторитетно из БД, а НЕ из тела запроса,
+        # иначе клиент мог оплатить тариф/энергию за 1₽. Клиентские amount/energy_amount/cart_items
+        # игнорируем. Некорректный заказ (неизвестный тариф/пакет) — отклоняем.
+        resolved = resolve_server_amount(cur, S, order_type, plan, energy_amount)
+        if resolved is None:
+            return {
+                'statusCode': 400,
+                'headers': HEADERS,
+                'body': json.dumps({'error': 'Некорректный заказ: неизвестный тариф или пакет энергии'})
+            }
+        amount, energy_amount = resolved
+        # Чек (54-ФЗ) обязан совпадать с суммой платежа — пересобираем позиции по авторитетной сумме.
+        cart_items = [{'id': '1', 'name': (description or 'Оплата')[:120], 'price': amount, 'quantity': 1}]
 
         # Generate order number
         order_number = f"YK-{datetime.now().strftime('%Y%m%d')}-{uuid.uuid4().hex[:8].upper()}"
