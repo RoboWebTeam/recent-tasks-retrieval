@@ -22,9 +22,12 @@ HEADERS = {
 YOOKASSA_API_URL = "https://api.yookassa.ru/v3/payments"
 
 # Лимит AI-запросов по тарифу (месячная квота)
+# Месячные лимиты единиц по тарифам. КРИТИЧНО: используются при выставлении requests_limit
+# ПОСЛЕ ОПЛАТЫ — должны совпадать с PLAN_LIMITS в generate-site/auth и с requests в plan_pricing.
+# Актуальная калибровка: premium 30, pro 60/80/160/320/660.
 PLAN_LIMITS = {
-    'free': 10, 'premium': 40,
-    'pro_60': 60, 'pro_80': 80, 'pro_200': 200, 'pro_400': 400, 'pro_800': 800,
+    'free': 10, 'premium': 30,
+    'pro_60': 60, 'pro_80': 80, 'pro_200': 160, 'pro_400': 320, 'pro_800': 660,
 }
 
 # Подробности возможностей тарифа для письма пользователю

@@ -20,12 +20,12 @@ const YOOKASSA_URL = apiUrl('yookassa-yookassa');
 
 const getPlanLabels = (lang: ReturnType<typeof getLang>) => ({
   free:     { label: tr('planFree', lang),    color: 'bg-secondary text-secondary-foreground', requests: '10' },
-  premium:  { label: tr('planPremium', lang), color: 'bg-primary text-primary-foreground',     requests: '40' },
+  premium:  { label: tr('planPremium', lang), color: 'bg-primary text-primary-foreground',     requests: '30' },
   pro_60:   { label: tr('planPro', lang),     color: 'bg-foreground text-background',           requests: '60' },
   pro_80:   { label: tr('planPro', lang),     color: 'bg-foreground text-background',           requests: '80' },
-  pro_200:  { label: tr('planPro', lang),     color: 'bg-foreground text-background',           requests: '200' },
-  pro_400:  { label: tr('planPro', lang),     color: 'bg-foreground text-background',           requests: '400' },
-  pro_800:  { label: tr('planPro', lang),     color: 'bg-foreground text-background',           requests: '800' },
+  pro_200:  { label: tr('planPro', lang),     color: 'bg-foreground text-background',           requests: '160' },
+  pro_400:  { label: tr('planPro', lang),     color: 'bg-foreground text-background',           requests: '320' },
+  pro_800:  { label: tr('planPro', lang),     color: 'bg-foreground text-background',           requests: '660' },
 });
 
 const getStatusConfig = (lang: ReturnType<typeof getLang>) => ({
