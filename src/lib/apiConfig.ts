@@ -26,6 +26,7 @@ const FUNCTION_NAMES = [
   'order-status',
   'energy-pricing',
   'export-code',
+  'admin-metrics',
 ] as const;
 
 export type FunctionName = typeof FUNCTION_NAMES[number];

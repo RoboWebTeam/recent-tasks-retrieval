@@ -10,6 +10,7 @@ import {
 import { AdminAnalytics } from './admin/AdminAnalytics';
 import { SiteLeadsTab, LeadsTab, UsersTab, LogTab, NotificationsTab } from './admin/AdminTables';
 import { AdminPricingTab } from './admin/AdminPricingTab';
+import { AdminMetricsTab } from './admin/AdminMetricsTab';
 import { AdminSupportChatTab } from './admin/AdminSupportChatTab';
 import { SUPPORT_CHAT_URL } from './admin/adminTypes';
 
@@ -32,7 +33,7 @@ const Admin = () => {
   const [error, setError] = useState('');
   const [search, setSearch] = useState('');
   const [authed, setAuthed] = useState(false);
-  const [tab, setTab] = useState<'analytics' | 'site-leads' | 'leads' | 'users' | 'log' | 'notifications' | 'pricing' | 'chat'>('analytics');
+  const [tab, setTab] = useState<'analytics' | 'metrics' | 'site-leads' | 'leads' | 'users' | 'log' | 'notifications' | 'pricing' | 'chat'>('analytics');
   const [chatUnread, setChatUnread] = useState(0);
   const [actionLoading, setActionLoading] = useState<number | null>(null);
   const [confirmDelete, setConfirmDelete] = useState<number | null>(null);
@@ -316,6 +317,7 @@ const Admin = () => {
         <div className="flex gap-2 mb-5 overflow-x-auto pb-1">
           {([
             ['analytics',     'Аналитика',    'BarChart2',  null],
+            ['metrics',       'Экономика',    'TrendingUp', null],
             ['chat',          'Чат',          'MessageCircle', chatUnread],
             ['site-leads',    'Заявки',        'Inbox',      newSiteLeads],
             ['leads',         'Email-лиды',    'Mail',       leads?.length ?? null],
@@ -344,6 +346,9 @@ const Admin = () => {
             setAnalyticsPeriod={setAnalyticsPeriod}
             siteLeadCounts={siteLeadCounts}
           />
+        )}
+        {tab === 'metrics' && (
+          <AdminMetricsTab adminKey={key} />
         )}
         {tab === 'chat' && (
           <AdminSupportChatTab adminKey={key} />

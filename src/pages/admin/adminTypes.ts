@@ -8,6 +8,7 @@ export const ACTIVITY_LOG_URL = apiUrl('activity-log');
 export const PLAN_PRICING_URL = apiUrl('plan-pricing');
 export const SUPPORT_CHAT_URL = apiUrl('support-chat');
 export const ENERGY_PRICING_URL = apiUrl('energy-pricing');
+export const ADMIN_METRICS_URL = apiUrl('admin-metrics');
 
 export function unwrap(raw: Record<string, unknown>): Record<string, unknown> {
   if (raw.body !== undefined) {
