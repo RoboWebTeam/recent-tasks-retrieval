@@ -58,7 +58,7 @@ export default function DomainListItem({
         onClick={() => { setSelected(isOpen ? null : d); setDnsResult(null); }}
         className="w-full flex items-center gap-3 p-4 text-left hover:bg-secondary/40 transition-colors"
       >
-        <div className={`grid h-10 w-10 place-items-center rounded-xl shrink-0 ${d.status === 'active' ? 'bg-emerald-100 text-emerald-600' : 'bg-amber-100 text-amber-600'}`}>
+        <div className={`grid h-10 w-10 place-items-center rounded-xl shrink-0 ${d.status === 'active' ? 'bg-emerald-500/15 text-emerald-300' : 'bg-amber-500/15 text-amber-300'}`}>
           <Icon name={d.status === 'active' ? 'CheckCircle' : 'Clock'} size={18} />
         </div>
         <div className="min-w-0 flex-1">
@@ -167,7 +167,7 @@ export default function DomainListItem({
           {/* SSL status */}
           {d.status === 'active' && (
             <div className="flex items-center gap-3 bg-secondary/50 rounded-xl p-3">
-              <div className="grid h-8 w-8 place-items-center rounded-lg bg-emerald-100 text-emerald-600 shrink-0">
+              <div className="grid h-8 w-8 place-items-center rounded-lg bg-emerald-500/15 text-emerald-300 shrink-0">
                 <Icon name="Lock" size={14} />
               </div>
               <div className="text-xs">

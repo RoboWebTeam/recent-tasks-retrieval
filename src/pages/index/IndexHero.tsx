@@ -178,7 +178,7 @@ export function IndexHero({ lang, typedText, chatStep, isTyping, progress, chatS
         <span className="text-xs font-semibold">{lang === 'ru' ? '47 секунд' : '47 seconds'}</span>
       </div>
       <div className="absolute top-52 right-4 hidden 2xl:flex items-center gap-2 rounded-2xl glass px-4 py-2.5 shadow-lg animate-float" style={{animationDelay:'1s'}}>
-        <Icon name="TrendingUp" size={16} className="text-[hsl(195,46%,40%)]" />
+        <Icon name="TrendingUp" size={16} className="text-accent" />
         <span className="text-xs font-semibold">+212% {lang === 'ru' ? 'конверсия' : 'conversion'}</span>
       </div>
       <div className="absolute bottom-36 left-4 hidden 2xl:flex items-center gap-2 rounded-2xl glass px-4 py-2.5 shadow-lg animate-float" style={{animationDelay:'1.8s'}}>
@@ -227,78 +227,16 @@ export function IndexHero({ lang, typedText, chatStep, isTyping, progress, chatS
           </div>
         </div>
 
-        {/* Robot + chat */}
+        {/* Live chat mockup */}
         <div className="relative animate-scale-in max-w-md mx-auto w-full">
           <div className="absolute inset-0 -z-10 rounded-[2.5rem] bg-gradient-to-tr from-primary/10 to-accent/20 blur-2xl" />
 
-          {/* Animated Robot SVG */}
-          <div className="robo-bob-wrap mx-auto w-44 sm:w-52 md:w-60 flex items-center justify-center">
-            <svg viewBox="0 0 256 256" fill="none" xmlns="http://www.w3.org/2000/svg" className="w-full h-full robo-bob drop-shadow-2xl">
-              <defs>
-                <linearGradient id="bodyGrad" x1="72" y1="72" x2="184" y2="192" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stopColor="hsl(226,45%,90%)"/>
-                  <stop offset="100%" stopColor="hsl(226,58%,48%)" stopOpacity="0"/>
-                </linearGradient>
-                <linearGradient id="screenGrad" x1="86" y1="88" x2="170" y2="160" gradientUnits="userSpaceOnUse">
-                  <stop offset="0%" stopColor="hsl(226,58%,48%)"/>
-                  <stop offset="100%" stopColor="hsl(195,46%,50%)"/>
-                </linearGradient>
-                <clipPath id="bodyClip">
-                  <rect x="72" y="72" width="112" height="120" rx="28"/>
-                </clipPath>
-              </defs>
-              <circle cx="128" cy="160" r="70" fill="hsl(226,58%,48%)" opacity="0.10"/>
-              <circle cx="128" cy="155" r="54" fill="hsl(226,58%,48%)" opacity="0.07"/>
-              <g className="antenna-sway">
-                <line x1="128" y1="72" x2="128" y2="52" stroke="hsl(226,58%,48%)" strokeWidth="3.5" strokeLinecap="round"/>
-                <circle cx="128" cy="46" r="7" fill="hsl(226,58%,48%)" opacity="0.9"/>
-                <circle cx="128" cy="46" r="4" fill="white"/>
-                <circle cx="128" cy="46" r="5" fill="hsl(226,58%,48%)">
-                  <animate attributeName="opacity" values="0.4;1;0.4" dur="1.4s" repeatCount="indefinite"/>
-                </circle>
-              </g>
-              <rect x="72" y="72" width="112" height="120" rx="28" fill="white" stroke="hsl(220,18%,88%)" strokeWidth="1.5"/>
-              <rect x="72" y="72" width="112" height="120" rx="28" fill="url(#bodyGrad)" opacity="0.5"/>
-              <rect x="72" y="72" width="112" height="4" fill="hsl(226,58%,48%)" opacity="0.25" clipPath="url(#bodyClip)" className="robo-scan"/>
-              <rect x="86" y="88" width="84" height="72" rx="16" fill="hsl(224,47%,9%)" opacity="0.94"/>
-              <rect x="86" y="88" width="84" height="72" rx="16" fill="url(#screenGrad)" opacity="0.3"/>
-              <g className="eye-l">
-                <rect x="96" y="108" width="22" height="22" rx="7" fill="hsl(226,58%,48%)"/>
-                <circle cx="107" cy="119" r="6" fill="white"/>
-                <circle cx="109" cy="117" r="2.5" fill="hsl(224,47%,9%)"/>
-                <circle cx="111" cy="116" r="1.2" fill="white" opacity="0.9"/>
-              </g>
-              <g className="eye-r">
-                <rect x="138" y="108" width="22" height="22" rx="7" fill="hsl(226,58%,48%)"/>
-                <circle cx="149" cy="119" r="6" fill="white"/>
-                <circle cx="151" cy="117" r="2.5" fill="hsl(224,47%,9%)"/>
-                <circle cx="153" cy="116" r="1.2" fill="white" opacity="0.9"/>
-              </g>
-              <path d="M 108 140 Q 128 152 148 140" stroke="hsl(195,46%,50%)" strokeWidth="3" strokeLinecap="round" fill="none"/>
-              <g opacity="0.6">
-                <path d="M 90 148 L 106 148 L 106 160 L 118 160" stroke="hsl(226,58%,48%)" strokeWidth="1.5" strokeLinecap="round" fill="none" className="circuit-1"/>
-                <path d="M 166 148 L 150 148 L 150 160 L 138 160" stroke="hsl(195,46%,50%)" strokeWidth="1.5" strokeLinecap="round" fill="none" className="circuit-2"/>
-                <path d="M 110 178 L 128 178 L 128 172 L 146 172" stroke="hsl(226,58%,48%)" strokeWidth="1.5" strokeLinecap="round" fill="none" className="circuit-3"/>
-              </g>
-              <circle cx="128" cy="178" r="6" fill="hsl(195,46%,50%)" opacity="0.9">
-                <animate attributeName="opacity" values="0.4;1;0.4" dur="1.8s" repeatCount="indefinite"/>
-              </circle>
-              <circle cx="128" cy="178" r="3" fill="white" opacity="0.8"/>
-              <rect x="48" y="96" width="26" height="56" rx="13" fill="white" stroke="hsl(220,18%,88%)" strokeWidth="1.5"/>
-              <rect x="182" y="96" width="26" height="56" rx="13" fill="white" stroke="hsl(220,18%,88%)" strokeWidth="1.5"/>
-              <rect x="94" y="188" width="26" height="36" rx="13" fill="white" stroke="hsl(220,18%,88%)" strokeWidth="1.5"/>
-              <rect x="136" y="188" width="26" height="36" rx="13" fill="white" stroke="hsl(220,18%,88%)" strokeWidth="1.5"/>
-              <ellipse cx="107" cy="226" rx="16" ry="7" fill="hsl(226,58%,48%)" opacity="0.15"/>
-              <ellipse cx="149" cy="226" rx="16" ry="7" fill="hsl(226,58%,48%)" opacity="0.15"/>
-            </svg>
-          </div>
-
-          <div className="glow-frame glass rounded-3xl p-4 sm:p-5 shadow-2xl mt-[-1.5rem] mx-2 sm:mx-0 flex flex-col" style={{ height: '380px' }}>
+          <div className="glow-frame glass rounded-3xl p-4 sm:p-5 shadow-2xl mx-2 sm:mx-0 flex flex-col" style={{ height: '460px' }}>
             {/* Header */}
             <div className="flex items-center gap-2 pb-3 border-b border-border/60">
               <span className="relative grid h-6 w-6 sm:h-7 sm:w-7 place-items-center rounded-lg bg-primary text-primary-foreground shrink-0">
                 <Icon name="Bot" size={14} />
-                <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-[hsl(195,46%,45%)] border-2 border-background" />
+                <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-accent border-2 border-background" />
               </span>
               <span className="font-display font-bold text-xs sm:text-sm">{L.chat.online[lang]}</span>
               <span className="ml-auto flex items-center gap-1.5 text-xs text-muted-foreground whitespace-nowrap">
@@ -312,7 +250,7 @@ export function IndexHero({ lang, typedText, chatStep, isTyping, progress, chatS
                     <span>{L.chat.typing[lang]}</span>
                   </>
                 ) : (
-                  <><span className="h-2 w-2 rounded-full bg-[hsl(195,46%,45%)] animate-glow shrink-0" /> {L.chat.online2[lang]}</>
+                  <><span className="h-2 w-2 rounded-full bg-accent animate-glow shrink-0" /> {L.chat.online2[lang]}</>
                 )}
               </span>
             </div>

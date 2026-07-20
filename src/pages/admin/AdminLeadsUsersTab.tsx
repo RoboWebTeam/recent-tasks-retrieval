@@ -153,11 +153,11 @@ export function UsersTab({
                   const isExpanded = expandedUserId === user.id;
                   return (
                     <Fragment key={user.id}>
-                    <tr onClick={() => onToggleExpand(user.id)} className={`border-b border-border last:border-0 transition-colors cursor-pointer ${user.blocked ? 'bg-rose-50/50' : 'hover:bg-secondary/30'} ${isExpanded ? 'bg-secondary/40' : ''}`}>
+                    <tr onClick={() => onToggleExpand(user.id)} className={`border-b border-border last:border-0 transition-colors cursor-pointer ${user.blocked ? 'bg-rose-500/10' : 'hover:bg-secondary/30'} ${isExpanded ? 'bg-secondary/40' : ''}`}>
                       <td className="px-4 py-3 text-muted-foreground font-mono text-xs">{i + 1}</td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
-                          <div className={`grid h-8 w-8 place-items-center rounded-xl font-bold text-xs shrink-0 ${user.blocked ? 'bg-rose-200 text-rose-700' : 'bg-primary text-primary-foreground'}`}>
+                          <div className={`grid h-8 w-8 place-items-center rounded-xl font-bold text-xs shrink-0 ${user.blocked ? 'bg-rose-500/15 text-rose-300' : 'bg-primary text-primary-foreground'}`}>
                             {user.blocked ? <Icon name="Ban" size={14} /> : (initials || '?')}
                           </div>
                           <div>
@@ -190,8 +190,8 @@ export function UsersTab({
                       <td className="px-4 py-3 text-muted-foreground hidden lg:table-cell">{new Date(user.created_at).toLocaleDateString('ru-RU')}</td>
                       <td className="px-4 py-3 hidden sm:table-cell">
                         {user.blocked
-                          ? <span className="inline-flex items-center gap-1 text-xs font-semibold text-rose-500 bg-rose-100 rounded-full px-2.5 py-1"><Icon name="Ban" size={11} /> Заблокирован</span>
-                          : <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-600 bg-emerald-50 rounded-full px-2.5 py-1"><Icon name="CheckCircle" size={11} /> Активен</span>}
+                          ? <span className="inline-flex items-center gap-1 text-xs font-semibold text-rose-300 bg-rose-500/15 rounded-full px-2.5 py-1"><Icon name="Ban" size={11} /> Заблокирован</span>
+                          : <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-300 bg-emerald-500/15 rounded-full px-2.5 py-1"><Icon name="CheckCircle" size={11} /> Активен</span>}
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-1 justify-end">

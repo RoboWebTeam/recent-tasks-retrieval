@@ -95,7 +95,7 @@ export default function OrderStatus() {
 
         {status === 'paid' && (
           <>
-            <div className="grid h-16 w-16 place-items-center rounded-2xl bg-emerald-100 text-emerald-600 mx-auto mb-4">
+            <div className="grid h-16 w-16 place-items-center rounded-2xl bg-emerald-500/15 text-emerald-300 mx-auto mb-4">
               <Icon name="CheckCircle" size={32} />
             </div>
             <h1 className="font-display font-bold text-2xl mb-2">
@@ -117,7 +117,7 @@ export default function OrderStatus() {
 
         {status === 'pending' && (
           <>
-            <div className="grid h-16 w-16 place-items-center rounded-2xl bg-amber-100 text-amber-600 mx-auto mb-4">
+            <div className="grid h-16 w-16 place-items-center rounded-2xl bg-amber-500/15 text-amber-300 mx-auto mb-4">
               <Icon name="Clock" size={32} />
             </div>
             <h1 className="font-display font-bold text-xl mb-2">

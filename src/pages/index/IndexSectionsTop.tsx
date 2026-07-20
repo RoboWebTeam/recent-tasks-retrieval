@@ -1,7 +1,7 @@
 import { type Lang } from '@/lib/i18n';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
-import { L, getFEATURES, getCOMPARE, getTRUST, getSTEPS, getMARQUEE } from './indexData';
+import { L, getFEATURES, getCOMPARE, getTRUST, getSTEPS } from './indexData';
 import { Reveal, EmailForm } from './IndexShared';
 
 interface Props { lang: Lang; }
@@ -11,7 +11,6 @@ export function IndexSectionsTop({ lang }: Props) {
   const COMPARE       = getCOMPARE(lang);
   const TRUST         = getTRUST(lang);
   const STEPS         = getSTEPS(lang);
-  const MARQUEE_ITEMS = getMARQUEE(lang);
   const DOORS = lang === 'ru' ? [
     { icon: 'Briefcase', tag: 'Фрилансерам и студиям', title: 'Делай сайты клиентам за час', text: 'Собери рабочий сайт по брифу и отдай настоящий код на Next.js прямо в GitHub клиента. Фикс-цена вместо почасовки — твоя ИИ-команда разработки.', cta: 'Стать быстрее', hot: true },
     { icon: 'Store', tag: 'Бизнесу и самозанятым', title: 'Сайт, который принимает заявки', text: 'Формы пишут в базу, живой каталог, корзина и оформление заказа — без разработчика и без кода. Сайт, который работает, а не просто выглядит.', cta: 'Запуститься онлайн', hot: false },
@@ -24,15 +23,6 @@ export function IndexSectionsTop({ lang }: Props) {
 
   return (
     <>
-      {/* MARQUEE */}
-      <div className="overflow-hidden border-y border-border bg-secondary/40 py-3.5">
-        <div className="flex animate-marquee whitespace-nowrap gap-8">
-          {MARQUEE_ITEMS.map((item, i) => (
-            <span key={i} className="text-sm font-semibold text-muted-foreground">{item}</span>
-          ))}
-        </div>
-      </div>
-
       {/* 3 ДВЕРИ — под 3 аудитории (позиционирование: ИИ-разработчик, не конструктор) */}
       <section id="doors" className="py-16 md:py-24">
         <div className="container">
@@ -104,17 +94,17 @@ export function IndexSectionsTop({ lang }: Props) {
       </section>
 
       {/* TRUST STATS */}
-      <section className="py-12 md:py-16 bg-foreground text-background">
+      <section className="py-12 md:py-16 border-y border-border bg-card/40">
         <div className="container">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
             {TRUST.map((t, i) => (
               <Reveal key={t.label} delay={i * 80}>
                 <div className="text-center">
-                  <div className="inline-flex items-center justify-center h-12 w-12 rounded-2xl bg-white/10 mb-3 mx-auto">
-                    <Icon name={t.icon} size={22} className="text-accent" />
+                  <div className="inline-flex items-center justify-center h-12 w-12 rounded-2xl bg-primary/10 mb-3 mx-auto">
+                    <Icon name={t.icon} size={22} className="text-primary" />
                   </div>
-                  <div className="font-display font-black text-2xl sm:text-3xl text-white">{t.value}</div>
-                  <div className="text-sm text-background/60 mt-1">{t.label}</div>
+                  <div className="font-display font-black text-2xl sm:text-3xl text-foreground">{t.value}</div>
+                  <div className="text-sm text-muted-foreground mt-1">{t.label}</div>
                 </div>
               </Reveal>
             ))}
@@ -186,14 +176,13 @@ export function IndexSectionsTop({ lang }: Props) {
       </section>
 
       {/* PROCESS */}
-      <section id="process" className="py-16 md:py-24 bg-foreground text-background relative overflow-hidden">
-        <div className="absolute -top-20 left-1/2 -translate-x-1/2 h-80 w-[40rem] rounded-full bg-primary/30 blur-3xl" />
-        <div className="absolute bottom-0 right-0 h-64 w-64 rounded-full bg-accent/20 blur-3xl" />
+      <section id="process" className="py-16 md:py-24 bg-card/40 border-y border-border relative overflow-hidden">
+        <div className="absolute -top-20 left-1/2 -translate-x-1/2 h-80 w-[40rem] rounded-full bg-primary/10 blur-3xl" />
         <div className="container relative">
           <Reveal>
             <div className="text-center max-w-2xl mx-auto px-2">
-              <span className="text-xs sm:text-sm font-semibold uppercase tracking-widest text-accent">{L.process.label[lang]}</span>
-              <h2 className="mt-3 font-display font-black text-3xl sm:text-4xl md:text-5xl tracking-tight">
+              <span className="text-xs sm:text-sm font-semibold uppercase tracking-widest text-primary">{L.process.label[lang]}</span>
+              <h2 className="mt-3 font-display font-bold text-3xl sm:text-4xl md:text-5xl tracking-tight">
                 {L.process.title[lang]}
               </h2>
             </div>
@@ -201,10 +190,10 @@ export function IndexSectionsTop({ lang }: Props) {
           <div className="mt-10 md:mt-14 grid sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
             {STEPS.map((s, i) => (
               <Reveal key={s.n} delay={i * 120}>
-                <div className="relative rounded-2xl md:rounded-3xl border border-white/10 bg-white/5 p-5 md:p-7 h-full backdrop-blur group hover:bg-white/10 hover:border-white/20 transition-all duration-300">
-                  <div className="font-display font-black text-4xl md:text-5xl text-accent/90 group-hover:text-accent transition-colors">{s.n}</div>
+                <div className="relative rounded-2xl md:rounded-3xl border border-border bg-card p-5 md:p-7 h-full group hover:border-primary/30 transition-all duration-300">
+                  <div className="font-display font-black text-4xl md:text-5xl text-primary/80 group-hover:text-primary transition-colors">{s.n}</div>
                   <h3 className="mt-3 md:mt-4 font-display font-bold text-lg md:text-xl">{s.title}</h3>
-                  <p className="mt-2 text-background/70 text-sm md:text-base">{s.text}</p>
+                  <p className="mt-2 text-muted-foreground text-sm md:text-base">{s.text}</p>
                   {i < STEPS.length - 1 && (
                     <div className="absolute -right-3 top-1/2 -translate-y-1/2 hidden md:block z-10">
                       <Icon name="ChevronRight" size={20} className="text-white/30" />

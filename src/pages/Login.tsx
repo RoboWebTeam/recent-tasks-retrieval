@@ -43,7 +43,7 @@ const Login = () => {
   return (
     <div className="min-h-screen bg-background flex">
       {/* Left panel */}
-      <div className="hidden lg:flex flex-col justify-between w-1/2 bg-foreground text-background p-12 relative overflow-hidden">
+      <div className="hidden lg:flex flex-col justify-between w-1/2 bg-card border border-border p-12 relative overflow-hidden">
         <div className="absolute -top-20 -left-20 h-80 w-80 rounded-full bg-primary/30 blur-3xl" />
         <div className="absolute -bottom-20 -right-20 h-80 w-80 rounded-full bg-accent/20 blur-3xl" />
         <div className="relative flex items-center justify-between">
@@ -59,17 +59,17 @@ const Login = () => {
           <h2 className="font-display font-black text-4xl leading-tight whitespace-pre-line">
             {tr('loginHeroTitle', lang)}
           </h2>
-          <p className="text-background/70 text-lg">{tr('loginHeroDesc', lang)}</p>
+          <p className="text-muted-foreground text-lg">{tr('loginHeroDesc', lang)}</p>
           <div className="space-y-3">
             {features.map(f => (
-              <div key={f} className="flex items-center gap-2 text-sm text-background/80">
+              <div key={f} className="flex items-center gap-2 text-sm text-muted-foreground">
                 <Icon name="CheckCircle" size={16} className="text-accent shrink-0" />
                 {f}
               </div>
             ))}
           </div>
         </div>
-        <p className="relative text-xs text-background/40">© 2026 Roboweb</p>
+        <p className="relative text-xs text-muted-foreground">© 2026 Roboweb</p>
       </div>
 
       {/* Right panel */}

@@ -73,12 +73,12 @@ export function IndexSectionsBottom({ lang }: Props) {
                   <ul className="mt-5 space-y-2 flex-1">
                     {p.features.map((f) => (
                       <li key={f} className="flex items-center gap-2.5 text-sm">
-                        <Icon name="Check" size={14} className="text-[hsl(195,46%,40%)] shrink-0" />
+                        <Icon name="Check" size={14} className="text-accent shrink-0" />
                         {f}
                       </li>
                     ))}
                   </ul>
-                  <Button asChild className={`mt-6 w-full rounded-full font-semibold transition-all hover:scale-105 ${p.hot ? 'shadow-lg shadow-primary/20' : 'bg-foreground hover:bg-foreground/90'}`}>
+                  <Button asChild className={`mt-6 w-full rounded-full font-semibold transition-all hover:scale-105 ${p.hot ? 'shadow-lg shadow-primary/20' : 'bg-foreground text-background hover:bg-foreground/90'}`}>
                     <Link to="/pricing">{p.cta}</Link>
                   </Button>
                 </div>
@@ -101,7 +101,7 @@ export function IndexSectionsBottom({ lang }: Props) {
                         key={p.plan_code}
                         onClick={() => setProIndex(i)}
                         className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                          proIndex === i ? 'bg-foreground text-background' : 'bg-secondary text-muted-foreground hover:text-foreground'
+                          proIndex === i ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground hover:text-foreground'
                         }`}
                       >
                         {p.requests}
@@ -115,18 +115,18 @@ export function IndexSectionsBottom({ lang }: Props) {
                     : ['Priority support', 'All Premium features', 'Cloud hosting']
                   ).map((f) => (
                     <li key={f} className="flex items-center gap-2.5 text-sm">
-                      <Icon name="Check" size={14} className="text-[hsl(195,46%,40%)] shrink-0" />
+                      <Icon name="Check" size={14} className="text-accent shrink-0" />
                       {f}
                     </li>
                   ))}
                   {(PRO_PLAN_DETAILS[selectedPro.plan_code]?.[lang] ?? []).map((f) => (
                     <li key={f} className="flex items-center gap-2.5 text-sm">
-                      <Icon name="Check" size={14} className="text-[hsl(195,46%,40%)] shrink-0" />
+                      <Icon name="Check" size={14} className="text-accent shrink-0" />
                       {f}
                     </li>
                   ))}
                 </ul>
-                <Button asChild className="mt-6 w-full rounded-full font-semibold transition-all hover:scale-105 bg-foreground hover:bg-foreground/90">
+                <Button asChild className="mt-6 w-full rounded-full font-semibold transition-all hover:scale-105 bg-foreground text-background hover:bg-foreground/90">
                   <Link to="/pricing">{lang === 'ru' ? 'Выбрать Профи' : 'Choose Pro'}</Link>
                 </Button>
               </div>
@@ -144,24 +144,23 @@ export function IndexSectionsBottom({ lang }: Props) {
       <section id="register" className="py-16 md:py-24">
         <div className="container px-4 sm:px-6">
           <Reveal>
-            <div className="relative overflow-hidden rounded-2xl md:rounded-[2.5rem] bg-foreground text-background p-8 sm:p-10 md:p-16 text-center">
-              <div className="absolute -top-16 -left-16 h-64 w-64 rounded-full bg-primary/40 blur-3xl animate-glow" />
-              <div className="absolute -bottom-16 -right-16 h-64 w-64 rounded-full bg-accent/40 blur-3xl animate-glow" style={{animationDelay:'1s'}} />
-              <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 h-96 w-96 rounded-full bg-primary/10 blur-3xl" />
+            <div className="relative overflow-hidden rounded-2xl md:rounded-[2.5rem] border border-primary/20 bg-gradient-to-b from-card to-background p-8 sm:p-10 md:p-16 text-center">
+              <div className="absolute -top-16 -left-16 h-64 w-64 rounded-full bg-primary/20 blur-3xl" />
+              <div className="absolute -bottom-16 -right-16 h-64 w-64 rounded-full bg-primary/10 blur-3xl" />
               <div className="relative">
-                <div className="inline-flex items-center gap-2 rounded-full bg-white/10 border border-white/15 px-4 py-1.5 text-sm font-medium mb-5">
+                <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 border border-primary/20 text-primary px-4 py-1.5 text-sm font-medium mb-5">
                   <Icon name="Gift" size={15} /> {L.cta3.badge[lang]}
                 </div>
-                <h2 className="font-display font-black text-3xl sm:text-4xl md:text-5xl tracking-tight">
+                <h2 className="font-display font-bold text-3xl sm:text-4xl md:text-5xl tracking-tight">
                   {L.cta3.title[lang]}
                 </h2>
-                <p className="mt-4 text-background/70 text-base sm:text-lg max-w-xl mx-auto">
+                <p className="mt-4 text-muted-foreground text-base sm:text-lg max-w-xl mx-auto">
                   {L.cta3.desc[lang]}
                 </p>
                 <div className="mt-6 md:mt-8">
-                  <EmailForm dark placeholder={L.cta3.input[lang]} btnText={L.cta3.btn[lang]} />
+                  <EmailForm placeholder={L.cta3.input[lang]} btnText={L.cta3.btn[lang]} />
                 </div>
-                <p className="mt-4 text-xs text-background/40">
+                <p className="mt-4 text-xs text-muted-foreground/70">
                   {L.cta3.privacy[lang]}
                 </p>
               </div>

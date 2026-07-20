@@ -73,7 +73,7 @@ export function AdminAnalytics({
                       <div className="w-full flex items-end gap-0.5" style={{ height: '120px' }}>
                         <div className="flex-1 bg-primary/20 hover:bg-primary/40 rounded-t transition-colors relative group"
                           style={{ height: `${(d.views / maxViews) * 100}%` }}>
-                          <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-foreground text-background text-[10px] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                          <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-card border border-border text-foreground text-[10px] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
                             {d.views.toLocaleString()}
                           </div>
                         </div>

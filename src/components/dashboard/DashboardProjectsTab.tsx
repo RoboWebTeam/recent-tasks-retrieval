@@ -46,19 +46,19 @@ export default function DashboardProjectsTab({
     draft: {
       gradient: 'from-amber-400 via-orange-400 to-orange-500',
       iconBg: 'bg-orange-500',
-      badge: 'bg-orange-100 text-orange-700',
+      badge: 'bg-orange-500/15 text-orange-300',
       ring: 'hover:border-orange-300 hover:shadow-orange-500/10',
     },
     building: {
       gradient: 'from-sky-400 via-blue-400 to-indigo-500',
       iconBg: 'bg-blue-500',
-      badge: 'bg-blue-100 text-blue-700',
+      badge: 'bg-blue-500/15 text-blue-300',
       ring: 'hover:border-blue-300 hover:shadow-blue-500/10',
     },
     published: {
       gradient: 'from-emerald-400 via-green-400 to-teal-500',
       iconBg: 'bg-emerald-500',
-      badge: 'bg-emerald-100 text-emerald-700',
+      badge: 'bg-emerald-500/15 text-emerald-300',
       ring: 'hover:border-emerald-300 hover:shadow-emerald-500/10',
     },
   };
@@ -195,7 +195,7 @@ export default function DashboardProjectsTab({
                       href={`/site/${p.slug}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 mb-3 rounded-lg bg-emerald-50 text-emerald-700 px-2.5 py-1.5 text-xs font-semibold hover:bg-emerald-100 transition-colors w-fit"
+                      className="inline-flex items-center gap-1.5 mb-3 rounded-lg bg-emerald-500/15 text-emerald-300 px-2.5 py-1.5 text-xs font-semibold hover:bg-emerald-500/25 transition-colors w-fit"
                     >
                       <Icon name="ExternalLink" size={12} />
                       {lang === 'ru' ? 'Открыть сайт' : 'Open site'}

@@ -136,7 +136,7 @@ export function AdminPricingTab({ adminKey }: AdminPricingTabProps) {
           </div>
         )}
         {saved && (
-          <div className="flex items-center gap-2 bg-emerald-50 text-emerald-700 rounded-xl px-4 py-3 mb-4 text-sm">
+          <div className="flex items-center gap-2 bg-emerald-500/15 text-emerald-300 rounded-xl px-4 py-3 mb-4 text-sm">
             <Icon name="CheckCircle" size={15} /> Цены сохранены
           </div>
         )}
@@ -195,7 +195,7 @@ export function AdminPricingTab({ adminKey }: AdminPricingTabProps) {
           </div>
         )}
         {energySaved && (
-          <div className="flex items-center gap-2 bg-emerald-50 text-emerald-700 rounded-xl px-4 py-3 mb-4 text-sm">
+          <div className="flex items-center gap-2 bg-emerald-500/15 text-emerald-300 rounded-xl px-4 py-3 mb-4 text-sm">
             <Icon name="CheckCircle" size={15} /> Цены сохранены
           </div>
         )}

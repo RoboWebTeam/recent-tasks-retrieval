@@ -161,9 +161,9 @@ export function AdminUserDetailsPanel({ details, loading }: AdminUserDetailsPane
           </p>
         </div>
         {user.blocked_at && (
-          <div className="rounded-xl bg-rose-50 px-3 py-2.5 sm:col-span-2">
-            <p className="text-xs text-rose-600 mb-0.5">Заблокирован</p>
-            <p className="text-sm font-semibold text-rose-700">{fmtDate(user.blocked_at)}</p>
+          <div className="rounded-xl bg-rose-500/10 px-3 py-2.5 sm:col-span-2">
+            <p className="text-xs text-rose-300 mb-0.5">Заблокирован</p>
+            <p className="text-sm font-semibold text-rose-300">{fmtDate(user.blocked_at)}</p>
           </div>
         )}
       </div>

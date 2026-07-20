@@ -69,7 +69,7 @@ export default function DashboardProfileTab({
 
       {lowBalance && (
         <div className={`rounded-2xl px-4 py-3 mb-4 flex items-start gap-2.5 text-sm ${
-          remaining! <= 0 ? 'bg-destructive/10 text-destructive' : 'bg-amber-50 text-amber-800'
+          remaining! <= 0 ? 'bg-destructive/10 text-destructive' : 'bg-amber-500/15 text-amber-300'
         }`}>
           <Icon name={remaining! <= 0 ? 'AlertCircle' : 'Zap'} size={16} className="shrink-0 mt-0.5" />
           <div className="flex-1">
@@ -162,7 +162,7 @@ export default function DashboardProfileTab({
             </div>
           )}
           {pwSaved && (
-            <div className="flex items-center gap-2 text-sm text-emerald-600 bg-emerald-50 rounded-xl px-3 py-2.5">
+            <div className="flex items-center gap-2 text-sm text-emerald-300 bg-emerald-500/15 rounded-xl px-3 py-2.5">
               <Icon name="CheckCircle" size={15} />
               <span>{lang === 'ru' ? 'Пароль изменён' : 'Password changed'}</span>
             </div>
