@@ -31,8 +31,8 @@ export default {
 		},
 		extend: {
 			fontFamily: {
-				display: ['Montserrat', 'sans-serif'],
-				sans: ['Golos Text', 'sans-serif'],
+				display: ['Manrope', 'system-ui', 'sans-serif'],
+				sans: ['Golos Text', 'system-ui', 'sans-serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',

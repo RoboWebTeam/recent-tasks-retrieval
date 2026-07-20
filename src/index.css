@@ -442,3 +442,19 @@ section[id] {
 @media (prefers-reduced-motion: reduce) {
   .glow-frame::before, .glow-frame::after, .counter-pop { animation: none !important; }
 }
+
+/* Премиум-типографика: чуть отрицательный трекинг у display-заголовков (Manrope) */
+.font-display{letter-spacing:-0.018em}
+
+/* Премиум-глубина карточек: тонкий верхний внутренний хайлайт + мягкая тень (lit-from-above) */
+@layer utilities {
+  [class~="bg-card"] {
+    box-shadow: inset 0 1px 0 0 hsl(210 40% 98% / 0.045), 0 1px 2px 0 hsl(220 45% 2% / 0.45);
+  }
+  [class~="bg-card"]:where(.shadow-none) { box-shadow: none; }
+}
+/* Мягкое амбиентное свечение вверху героя */
+.hero-ambient::before{
+  content:"";position:absolute;inset:-20% 0 auto 0;height:520px;pointer-events:none;z-index:0;
+  background:radial-gradient(60% 80% at 50% 0%, hsl(221 83% 62% / 0.10), transparent 70%);
+}

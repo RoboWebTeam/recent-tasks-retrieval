@@ -65,7 +65,7 @@ export default function DashboardProfileTab({
 
   return (
     <div className="max-w-lg">
-      <h1 className="font-display font-black text-xl sm:text-2xl mb-6">{tr('profile', lang)}</h1>
+      <h1 className="font-display font-bold text-xl sm:text-2xl mb-6">{tr('profile', lang)}</h1>
 
       {lowBalance && (
         <div className={`rounded-2xl px-4 py-3 mb-4 flex items-start gap-2.5 text-sm ${
@@ -90,7 +90,7 @@ export default function DashboardProfileTab({
 
       <div className="rounded-2xl border border-border bg-card p-4 sm:p-6 mb-4">
         <div className="flex items-center gap-3 sm:gap-4 mb-6">
-          <div className="grid h-12 w-12 sm:h-16 sm:w-16 place-items-center rounded-2xl bg-primary text-primary-foreground font-display font-black text-base sm:text-xl shrink-0">
+          <div className="grid h-12 w-12 sm:h-16 sm:w-16 place-items-center rounded-2xl bg-primary text-primary-foreground font-display font-bold text-base sm:text-xl shrink-0">
             {user.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2)}
           </div>
           <div className="min-w-0">

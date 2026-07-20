@@ -49,7 +49,7 @@ export function AdminAnalytics({
             ].map(s => (
               <div key={s.label} className="rounded-2xl border border-border bg-card p-4">
                 <p className={`text-xs font-semibold uppercase tracking-wide mb-1 ${s.color}`}>{s.label}</p>
-                <p className="font-display font-black text-2xl">{s.value}</p>
+                <p className="font-display font-bold text-2xl">{s.value}</p>
               </div>
             ))}
           </div>

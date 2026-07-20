@@ -29,7 +29,7 @@ export function IndexSectionsTop({ lang }: Props) {
           <Reveal>
             <div className="text-center max-w-2xl mx-auto px-2">
               <span className="text-xs sm:text-sm font-semibold uppercase tracking-widest text-primary">{lang === 'ru' ? 'Кому это' : 'Who it\'s for'}</span>
-              <h2 className="mt-3 font-display font-black text-3xl sm:text-4xl md:text-5xl tracking-tight">
+              <h2 className="mt-3 font-display font-bold text-3xl sm:text-4xl md:text-5xl tracking-tight">
                 {lang === 'ru' ? 'Три способа использовать RoboWeb' : 'Three ways to use RoboWeb'}
               </h2>
               <p className="mt-4 text-muted-foreground text-base sm:text-lg">
@@ -69,7 +69,7 @@ export function IndexSectionsTop({ lang }: Props) {
           <Reveal>
             <div className="text-center max-w-2xl mx-auto px-2">
               <span className="text-xs sm:text-sm font-semibold uppercase tracking-widest text-primary">{L.nav.features[lang]}</span>
-              <h2 className="mt-3 font-display font-black text-3xl sm:text-4xl md:text-5xl tracking-tight">
+              <h2 className="mt-3 font-display font-bold text-3xl sm:text-4xl md:text-5xl tracking-tight">
                 {L.features.title[lang]}
               </h2>
               <p className="mt-4 text-muted-foreground text-base sm:text-lg">
@@ -103,7 +103,7 @@ export function IndexSectionsTop({ lang }: Props) {
                   <div className="inline-flex items-center justify-center h-12 w-12 rounded-2xl bg-primary/10 mb-3 mx-auto">
                     <Icon name={t.icon} size={22} className="text-primary" />
                   </div>
-                  <div className="font-display font-black text-2xl sm:text-3xl text-foreground">{t.value}</div>
+                  <div className="font-display font-bold text-2xl sm:text-3xl text-foreground">{t.value}</div>
                   <div className="text-sm text-muted-foreground mt-1">{t.label}</div>
                 </div>
               </Reveal>
@@ -118,7 +118,7 @@ export function IndexSectionsTop({ lang }: Props) {
           <Reveal>
             <div className="text-center max-w-2xl mx-auto px-2 mb-10 md:mb-14">
               <span className="text-xs sm:text-sm font-semibold uppercase tracking-widest text-primary">{L.compare.label[lang]}</span>
-              <h2 className="mt-3 font-display font-black text-3xl sm:text-4xl md:text-5xl tracking-tight">
+              <h2 className="mt-3 font-display font-bold text-3xl sm:text-4xl md:text-5xl tracking-tight">
                 {L.compare.title[lang]}
               </h2>
               <p className="mt-4 text-muted-foreground text-base sm:text-lg">
@@ -166,7 +166,7 @@ export function IndexSectionsTop({ lang }: Props) {
         <Reveal>
           <div className="container text-center">
             <p className="text-sm font-semibold uppercase tracking-widest text-primary mb-3">{L.cta1.label[lang]}</p>
-            <h3 className="font-display font-black text-2xl sm:text-3xl md:text-4xl tracking-tight mb-2">
+            <h3 className="font-display font-bold text-2xl sm:text-3xl md:text-4xl tracking-tight mb-2">
               {L.cta1.title[lang]} <span className="text-gradient">{L.cta1.accent[lang]}</span>
             </h3>
             <p className="text-muted-foreground mb-6 max-w-md mx-auto">{L.cta1.desc[lang]}</p>
@@ -191,7 +191,7 @@ export function IndexSectionsTop({ lang }: Props) {
             {STEPS.map((s, i) => (
               <Reveal key={s.n} delay={i * 120}>
                 <div className="relative rounded-2xl md:rounded-3xl border border-border bg-card p-5 md:p-7 h-full group hover:border-primary/30 transition-all duration-300">
-                  <div className="font-display font-black text-4xl md:text-5xl text-primary/80 group-hover:text-primary transition-colors">{s.n}</div>
+                  <div className="font-display font-bold text-4xl md:text-5xl text-primary/80 group-hover:text-primary transition-colors">{s.n}</div>
                   <h3 className="mt-3 md:mt-4 font-display font-bold text-lg md:text-xl">{s.title}</h3>
                   <p className="mt-2 text-muted-foreground text-sm md:text-base">{s.text}</p>
                   {i < STEPS.length - 1 && (

@@ -164,7 +164,7 @@ export default function DomainSettings() {
       <main className="container max-w-3xl py-10 md:py-16">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="font-display font-black text-2xl sm:text-3xl mb-1">
+            <h1 className="font-display font-bold text-2xl sm:text-3xl mb-1">
               {isRu ? 'Домены' : 'Domains'}
             </h1>
             <p className="text-muted-foreground text-sm">

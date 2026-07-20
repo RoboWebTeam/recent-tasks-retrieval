@@ -105,7 +105,7 @@ export function SiteLeadsTab({
                   <Icon name="X" size={15} />
                 </button>
               </div>
-              <div className="grid h-14 w-14 place-items-center rounded-2xl bg-primary/10 text-primary font-black text-xl mx-auto">
+              <div className="grid h-14 w-14 place-items-center rounded-2xl bg-primary/10 text-primary font-bold text-xl mx-auto">
                 {selectedLead.name[0]}
               </div>
               <div className="text-center">

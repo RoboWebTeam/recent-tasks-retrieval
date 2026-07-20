@@ -19,7 +19,7 @@ export default function LegalPageLayout({ title, updatedAt, children }: LegalPag
     <div className="min-h-screen bg-background overflow-x-hidden">
       <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
         <div className="container flex h-14 sm:h-16 items-center justify-between">
-          <Link to="/" className="flex items-center gap-2 font-display font-black text-lg sm:text-xl text-primary">
+          <Link to="/" className="flex items-center gap-2 font-display font-bold text-lg sm:text-xl text-primary">
             <span className="grid h-8 w-8 sm:h-9 sm:w-9 place-items-center rounded-xl bg-primary text-primary-foreground shrink-0">
               <Icon name="Bot" size={18} />
             </span>
@@ -36,7 +36,7 @@ export default function LegalPageLayout({ title, updatedAt, children }: LegalPag
           <Icon name="ArrowLeft" size={16} /> {lang === 'ru' ? 'На главную' : 'Back home'}
         </Link>
 
-        <h1 className="font-display font-black text-2xl sm:text-3xl md:text-4xl tracking-tight mb-2">
+        <h1 className="font-display font-bold text-2xl sm:text-3xl md:text-4xl tracking-tight mb-2">
           {title}
         </h1>
         <p className="text-sm text-muted-foreground mb-8">

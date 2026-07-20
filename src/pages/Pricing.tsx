@@ -107,7 +107,7 @@ export default function Pricing() {
       {/* Header */}
       <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
         <div className="container flex h-14 sm:h-16 items-center justify-between">
-          <Link to="/" className="flex items-center gap-2 font-display font-black text-lg sm:text-xl text-primary">
+          <Link to="/" className="flex items-center gap-2 font-display font-bold text-lg sm:text-xl text-primary">
             <span className="grid h-8 w-8 sm:h-9 sm:w-9 place-items-center rounded-xl bg-primary text-primary-foreground shrink-0">
               <Icon name="Bot" size={18} />
             </span>
@@ -132,7 +132,7 @@ export default function Pricing() {
           <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-primary mb-3">
             <Icon name="Sparkles" size={13} /> {data.title}
           </span>
-          <h1 className="font-display font-black text-3xl sm:text-5xl tracking-tight mb-4 max-w-2xl mx-auto leading-[1.1]">
+          <h1 className="font-display font-bold text-3xl sm:text-5xl tracking-tight mb-4 max-w-2xl mx-auto leading-[1.1]">
             {data.subtitle}
           </h1>
           <p className="text-muted-foreground text-base sm:text-lg max-w-lg mx-auto">
@@ -154,7 +154,7 @@ export default function Pricing() {
                 {isRu ? 'Пробный' : 'Free'}
               </div>
               <div className="flex items-baseline gap-1 mb-1">
-                <span className="text-3xl font-black text-foreground">{isRu ? 'Бесплатно' : 'Free'}</span>
+                <span className="text-3xl font-bold text-foreground">{isRu ? 'Бесплатно' : 'Free'}</span>
               </div>
               <span className="inline-block rounded-full bg-primary/10 text-primary text-xs font-semibold px-2.5 py-1 mb-2">
                 {isRu ? '10 запросов разово' : '10 requests once'}
@@ -203,7 +203,7 @@ export default function Pricing() {
                 {isRu ? 'Премиум' : 'Premium'}
               </div>
               <div className="flex items-baseline gap-1 mb-1">
-                <span className="text-3xl font-black text-foreground">990</span>
+                <span className="text-3xl font-bold text-foreground">990</span>
                 <span className="text-lg font-bold text-muted-foreground">₽</span>
                 <span className="text-sm text-muted-foreground">/{isRu ? 'мес' : 'mo'}</span>
               </div>
@@ -251,7 +251,7 @@ export default function Pricing() {
                 {isRu ? 'Профи' : 'Pro'}
               </div>
               <div className="flex items-baseline gap-1 mb-1">
-                <span className="text-3xl font-black text-foreground">{selectedPro.price.toLocaleString()}</span>
+                <span className="text-3xl font-bold text-foreground">{selectedPro.price.toLocaleString()}</span>
                 <span className="text-lg font-bold text-muted-foreground">₽</span>
                 <span className="text-sm text-muted-foreground">/{isRu ? 'мес' : 'mo'}</span>
               </div>
@@ -322,7 +322,7 @@ export default function Pricing() {
 
         {/* Compare with alternatives */}
         <div className="mb-12 sm:mb-16">
-          <h2 className="font-display font-black text-xl sm:text-2xl text-center mb-6 sm:mb-8">
+          <h2 className="font-display font-bold text-xl sm:text-2xl text-center mb-6 sm:mb-8">
             {isRu ? 'Рабочий продукт с кодом — дешевле исполнителя' : 'A working product with code — cheaper than a freelancer'}
           </h2>
           <div className="rounded-3xl border border-border bg-card overflow-hidden overflow-x-auto">
@@ -373,7 +373,7 @@ export default function Pricing() {
 
         {/* FAQ */}
         <div className="max-w-2xl mx-auto mb-12 sm:mb-16">
-          <h2 className="font-display font-black text-xl sm:text-2xl text-center mb-6">{data.faq}</h2>
+          <h2 className="font-display font-bold text-xl sm:text-2xl text-center mb-6">{data.faq}</h2>
           <div className="space-y-3">
             {data.faqs.map((faq, i) => (
               <div key={i} className="bg-card border border-border rounded-2xl overflow-hidden">
@@ -399,7 +399,7 @@ export default function Pricing() {
           <div className="absolute -top-10 -right-10 h-48 w-48 rounded-full bg-white/10 blur-3xl" />
           <div className="absolute -bottom-10 -left-10 h-48 w-48 rounded-full bg-white/10 blur-3xl" />
           <div className="relative">
-            <h2 className="font-display font-black text-2xl sm:text-3xl mb-3">
+            <h2 className="font-display font-bold text-2xl sm:text-3xl mb-3">
               {isRu ? 'Начните прямо сейчас' : 'Start right now'}
             </h2>
             <p className="text-white/80 mb-8 text-base sm:text-lg">

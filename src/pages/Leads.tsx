@@ -104,7 +104,7 @@ export default function Leads() {
       <main className="container py-8 max-w-5xl">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
           <div>
-            <h1 className="font-display font-black text-2xl sm:text-3xl">{isRu ? 'Заявки с сайтов' : 'Site leads'}</h1>
+            <h1 className="font-display font-bold text-2xl sm:text-3xl">{isRu ? 'Заявки с сайтов' : 'Site leads'}</h1>
             <p className="text-sm text-muted-foreground mt-0.5">
               {isRu ? 'Все обращения с ваших сайтов в одном месте' : 'All inquiries from your sites in one place'}
             </p>
@@ -128,7 +128,7 @@ export default function Leads() {
                 <Icon name={stat.icon} size={16} />
               </div>
               <div className="min-w-0">
-                <p className="text-xl font-black text-foreground">{loading ? '…' : stat.value}</p>
+                <p className="text-xl font-bold text-foreground">{loading ? '…' : stat.value}</p>
                 <p className="text-xs text-muted-foreground">{stat.label}</p>
               </div>
             </div>
@@ -222,7 +222,7 @@ export default function Leads() {
                   </button>
                 </div>
 
-                <div className="grid h-14 w-14 place-items-center rounded-2xl bg-primary/10 text-primary font-black text-xl mx-auto">
+                <div className="grid h-14 w-14 place-items-center rounded-2xl bg-primary/10 text-primary font-bold text-xl mx-auto">
                   {selected.name ? selected.name[0].toUpperCase() : '?'}
                 </div>
 

@@ -56,7 +56,7 @@ const Login = () => {
           <LangSwitcher lang={lang} dark />
         </div>
         <div className="relative space-y-6">
-          <h2 className="font-display font-black text-4xl leading-tight whitespace-pre-line">
+          <h2 className="font-display font-bold text-4xl leading-tight whitespace-pre-line">
             {tr('loginHeroTitle', lang)}
           </h2>
           <p className="text-muted-foreground text-lg">{tr('loginHeroDesc', lang)}</p>
@@ -85,7 +85,7 @@ const Login = () => {
               </Link>
               <LangSwitcher lang={lang} />
             </div>
-            <h1 className="font-display font-black text-2xl sm:text-3xl">
+            <h1 className="font-display font-bold text-2xl sm:text-3xl">
               {lang === 'ru' ? 'Войти в аккаунт' : 'Sign in to account'}
             </h1>
             <p className="text-muted-foreground mt-2">{tr('enterAccount', lang)}</p>

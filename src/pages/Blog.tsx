@@ -56,7 +56,7 @@ export default function Blog() {
       {/* Header */}
       <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
         <div className="container flex h-14 sm:h-16 items-center justify-between">
-          <Link to="/" className="flex items-center gap-2 font-display font-black text-lg sm:text-xl text-primary">
+          <Link to="/" className="flex items-center gap-2 font-display font-bold text-lg sm:text-xl text-primary">
             <span className="grid h-8 w-8 sm:h-9 sm:w-9 place-items-center rounded-xl bg-primary text-primary-foreground shrink-0">
               <Icon name="Bot" size={18} />
             </span>
@@ -80,7 +80,7 @@ export default function Blog() {
             <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-primary mb-3">
               <Icon name="Sparkles" size={13} /> {tr('blogLabel', lang)}
             </span>
-            <h1 className="font-display font-black text-3xl sm:text-5xl md:text-6xl tracking-tight leading-[1.05] break-words">
+            <h1 className="font-display font-bold text-3xl sm:text-5xl md:text-6xl tracking-tight leading-[1.05] break-words">
               {tr('blogTitle', lang)}
             </h1>
             <p className="mt-4 text-base sm:text-lg text-muted-foreground max-w-xl">
@@ -205,7 +205,7 @@ export default function Blog() {
           <div className="absolute -top-10 -right-10 h-48 w-48 rounded-full bg-white/10 blur-3xl" />
           <div className="absolute -bottom-10 -left-10 h-48 w-48 rounded-full bg-white/10 blur-3xl" />
           <div className="relative">
-            <h2 className="font-display font-black text-2xl sm:text-3xl md:text-4xl mb-3">{tr('blogCtaTitle', lang)}</h2>
+            <h2 className="font-display font-bold text-2xl sm:text-3xl md:text-4xl mb-3">{tr('blogCtaTitle', lang)}</h2>
             <p className="text-white/80 text-base sm:text-lg mb-8 max-w-lg mx-auto">{tr('blogCtaDesc', lang)}</p>
             <Button size="lg" className="rounded-full bg-white text-primary hover:bg-white/90 font-semibold px-8 sm:px-10 text-base shadow-xl" asChild>
               <Link to="/register">{tr('blogCtaBtn', lang)} <Icon name="ArrowRight" size={18} className="ml-1" /></Link>

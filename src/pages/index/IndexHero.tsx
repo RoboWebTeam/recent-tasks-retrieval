@@ -10,7 +10,6 @@ import LangSwitcher from '@/components/LangSwitcher';
 import { type Lang } from '@/lib/i18n';
 import { getSession, getStoredUser, clearSession } from '@/lib/auth';
 import { L, getNAV } from './indexData';
-import { CounterStat } from './IndexShared';
 
 interface IndexNavProps {
   lang: Lang;
@@ -163,7 +162,7 @@ export function IndexHero({ lang, typedText, chatStep, isTyping, progress, chatS
   };
 
   return (
-    <section ref={secRef} onMouseMove={handleParallax} onMouseLeave={resetParallax} className="relative overflow-hidden pt-28 sm:pt-32 lg:pt-36 pb-16 md:pb-24" style={{clipPath: 'inset(0)'}}>
+    <section ref={secRef} onMouseMove={handleParallax} onMouseLeave={resetParallax} className="hero-ambient relative overflow-hidden pt-28 sm:pt-32 lg:pt-36 pb-16 md:pb-24" style={{clipPath: 'inset(0)'}}>
       <div className="aurora absolute inset-0 -z-10" />
       <ParticlesBg />
       <div className="absolute inset-0 -z-10 bg-gradient-to-b from-background/40 via-background/60 to-background" />
@@ -192,7 +191,7 @@ export function IndexHero({ lang, typedText, chatStep, isTyping, progress, chatS
             <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
             {L.hero.badge[lang]}
           </span>
-          <h1 className="mt-5 font-display font-black leading-[1.02] text-5xl sm:text-6xl md:text-7xl xl:text-7xl 2xl:text-8xl tracking-tight">
+          <h1 className="mt-5 font-display font-bold leading-[1.02] text-5xl sm:text-6xl md:text-7xl xl:text-7xl 2xl:text-8xl tracking-tight">
             <span className="text-gradient-animated inline-block min-h-[1.1em] drop-shadow-[0_4px_30px_hsl(232_90%_58%_/_0.28)]">
               {typedText}
               <span className="typed-cursor">|</span>
@@ -217,13 +216,18 @@ export function IndexHero({ lang, typedText, chatStep, isTyping, progress, chatS
             </Button>
           </div>
 
-          {/* Stats with counter */}
-          <div className="mt-8 flex items-center justify-center lg:justify-start gap-5 sm:gap-8 flex-wrap">
-            <CounterStat value={47} suffix={lang === 'ru' ? ' сек' : 's'} label={L.hero.stat1l[lang]} />
-            <div className="h-8 w-px bg-border hidden sm:block" />
-            <CounterStat value={12000} suffix="+" label={L.hero.stat2l[lang]} />
-            <div className="h-8 w-px bg-border hidden sm:block" />
-            <CounterStat value={80} suffix="%" label={L.hero.stat3l[lang]} />
+          {/* Trust proof-points (конкретные возможности вместо вымышленных цифр) */}
+          <div className="mt-8 flex items-center justify-center lg:justify-start gap-x-5 gap-y-2.5 flex-wrap">
+            {[
+              { icon: 'Database', ru: 'Рабочий бэкенд', en: 'Real backend' },
+              { icon: 'Github', ru: 'Код в вашем GitHub', en: 'Code in your GitHub' },
+              { icon: 'ShieldCheck', ru: 'SSL и свой домен', en: 'SSL & custom domain' },
+            ].map(s => (
+              <div key={s.icon} className="inline-flex items-center gap-2 text-sm">
+                <Icon name={s.icon} size={16} className="text-primary shrink-0" />
+                <span className="font-medium text-foreground/90">{lang === 'ru' ? s.ru : s.en}</span>
+              </div>
+            ))}
           </div>
         </div>
 

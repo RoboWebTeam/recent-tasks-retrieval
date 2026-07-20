@@ -90,7 +90,7 @@ export default function Files() {
       <main className="container py-8 max-w-4xl">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="font-display font-black text-2xl sm:text-3xl">{isRu ? 'Мои файлы' : 'My files'}</h1>
+            <h1 className="font-display font-bold text-2xl sm:text-3xl">{isRu ? 'Мои файлы' : 'My files'}</h1>
             <p className="text-sm text-muted-foreground mt-0.5">
               {isRu ? 'Готовые сайты в формате HTML или ZIP' : 'Ready-made sites in HTML or ZIP format'}
             </p>

@@ -61,7 +61,7 @@ export function CounterStat({ value, suffix, label }: { value: number; suffix: s
   const done = shown && count >= value;
   return (
     <div ref={ref} className="text-center">
-      <div className={`font-display font-black text-2xl sm:text-3xl text-gradient tabular-nums ${done ? 'counter-pop' : ''}`}>
+      <div className={`font-display font-bold text-2xl sm:text-3xl text-gradient tabular-nums ${done ? 'counter-pop' : ''}`}>
         {count.toLocaleString()}{suffix}
       </div>
       <div className="text-sm text-muted-foreground">{label}</div>

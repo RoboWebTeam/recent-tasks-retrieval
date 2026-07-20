@@ -39,7 +39,7 @@ export function IndexSectionsBottom({ lang }: Props) {
           <Reveal>
             <div className="text-center max-w-2xl mx-auto px-2">
               <span className="text-xs sm:text-sm font-semibold uppercase tracking-widest text-primary">{L.pricing.label[lang]}</span>
-              <h2 className="mt-3 font-display font-black text-3xl sm:text-4xl md:text-5xl tracking-tight">
+              <h2 className="mt-3 font-display font-bold text-3xl sm:text-4xl md:text-5xl tracking-tight">
                 {L.pricing.title[lang]}
               </h2>
               <p className="mt-4 text-muted-foreground text-base sm:text-lg">
@@ -63,7 +63,7 @@ export function IndexSectionsBottom({ lang }: Props) {
                   <div>
                     <h3 className="font-display font-bold text-xl md:text-2xl">{p.name}</h3>
                     <div className="mt-2 flex items-end gap-1 flex-wrap">
-                      <span className="font-display font-black text-2xl md:text-3xl">{p.price}</span>
+                      <span className="font-display font-bold text-2xl md:text-3xl">{p.price}</span>
                       {p.note && <span className="mb-0.5 text-sm text-muted-foreground">{p.note}</span>}
                     </div>
                     <span className="inline-block mt-2 rounded-full bg-primary/10 text-primary text-xs font-semibold px-3 py-1">
@@ -89,7 +89,7 @@ export function IndexSectionsBottom({ lang }: Props) {
                 <div>
                   <h3 className="font-display font-bold text-xl md:text-2xl">{lang === 'ru' ? 'Профи' : 'Pro'}</h3>
                   <div className="mt-2 flex items-end gap-1 flex-wrap">
-                    <span className="font-display font-black text-2xl md:text-3xl">{selectedPro.price.toLocaleString()} ₽</span>
+                    <span className="font-display font-bold text-2xl md:text-3xl">{selectedPro.price.toLocaleString()} ₽</span>
                     <span className="mb-0.5 text-sm text-muted-foreground">{lang === 'ru' ? 'в месяц' : 'per month'}</span>
                   </div>
                   <span className="inline-block mt-2 rounded-full bg-primary/10 text-primary text-xs font-semibold px-3 py-1">
@@ -175,7 +175,7 @@ export function IndexSectionsBottom({ lang }: Props) {
           <Reveal>
             <div className="text-center px-2">
               <span className="text-xs sm:text-sm font-semibold uppercase tracking-widest text-primary">FAQ</span>
-              <h2 className="mt-3 font-display font-black text-3xl sm:text-4xl md:text-5xl tracking-tight">
+              <h2 className="mt-3 font-display font-bold text-3xl sm:text-4xl md:text-5xl tracking-tight">
                 {L.faq.title[lang]}
               </h2>
             </div>
@@ -225,7 +225,7 @@ export function IndexSectionsBottom({ lang }: Props) {
             <div className="flex items-end justify-between mb-10 md:mb-14 gap-4">
               <div>
                 <span className="text-xs sm:text-sm font-semibold uppercase tracking-widest text-primary">Блог</span>
-                <h2 className="mt-3 font-display font-black text-3xl sm:text-4xl md:text-5xl tracking-tight">
+                <h2 className="mt-3 font-display font-bold text-3xl sm:text-4xl md:text-5xl tracking-tight">
                   Всё об AI‑разработке
                 </h2>
               </div>

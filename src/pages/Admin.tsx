@@ -245,7 +245,7 @@ const Admin = () => {
             <span className="inline-grid h-14 w-14 place-items-center rounded-2xl bg-primary text-primary-foreground mb-4 mx-auto">
               <Icon name="Lock" size={26} />
             </span>
-            <h1 className="font-display font-black text-2xl">Панель администратора</h1>
+            <h1 className="font-display font-bold text-2xl">Панель администратора</h1>
             <p className="text-muted-foreground text-sm mt-2">Введите пароль для входа</p>
           </div>
           <form onSubmit={handleLogin} className="space-y-3">
@@ -308,7 +308,7 @@ const Admin = () => {
                 <Icon name={s.icon} size={15} />
                 <span className="text-xs font-semibold uppercase tracking-wide">{s.label}</span>
               </div>
-              <div className="font-display font-black text-3xl">{s.value}</div>
+              <div className="font-display font-bold text-3xl">{s.value}</div>
             </div>
           ))}
         </div>

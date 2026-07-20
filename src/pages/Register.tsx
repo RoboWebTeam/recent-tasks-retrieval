@@ -76,7 +76,7 @@ const Register = () => {
           <div className="inline-flex items-center gap-2 rounded-full bg-white/10 border border-white/15 px-4 py-1.5 text-sm font-medium">
             <Icon name="Gift" size={14} className="text-accent" /> {tr('firstFree', lang)}
           </div>
-          <h2 className="font-display font-black text-4xl leading-tight whitespace-pre-line">
+          <h2 className="font-display font-bold text-4xl leading-tight whitespace-pre-line">
             {tr('registerHeroTitle', lang)}
           </h2>
           <p className="text-muted-foreground text-lg">{tr('registerHeroDesc', lang)}</p>
@@ -105,7 +105,7 @@ const Register = () => {
               </Link>
               <LangSwitcher lang={lang} />
             </div>
-            <h1 className="font-display font-black text-2xl sm:text-3xl">{tr('createAccount', lang)}</h1>
+            <h1 className="font-display font-bold text-2xl sm:text-3xl">{tr('createAccount', lang)}</h1>
             <p className="text-muted-foreground mt-2">{tr('freeNoCard', lang)}</p>
           </div>
 

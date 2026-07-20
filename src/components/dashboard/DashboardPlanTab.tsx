@@ -52,7 +52,7 @@ export default function DashboardPlanTab({
 
   return (
     <div>
-      <h1 className="font-display font-black text-xl sm:text-2xl mb-6">{lang === 'ru' ? 'Тарифный план' : 'Pricing Plan'}</h1>
+      <h1 className="font-display font-bold text-xl sm:text-2xl mb-6">{lang === 'ru' ? 'Тарифный план' : 'Pricing Plan'}</h1>
 
       {lowBalance && (
         <div className={`rounded-2xl px-4 py-3 mb-4 flex items-start gap-2.5 text-sm ${
@@ -110,7 +110,7 @@ export default function DashboardPlanTab({
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
           {energyPackages.map(pkg => (
             <div key={pkg.code} className="rounded-xl border border-border p-2.5 sm:p-4 flex flex-col items-center text-center gap-1.5 sm:gap-2">
-              <div className="font-display font-black text-lg sm:text-xl">{pkg.requests}</div>
+              <div className="font-display font-bold text-lg sm:text-xl">{pkg.requests}</div>
               <p className="text-[11px] sm:text-xs text-muted-foreground">{lang === 'ru' ? 'запросов' : 'requests'}</p>
               <p className="text-xs sm:text-sm font-semibold">{pkg.price.toLocaleString()} ₽</p>
               <Button
@@ -140,7 +140,7 @@ export default function DashboardPlanTab({
           <div key={p.id} className={`rounded-2xl border p-5 ${p.current ? 'border-primary bg-primary/5' : 'border-border bg-card'}`}>
             {p.hot && <span className="inline-block bg-primary text-primary-foreground text-xs font-bold rounded-full px-2.5 py-0.5 mb-2">{lang === 'ru' ? 'Популярный' : 'Popular'}</span>}
             <h3 className="font-display font-bold text-lg">{p.name}</h3>
-            <div className="font-display font-black text-2xl my-2">{p.price}</div>
+            <div className="font-display font-bold text-2xl my-2">{p.price}</div>
             <p className="text-xs text-primary font-semibold mb-3">{p.requests}</p>
             <ul className="space-y-1.5 mb-4">
               {p.features.map(f => (
@@ -164,7 +164,7 @@ export default function DashboardPlanTab({
         {/* Pro — интерактивная карточка с выбором количества запросов */}
         <div className={`rounded-2xl border p-5 ${(user?.plan ?? '').startsWith('pro_') ? 'border-primary bg-primary/5' : 'border-border bg-card'}`}>
           <h3 className="font-display font-bold text-lg">{tr('planPro', lang)}</h3>
-          <div className="font-display font-black text-2xl my-2">{selectedPro.price.toLocaleString()} ₽/{lang === 'ru' ? 'мес' : 'mo'}</div>
+          <div className="font-display font-bold text-2xl my-2">{selectedPro.price.toLocaleString()} ₽/{lang === 'ru' ? 'мес' : 'mo'}</div>
           <p className="text-xs text-primary font-semibold mb-2">{getProRequestsLabel(selectedPro.requests, lang)}</p>
           <div className="flex flex-wrap gap-1.5 mb-3">
             {proPlans.map((p, i) => (

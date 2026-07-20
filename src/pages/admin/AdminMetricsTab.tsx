@@ -78,7 +78,7 @@ export function AdminMetricsTab({ adminKey }: { adminKey: string }) {
                   <span className="grid h-7 w-7 place-items-center rounded-lg bg-primary/10 text-primary"><Icon name={c.icon} size={14} /></span>
                   <span className="text-xs font-semibold uppercase tracking-wide">{c.label}</span>
                 </div>
-                <div className="font-display font-black text-xl sm:text-2xl">{c.value}</div>
+                <div className="font-display font-bold text-xl sm:text-2xl">{c.value}</div>
                 <div className="text-xs text-muted-foreground mt-0.5">{c.sub}</div>
               </div>
             ))}

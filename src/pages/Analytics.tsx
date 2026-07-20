@@ -96,7 +96,7 @@ export default function Analytics() {
       <main className="container py-8 max-w-6xl">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="font-display font-black text-2xl sm:text-3xl">{isRu ? 'Аналитика' : 'Analytics'}</h1>
+            <h1 className="font-display font-bold text-2xl sm:text-3xl">{isRu ? 'Аналитика' : 'Analytics'}</h1>
             <p className="text-sm text-muted-foreground mt-0.5">
               {isRu ? 'Реальная статистика посещений ваших сайтов' : 'Real traffic statistics for your sites'}
             </p>
@@ -135,7 +135,7 @@ export default function Analytics() {
                   <Icon name={stat.icon} size={15} />
                 </div>
               </div>
-              <div className="text-2xl font-black text-foreground mb-1">{stat.value}</div>
+              <div className="text-2xl font-bold text-foreground mb-1">{stat.value}</div>
               {stat.change !== null && (
                 <div className={`flex items-center gap-1 text-xs font-semibold ${stat.change >= 0 ? 'text-emerald-600' : 'text-destructive'}`}>
                   <Icon name={stat.change >= 0 ? 'TrendingUp' : 'TrendingDown'} size={12} />

@@ -73,7 +73,7 @@ function PortfolioSection({ lang, portfolio }: { lang: Lang; portfolio: DemoItem
         <Reveal>
           <div className="text-center max-w-2xl mx-auto px-2 mb-6">
             <span className="text-xs sm:text-sm font-semibold uppercase tracking-widest text-primary">{L.portfolio.label[lang]}</span>
-            <h2 className="mt-3 inline-block font-display font-black text-3xl sm:text-4xl md:text-5xl tracking-tight text-gradient">
+            <h2 className="mt-3 inline-block font-display font-bold text-3xl sm:text-4xl md:text-5xl tracking-tight text-gradient">
               {L.portfolio.title[lang]}
             </h2>
             <p className="mt-4 text-muted-foreground text-base sm:text-lg">
@@ -231,7 +231,7 @@ export function IndexSectionsMiddle({ lang }: Props) {
           <Reveal>
             <div className="text-center max-w-2xl mx-auto px-2 mb-10 md:mb-14">
               <span className="text-xs sm:text-sm font-semibold uppercase tracking-widest text-primary">{lang === 'ru' ? 'Отзывы' : 'Reviews'}</span>
-              <h2 className="mt-3 font-display font-black text-3xl sm:text-4xl md:text-5xl tracking-tight">
+              <h2 className="mt-3 font-display font-bold text-3xl sm:text-4xl md:text-5xl tracking-tight">
                 {lang === 'ru' ? 'Что говорят клиенты' : 'What clients say'}
               </h2>
               <p className="mt-4 text-muted-foreground text-base sm:text-lg">
@@ -293,7 +293,7 @@ export function IndexSectionsMiddle({ lang }: Props) {
                   <Icon key={i} name="Star" size={22} className="text-amber-400 fill-amber-400" />
                 ))}
               </div>
-              <div className="text-2xl font-display font-black">4.9 / 5</div>
+              <div className="text-2xl font-display font-bold">4.9 / 5</div>
               <div className="text-muted-foreground text-sm">{lang === 'ru' ? 'на основе 1 200+ отзывов' : 'based on 1,200+ reviews'}</div>
             </div>
           </Reveal>
@@ -307,7 +307,7 @@ export function IndexSectionsMiddle({ lang }: Props) {
             <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-1.5 text-sm font-medium mb-5">
               <Icon name="Clock" size={15} /> {L.cta2.badge[lang]}
             </div>
-            <h2 className="font-display font-black text-3xl sm:text-4xl md:text-5xl tracking-tight mb-4">
+            <h2 className="font-display font-bold text-3xl sm:text-4xl md:text-5xl tracking-tight mb-4">
               {L.cta2.title[lang]}
             </h2>
             <p className="text-white/80 text-base sm:text-lg max-w-xl mx-auto mb-8">

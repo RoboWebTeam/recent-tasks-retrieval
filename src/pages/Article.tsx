@@ -78,7 +78,7 @@ export default function Article() {
 
   const renderContent = (content: string) => {
     return content.split('\n').map((line, i) => {
-      if (line.startsWith('## ')) return <h2 key={i} className="mt-10 mb-4 font-display font-black text-xl sm:text-2xl md:text-3xl tracking-tight break-words">{line.replace('## ', '')}</h2>;
+      if (line.startsWith('## ')) return <h2 key={i} className="mt-10 mb-4 font-display font-bold text-xl sm:text-2xl md:text-3xl tracking-tight break-words">{line.replace('## ', '')}</h2>;
       if (line.startsWith('### ')) return <h3 key={i} className="mt-7 mb-3 font-display font-bold text-lg sm:text-xl break-words">{line.replace('### ', '')}</h3>;
       if (line.startsWith('**') && line.endsWith('**')) return <p key={i} className="mt-4 font-semibold text-foreground">{line.replace(/\*\*/g, '')}</p>;
       if (line.startsWith('- ')) return <li key={i} className="ml-5 mt-1 list-disc text-muted-foreground break-words">{line.replace('- ', '')}</li>;
@@ -102,7 +102,7 @@ export default function Article() {
       <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
         <div className="container flex h-16 items-center justify-between gap-4">
           <div className="flex items-center gap-2 min-w-0">
-            <Link to="/" className="font-display font-black text-lg text-primary shrink-0">Roboweb</Link>
+            <Link to="/" className="font-display font-bold text-lg text-primary shrink-0">Roboweb</Link>
             <span className="text-muted-foreground shrink-0">/</span>
             <Link to="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors shrink-0">{tr('blogLabel', lang)}</Link>
             <span className="text-muted-foreground shrink-0 hidden sm:inline">/</span>
@@ -144,7 +144,7 @@ export default function Article() {
         </div>
 
         {/* Title */}
-        <h1 className="font-display font-black text-2xl sm:text-3xl md:text-4xl lg:text-5xl tracking-tight leading-tight mb-6 break-words">
+        <h1 className="font-display font-bold text-2xl sm:text-3xl md:text-4xl lg:text-5xl tracking-tight leading-tight mb-6 break-words">
           {article.title}
         </h1>
 
@@ -189,7 +189,7 @@ export default function Article() {
 
         {/* CTA */}
         <div className="mt-12 rounded-3xl bg-gradient-to-r from-primary to-[hsl(250,90%,60%)] p-8 text-center text-white">
-          <h3 className="font-display font-black text-2xl mb-2">{tr('blogCtaTitle', lang)}</h3>
+          <h3 className="font-display font-bold text-2xl mb-2">{tr('blogCtaTitle', lang)}</h3>
           <p className="text-white/80 mb-6">{tr('blogCtaDesc', lang)}</p>
           <Button size="lg" className="rounded-full bg-white text-primary hover:bg-white/90 font-semibold px-8" asChild>
             <Link to="/register">{tr('blogCtaBtn', lang)} <Icon name="ArrowRight" size={18} className="ml-1" /></Link>
@@ -221,7 +221,7 @@ export default function Article() {
         {/* Related */}
         {fallbackRelated.length > 0 && (
           <div className="mt-14">
-            <h2 className="font-display font-black text-2xl mb-6">
+            <h2 className="font-display font-bold text-2xl mb-6">
               {related.length > 0
                 ? (lang === 'ru' ? 'Похожие статьи' : 'Related articles')
                 : (lang === 'ru' ? 'Читайте также' : 'Read also')}
