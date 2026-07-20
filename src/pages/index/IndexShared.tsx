@@ -136,7 +136,7 @@ export function EmailForm({ dark = false, placeholder, btnText }: {
         </Button>
       </form>
       {status === 'error' && (
-        <p className={`mt-2 text-sm text-center ${dark ? 'text-rose-300' : 'text-rose-500'}`}>
+        <p className={`mt-2 text-sm text-center ${dark ? 'text-rose-700 dark:text-rose-300' : 'text-rose-500'}`}>
           {tr('errorSend', lang)}
         </p>
       )}

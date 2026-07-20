@@ -4,46 +4,46 @@
 
 @layer base {
   :root {
-    /* Тёмная премиум-B2B-тема (по умолчанию): угольный фон, приподнятые панели, сдержанный
-       синий бренд-акцент, прохладные нейтралы. Строгий enterprise-вид, внушающий доверие. */
-    --background: 220 22% 7%;
-    --foreground: 216 33% 96%;
+    /* Светлая премиум-B2B-тема (переключается на тёмную через класс .dark; по умолчанию сайт
+       грузится в тёмной — см. скрипт в index.html). Чистый прохладный светлый, тот же синий бренд. */
+    --background: 220 20% 98%;
+    --foreground: 222 47% 12%;
 
-    --card: 220 19% 11%;
-    --card-foreground: 216 33% 96%;
+    --card: 0 0% 100%;
+    --card-foreground: 222 47% 12%;
 
-    --popover: 220 20% 10%;
-    --popover-foreground: 216 33% 96%;
+    --popover: 0 0% 100%;
+    --popover-foreground: 222 47% 12%;
 
-    --primary: 221 83% 62%;
+    --primary: 221 83% 54%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 18% 16%;
-    --secondary-foreground: 216 33% 96%;
+    --secondary: 220 20% 95.5%;
+    --secondary-foreground: 222 47% 12%;
 
-    --muted: 220 16% 15%;
-    --muted-foreground: 216 14% 63%;
+    --muted: 220 20% 95.5%;
+    --muted-foreground: 220 12% 42%;
 
-    --accent: 199 52% 50%;
+    --accent: 199 58% 40%;
     --accent-foreground: 0 0% 100%;
 
-    --destructive: 0 72% 55%;
+    --destructive: 0 72% 48%;
     --destructive-foreground: 210 40% 98%;
 
-    --border: 220 15% 20%;
-    --input: 220 15% 22%;
-    --ring: 221 83% 62%;
+    --border: 220 16% 88%;
+    --input: 220 16% 88%;
+    --ring: 221 83% 54%;
 
     --radius: 0.5rem;
 
-    --sidebar-background: 220 22% 9%;
-    --sidebar-foreground: 216 20% 80%;
-    --sidebar-primary: 221 83% 62%;
+    --sidebar-background: 220 20% 98%;
+    --sidebar-foreground: 222 20% 30%;
+    --sidebar-primary: 221 83% 54%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 18% 16%;
-    --sidebar-accent-foreground: 216 33% 96%;
-    --sidebar-border: 220 15% 20%;
-    --sidebar-ring: 221 83% 62%;
+    --sidebar-accent: 220 20% 95.5%;
+    --sidebar-accent-foreground: 222 47% 12%;
+    --sidebar-border: 220 16% 88%;
+    --sidebar-ring: 221 83% 54%;
   }
 
   .dark {
@@ -446,9 +446,13 @@ section[id] {
 /* Премиум-типографика: чуть отрицательный трекинг у display-заголовков (Manrope) */
 .font-display{letter-spacing:-0.018em}
 
-/* Премиум-глубина карточек: тонкий верхний внутренний хайлайт + мягкая тень (lit-from-above) */
+/* Премиум-глубина карточек. В светлой теме — мягкая аккуратная тень; в тёмной — верхний
+   внутренний хайлайт + более глубокая тень (эффект «освещён сверху», как у Linear/Vercel). */
 @layer utilities {
   [class~="bg-card"] {
+    box-shadow: 0 1px 2px 0 hsl(220 30% 30% / 0.06), 0 1px 3px 0 hsl(220 30% 30% / 0.05);
+  }
+  .dark [class~="bg-card"] {
     box-shadow: inset 0 1px 0 0 hsl(210 40% 98% / 0.045), 0 1px 2px 0 hsl(220 45% 2% / 0.45);
   }
   [class~="bg-card"]:where(.shadow-none) { box-shadow: none; }

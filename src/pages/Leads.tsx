@@ -21,7 +21,7 @@ interface Lead {
 
 const STATUS_CONFIG = {
   new:       { label: { ru: 'Новая',      en: 'New' },       color: 'bg-primary/10 text-primary',            dot: 'bg-primary' },
-  processed: { label: { ru: 'Обработана', en: 'Processed' }, color: 'bg-emerald-500/15 text-emerald-300',        dot: 'bg-emerald-500' },
+  processed: { label: { ru: 'Обработана', en: 'Processed' }, color: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300',        dot: 'bg-emerald-500' },
   rejected:  { label: { ru: 'Отклонена',  en: 'Rejected' },  color: 'bg-secondary text-muted-foreground',    dot: 'bg-muted-foreground' },
 };
 
@@ -121,7 +121,7 @@ export default function Leads() {
           {[
             { label: isRu ? 'Всего' : 'Total', value: totalCount, icon: 'Inbox', color: 'text-foreground bg-secondary' },
             { label: isRu ? 'Новые' : 'New', value: newCount, icon: 'Bell', color: 'text-primary bg-primary/10' },
-            { label: isRu ? 'Конверсия' : 'Conv.', value: '—', icon: 'TrendingUp', color: 'text-emerald-300 bg-emerald-500/15' },
+            { label: isRu ? 'Конверсия' : 'Conv.', value: '—', icon: 'TrendingUp', color: 'text-emerald-700 dark:text-emerald-300 bg-emerald-500/15' },
           ].map(stat => (
             <div key={stat.label} className="bg-card border border-border rounded-2xl p-4 flex items-center gap-3">
               <div className={`grid h-9 w-9 place-items-center rounded-xl shrink-0 ${stat.color}`}>

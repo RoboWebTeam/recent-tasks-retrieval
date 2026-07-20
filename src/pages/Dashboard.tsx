@@ -30,8 +30,8 @@ const getPlanLabels = (lang: ReturnType<typeof getLang>) => ({
 
 const getStatusConfig = (lang: ReturnType<typeof getLang>) => ({
   draft:     { label: tr('draft', lang),     color: 'text-muted-foreground bg-secondary',   icon: 'FileText' },
-  building:  { label: tr('building', lang),  color: 'text-amber-300 bg-amber-500/15',       icon: 'Loader' },
-  published: { label: tr('published', lang), color: 'text-emerald-300 bg-emerald-500/15',   icon: 'Globe' },
+  building:  { label: tr('building', lang),  color: 'text-amber-700 dark:text-amber-300 bg-amber-500/15',       icon: 'Loader' },
+  published: { label: tr('published', lang), color: 'text-emerald-700 dark:text-emerald-300 bg-emerald-500/15',   icon: 'Globe' },
 });
 
 const Dashboard = () => {

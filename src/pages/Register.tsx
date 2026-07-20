@@ -6,6 +6,7 @@ import Icon from '@/components/ui/icon';
 import { apiRegister, setSession, storeUser } from '@/lib/auth';
 import { getLang, tr } from '@/lib/i18n';
 import LangSwitcher from '@/components/LangSwitcher';
+import ThemeToggle from '@/components/ThemeToggle';
 import { trackGoal, GOALS } from '@/lib/analytics';
 
 const Register = () => {
@@ -103,7 +104,7 @@ const Register = () => {
                 </span>
                 Roboweb
               </Link>
-              <LangSwitcher lang={lang} />
+              <div className="flex items-center gap-2"><ThemeToggle /><LangSwitcher lang={lang} /></div>
             </div>
             <h1 className="font-display font-bold text-2xl sm:text-3xl">{tr('createAccount', lang)}</h1>
             <p className="text-muted-foreground mt-2">{tr('freeNoCard', lang)}</p>

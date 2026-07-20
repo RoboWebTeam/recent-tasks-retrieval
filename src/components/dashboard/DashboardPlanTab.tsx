@@ -56,7 +56,7 @@ export default function DashboardPlanTab({
 
       {lowBalance && (
         <div className={`rounded-2xl px-4 py-3 mb-4 flex items-start gap-2.5 text-sm ${
-          remaining! <= 0 ? 'bg-destructive/10 text-destructive' : 'bg-amber-500/15 text-amber-300'
+          remaining! <= 0 ? 'bg-destructive/10 text-destructive' : 'bg-amber-500/15 text-amber-700 dark:text-amber-300'
         }`}>
           <Icon name={remaining! <= 0 ? 'AlertCircle' : 'Zap'} size={16} className="shrink-0 mt-0.5" />
           <div>
@@ -91,7 +91,7 @@ export default function DashboardPlanTab({
       <div className="rounded-2xl border border-border bg-card p-4 sm:p-6 mb-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
           <div className="flex items-center gap-2">
-            <div className="grid h-9 w-9 place-items-center rounded-xl bg-amber-500/15 text-amber-300">
+            <div className="grid h-9 w-9 place-items-center rounded-xl bg-amber-500/15 text-amber-700 dark:text-amber-300">
               <Icon name="Zap" size={16} />
             </div>
             <div>

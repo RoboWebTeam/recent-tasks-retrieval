@@ -7,6 +7,7 @@ import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import LangSwitcher from '@/components/LangSwitcher';
+import ThemeToggle from '@/components/ThemeToggle';
 import { type Lang } from '@/lib/i18n';
 import { getSession, getStoredUser, clearSession } from '@/lib/auth';
 import { L, getNAV } from './indexData';
@@ -45,6 +46,7 @@ export function IndexNav({ lang, menuOpen, setMenuOpen, onLangSwitch }: IndexNav
           ))}
         </div>
         <div className="flex items-center gap-2">
+          <ThemeToggle />
           <LangSwitcher lang={lang} onSwitch={onLangSwitch} />
           {isAuthed ? (
             <DropdownMenu>

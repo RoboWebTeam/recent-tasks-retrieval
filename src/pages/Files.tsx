@@ -138,7 +138,7 @@ export default function Files() {
           <div className="space-y-3">
             {files.map(f => (
               <div key={f.id} className="flex items-center gap-3 bg-card border border-border rounded-2xl p-4 hover:shadow-md transition-shadow">
-                <div className={`grid h-10 w-10 place-items-center rounded-xl shrink-0 ${f.file_type === 'zip' ? 'bg-amber-500/15 text-amber-300' : 'bg-primary/10 text-primary'}`}>
+                <div className={`grid h-10 w-10 place-items-center rounded-xl shrink-0 ${f.file_type === 'zip' ? 'bg-amber-500/15 text-amber-700 dark:text-amber-300' : 'bg-primary/10 text-primary'}`}>
                   <Icon name={f.file_type === 'zip' ? 'FileArchive' : 'FileCode'} size={18} />
                 </div>
                 <div className="min-w-0 flex-1">

@@ -4,6 +4,7 @@ import Icon from '@/components/ui/icon';
 import { getStoredUser, clearSession, getRemainingRequests, LOW_BALANCE_THRESHOLD, type User } from '@/lib/auth';
 import { getLang, tr, type Lang } from '@/lib/i18n';
 import LangSwitcher from '@/components/LangSwitcher';
+import ThemeToggle from '@/components/ThemeToggle';
 
 function Avatar({ user }: { user: User }) {
   const initials = user.name.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2);
@@ -84,6 +85,7 @@ export default function DashboardHeader({ active, leadsCount = 0 }: DashboardHea
         </nav>
 
         <div className="flex items-center gap-2">
+          <ThemeToggle />
           <LangSwitcher lang={lang} />
           {user && <Avatar user={user} />}
           <Button variant="ghost" size="sm" onClick={handleLogout} className="rounded-xl text-muted-foreground hover:text-foreground hidden sm:flex">

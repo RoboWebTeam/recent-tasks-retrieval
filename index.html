@@ -1,12 +1,21 @@
 <!DOCTYPE html>
-<html lang="ru" class="dark">
+<html lang="ru">
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <meta name="color-scheme" content="dark"/>
-    <meta name="theme-color" content="#0E1116"/>
-    <!-- Тёмная тема по умолчанию: фон сразу тёмный, без белой вспышки при загрузке -->
-    <style>html,body{background:#0E1116}</style>
+    <meta name="color-scheme" content="dark light"/>
+    <!-- Тема: применяем ДО рендера, чтобы не было вспышки. По умолчанию тёмная; выбор в localStorage. -->
+    <script>
+      (function () {
+        try {
+          var t = localStorage.getItem('theme');
+          if (t !== 'light' && t !== 'dark') t = 'dark';
+          if (t === 'dark') document.documentElement.classList.add('dark');
+          document.documentElement.style.background = t === 'dark' ? '#0E1116' : '#F7F8FB';
+          document.documentElement.style.colorScheme = t;
+        } catch (e) { document.documentElement.classList.add('dark'); }
+      })();
+    </script>
 
     <!-- Primary SEO -->
     <title>Roboweb — ИИ-разработчик сайтов: фуллстек за минуты + код в GitHub</title>

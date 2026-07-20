@@ -78,9 +78,9 @@ export default function Analytics() {
 
   const stats = data ? [
     { label: isRu ? 'Просмотры' : 'Views', value: data.total_views.toLocaleString(), change: data.views_change, icon: 'Eye', color: 'text-primary bg-primary/10' },
-    { label: isRu ? 'Посетители' : 'Visitors', value: data.total_visitors.toLocaleString(), change: null, icon: 'Users', color: 'text-violet-300 bg-violet-500/15' },
-    { label: isRu ? 'Заявки' : 'Leads', value: leadsCount.toString(), change: null, icon: 'MessageSquare', color: 'text-emerald-300 bg-emerald-500/15' },
-    { label: isRu ? 'Конверсия' : 'Conversion', value: `${conversion}%`, change: null, icon: 'TrendingUp', color: 'text-amber-300 bg-amber-500/15' },
+    { label: isRu ? 'Посетители' : 'Visitors', value: data.total_visitors.toLocaleString(), change: null, icon: 'Users', color: 'text-violet-700 dark:text-violet-300 bg-violet-500/15' },
+    { label: isRu ? 'Заявки' : 'Leads', value: leadsCount.toString(), change: null, icon: 'MessageSquare', color: 'text-emerald-700 dark:text-emerald-300 bg-emerald-500/15' },
+    { label: isRu ? 'Конверсия' : 'Conversion', value: `${conversion}%`, change: null, icon: 'TrendingUp', color: 'text-amber-700 dark:text-amber-300 bg-amber-500/15' },
   ] : [];
 
   const periods = [
