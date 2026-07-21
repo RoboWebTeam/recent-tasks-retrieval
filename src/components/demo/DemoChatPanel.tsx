@@ -55,7 +55,7 @@ export function DemoChatPanel({ lang, running, progress, progressLabel, visibleS
             <Icon name="Bot" size={12} />
           </div>
           <div className="max-w-[85%] rounded-2xl rounded-bl-sm bg-white border border-slate-100 shadow-sm px-3.5 py-2.5 text-xs text-slate-700 leading-relaxed">
-            {lang === 'ru' ? '👋 Привет! Опишите ваш сайт — и я создам его за 47 секунд.' : '👋 Hi! Describe your site — I\'ll build it in 47 seconds.'}
+            {lang === 'ru' ? 'Опишите ваш проект — соберу рабочий сайт с бэкендом и кодом на Next.js + Prisma.' : 'Describe your project — I\'ll build a working site with a backend and Next.js + Prisma code.'}
           </div>
         </div>
 
