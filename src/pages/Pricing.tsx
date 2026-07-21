@@ -29,7 +29,7 @@ const getLangData = (isRu: boolean) => ({
     },
     {
       q: isRu ? 'Есть ли пробный период для платных тарифов?' : 'Is there a trial for paid plans?',
-      a: isRu ? 'Пробный тариф бесплатен без ограничения по времени. Для платных тарифов — 7-дневный возврат средств без вопросов.' : 'The Free plan has no time limit. For paid plans — 7-day money-back guarantee, no questions asked.',
+      a: isRu ? 'Пробный тариф бесплатен без ограничения по времени. Для платных тарифов — возврат в течение 7 дней по условиям оферты.' : 'The Free plan has no time limit. For paid plans — a 7-day refund under the terms of the public offer.',
     },
     {
       q: isRu ? 'Какие способы оплаты принимаются?' : 'What payment methods are accepted?',
@@ -338,7 +338,7 @@ export default function Pricing() {
               <tbody>
                 {[
                   { label: isRu ? 'Стоимость' : 'Cost', roboweb: isRu ? 'от 0 ₽' : 'from $0', agency: isRu ? 'от 80 000 ₽' : 'from $1000', freelancer: isRu ? 'от 15 000 ₽' : 'from $200' },
-                  { label: isRu ? 'Срок' : 'Timeline', roboweb: isRu ? '47 секунд' : '47 seconds', agency: isRu ? '3–6 недель' : '3–6 weeks', freelancer: isRu ? '1–3 недели' : '1–3 weeks' },
+                  { label: isRu ? 'Срок' : 'Timeline', roboweb: isRu ? 'Минуты' : 'Minutes', agency: isRu ? '3–6 недель' : '3–6 weeks', freelancer: isRu ? '1–3 недели' : '1–3 weeks' },
                   { label: isRu ? 'Правки' : 'Revisions', roboweb: isRu ? 'Мгновенно' : 'Instant', agency: isRu ? 'Долго и дорого' : 'Slow & costly', freelancer: isRu ? 'По договору' : 'By contract' },
                   { label: isRu ? 'Хостинг' : 'Hosting', roboweb: isRu ? 'Включён' : 'Included', agency: isRu ? 'Отдельно' : 'Separate', freelancer: isRu ? 'Отдельно' : 'Separate' },
                 ].map((row, i) => (

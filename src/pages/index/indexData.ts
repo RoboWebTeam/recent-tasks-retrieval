@@ -66,10 +66,10 @@ export const L = {
     label: { ru: 'Тарифы', en: 'Pricing' },
     title: { ru: "Платите за рабочий продукт и его код", en: "Pay for a working product and its code" },
     desc:  { ru: "Прозрачные тарифы за готовое фуллстек-приложение с бэкендом и правом выгрузить код в свой GitHub. Без скрытых часов и бесконечных правок.", en: "Transparent plans for a finished full-stack app with a backend and the right to export the code to your GitHub. No hidden hours, no endless revisions." },
-    popular:{ ru: '✦ Популярный', en: '✦ Popular' },
+    popular:{ ru: 'Популярный', en: 'Popular' },
   },
   cta3: {
-    badge: { ru: "Бесплатно для первых 100 клиентов", en: "Free for the first 100 clients" },
+    badge: { ru: "Первый проект — бесплатно", en: "First project — free" },
     title: { ru: "Запустите работающий сайт сегодня", en: "Launch a working site today" },
     desc:  { ru: "Оставьте e-mail и опишите проект — ИИ соберёт фуллстек с бэкендом, а код вы сможете забрать в свой GitHub.", en: "Leave your e-mail and describe the project — the AI builds a full-stack with a backend, and you can take the code to your GitHub." },
     btn:   { ru: "Начать бесплатно", en: "Start free" },
@@ -82,7 +82,7 @@ export const L = {
     label: { ru: 'FAQ', en: 'FAQ' },
     title: { ru: 'Частые вопросы', en: 'Frequently asked questions' },
     ctaTitle:{ ru: "Остались вопросы?", en: "Still have questions?" },
-    ctaDesc: { ru: "Напишите нам в Telegram — расскажем про бэкенд, кабинеты и выгрузку кода на вашем примере. Ответим в течение 15 минут.", en: "Message us on Telegram — we'll walk through the backend, accounts and code export on your own example. We reply within 15 minutes." },
+    ctaDesc: { ru: "Напишите нам в Telegram — расскажем про бэкенд, кабинеты и выгрузку кода на вашем примере. Обычно отвечаем быстро.", en: "Message us on Telegram — we'll walk through the backend, accounts and code export on your own example. We usually reply quickly." },
     mail:    { ru: 'Написать на почту', en: 'Email us' },
     tg:      { ru: 'Написать в Telegram', en: 'Write in Telegram' },
   },
@@ -93,7 +93,7 @@ export const L = {
     desc:    { ru: "ИИ-разработчик фуллстек-сайтов: из вашего описания собирает рабочий продукт с базой, формами, корзиной и кабинетами — и отдаёт код на Next.js + Prisma в ваш GitHub.", en: "An AI developer for full-stack sites: turns your description into a working product with a database, forms, cart and accounts — and hands you Next.js + Prisma code in your GitHub." },
     copy:    { ru: 'Создано с помощью искусственного интеллекта.', en: 'Built with artificial intelligence.' },
   },
-  marquee: { ru: ["✦ Магазины с корзиной", "✦ Сайты услуг с заявками в базу", "✦ Каталоги на базе данных", "✦ Личные кабинеты", "✦ Оформление заказа", "✦ Онлайн-запись и бронирование", "✦ Каркасы на Next.js + Prisma", "✦ Выгрузка кода в GitHub"], en: ["✦ Stores with a cart", "✦ Service sites with leads in a DB", "✦ Database-driven catalogs", "✦ User accounts", "✦ Checkout flow", "✦ Online booking", "✦ Next.js + Prisma scaffolds", "✦ Code export to GitHub"] },
+  marquee: { ru: ["Магазины с корзиной", "Сайты услуг с заявками в базу", "Каталоги на базе данных", "Личные кабинеты", "Оформление заказа", "Онлайн-запись и бронирование", "Каркасы на Next.js + Prisma", "Выгрузка кода в GitHub"], en: ["Stores with a cart", "Service sites with leads in a DB", "Database-driven catalogs", "User accounts", "Checkout flow", "Online booking", "Next.js + Prisma scaffolds", "Code export to GitHub"] },
 } as const;
 
 export const ROBO_IMG =
@@ -114,15 +114,15 @@ export const getNAV = (lang: Lang) => [
 export const getCHAT_STEPS = (lang: Lang) => lang === 'ru' ? [
   { who: 'user', text: 'Сделай лендинг для кофейни с меню и доставкой' },
   { who: 'bot', text: 'Принял! Анализирую нишу и подбираю стиль…', typing: true },
-  { who: 'bot', text: '☕ Структура готова: Герой → Меню → Доставка → Контакты', progress: 40 },
-  { who: 'bot', text: '🎨 Применяю дизайн: тёплые тона, красивые шрифты…', progress: 70 },
-  { who: 'bot', text: '✦ Сайт готов за 47 секунд! Запускаем?', done: true },
+  { who: 'bot', text: 'Структура готова: Каталог → Заявка в базу → Кабинет', progress: 40 },
+  { who: 'bot', text: 'Настраиваю бэкенд: форму в PostgreSQL и серверную логику…', progress: 70 },
+  { who: 'bot', text: 'Готово: рабочий сайт и код Next.js + Prisma. Забрать в GitHub?', done: true },
 ] : [
   { who: 'user', text: 'Create a landing for a coffee shop with menu and delivery' },
   { who: 'bot', text: 'Got it! Analyzing niche and picking style…', typing: true },
-  { who: 'bot', text: '☕ Structure ready: Hero → Menu → Delivery → Contacts', progress: 40 },
-  { who: 'bot', text: '🎨 Applying design: warm tones, beautiful fonts…', progress: 70 },
-  { who: 'bot', text: '✦ Site built in 47 seconds! Ready to launch?', done: true },
+  { who: 'bot', text: 'Structure ready: Catalog → Lead to database → Account', progress: 40 },
+  { who: 'bot', text: 'Wiring the backend: a form into PostgreSQL and server logic…', progress: 70 },
+  { who: 'bot', text: 'Done: a working site and Next.js + Prisma code. Export to GitHub?', done: true },
 ];
 
 export const getFEATURES = (lang: Lang) => lang === 'ru' ? [
@@ -135,9 +135,9 @@ export const getFEATURES = (lang: Lang) => lang === 'ru' ? [
   { icon: "BarChart2", title: "Заявки и заказы приходят", text: "Каждая заявка и заказ сохраняются в базе и видны в панели. Сайт приносит клиентов, а не просто выглядит." },
   { icon: "RefreshCw", title: "Правки в диалоге", text: "Меняете логику, тексты и дизайн словами — ИИ переписывает и данные, и интерфейс, не ломая проект." },
   { icon: "Globe", title: "Публикация в 1 клик", text: "Хостинг, SSL и домен настраиваются сами. Работающий сайт с бэкендом сразу онлайн — без настройки серверов." },
-  { icon: "Search", title: "SEO из коробки", text: "Чистая разметка, метатеги и скорость Next.js настроены под Google и Яндекс — продукт находят, а не только показывают." },
+  { icon: "Search", title: "SEO из коробки", text: "Чистая разметка, метатеги и скорость Next.js настроены под Google и Яндекс — техническая база для индексации в Google и Яндексе." },
   { icon: "Smartphone", title: "Адаптивность", text: "Каталог, корзина и кабинеты одинаково удобны на телефоне, планшете и десктопе — автоматически." },
-  { icon: "HeadphonesIcon", title: "Живая поддержка", text: "Команда в Telegram помогает с бэкендом, экспортом кода и доменом на любом этапе. Среднее время ответа — 15 минут." },
+  { icon: "HeadphonesIcon", title: "Живая поддержка", text: "Команда в Telegram помогает с бэкендом, экспортом кода и доменом на любом этапе. Отвечаем в рабочее время." },
 ] : [
   { icon: "MessageSquare", title: "Describe it in plain words", text: "Tell the AI your idea — it designs the pages, data and server logic and builds a working app, not a mockup." },
   { icon: "Zap", title: "A scaffold in a minute — for devs", text: "Next.js, Prisma, accounts and cart assembled in a minute. Take the code and add your own logic yourself." },
@@ -148,9 +148,9 @@ export const getFEATURES = (lang: Lang) => lang === 'ru' ? [
   { icon: "BarChart2", title: "Leads and orders land", text: "Every lead and order is saved in the database and visible in a dashboard. The site brings clients, not just looks." },
   { icon: "RefreshCw", title: "Edits in dialog", text: "Change logic, copy and design in words — the AI rewrites both data and UI without breaking the project." },
   { icon: "Globe", title: "One-click publishing", text: "Hosting, SSL and domain configure themselves. A working site with a backend goes live at once — no server setup." },
-  { icon: "Search", title: "SEO out of the box", text: "Clean markup, meta tags and Next.js speed tuned for Google and Yandex — built to rank, not just to show." },
+  { icon: "Search", title: "SEO out of the box", text: "Clean markup, meta tags and Next.js speed tuned for Google and Yandex — a solid technical base for Google and Yandex indexing." },
   { icon: "Smartphone", title: "Responsive everywhere", text: "Catalog, cart and accounts work the same on phone, tablet and desktop — automatically." },
-  { icon: "HeadphonesIcon", title: "Live support", text: "The team in Telegram helps with the backend, code export and domain at any stage. Average response time — 15 minutes." },
+  { icon: "HeadphonesIcon", title: "Live support", text: "The team in Telegram helps with the backend, code export and domain at any stage. We reply during working hours." },
 ];
 
 export const getCOMPARE = (lang: Lang) => lang === 'ru' ? [
@@ -170,15 +170,15 @@ export const getCOMPARE = (lang: Lang) => lang === 'ru' ? [
 ];
 
 export const getTRUST = (lang: Lang) => lang === 'ru' ? [
-  { icon: 'Star', value: '4.9', label: 'Средняя оценка' },
-  { icon: 'Users', value: '3 200+', label: 'Активных клиентов' },
-  { icon: 'Globe', value: '12 000+', label: 'Собранных проектов' },
-  { icon: 'Clock', value: '47 сек', label: 'Среднее время сборки' },
+  { icon: "Github", value: "Next.js + Prisma", label: "Весь код проекта — в вашем GitHub, а не в нашей платформе" },
+  { icon: "Database", value: "Ваша PostgreSQL", label: "Заявки, заказы и аккаунты — в вашей базе данных" },
+  { icon: "KeyRound", value: "Без вендор-лока", label: "После экспорта разворачивайте и хостите где угодно" },
+  { icon: "FileCheck", value: "Публичная оферта", label: "Публичный договор и ИП в ЕГРИП (ОГРНИП/ИНН) — можно проверить" },
 ] : [
-  { icon: 'Star', value: '4.9', label: 'Average rating' },
-  { icon: 'Users', value: '3 200+', label: 'Active clients' },
-  { icon: 'Globe', value: '12 000+', label: 'Projects built' },
-  { icon: 'Clock', value: '47 sec', label: 'Average build time' },
+  { icon: "Github", value: "Next.js + Prisma", label: "The whole project's code — in your GitHub, not our platform" },
+  { icon: "Database", value: "Your PostgreSQL", label: "Leads, orders and accounts — in your own database" },
+  { icon: "KeyRound", value: "No vendor lock-in", label: "After export, deploy and host anywhere" },
+  { icon: "FileCheck", value: "Public offer", label: "A public contract and a company on the state register — you can verify it" },
 ];
 
 export const getSTEPS = (lang: Lang) => lang === 'ru' ? [

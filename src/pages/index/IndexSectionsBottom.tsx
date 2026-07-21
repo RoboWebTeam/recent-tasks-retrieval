@@ -137,6 +137,31 @@ export function IndexSectionsBottom({ lang }: Props) {
               ? 'Одна генерация на Sonnet 5 списывает 1 единицу тарифа, на Opus 4.8 — 9 (модель мощнее для сложных задач). Указанные числа — это генерации на Sonnet 5.'
               : 'One generation on Sonnet 5 uses 1 plan unit; on Opus 4.8 — 9 (a stronger model for complex tasks). The numbers shown are Sonnet 5 generations.'}
           </p>
+          <Reveal>
+            <div className="mt-8 rounded-2xl md:rounded-3xl border border-border bg-card p-5 sm:p-6 max-w-4xl mx-auto grid sm:grid-cols-2 gap-x-8 gap-y-3.5">
+              {(lang === 'ru' ? [
+              { icon: "ShieldCheck", text: "Свой код: Next.js + Prisma выгружается в ваш GitHub" },
+              { icon: "KeyRound", text: "Без вендор-лока: разворачивайте и хостите где угодно" },
+              { icon: "Database", text: "Данные в вашей PostgreSQL — выгрузка в любой момент" },
+              { icon: "RefreshCw", text: "Возврат в течение 7 дней по оферте, если оплаченные функции не использовались" }
+              ] : [
+              { icon: "ShieldCheck", text: "Your own code: Next.js + Prisma exported to your GitHub" },
+              { icon: "KeyRound", text: "No vendor lock-in: deploy and host anywhere" },
+              { icon: "Database", text: "Data in your PostgreSQL — export at any time" },
+              { icon: "RefreshCw", text: "Refund within 7 days under the offer if the paid features weren't used" }
+              ]).map(g => (
+                <div key={g.text} className="flex items-start gap-2.5 text-sm">
+                  <Icon name={g.icon} size={17} className="text-primary shrink-0 mt-0.5" />
+                  <span className="text-foreground/90 leading-relaxed">{g.text}</span>
+                </div>
+              ))}
+            </div>
+            <p className="mt-3 text-center text-xs text-muted-foreground">
+              {lang === 'ru'
+                ? <>Условия и точные сроки возврата — в <Link to="/oferta" className="text-primary hover:underline">публичной оферте</Link>. Реквизиты ИП можно проверить в ЕГРИП.</>
+                : <>Exact refund terms are in the <Link to="/oferta" className="text-primary hover:underline">public offer</Link>. Company details are verifiable on the state register.</>}
+            </p>
+          </Reveal>
         </div>
       </section>
 

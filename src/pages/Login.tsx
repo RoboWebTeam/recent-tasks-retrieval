@@ -38,8 +38,8 @@ const Login = () => {
   };
 
   const features = lang === 'ru'
-    ? ['47 секунд — средняя сборка сайта', '12 000+ созданных сайтов', 'Поддержка 24/7 в Telegram']
-    : ['47 seconds — average build time', '12 000+ websites created', '24/7 Telegram support'];
+    ? ['Код Next.js + Prisma — в вашем GitHub', 'Данные — в вашей PostgreSQL', 'Поддержка в Telegram']
+    : ['Next.js + Prisma code — in your GitHub', 'Data — in your PostgreSQL', 'Support on Telegram'];
 
   return (
     <div className="min-h-screen bg-background flex">

@@ -99,12 +99,12 @@ export function IndexSectionsTop({ lang }: Props) {
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
             {TRUST.map((t, i) => (
               <Reveal key={t.label} delay={i * 80}>
-                <div className="text-center">
-                  <div className="inline-flex items-center justify-center h-12 w-12 rounded-2xl bg-primary/10 mb-3 mx-auto">
-                    <Icon name={t.icon} size={22} className="text-primary" />
+                <div className="text-center flex flex-col items-center">
+                  <div className="inline-flex items-center justify-center h-11 w-11 rounded-xl bg-primary/10 mb-3">
+                    <Icon name={t.icon} size={20} className="text-primary" />
                   </div>
-                  <div className="font-display font-bold text-2xl sm:text-3xl text-foreground">{t.value}</div>
-                  <div className="text-sm text-muted-foreground mt-1">{t.label}</div>
+                  <div className="font-display font-bold text-base sm:text-lg text-foreground tracking-tight">{t.value}</div>
+                  <div className="text-xs sm:text-sm text-muted-foreground mt-1.5 max-w-[15rem] leading-relaxed">{t.label}</div>
                 </div>
               </Reveal>
             ))}

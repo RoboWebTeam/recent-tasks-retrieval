@@ -173,20 +173,6 @@ export function IndexHero({ lang, typedText, chatStep, isTyping, progress, chatS
       <div className="absolute top-40 -right-24 h-56 w-56 md:h-80 md:w-80 rounded-full bg-accent/25 blur-3xl animate-glow" style={{animationDelay:'1.5s', transform:'translate3d(calc(var(--px,0) * -28px), calc(var(--py,0) * -28px), 0)', transition:'transform 0.4s ease-out'}} />
       <div className="absolute bottom-10 left-1/3 h-40 w-40 rounded-full bg-primary/10 blur-2xl animate-glow" style={{animationDelay:'0.8s', transform:'translate3d(calc(var(--px,0) * 44px), calc(var(--py,0) * 22px), 0)', transition:'transform 0.4s ease-out'}} />
 
-      {/* Floating badges — только на очень широких экранах, за пределами контента */}
-      <div className="absolute top-40 left-4 hidden 2xl:flex items-center gap-2 rounded-2xl glass px-4 py-2.5 shadow-lg animate-float" style={{animationDelay:'0.3s'}}>
-        <Icon name="Zap" size={16} className="text-primary" />
-        <span className="text-xs font-semibold">{lang === 'ru' ? '47 секунд' : '47 seconds'}</span>
-      </div>
-      <div className="absolute top-52 right-4 hidden 2xl:flex items-center gap-2 rounded-2xl glass px-4 py-2.5 shadow-lg animate-float" style={{animationDelay:'1s'}}>
-        <Icon name="TrendingUp" size={16} className="text-accent" />
-        <span className="text-xs font-semibold">+212% {lang === 'ru' ? 'конверсия' : 'conversion'}</span>
-      </div>
-      <div className="absolute bottom-36 left-4 hidden 2xl:flex items-center gap-2 rounded-2xl glass px-4 py-2.5 shadow-lg animate-float" style={{animationDelay:'1.8s'}}>
-        <Icon name="Shield" size={16} className="text-primary" />
-        <span className="text-xs font-semibold">SSL + {lang === 'ru' ? 'хостинг' : 'hosting'}</span>
-      </div>
-
       <div className="container grid lg:grid-cols-2 gap-10 lg:gap-12 items-center">
         <div className="animate-fade-in text-center lg:text-left" style={{transform:'translate3d(calc(var(--px,0) * -14px), calc(var(--py,0) * -9px), 0)', transition:'transform 0.4s ease-out'}}>
           <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-xs sm:text-sm font-medium text-primary">
@@ -221,8 +207,9 @@ export function IndexHero({ lang, typedText, chatStep, isTyping, progress, chatS
           {/* Trust proof-points (конкретные возможности вместо вымышленных цифр) */}
           <div className="mt-8 flex items-center justify-center lg:justify-start gap-x-5 gap-y-2.5 flex-wrap">
             {[
-              { icon: 'Database', ru: 'Рабочий бэкенд', en: 'Real backend' },
               { icon: 'Github', ru: 'Код в вашем GitHub', en: 'Code in your GitHub' },
+              { icon: 'Database', ru: 'Данные в вашей PostgreSQL', en: 'Data in your PostgreSQL' },
+              { icon: 'KeyRound', ru: 'Без вендор-лока', en: 'No vendor lock-in' },
               { icon: 'ShieldCheck', ru: 'SSL и свой домен', en: 'SSL & custom domain' },
             ].map(s => (
               <div key={s.icon} className="inline-flex items-center gap-2 text-sm">
@@ -233,110 +220,44 @@ export function IndexHero({ lang, typedText, chatStep, isTyping, progress, chatS
           </div>
         </div>
 
-        {/* Live chat mockup */}
+        {/* Артефакт «Что вы получаете»: репозиторий Next.js + Prisma, которым вы владеете */}
         <div className="relative animate-scale-in max-w-md mx-auto w-full">
-          <div className="absolute inset-0 -z-10 rounded-[2.5rem] bg-gradient-to-tr from-primary/10 to-accent/20 blur-2xl" />
-
-          <div className="glow-frame glass rounded-3xl p-4 sm:p-5 shadow-2xl mx-2 sm:mx-0 flex flex-col" style={{ height: '460px' }}>
-            {/* Header */}
-            <div className="flex items-center gap-2 pb-3 border-b border-border/60">
-              <span className="relative grid h-6 w-6 sm:h-7 sm:w-7 place-items-center rounded-lg bg-primary text-primary-foreground shrink-0">
-                <Icon name="Bot" size={14} />
-                <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-accent border-2 border-background" />
-              </span>
-              <span className="font-display font-bold text-xs sm:text-sm">{L.chat.online[lang]}</span>
-              <span className="ml-auto flex items-center gap-1.5 text-xs text-muted-foreground whitespace-nowrap">
-                {isTyping ? (
-                  <>
-                    <span className="flex gap-1 text-primary">
-                      <span className="typing-dot" />
-                      <span className="typing-dot" />
-                      <span className="typing-dot" />
-                    </span>
-                    <span>{L.chat.typing[lang]}</span>
-                  </>
-                ) : (
-                  <><span className="h-2 w-2 rounded-full bg-accent animate-glow shrink-0" /> {L.chat.online2[lang]}</>
-                )}
+          <div className="glow-frame relative rounded-2xl md:rounded-3xl border border-border bg-card overflow-hidden">
+            <div className="flex items-center gap-2 border-b border-border px-4 py-3">
+              <Icon name="Github" size={16} className="text-muted-foreground shrink-0" />
+              <span className="text-sm font-semibold">your-project</span>
+              <span className="ml-auto inline-flex items-center gap-1 text-[11px] text-muted-foreground">
+                <Icon name="GitBranch" size={12} /> main
               </span>
             </div>
-
-            {/* Progress bar — фиксированная высота, не влияет на layout */}
-            <div className="shrink-0 overflow-hidden transition-all duration-300" style={{ height: progress > 0 ? '44px' : '0px' }}>
-              <div className="pt-2 pb-1">
-                <div className="flex items-center justify-between mb-1">
-                  <span className="text-xs text-muted-foreground font-medium">{L.chat.progress[lang]}</span>
-                  <span className="text-xs font-bold text-primary">{progress}%</span>
-                </div>
-                <div className="h-1.5 w-full rounded-full bg-secondary overflow-hidden">
-                  <div
-                    className="h-full rounded-full bg-gradient-to-r from-primary to-[hsl(195,46%,45%)] transition-all duration-700 ease-out"
-                    style={{ width: `${progress}%` }}
-                  />
-                </div>
+            <div className="grid sm:grid-cols-[132px_1fr]">
+              <div className="hidden sm:block border-r border-border p-3 text-[11px] font-mono text-muted-foreground space-y-1.5">
+                <div className="flex items-center gap-1.5 text-foreground"><Icon name="Folder" size={12} className="text-primary shrink-0" />app</div>
+                <div className="pl-4">page.tsx</div>
+                <div className="pl-4 flex items-center gap-1.5"><Icon name="Folder" size={12} className="text-primary shrink-0" />api</div>
+                <div className="flex items-center gap-1.5 text-foreground"><Icon name="Folder" size={12} className="text-primary shrink-0" />prisma</div>
+                <div className="pl-4 text-primary">schema.prisma</div>
+                <div className="flex items-center gap-1.5"><Icon name="FileCode2" size={12} className="shrink-0" />.env.example</div>
+              </div>
+              <div className="p-4 font-mono text-[12px] leading-relaxed overflow-x-auto">
+                <div className="text-muted-foreground/70">{'// prisma/schema.prisma'}</div>
+                <div><span className="text-primary">model</span> <span className="text-foreground font-semibold">Lead</span> {'{'}</div>
+                <div className="pl-4 text-foreground/80">id{'        '}<span className="text-accent">String</span>{'   '}@id @default(cuid())</div>
+                <div className="pl-4 text-foreground/80">name{'      '}<span className="text-accent">String</span></div>
+                <div className="pl-4 text-foreground/80">phone{'     '}<span className="text-accent">String</span></div>
+                <div className="pl-4 text-foreground/80">createdAt <span className="text-accent">DateTime</span> @default(now())</div>
+                <div className="text-foreground">{'}'}</div>
               </div>
             </div>
-
-            {/* Messages — занимает всё оставшееся место */}
-            <div ref={chatContainerRef} className="flex-1 space-y-2 sm:space-y-2.5 pt-3 overflow-y-auto overflow-x-hidden">
-              {chatSteps.slice(0, chatStep).map((m, i) => (
-                <div
-                  key={i}
-                  className={`flex ${m.who === 'user' ? 'justify-end' : 'justify-start'}`}
-                  style={{ animation: 'msgIn 0.3s ease-out forwards' }}
-                >
-                  {m.who === 'bot' && (
-                    <span className="grid h-5 w-5 place-items-center rounded-full bg-primary text-primary-foreground shrink-0 mr-1.5 mt-0.5">
-                      <Icon name="Bot" size={11} />
-                    </span>
-                  )}
-                  <div className={`max-w-[80%] rounded-2xl px-3 sm:px-4 py-2 sm:py-2.5 text-xs sm:text-sm ${
-                    m.who === 'user'
-                      ? 'bg-primary text-primary-foreground rounded-br-sm'
-                      : m.done
-                        ? 'bg-gradient-to-r from-primary/20 to-[hsl(195,46%,50%)]/20 border border-primary/30 text-foreground font-semibold rounded-bl-sm'
-                        : 'bg-secondary text-secondary-foreground rounded-bl-sm'
-                  }`}>
-                    {m.text}
-                    {m.done && (
-                      <div className="flex gap-2 mt-2">
-                        <span className="inline-flex items-center gap-1 rounded-full bg-primary px-2.5 py-1 text-xs font-bold text-primary-foreground cursor-pointer hover:bg-primary/90 transition-colors">
-                          <Icon name="Rocket" size={11} /> Запустить
-                        </span>
-                        <span className="inline-flex items-center gap-1 rounded-full bg-secondary px-2.5 py-1 text-xs font-semibold cursor-pointer hover:bg-secondary/80 transition-colors">
-                          <Icon name="Eye" size={11} /> Смотреть
-                        </span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-              ))}
-
-              {/* Typing indicator */}
-              {isTyping && (
-                <div className="flex justify-start" style={{ animation: 'msgIn 0.3s ease-out forwards' }}>
-                  <span className="grid h-5 w-5 place-items-center rounded-full bg-primary text-primary-foreground shrink-0 mr-1.5 mt-0.5">
-                    <Icon name="Bot" size={11} />
-                  </span>
-                  <div className="bg-secondary rounded-2xl rounded-bl-sm px-4 py-2.5 flex items-center gap-1">
-                    <span className="typing-dot text-muted-foreground" />
-                    <span className="typing-dot text-muted-foreground" />
-                    <span className="typing-dot text-muted-foreground" />
-                  </div>
-                </div>
-              )}
-              <div ref={chatEndRef} />
-            </div>
-
-            {/* Input */}
-            <div className="mt-3 shrink-0 flex items-center gap-2 rounded-full border border-border bg-background px-3 sm:px-4 py-2 sm:py-2.5">
-              <Icon name="MessageSquare" size={15} className="text-muted-foreground shrink-0" />
-              <span className="text-xs sm:text-sm text-muted-foreground truncate">Опишите ваш сайт…</span>
-              <span className="ml-auto grid h-7 w-7 sm:h-8 sm:w-8 place-items-center rounded-full bg-primary text-primary-foreground shrink-0 hover:bg-primary/90 transition-colors cursor-pointer">
-                <Icon name="Send" size={13} />
-              </span>
+            <div className="border-t border-border px-4 py-3 flex items-center gap-2.5 text-xs">
+              <span className="grid h-6 w-6 place-items-center rounded-md bg-primary/10 text-primary shrink-0"><Icon name="Database" size={12} /></span>
+              <span className="text-muted-foreground">{lang === 'ru' ? 'Новая заявка → ' : 'New lead → '}<span className="text-foreground">Иван, +7 900…</span>{lang === 'ru' ? ' — в вашей PostgreSQL' : ' — in your PostgreSQL'}</span>
             </div>
           </div>
+          <p className="mt-3 text-center text-xs text-muted-foreground inline-flex w-full items-center justify-center gap-1.5">
+            <Icon name="Github" size={13} className="text-primary shrink-0" />
+            {lang === 'ru' ? 'Это выгружается в ваш GitHub — код принадлежит вам' : 'This exports to your GitHub — the code is yours'}
+          </p>
         </div>
       </div>
     </section>

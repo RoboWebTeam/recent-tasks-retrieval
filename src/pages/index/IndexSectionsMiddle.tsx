@@ -225,78 +225,47 @@ export function IndexSectionsMiddle({ lang }: Props) {
       {/* PORTFOLIO */}
       <PortfolioSection lang={lang} portfolio={portfolio} />
 
-      {/* REVIEWS */}
+      {/* TRUST — почему нам можно доверить проект (заменяет фейковые отзывы) */}
       <section className="py-16 md:py-24 bg-secondary/40">
         <div className="container">
           <Reveal>
             <div className="text-center max-w-2xl mx-auto px-2 mb-10 md:mb-14">
-              <span className="text-xs sm:text-sm font-semibold uppercase tracking-widest text-primary">{lang === 'ru' ? 'Отзывы' : 'Reviews'}</span>
+              <span className="text-xs sm:text-sm font-semibold uppercase tracking-widest text-primary">{lang === 'ru' ? "Почему нам можно доверить проект" : "Why you can trust us with your project"}</span>
               <h2 className="mt-3 font-display font-bold text-3xl sm:text-4xl md:text-5xl tracking-tight">
-                {lang === 'ru' ? 'Что говорят клиенты' : 'What clients say'}
+                {lang === 'ru' ? "Доверие — на проверяемых фактах, а не на отзывах" : "Trust built on verifiable facts, not testimonials"}
               </h2>
               <p className="mt-4 text-muted-foreground text-base sm:text-lg">
-                {lang === 'ru' ? 'Реальные люди, реальные результаты.' : 'Real people, real results.'}
+                {lang === 'ru' ? "Мы новый продукт и говорим это прямо: у нас пока нет тысяч клиентов, и мы не станем их выдумывать. Вместо чужих логотипов и звёзд — то, что вы проверите сами: ваш код, ваш стек, ваши данные, публичная оферта и зарегистрированное юрлицо. Уйти можно в один клик, поэтому нам выгодно удерживать вас результатом, а не блокировкой." : "We're a new product and we say it plainly: we don't have thousands of clients yet, and we won't invent them. Instead of borrowed logos and star ratings, here's what you can verify yourself: your code, your stack, your data, a public offer and a registered company. You can leave in one click — so we're incentivized to keep you with results, not lock-in."}
               </p>
             </div>
           </Reveal>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {(lang === 'ru' ? [
-              { name: "Анна Петрова", role: "Кофейня", avatar: "АП", color: "from-slate-500 to-slate-700", stars: 5, text: "Просила не просто сайт, а онлайн-заказ. Получила рабочий: меню, корзина, оформление, заявки падают прямо в базу и видны в панели. Это не картинка, а точка приёма заказов." },
-              { name: "Дмитрий Козлов", role: "Стартап", avatar: "ДК", color: "from-slate-500 to-slate-700", stars: 5, text: "За вечер собрали MVP с регистрацией и кабинетами, показали инвесторам, а код на Next.js + Prisma забрали в свой GitHub. Команда продолжила с готового каркаса — сэкономили месяцы старта." },
-              { name: "Марина Соколова", role: "Веб-студия", avatar: "МС", color: "from-slate-500 to-slate-700", stars: 5, text: "Отдаём клиентам рабочие сайты с бэкендом за час и передаём код в их репозиторий. Раньше такой бэкенд занимал недели — теперь берём больше проектов и не заперты в чужой платформе." },
-              { name: "Игорь Новиков", role: "Фитнес-клуб", avatar: "ИН", color: "from-slate-500 to-slate-700", stars: 5, text: "Нужна была запись на тренировки с кабинетами клиентов. Всё работает: заявки в базе, расписание живое, люди бронируют сами. Администратор перестал вести таблицы вручную." },
-              { name: "Светлана Кравцова", role: "Маркетинг", avatar: "СК", color: "from-slate-500 to-slate-700", stars: 5, text: "Раньше лендинг был просто витриной. Теперь формы пишут лиды в базу и уходят в CRM, ничего не теряется, всё видно в панели. Тестирую по несколько оферов в день без разработчика." },
-              { name: "Алексей Громов", role: "Барбершоп", avatar: "АГ", color: "from-slate-500 to-slate-700", stars: 5, text: "Хотел онлайн-запись, а не визитку. Получил сайт, где клиент выбирает мастера и время, и запись падает в базу. Все заявки в одном месте — блокнот больше не нужен." },
-              { name: "Юлия Волкова", role: "Флорист", avatar: "ЮВ", color: "from-slate-500 to-slate-700", stars: 5, text: "Собрала магазин с каталогом букетов, корзиной и оформлением заказа. Букеты продаются онлайн по-настоящему, а не через директ — заказы приходят с адресом и составом прямо в панель." },
-              { name: "Роман Ефимов", role: "Автомойка", avatar: "РЕ", color: "from-slate-500 to-slate-700", stars: 5, text: "В сайтах не разбираюсь, но описал по-русски, что нужно — и получил рабочую онлайн-запись с выбором времени и сохранением в базу. Не макет на согласование, а инструмент, который приносит заявки." },
-              { name: "Ксения Орлова", role: "HR", avatar: "КО", color: "from-slate-500 to-slate-700", stars: 5, text: "Собрала карьерный сайт с формой отклика в базу и кабинетом для просмотра заявок. Анкеты кандидатов не теряются, вижу их в панели — рекрутинг перестал жить в почте. Сделали за день без разработчика." },
-              { name: "Павел Соловьёв", role: "IT-школа", avatar: "ПС", color: "from-slate-500 to-slate-700", stars: 5, text: "Как разработчик оценил главное: получил каркас на Next.js + Prisma с аккаунтами и оплатой курсов за минуту, забрал в GitHub и допилил под свою логику. Сэкономил дни рутины на старте." },
-              { name: "Наталья Волошина", role: "Отель", avatar: "НВ", color: "from-slate-500 to-slate-700", stars: 5, text: "Сайт с бронированием и кабинетом гостя работает: заявки на номера падают в базу с датами, подтверждаем в пару кликов. Видим загрузку и не путаемся в бронях — работает, а не просто красиво." }
+              { icon: "Code2", title: "Вы владеете кодом", text: "Готовый проект выгружается как настоящий Next.js + Prisma в ваш GitHub — фронтенд, бэкенд, схема БД и аккаунты. Это ваш актив, а не аренда платформы: он остаётся у вас, даже если вы уйдёте от нас." },
+              { icon: "Database", title: "Данные в вашей БД", text: "Заявки, каталог, заказы и пользователи пишутся в вашу PostgreSQL, изолированную по проекту, по HTTPS/SSL. Данные под вашим контролем — выгружайте, переносите или удаляйте их в любой момент." },
+              { icon: "KeyRound", title: "Ноль вендор-лока", text: "Забрали код — разворачивайте где угодно: Vercel, свой сервер, чужая команда. Уйти реально в один клик, и это осознанная позиция, а не недоработка: вы не зависите от нашей судьбы как компании." },
+              { icon: "Server", title: "Реальный стек, не чёрный ящик", text: "Next.js, Prisma, PostgreSQL — индустриальный стандарт, который поддержит любой разработчик на рынке. Никакого проприетарного формата: проект можно читать и продолжать без нас." },
+              { icon: "FileCheck", title: "Прозрачно и до оплаты", text: "Вы видите живое приложение, схему базы и весь код ещё до оплаты и публикации — никаких чёрных ящиков. Цена фиксированная за готовый продукт, без скрытых часов и сюрпризов в счёте." },
+              { icon: "Building2", title: "Реальная компания, честная о новизне", text: "За сервисом стоит зарегистрированное ИП с ОГРНИП и ИНН и публичная оферта — это можно проверить в реестре. Мы не показываем выдуманных клиентов и оценок; вместо них — возврат в течение 7 дней по оферте, если оплаченные функции не использовались." }
             ] : [
-              { name: "Anna P.", role: "Coffee shop", avatar: "AP", color: "from-slate-500 to-slate-700", stars: 5, text: "I asked for more than a page — online ordering. Got a working one: menu, cart, checkout, leads landing right in the database and shown in a dashboard. Not a picture, an order desk." },
-              { name: "David K.", role: "Startup", avatar: "DK", color: "from-slate-500 to-slate-700", stars: 5, text: "In an evening we built an MVP with sign-up and accounts, showed investors, then pulled the Next.js + Prisma code into our GitHub. The team continued from a ready scaffold — saved months of setup." },
-              { name: "Marina S.", role: "Web studio", avatar: "MS", color: "from-slate-500 to-slate-700", stars: 5, text: "We ship clients working sites with a backend in an hour and hand the code to their repo. A backend like this used to take weeks — now we take on more projects and aren't locked into anyone's platform." },
-              { name: "Igor N.", role: "Fitness club", avatar: "IN", color: "from-slate-500 to-slate-700", stars: 5, text: "We needed class booking with member accounts. It all works: leads in the database, a live schedule, people book themselves. The admin stopped keeping manual spreadsheets." },
-              { name: "Svetlana K.", role: "Marketing", avatar: "SK", color: "from-slate-500 to-slate-700", stars: 5, text: "Our landing used to be just a showcase. Now forms write leads to a database and push to CRM, nothing gets lost, all visible in one panel. I test several offers a day without a developer." },
-              { name: "Alex G.", role: "Barbershop", avatar: "AG", color: "from-slate-500 to-slate-700", stars: 5, text: "I wanted online booking, not a business card. Got a site where the client picks a barber and time, and the booking saves to a database. Every request in one place — no more notebook." },
-              { name: "Julia V.", role: "Florist", avatar: "JV", color: "from-slate-500 to-slate-700", stars: 5, text: "Built a store with a bouquet catalog, cart and checkout. Bouquets sell online for real, not via DMs — orders arrive with the address and contents right in the panel." },
-              { name: "Roman E.", role: "Car wash", avatar: "RE", color: "from-slate-500 to-slate-700", stars: 5, text: "I know nothing about websites, but I described what I needed in plain words — and got working online booking with time slots saved to a database. Not a mockup to approve, a tool that brings in leads." },
-              { name: "Kate O.", role: "HR", avatar: "KO", color: "from-slate-500 to-slate-700", stars: 5, text: "I built a careers site with an application form saving to a database and a dashboard to review responses. Candidate entries never get lost, I see them in the panel — recruiting left the inbox. Built in a day without a developer." },
-              { name: "Paul S.", role: "IT school", avatar: "PS", color: "from-slate-500 to-slate-700", stars: 5, text: "As a developer I valued the main thing: a ready Next.js + Prisma scaffold with accounts and course payments in a minute, exported to GitHub and finished to my own logic. Saved days of boilerplate at the start." },
-              { name: "Natalie V.", role: "Hotel", avatar: "NV", color: "from-slate-500 to-slate-700", stars: 5, text: "A site with booking and a guest account works: room requests land in a database with dates and we confirm in a couple of clicks. We see occupancy and never mix up reservations — it works, not just looks good." }
-            ]).map((r, i) => (
-              <Reveal key={r.name} delay={i * 70}>
-                <div className="h-full rounded-2xl md:rounded-3xl bg-card border border-border p-5 md:p-6 flex flex-col gap-4 hover:shadow-lg transition-shadow duration-300">
-                  <div className="flex gap-0.5">
-                    {Array.from({ length: r.stars }).map((_, si) => (
-                      <Icon key={si} name="Star" size={14} className="text-amber-400 fill-amber-400" />
-                    ))}
-                  </div>
-                  <p className="text-sm md:text-base text-foreground leading-relaxed flex-1">«{r.text}»</p>
-                  <div className="flex items-center gap-3 pt-2 border-t border-border">
-                    <div className={`grid h-10 w-10 shrink-0 place-items-center rounded-full bg-gradient-to-br ${r.color} text-white text-xs font-bold`}>
-                      {r.avatar}
-                    </div>
-                    <div>
-                      <div className="font-display font-semibold text-sm">{r.name}</div>
-                      <div className="text-xs text-muted-foreground">{r.role}</div>
-                    </div>
-                  </div>
+              { icon: "Code2", title: "You own the code", text: "The finished project exports as real Next.js + Prisma into your GitHub — frontend, backend, DB schema and accounts. It's your asset, not a rented platform: it stays with you even if you leave us." },
+              { icon: "Database", title: "Data in your own DB", text: "Leads, catalog, orders and users are written to your PostgreSQL, isolated per project, over HTTPS/SSL. The data is under your control — export, migrate or delete it at any time." },
+              { icon: "KeyRound", title: "Zero vendor lock-in", text: "Once you have the code, deploy it anywhere: Vercel, your own server, another team. Leaving is genuinely one click — a deliberate stance, not an oversight: you don't depend on our fate as a company." },
+              { icon: "Server", title: "A real stack, not a black box", text: "Next.js, Prisma, PostgreSQL — an industry standard any developer on the market can maintain. No proprietary format: the project can be read and continued without us." },
+              { icon: "FileCheck", title: "Transparent, before you pay", text: "You see the live app, the database schema and all the code before you pay or publish — no black boxes. A fixed price for a finished product, with no hidden hours or surprises on the invoice." },
+              { icon: "Building2", title: "A real company, honest that it's new", text: "Behind the service is a registered sole proprietor with a state ID (ОГРНИП/ИНН) and a public offer — verifiable on the state register. We show no invented clients or ratings; instead — a refund within 7 days under the offer if the paid features weren't used." }
+            ]).map((p, i) => (
+              <Reveal key={p.title} delay={i * 60}>
+                <div className="h-full rounded-2xl md:rounded-3xl bg-card border border-border p-5 md:p-6 flex flex-col gap-3 hover:border-primary/30 transition-colors duration-300">
+                  <span className="grid h-11 w-11 place-items-center rounded-xl bg-primary/10 text-primary">
+                    <Icon name={p.icon} size={20} />
+                  </span>
+                  <h3 className="mt-1 font-display font-bold text-lg">{p.title}</h3>
+                  <p className="text-muted-foreground text-sm md:text-base leading-relaxed">{p.text}</p>
                 </div>
               </Reveal>
             ))}
           </div>
-          <Reveal>
-            <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-4 text-center">
-              <div className="flex gap-1">
-                {Array.from({ length: 5 }).map((_, i) => (
-                  <Icon key={i} name="Star" size={22} className="text-amber-400 fill-amber-400" />
-                ))}
-              </div>
-              <div className="text-2xl font-display font-bold">4.9 / 5</div>
-              <div className="text-muted-foreground text-sm">{lang === 'ru' ? 'на основе 1 200+ отзывов' : 'based on 1,200+ reviews'}</div>
-            </div>
-          </Reveal>
         </div>
       </section>
 
