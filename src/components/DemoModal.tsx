@@ -11,37 +11,37 @@ interface Props {
 }
 
 const SCRIPT_RU = [
-  { time: 2,  type: 'user', text: 'Привет! Мне нужен лендинг для кофейни «Brew & Co». Тёплые тона, современно и уютно.' },
-  { time: 5,  type: 'bot',  text: 'Отлично! Анализирую нишу и подбираю стиль ☕' },
-  { time: 8,  type: 'progress', value: 18, label: 'Генерирую структуру' },
-  { time: 11, type: 'bot',  text: '✅ Структура:\n🏠 Герой с фото и CTA\n🍰 Меню по категориям\n⏱ Онлайн-заказ\n⭐ Отзывы гостей\n📍 Контакты и карта' },
-  { time: 15, type: 'progress', value: 38, label: 'Рисую дизайн' },
-  { time: 18, type: 'bot',  text: '🎨 Применяю: тёплые amber/stone тона, шрифт Playfair Display, живые фото еды' },
-  { time: 22, type: 'progress', value: 60, label: 'Пишу продающие тексты' },
-  { time: 25, type: 'bot',  text: '✍️ Тексты готовы! SEO-заголовки, описания блюд, призывы к действию' },
-  { time: 29, type: 'progress', value: 78, label: 'Добавляю анимации' },
-  { time: 32, type: 'user', text: 'Добавь акцию: кофе + десерт = 350₽!' },
-  { time: 35, type: 'bot',  text: '⚡ Готово! Баннер с акцией добавлен в Hero и в меню — с обратным отсчётом!' },
+  { time: 2,  type: 'user', text: 'Нужен сайт для кофейни «Brew & Co» — меню, онлайн-заказ и заявки в базу.' },
+  { time: 5,  type: 'bot',  text: 'Принял. Проектирую страницы, схему базы данных и серверную логику.' },
+  { time: 8,  type: 'progress', value: 18, label: 'Проектирую структуру и схему БД' },
+  { time: 11, type: 'bot',  text: 'Структура: меню по категориям, онлайн-заказ, форма заявки. Заказы пишутся в PostgreSQL.' },
+  { time: 15, type: 'progress', value: 38, label: 'Собираю фронтенд и каталог' },
+  { time: 18, type: 'bot',  text: 'Каталог меню из базы, корзина и оформление заказа подключены.' },
+  { time: 22, type: 'progress', value: 60, label: 'Настраиваю бэкенд' },
+  { time: 25, type: 'bot',  text: 'Серверная логика готова: заявки сохраняются и видны в панели проекта.' },
+  { time: 29, type: 'progress', value: 78, label: 'Готовлю экспорт кода' },
+  { time: 32, type: 'user', text: 'Добавь онлайн-бронирование столика.' },
+  { time: 35, type: 'bot',  text: 'Готово: бронирование пишет в базу дату, время и контакт гостя.' },
   { time: 38, type: 'progress', value: 92, label: 'Финальная сборка' },
-  { time: 41, type: 'progress', value: 100, label: 'Публикую сайт' },
-  { time: 43, type: 'done', text: '🚀 Сайт «Brew & Co» опубликован!\nbrewco.roboweb.dev\n\n⏱ 47 секунд · 📱 Адаптивный · ✅ SEO' },
+  { time: 41, type: 'progress', value: 100, label: 'Публикация и упаковка репозитория' },
+  { time: 43, type: 'done', text: 'Готово: рабочий сайт с бэкендом. Код Next.js + Prisma — в вашем GitHub, данные — в вашей PostgreSQL.' },
 ];
 
 const SCRIPT_EN = [
-  { time: 2,  type: 'user', text: 'Hi! I need a landing for coffee shop "Brew & Co". Warm tones, modern & cozy.' },
-  { time: 5,  type: 'bot',  text: 'Great! Analyzing niche and picking style ☕' },
-  { time: 8,  type: 'progress', value: 18, label: 'Generating structure' },
-  { time: 11, type: 'bot',  text: '✅ Structure:\n🏠 Hero with photo & CTA\n🍰 Menu by category\n⏱ Online ordering\n⭐ Guest reviews\n📍 Contacts & map' },
-  { time: 15, type: 'progress', value: 38, label: 'Designing layout' },
-  { time: 18, type: 'bot',  text: '🎨 Applying: warm amber/stone tones, Playfair Display font, live food photos' },
-  { time: 22, type: 'progress', value: 60, label: 'Writing copy' },
-  { time: 25, type: 'bot',  text: '✍️ Copy ready! SEO headlines, dish descriptions, CTAs' },
-  { time: 29, type: 'progress', value: 78, label: 'Adding animations' },
-  { time: 32, type: 'user', text: 'Add a promo: coffee + dessert = $4.5!' },
-  { time: 35, type: 'bot',  text: '⚡ Done! Promo banner added to Hero and menu — with countdown timer!' },
+  { time: 2,  type: 'user', text: 'I need a site for coffee shop "Brew & Co" — menu, online ordering and leads to a database.' },
+  { time: 5,  type: 'bot',  text: 'Got it. Designing the pages, the database schema and server logic.' },
+  { time: 8,  type: 'progress', value: 18, label: 'Designing structure and DB schema' },
+  { time: 11, type: 'bot',  text: 'Structure: menu by category, online ordering, a lead form. Orders are written to PostgreSQL.' },
+  { time: 15, type: 'progress', value: 38, label: 'Building frontend and catalog' },
+  { time: 18, type: 'bot',  text: 'Menu catalog from the database, cart and checkout wired up.' },
+  { time: 22, type: 'progress', value: 60, label: 'Wiring the backend' },
+  { time: 25, type: 'bot',  text: 'Server logic ready: leads are saved and visible in the project dashboard.' },
+  { time: 29, type: 'progress', value: 78, label: 'Preparing code export' },
+  { time: 32, type: 'user', text: 'Add online table booking.' },
+  { time: 35, type: 'bot',  text: 'Done: booking writes the date, time and guest contact to the database.' },
   { time: 38, type: 'progress', value: 92, label: 'Final build' },
-  { time: 41, type: 'progress', value: 100, label: 'Publishing site' },
-  { time: 43, type: 'done', text: '🚀 "Brew & Co" site is live!\nbrewco.roboweb.dev\n\n⏱ 47 sec · 📱 Responsive · ✅ SEO' },
+  { time: 41, type: 'progress', value: 100, label: 'Publishing and packaging the repo' },
+  { time: 43, type: 'done', text: 'Done: a working site with a backend. Next.js + Prisma code — in your GitHub, data — in your PostgreSQL.' },
 ];
 
 const TOTAL = 47;
@@ -122,7 +122,7 @@ export default function DemoModal({ open, onClose, lang }: Props) {
             {finished && (
               <div className="flex items-center gap-1.5 bg-emerald-50 text-emerald-600 text-xs font-semibold px-3 py-1 rounded-full">
                 <Icon name="CheckCircle" size={13} />
-                {lang === 'ru' ? '47 сек — рекорд!' : '47 sec — record!'}
+                {lang === 'ru' ? 'Рабочий сайт + код в GitHub' : 'Working site + code in GitHub'}
               </div>
             )}
             <button onClick={onClose} className="grid h-7 w-7 place-items-center rounded-full text-slate-400 hover:text-slate-600 hover:bg-slate-100 transition-colors">
@@ -156,7 +156,7 @@ export default function DemoModal({ open, onClose, lang }: Props) {
         {finished && (
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 px-4 sm:px-5 py-3 border-t border-slate-100 bg-white shrink-0 animate-fade-in">
             <div className="text-xs sm:text-sm text-slate-500">
-              🎉 {lang === 'ru' ? 'Сайт создан за 47 секунд. Попробуйте сами!' : 'Site built in 47 seconds. Try it yourself!'}
+              {lang === 'ru' ? 'Рабочий сайт с бэкендом и код на Next.js + Prisma. Попробуйте сами.' : 'A working site with a backend and Next.js + Prisma code. Try it yourself.'}
             </div>
             <div className="flex gap-2 w-full sm:w-auto">
               <button onClick={reset} className="flex items-center gap-1.5 text-xs text-slate-400 hover:text-slate-600 transition-colors px-3 py-1.5 rounded-xl hover:bg-slate-100 shrink-0">
