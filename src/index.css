@@ -443,7 +443,7 @@ section[id] {
   .glow-frame::before, .glow-frame::after, .counter-pop { animation: none !important; }
 }
 
-/* Премиум-типографика: чуть отрицательный трекинг у display-заголовков (Manrope) */
+/* Премиум-типографика: чуть отрицательный трекинг у display-заголовков (Montserrat) */
 .font-display{letter-spacing:-0.018em}
 
 /* Премиум-глубина карточек. В светлой теме — мягкая аккуратная тень; в тёмной — верхний
