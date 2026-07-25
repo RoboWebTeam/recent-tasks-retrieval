@@ -21,11 +21,11 @@ const getLangData = (isRu: boolean) => ({
   faqs: [
     {
       q: isRu ? 'Могу ли я отменить подписку в любой момент?' : 'Can I cancel my subscription anytime?',
-      a: isRu ? 'Да, вы можете отменить подписку в любой момент. Сайты останутся доступны до конца оплаченного периода.' : 'Yes, you can cancel anytime. Your sites remain accessible until the end of the paid period.',
+      a: isRu ? 'Да, вы можете отменить подписку в любой момент. Проекты останутся доступны до конца оплаченного периода.' : 'Yes, you can cancel anytime. Your sites remain accessible until the end of the paid period.',
     },
     {
-      q: isRu ? 'Что происходит с сайтами после окончания подписки?' : 'What happens to my sites after subscription ends?',
-      a: isRu ? 'Сайты переходят в режим только для чтения. Вы не можете редактировать их, но они остаются онлайн на нашем домене. Свой домен отключается.' : 'Sites go into read-only mode. You can\'t edit them, but they stay online on our domain. Custom domain is disconnected.',
+      q: isRu ? 'Что происходит с проектами после окончания подписки?' : 'What happens to my sites after subscription ends?',
+      a: isRu ? 'Проекты переходят в режим только для чтения. Вы не можете редактировать их, но они остаются онлайн на нашем домене. Свой домен отключается.' : 'Sites go into read-only mode. You can\'t edit them, but they stay online on our domain. Custom domain is disconnected.',
     },
     {
       q: isRu ? 'Есть ли пробный период для платных тарифов?' : 'Is there a trial for paid plans?',
@@ -403,11 +403,11 @@ export default function Pricing() {
               {isRu ? 'Начните прямо сейчас' : 'Start right now'}
             </h2>
             <p className="text-white/80 mb-8 text-base sm:text-lg">
-              {isRu ? 'Первый сайт бесплатно. Без карты.' : 'First site free. No card required.'}
+              {isRu ? 'Первый проект бесплатно. Без карты.' : 'First site free. No card required.'}
             </p>
             <Button size="lg" className="rounded-full bg-white text-primary hover:bg-white/90 font-semibold px-8 sm:px-10 h-12 sm:h-13 shadow-xl" asChild>
               <Link to="/register">
-                {isRu ? 'Создать сайт бесплатно' : 'Create site for free'}
+                {isRu ? 'Создать проект бесплатно' : 'Create site for free'}
                 <Icon name="ArrowRight" size={18} className="ml-1.5" />
               </Link>
             </Button>

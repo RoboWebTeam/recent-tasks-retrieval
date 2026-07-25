@@ -199,7 +199,7 @@ function PortfolioSection({ lang, portfolio }: { lang: Lang; portfolio: DemoItem
           <div className="mt-10 text-center">
             <a href="/register" className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground font-semibold px-8 py-3 hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20 text-sm sm:text-base">
               <Icon name="Sparkles" size={16} />
-              {lang === 'ru' ? 'Создать свой сайт бесплатно' : 'Create your site for free'}
+              {lang === 'ru' ? 'Создать свой проект бесплатно' : 'Create your site for free'}
               <Icon name="ArrowRight" size={16} />
             </a>
           </div>
@@ -320,7 +320,7 @@ export function IndexSectionsMiddle({ lang }: Props) {
   return (
     <>
       {/* TRUST — почему нам можно доверить проект (заменяет фейковые отзывы); выше портфолио,
-          чтобы возражения снимались ДО длинного скролла демо-сайтов */}
+          чтобы возражения снимались ДО длинного скролла демо-проектов */}
       <section className="py-16 md:py-24 border-y border-border bg-secondary/60">
         <div className="container">
           <Reveal>

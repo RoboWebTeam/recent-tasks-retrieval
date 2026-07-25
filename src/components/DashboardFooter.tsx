@@ -25,7 +25,7 @@ export function DashboardFooter({ lang }: Props) {
             {lang === 'ru' ? 'Блог' : 'Blog'}
           </Link>
           <Link to="/" className="hover:text-foreground transition-colors">
-            {lang === 'ru' ? 'На сайт' : 'Home'}
+            {lang === 'ru' ? 'На проект' : 'Home'}
           </Link>
         </div>
       </div>

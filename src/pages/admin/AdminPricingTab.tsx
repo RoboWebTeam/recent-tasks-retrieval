@@ -121,7 +121,7 @@ export function AdminPricingTab({ adminKey }: AdminPricingTabProps) {
           <div>
             <h2 className="font-display font-bold text-lg">Цены тарифов «Профи»</h2>
             <p className="text-sm text-muted-foreground mt-0.5">
-              Одна карточка «Профи» на сайте — пользователь выбирает нужное количество запросов, цена подтягивается отсюда
+              Одна карточка «Профи» на проекте — пользователь выбирает нужное количество запросов, цена подтягивается отсюда
             </p>
           </div>
           <Button size="sm" className="rounded-xl gap-1.5" disabled={saving} onClick={handleSave}>

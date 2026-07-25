@@ -25,7 +25,7 @@ export function SiteFooter({ lang }: Props) {
           <ul className="space-y-2 text-sm text-muted-foreground">
             {NAV.map((n) => {
               // Якорные ссылки (#process и т.п.) в футере ведут на соответствующую секцию
-              // главной страницы, чтобы работать с любой страницы сайта.
+              // главной страницы, чтобы работать с любой страницы проекта.
               const to = n.href.startsWith('#') ? `/${n.href}` : n.href;
               return (
                 <li key={n.href}>

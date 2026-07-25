@@ -172,7 +172,7 @@ export function DomainInfoCards({ isRu }: DomainInfoCardsProps) {
       {[
         { icon: 'Shield', title: isRu ? 'SSL бесплатно' : 'Free SSL', desc: isRu ? 'HTTPS сертификат активируется автоматически' : 'HTTPS certificate activates automatically' },
         { icon: 'Zap', title: isRu ? 'CDN и кэш' : 'CDN & Cache', desc: isRu ? 'Быстрая загрузка по всему миру' : 'Fast loading worldwide' },
-        { icon: 'RefreshCw', title: isRu ? 'Обновление' : 'Updates', desc: isRu ? 'Сайт обновляется мгновенно' : 'Site updates instantly' },
+        { icon: 'RefreshCw', title: isRu ? 'Обновление' : 'Updates', desc: isRu ? 'Проект обновляется мгновенно' : 'Site updates instantly' },
         { icon: 'Search', title: isRu ? 'Лучше для SEO' : 'Better for SEO', desc: isRu ? 'Свой домен индексируется в Яндекс и Google — в отличие от адреса на roboweb.dev' : 'Your domain gets indexed by Yandex & Google — unlike a roboweb.dev address' },
       ].map(item => (
         <div key={item.title} className="bg-card border border-border rounded-2xl p-4 flex flex-col gap-2">

@@ -98,7 +98,7 @@ export default function Analytics() {
           <div>
             <h1 className="font-display font-bold text-2xl sm:text-3xl">{isRu ? 'Аналитика' : 'Analytics'}</h1>
             <p className="text-sm text-muted-foreground mt-0.5">
-              {isRu ? 'Реальная статистика посещений ваших сайтов' : 'Real traffic statistics for your sites'}
+              {isRu ? 'Реальная статистика посещений ваших проектов' : 'Real traffic statistics for your sites'}
             </p>
           </div>
           <div className="flex items-center gap-1.5 bg-secondary border border-border rounded-xl p-1">

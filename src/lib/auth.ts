@@ -299,7 +299,7 @@ export async function apiPublishProject(sessionId: string, projectId: string | n
     headers: { 'x-session-id': sessionId },
     body: JSON.stringify({ action: 'publish', id: projectId, title }),
   });
-  if (!res.ok) throw new Error((data as {error?: string}).error || 'Ошибка публикации сайта');
+  if (!res.ok) throw new Error((data as {error?: string}).error || 'Ошибка публикации проекта');
   return data as { slug: string; status: string };
 }
 
@@ -438,9 +438,9 @@ export interface ProjectTable {
   columns: ProjectTableColumn[];
   created_at: string;
   rows_count: number;
-  /** Таблицу-каталог сгенерированный сайт может ЧИТАТЬ публично (меню, товары, отзывы). */
+  /** Таблицу-каталог сгенерированный проект может ЧИТАТЬ публично (меню, товары, отзывы). */
   public_read?: boolean;
-  /** В таблицу можно ПИСАТЬ из публичной формы сайта (заявки, брони, заказы). */
+  /** В таблицу можно ПИСАТЬ из публичной формы проекта (заявки, брони, заказы). */
   public_write?: boolean;
   /** Человекочитаемое имя таблицы (может быть на кириллице), заданное AI при генерации. */
   label?: string;
@@ -583,7 +583,7 @@ export async function apiDeleteProjectFunction(sessionId: string, projectId: num
   return data;
 }
 
-// ── Пользователи сайта (посетители, Этап 3) ───────────────────────────────
+// ── Пользователи проекта (посетители, Этап 3) ───────────────────────────────
 export interface SiteUser {
   id: number;
   email: string;

@@ -104,9 +104,9 @@ export default function Leads() {
       <main className="container py-8 max-w-5xl">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
           <div>
-            <h1 className="font-display font-bold text-2xl sm:text-3xl">{isRu ? 'Заявки с сайтов' : 'Site leads'}</h1>
+            <h1 className="font-display font-bold text-2xl sm:text-3xl">{isRu ? 'Заявки с проектов' : 'Site leads'}</h1>
             <p className="text-sm text-muted-foreground mt-0.5">
-              {isRu ? 'Все обращения с ваших сайтов в одном месте' : 'All inquiries from your sites in one place'}
+              {isRu ? 'Все обращения с ваших проектов в одном месте' : 'All inquiries from your sites in one place'}
             </p>
           </div>
           <button onClick={fetchLeads} disabled={loading}
@@ -174,7 +174,7 @@ export default function Leads() {
                 </div>
                 <p className="font-semibold text-foreground mb-1">{isRu ? 'Заявок пока нет' : 'No leads yet'}</p>
                 <p className="text-sm text-muted-foreground max-w-xs">
-                  {isRu ? 'Когда посетители оставят заявки на ваших сайтах — они появятся здесь' : 'When visitors submit forms on your sites — they will appear here'}
+                  {isRu ? 'Когда посетители оставят заявки на ваших проектах — они появятся здесь' : 'When visitors submit forms on your sites — they will appear here'}
                 </p>
               </div>
             ) : filtered.map(lead => {

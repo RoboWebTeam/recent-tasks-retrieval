@@ -180,7 +180,7 @@ export default function BuilderDomainModal({ open, onOpenChange, lang, projectId
               <span className="grid h-9 w-9 place-items-center rounded-xl bg-primary/10 text-primary shrink-0">
                 <Icon name="Globe" size={18} />
               </span>
-              {isRu ? 'Домен сайта' : 'Site domain'}
+              {isRu ? 'Домен проекта' : 'Site domain'}
             </DialogTitle>
             <p className="text-xs text-muted-foreground pl-[46px] -mt-1">
               {isRu ? 'Подключите свой домен вместо адреса на roboweb.dev' : 'Connect your own domain instead of a roboweb.dev address'}
@@ -241,7 +241,7 @@ export default function BuilderDomainModal({ open, onOpenChange, lang, projectId
                   <Icon name="Globe" size={22} />
                 </div>
                 <p className="text-sm text-muted-foreground">
-                  {isRu ? 'Добавьте свой домен, чтобы сайт открывался по нему' : 'Add your domain so your site opens under it'}
+                  {isRu ? 'Добавьте свой домен, чтобы проект открывался по нему' : 'Add your domain so your site opens under it'}
                 </p>
               </div>
             ) : (

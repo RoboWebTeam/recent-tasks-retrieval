@@ -35,7 +35,7 @@ export function AdminAnalytics({
       ) : !analyticsData || analyticsData.total_views === 0 ? (
         <div className="flex flex-col items-center justify-center py-16 text-center">
           <Icon name="BarChart2" size={36} className="mb-3 text-muted-foreground/30" />
-          <p className="font-medium text-muted-foreground">Данных пока нет — просмотры появятся когда посетители зайдут на сайты</p>
+          <p className="font-medium text-muted-foreground">Данных пока нет — просмотры появятся когда посетители зайдут на проекты</p>
         </div>
       ) : (
         <>
@@ -45,7 +45,7 @@ export function AdminAnalytics({
               { label: 'Просмотров', value: analyticsData.total_views.toLocaleString(), color: 'text-primary' },
               { label: 'Посетителей', value: analyticsData.total_visitors.toLocaleString(), color: 'text-violet-500' },
               { label: 'Изменение', value: `${analyticsData.views_change >= 0 ? '+' : ''}${analyticsData.views_change}%`, color: analyticsData.views_change >= 0 ? 'text-emerald-500' : 'text-destructive' },
-              { label: 'Заявок с сайтов', value: (siteLeadCounts.new || 0) + (siteLeadCounts.processed || 0) + (siteLeadCounts.rejected || 0), color: 'text-amber-500' },
+              { label: 'Заявок с проектов', value: (siteLeadCounts.new || 0) + (siteLeadCounts.processed || 0) + (siteLeadCounts.rejected || 0), color: 'text-amber-500' },
             ].map(s => (
               <div key={s.label} className="rounded-2xl border border-border bg-card p-4">
                 <p className={`text-xs font-semibold uppercase tracking-wide mb-1 ${s.color}`}>{s.label}</p>
@@ -113,14 +113,14 @@ export function AdminAnalytics({
           {analyticsData.top_sites.length > 0 && (
             <div className="bg-card border border-border rounded-2xl overflow-hidden">
               <div className="px-5 py-3.5 border-b border-border bg-secondary/30">
-                <h2 className="font-display font-bold text-sm">Топ сайтов</h2>
+                <h2 className="font-display font-bold text-sm">Топ проектов</h2>
               </div>
               <div className="overflow-x-auto">
                 <table className="w-full text-sm">
                   <thead className="border-b border-border">
                     <tr>
                       <th className="text-left px-5 py-3 font-semibold text-muted-foreground">#</th>
-                      <th className="text-left px-5 py-3 font-semibold text-muted-foreground">Сайт</th>
+                      <th className="text-left px-5 py-3 font-semibold text-muted-foreground">Проект</th>
                       <th className="text-right px-5 py-3 font-semibold text-muted-foreground">Просмотры</th>
                       <th className="text-right px-5 py-3 font-semibold text-muted-foreground hidden sm:table-cell">Посетители</th>
                       <th className="text-right px-5 py-3 font-semibold text-muted-foreground hidden md:table-cell">Заявки</th>

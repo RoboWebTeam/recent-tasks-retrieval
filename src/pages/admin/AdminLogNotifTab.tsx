@@ -8,7 +8,7 @@ const NOTIF_TYPE_LABELS: Record<string, string> = {
   unblock_user: 'Пользователь разблокирован',
   change_plan: 'Смена тарифа',
   register: 'Новая регистрация',
-  submit_lead: 'Новая заявка с сайта',
+  submit_lead: 'Новая заявка с проекта',
 };
 
 const META_FIELD_LABELS: Record<string, string> = {

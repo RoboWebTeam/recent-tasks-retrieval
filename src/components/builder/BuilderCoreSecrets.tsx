@@ -81,7 +81,7 @@ export default function BuilderCoreSecrets({ lang, projectId }: BuilderCoreSecre
       <div className="flex items-center justify-between mb-4">
         <div>
           <h3 className="font-bold text-base">{isRu ? 'Секреты проекта' : 'Project secrets'}</h3>
-          <p className="text-xs text-muted-foreground mt-0.5">{isRu ? 'Ключи и токены для интеграций сайта — хранятся в зашифрованном виде' : 'Keys and tokens for site integrations — stored securely'}</p>
+          <p className="text-xs text-muted-foreground mt-0.5">{isRu ? 'Ключи и токены для интеграций проекта — хранятся в зашифрованном виде' : 'Keys and tokens for site integrations — stored securely'}</p>
         </div>
         <Dialog open={addOpen} onOpenChange={(v) => { setAddOpen(v); if (!v) setError(''); }}>
           <DialogTrigger asChild>

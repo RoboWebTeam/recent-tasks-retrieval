@@ -92,7 +92,7 @@ export default function Files() {
           <div>
             <h1 className="font-display font-bold text-2xl sm:text-3xl">{isRu ? 'Мои файлы' : 'My files'}</h1>
             <p className="text-sm text-muted-foreground mt-0.5">
-              {isRu ? 'Готовые сайты в формате HTML или ZIP' : 'Ready-made sites in HTML or ZIP format'}
+              {isRu ? 'Готовые проекты в формате HTML или ZIP' : 'Ready-made sites in HTML or ZIP format'}
             </p>
           </div>
           <Button onClick={handleUploadClick} disabled={uploading} className="rounded-xl font-semibold gap-2 w-full sm:w-auto">
@@ -128,7 +128,7 @@ export default function Files() {
             </div>
             <h3 className="font-display font-bold text-lg mb-2">{isRu ? 'Пока нет файлов' : 'No files yet'}</h3>
             <p className="text-muted-foreground text-sm mb-6 max-w-xs mx-auto">
-              {isRu ? 'Загрузите готовый сайт в формате HTML или ZIP-архив' : 'Upload a ready-made site as HTML or a ZIP archive'}
+              {isRu ? 'Загрузите готовый проект в формате HTML или ZIP-архив' : 'Upload a ready-made site as HTML or a ZIP archive'}
             </p>
             <Button onClick={handleUploadClick} className="rounded-xl font-semibold gap-2">
               <Icon name="Upload" size={16} /> {isRu ? 'Загрузить файл' : 'Upload file'}

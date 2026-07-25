@@ -189,7 +189,7 @@ export default function DashboardProjectsTab({
                     {p.description || (lang === 'ru' ? 'Без описания' : 'No description')}
                   </p>
 
-                  {/* Прямая ссылка на живой сайт — только для опубликованных проектов */}
+                  {/* Прямая ссылка на живой проект — только для опубликованных проектов */}
                   {p.status === 'published' && p.slug && (
                     <a
                       href={`/site/${p.slug}`}
@@ -198,7 +198,7 @@ export default function DashboardProjectsTab({
                       className="inline-flex items-center gap-1.5 mb-3 rounded-lg bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 px-2.5 py-1.5 text-xs font-semibold hover:bg-emerald-500/25 transition-colors w-fit"
                     >
                       <Icon name="ExternalLink" size={12} />
-                      {lang === 'ru' ? 'Открыть сайт' : 'Open site'}
+                      {lang === 'ru' ? 'Открыть проект' : 'Open site'}
                     </a>
                   )}
 

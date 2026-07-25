@@ -168,7 +168,7 @@ export default function DomainSettings() {
               {isRu ? 'Домены' : 'Domains'}
             </h1>
             <p className="text-muted-foreground text-sm">
-              {isRu ? 'Подключайте свои домены к сайтам, созданным на Roboweb' : 'Connect your own domains to sites built on Roboweb'}
+              {isRu ? 'Подключайте свои домены к проектам, созданным на Roboweb' : 'Connect your own domains to sites built on Roboweb'}
             </p>
           </div>
           <DomainAddDialog
@@ -199,7 +199,7 @@ export default function DomainSettings() {
             </div>
             <h3 className="font-display font-bold text-lg mb-2">{isRu ? 'Нет подключённых доменов' : 'No domains connected'}</h3>
             <p className="text-muted-foreground text-sm mb-6 max-w-xs mx-auto">
-              {isRu ? 'Добавьте свой домен, чтобы сайт открывался по нему' : 'Add your domain so your site opens under it'}
+              {isRu ? 'Добавьте свой домен, чтобы проект открывался по нему' : 'Add your domain so your site opens under it'}
             </p>
             <Button className="rounded-xl font-semibold gap-2" onClick={() => setAddOpen(true)}>
               <Icon name="Plus" size={16} /> {isRu ? 'Добавить домен' : 'Add domain'}

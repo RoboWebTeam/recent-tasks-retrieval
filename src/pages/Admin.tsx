@@ -225,7 +225,7 @@ const Admin = () => {
     } else if (tab === 'users') {
       csv = 'ID,Email,Имя,Тариф,Проектов,Дата\n' + filteredUsers.map(u => `${u.id},"${u.email}","${u.name}","${u.plan}",${u.projects_count},"${new Date(u.created_at).toLocaleString('ru')}"`).join('\n');
     } else if (tab === 'site-leads') {
-      csv = 'ID,Имя,Телефон,Email,Сайт,Сообщение,Статус,Дата\n' + filteredSiteLeads.map(l =>
+      csv = 'ID,Имя,Телефон,Email,Проект,Сообщение,Статус,Дата\n' + filteredSiteLeads.map(l =>
         `${l.id},"${l.name}","${l.phone}","${l.email}","${l.site}","${l.message}","${l.status}","${new Date(l.date).toLocaleString('ru')}"`
       ).join('\n');
     }
@@ -258,7 +258,7 @@ const Admin = () => {
           </form>
           <div className="mt-6 text-center">
             <a href="/" className="text-sm text-muted-foreground hover:text-foreground transition-colors inline-flex items-center gap-1">
-              <Icon name="ArrowLeft" size={14} /> Вернуться на сайт
+              <Icon name="ArrowLeft" size={14} /> Вернуться на проект
             </a>
           </div>
         </div>
@@ -288,7 +288,7 @@ const Admin = () => {
               <span className="hidden sm:inline">Обновить</span>
             </Button>
             <Button variant="outline" size="sm" className="rounded-xl gap-2" asChild>
-              <a href="/"><Icon name="ArrowLeft" size={15} /><span className="hidden sm:inline">На сайт</span></a>
+              <a href="/"><Icon name="ArrowLeft" size={15} /><span className="hidden sm:inline">На проект</span></a>
             </Button>
           </div>
         </div>
@@ -300,7 +300,7 @@ const Admin = () => {
           {[
             { icon: 'Eye',    label: 'Просмотров',     value: analyticsData ? analyticsData.total_views.toLocaleString() : '…', color: 'text-primary' },
             { icon: 'Users',  label: 'Пользователей',  value: users?.length ?? 0,                                               color: 'text-violet-500' },
-            { icon: 'Inbox',  label: 'Заявок с сайтов',value: Object.values(siteLeadCounts).reduce((s, v) => s + v, 0),        color: 'text-emerald-500' },
+            { icon: 'Inbox',  label: 'Заявок с проектов',value: Object.values(siteLeadCounts).reduce((s, v) => s + v, 0),        color: 'text-emerald-500' },
             { icon: 'Layers', label: 'Проектов',       value: users?.reduce((s, u) => s + u.projects_count, 0) ?? 0,           color: 'text-amber-500' },
           ].map(s => (
             <div key={s.label} className="rounded-2xl border border-border bg-card p-4 md:p-5">

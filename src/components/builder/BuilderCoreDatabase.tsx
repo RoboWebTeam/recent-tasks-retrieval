@@ -242,7 +242,7 @@ export default function BuilderCoreDatabase({ lang, projectId }: BuilderCoreData
       <div className="flex items-center justify-between mb-4">
         <div>
           <h3 className="font-bold text-base">{isRu ? 'База данных проекта' : 'Project database'}</h3>
-          <p className="text-xs text-muted-foreground mt-0.5">{isRu ? 'Простые таблицы для хранения данных сайта (заявки, заказы и т.п.)' : 'Simple tables for storing site data (leads, orders, etc.)'}</p>
+          <p className="text-xs text-muted-foreground mt-0.5">{isRu ? 'Простые таблицы для хранения данных проекта (заявки, заказы и т.п.)' : 'Simple tables for storing site data (leads, orders, etc.)'}</p>
         </div>
         <Dialog open={createOpen} onOpenChange={(v) => { setCreateOpen(v); if (!v) { setCreateError(''); } }}>
           <DialogTrigger asChild>
@@ -324,12 +324,12 @@ export default function BuilderCoreDatabase({ lang, projectId }: BuilderCoreData
                     <p className="text-sm font-semibold truncate">{t.label || t.table_name}</p>
                     {t.public_write && (
                       <span className="shrink-0 inline-flex items-center gap-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-medium px-1.5 py-0.5">
-                        <Icon name="Inbox" size={10} /> {isRu ? 'Заявки с сайта' : 'Site leads'}
+                        <Icon name="Inbox" size={10} /> {isRu ? 'Заявки с проекта' : 'Site leads'}
                       </span>
                     )}
                     {t.public_read && (
                       <span className="shrink-0 inline-flex items-center gap-1 rounded-full bg-primary/10 text-primary text-[10px] font-medium px-1.5 py-0.5">
-                        <Icon name="Globe" size={10} /> {isRu ? 'Каталог сайта' : 'Site catalog'}
+                        <Icon name="Globe" size={10} /> {isRu ? 'Каталог проекта' : 'Site catalog'}
                       </span>
                     )}
                   </div>

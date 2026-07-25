@@ -42,7 +42,7 @@ export function DemoPreviewPanel({ lang, progress }: Props) {
             <div className="h-16 w-16 rounded-2xl bg-slate-100 border border-slate-200 grid place-items-center">
               <Icon name="Globe" size={28} className="text-slate-300" />
             </div>
-            <p className="text-slate-400 text-sm">{lang === 'ru' ? 'Начните диалог — сайт появится здесь' : 'Start the chat — site will appear here'}</p>
+            <p className="text-slate-400 text-sm">{lang === 'ru' ? 'Начните диалог — проект появится здесь' : 'Start the chat — site will appear here'}</p>
           </div>
         ) : (
           <DemoSitePreview progress={progress} lang={lang} />

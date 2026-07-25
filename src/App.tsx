@@ -12,7 +12,7 @@ import Icon from "@/components/ui/icon";
 import Index from "./pages/Index";
 
 // Остальные страницы подгружаются отдельными чанками по мере перехода —
-// это уменьшает вес главного бандла и ускоряет первую загрузку сайта.
+// это уменьшает вес главного бандла и ускоряет первую загрузку проекта.
 const Admin = lazy(() => import("./pages/Admin"));
 const Login = lazy(() => import("./pages/Login"));
 const Register = lazy(() => import("./pages/Register"));
@@ -49,7 +49,7 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
   return getSession() ? <>{children}</> : <Navigate to="/login" replace />;
 }
 
-// Виджет чата виден везде, кроме админ-панели (там своя вкладка чата) и редактора сайтов
+// Виджет чата виден везде, кроме админ-панели (там своя вкладка чата) и редактора проектов
 // (там уже есть чат с AI-ассистентом, второй виджет поддержки только мешает и накладывается)
 function GlobalSupportChat() {
   const location = useLocation();

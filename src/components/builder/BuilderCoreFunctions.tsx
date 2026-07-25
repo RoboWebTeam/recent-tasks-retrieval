@@ -74,7 +74,7 @@ export default function BuilderCoreFunctions({ lang, projectId }: BuilderCoreFun
       <div className="mb-4">
         <h3 className="font-bold text-base">{isRu ? 'Серверные функции' : 'Server functions'}</h3>
         <p className="text-xs text-muted-foreground mt-0.5">
-          {isRu ? 'Логика на сервере, которую сайт вызывает: расчёты, проверки, оформление заказов.' : 'Server-side logic the site calls: calculations, checks, order processing.'}
+          {isRu ? 'Логика на сервере, которую проект вызывает: расчёты, проверки, оформление заказов.' : 'Server-side logic the site calls: calculations, checks, order processing.'}
         </p>
       </div>
       <div className="space-y-2">

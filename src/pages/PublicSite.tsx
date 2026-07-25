@@ -30,14 +30,14 @@ export default function PublicSite() {
         setTitle(data.title || '');
         setSeo({
           title: data.title || 'Roboweb',
-          description: data.description || 'Сайт создан с помощью Roboweb — AI-конструктора сайтов.',
+          description: data.description || 'Проект создан с помощью Roboweb — AI-конструктора шаблонов.',
           image: data.image || undefined,
           url: `/site/${slug}`,
         });
-        // Если у сайта уже подключён собственный домен — там контент раздаётся
+        // Если у проекта уже подключён собственный домен — там контент раздаётся
         // напрямую (лучше для SEO), поэтому копию на /site/:slug скрываем от индексации,
         // чтобы избежать дублей контента. Если своего домена нет — это единственный
-        // публичный адрес сайта, его индексируем как обычно.
+        // публичный адрес проекта, его индексируем как обычно.
         if (data.has_custom_domain) setNoIndex();
       })
       .catch(() => setNotFound(true))
@@ -59,7 +59,7 @@ export default function PublicSite() {
           <Icon name="FileQuestion" size={28} />
         </div>
         <div>
-          <h1 className="font-display font-bold text-xl mb-1">Сайт не найден</h1>
+          <h1 className="font-display font-bold text-xl mb-1">Проект не найден</h1>
           <p className="text-muted-foreground text-sm">Возможно, он ещё не опубликован или ссылка неверна</p>
         </div>
         <Link to="/" className="text-primary text-sm font-medium hover:underline">

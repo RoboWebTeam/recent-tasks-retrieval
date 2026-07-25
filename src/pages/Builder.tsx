@@ -53,7 +53,7 @@ interface Message {
   content: string;
   isHtml?: boolean;
   tokens?: number;
-  /** true — этот пустой ответ ассистента относится к правке существующего сайта, а не к генерации с нуля */
+  /** true — этот пустой ответ ассистента относится к правке существующего проекта, а не к генерации с нуля */
   isEdit?: boolean;
   /** Готовый развёрнутый markdown-отчёт от модели (маркер RW:report) — рендерится как красивое сообщение */
   report?: string;
@@ -65,14 +65,14 @@ interface Message {
   steps?: string[];
   /** Дизайн-решения: палитра, шрифты, стиль */
   design?: string;
-  /** Список секций/блоков, которые есть на созданном сайте */
+  /** Список секций/блоков, которые есть на созданном проекте */
   sections?: string[];
-  /** Персональные предложения улучшений именно для этого сайта */
+  /** Персональные предложения улучшений именно для этого проекта */
   suggestions?: Suggestion[];
   /** true — сообщение только что сгенерировано в этой сессии (нужно проиграть анимацию печати).
    * У сообщений, восстановленных из истории при повторном входе, флага нет — они не анимируются. */
   justGenerated?: boolean;
-  /** true — это уточняющий вопрос от ИИ (задача была расплывчата), а не ошибка и не готовый сайт */
+  /** true — это уточняющий вопрос от ИИ (задача была расплывчата), а не ошибка и не готовый проект */
   isQuestion?: boolean;
   /** Тип «агентного» пузыря живой сборки: 'plan' — план в начале, 'file' — строка файла
    *  index.html, 'step' — отдельный шаг работы (во время сборки), 'stepgroup' — свёрнутая
@@ -124,13 +124,13 @@ const DEVICE_WIDTHS: Record<DeviceMode, string> = {
 // Приветственное сообщение ассистента при первом входе в новый проект.
 const WELCOME_MESSAGE = (lang: 'ru' | 'en') =>
   lang === 'ru'
-    ? 'Привет :) Roboweb заменяет фрилансеров и конструкторы сайтов. Опишите идею в диалоге — и получите готовый сайт, магазин, IT-стартап за минуты, а не недели. Ваш личный разработчик! И это всё реальность! Попробуйте, вам обязательно понравится.'
+    ? 'Привет :) Roboweb заменяет фрилансеров и конструкторы шаблонов. Опишите идею в диалоге — и получите готовый проект, магазин, IT-стартап за минуты, а не недели. Ваш личный разработчик! И это всё реальность! Попробуйте, вам обязательно понравится.'
     : 'Hi :) Roboweb replaces freelancers and site builders. Describe your idea in the chat — and get a ready website, store or IT startup in minutes, not weeks. Your personal developer! And it\'s all real! Give it a try — you\'ll love it.';
 
 const QUICK_EDITS_RU = [
   { icon: 'Palette', label: 'Тёмная тема', prompt: 'Сделай тёмную цветовую схему' },
   { icon: 'Sun', label: 'Светлая тема', prompt: 'Сделай светлую цветовую схему' },
-  { icon: 'Type', label: 'Крупнее шрифт', prompt: 'Увеличь размер шрифтов на всём сайте' },
+  { icon: 'Type', label: 'Крупнее шрифт', prompt: 'Увеличь размер шрифтов на всём проекте' },
   { icon: 'Zap', label: 'Добавь анимации', prompt: 'Добавь плавные анимации появления элементов' },
   { icon: 'Phone', label: 'Кнопка звонка', prompt: 'Добавь кнопку звонка с номером телефона' },
   { icon: 'MessageSquare', label: 'Форма обратной связи', prompt: 'Добавь форму обратной связи с полями имя, телефон, сообщение' },
@@ -153,7 +153,7 @@ const QUICK_EDITS_EN = [
   { icon: 'Award', label: 'Benefits', prompt: 'Add a key company benefits block (4-6 items)' },
 ];
 
-// Библиотека готовых секций — добавление целых блоков сайта в один клик.
+// Библиотека готовых секций — добавление целых блоков проекта в один клик.
 const SECTION_LIBRARY_RU = [
   { icon: 'Image', label: 'Галерея', prompt: 'Добавь красивую галерею изображений в виде адаптивной сетки с hover-эффектом' },
   { icon: 'CreditCard', label: 'Тарифы', prompt: 'Добавь секцию с тарифами: 3 карточки цен, у средней выдели «Популярный», с кнопками' },
@@ -272,7 +272,7 @@ export default function Builder() {
   const [publishError, setPublishError] = useState('');
   const [remaining, setRemaining] = useState<number | null>(null);
   const [quotaExceeded, setQuotaExceeded] = useState(false);
-  // Выбранный стиль-пресет для новых сайтов ('' = авто, ИИ подбирает сам под нишу)
+  // Выбранный стиль-пресет для новых проектов ('' = авто, ИИ подбирает сам под нишу)
   const [siteStyle, setSiteStyle] = useState<'' | 'minimal' | 'premium' | 'bright' | 'dark'>('');
   const [showStyleMenu, setShowStyleMenu] = useState(false);
   const [dismissedStyleHint, setDismissedStyleHint] = useState(false);
@@ -332,7 +332,7 @@ export default function Builder() {
   useEffect(() => {
     if (!session || !projectId) return;
     // Мы сами создали этот проект в текущей сессии и уже держим актуальные messages/html —
-    // НЕ перезагружаем из БД, иначе затрём только что сгенерированный сайт и живой чат.
+    // НЕ перезагружаем из БД, иначе затрём только что сгенерированный проект и живой чат.
     if (ownedIdRef.current === projectId) { setChatLoaded(true); return; }
     setLoadingProject(true);
     apiGetProject(session, projectId)
@@ -473,7 +473,7 @@ export default function Builder() {
     ta.style.height = Math.min(ta.scrollHeight, 160) + 'px';
   }, [input]);
 
-  // Умное уточнение: пользователь пишет запрос на новый сайт, но не выбрал стиль —
+  // Умное уточнение: пользователь пишет запрос на новый проект, но не выбрал стиль —
   // мягко предлагаем выбрать стиль для лучшего результата (не блокируя генерацию).
   const showStyleHint = !html && !siteStyle && input.trim().length >= 8 && !dismissedStyleHint;
 
@@ -509,7 +509,7 @@ export default function Builder() {
     let activePid = projectId;
     if (!activePid && session) {
       try {
-        const created = await apiCreateProject(session, projectTitle || (lang === 'ru' ? 'Новый сайт' : 'New site'), '');
+        const created = await apiCreateProject(session, projectTitle || (lang === 'ru' ? 'Новый проект' : 'New site'), '');
         activePid = String(created.id);
         ownedIdRef.current = activePid;       // гвард: эффект загрузки не должен перезагружать этот проект
         setChatLoaded(true);                  // разрешаем автосохранение истории сразу
@@ -520,7 +520,7 @@ export default function Builder() {
     }
 
     // Если прикреплено изображение — используем готовую ссылку (если файл уже в хранилище)
-    // или загружаем его туда, чтобы AI мог вставить в сайт реальную ссылку, а не выдумывать путь
+    // или загружаем его туда, чтобы AI мог вставить в проект реальную ссылку, а не выдумывать путь
     let imageNote = '';
     if (pendingImage?.alreadyUploaded) {
       imageNote = `\n[Изображение из хранилища проекта, используй эту ссылку в src: ${pendingImage.url}]`;
@@ -537,7 +537,7 @@ export default function Builder() {
     const content = rawContent + imageNote;
 
     const isEditRequest = !!html;
-    // Снимок текущего сайта — чтобы ЛЮБАЯ ошибка генерации НИКОГДА не стирала уже готовый сайт.
+    // Снимок текущего проекта — чтобы ЛЮБАЯ ошибка генерации НИКОГДА не стирала уже готовый проект.
     const siteBeforeGen = html;
     const newMessages: Message[] = [...messages, { role: 'user', content }];
     // Добавляем сообщение пользователя И пустой ответ ассистента одним обновлением —
@@ -550,10 +550,10 @@ export default function Builder() {
         project_id: activePid,
         // Выбранная пользователем модель: 'sonnet' (Sonnet 5) или 'opus' (Opus 4.8)
         model: aiModel,
-        // Стиль-пресет применяется только к новым сайтам (при правке html уже есть)
+        // Стиль-пресет применяется только к новым проектам (при правке html уже есть)
         style: !html ? siteStyle : undefined,
-        // Передаём текущий HTML сайта — модель правит именно его, а не пытается
-        // восстановить состояние сайта по истории текстовых команд
+        // Передаём текущий HTML проекта — модель правит именно его, а не пытается
+        // восстановить состояние проекта по истории текстовых команд
         current_html: html || undefined,
       };
 
@@ -586,7 +586,7 @@ export default function Builder() {
               variant: 'destructive',
               title: lang === 'ru' ? '🚫 Лимит AI-запросов исчерпан' : '🚫 AI request limit reached',
               description: lang === 'ru'
-                ? 'Пополните энергию или смените тариф, чтобы продолжить генерацию сайта.'
+                ? 'Пополните энергию или смените тариф, чтобы продолжить генерацию проекта.'
                 : 'Top up energy or upgrade your plan to keep generating.',
             });
           }
@@ -612,9 +612,9 @@ export default function Builder() {
         const requestCost = (data as { cost?: number }).cost || 1;
         if (generatedHtml && isLargeTask && requestCost > 1) {
           toast({
-            title: lang === 'ru' ? '✨ Детальный сайт' : '✨ Detailed site',
+            title: lang === 'ru' ? '✨ Детальный проект' : '✨ Detailed site',
             description: lang === 'ru'
-              ? `Крупная задача — сделал более насыщенный сайт. Списано ${requestCost} запроса вместо 1.`
+              ? `Крупная задача — сделал более насыщенный проект. Списано ${requestCost} запроса вместо 1.`
               : `Large task — generated a richer site. ${requestCost} requests used instead of 1.`,
           });
         }
@@ -642,7 +642,7 @@ export default function Builder() {
         }
 
         // Обновляем превью ТОЛЬКО если пришёл новый HTML — иначе не трогаем состояние,
-        // чтобы случайный пустой ответ не стирал уже показанный сайт. В стрим-режиме превью
+        // чтобы случайный пустой ответ не стирал уже показанный проект. В стрим-режиме превью
         // уже собиралось вживую — здесь фиксируем финальный чистый HTML (без служебного блока).
         if (generatedHtml) {
           setHtml(generatedHtml);
@@ -650,7 +650,7 @@ export default function Builder() {
           setRightTab('preview');
           setIframeKey(k => k + 1);          // принудительно пересобираем iframe с новым содержимым
           // На мобильном экране чат и превью занимают весь экран по очереди — после успешной
-          // генерации сразу показываем готовый сайт, а не оставляем пользователя в чате.
+          // генерации сразу показываем готовый проект, а не оставляем пользователя в чате.
           if (typeof window !== 'undefined' && window.innerWidth < 640) {
             setSidebarOpen(false);
           }
@@ -710,7 +710,7 @@ export default function Builder() {
         });
       };
 
-      // ── СТРИМИНГ (SSE): лайв-сборка сайта + реальные вехи ──────────────────────────────
+      // ── СТРИМИНГ (SSE): лайв-сборка проекта + реальные вехи ──────────────────────────────
       // Сначала пробуем стрим. Если сервер вернул не-стрим (ошибка авторизации/лимита) —
       // разбираем как обычный ответ. Если стрим не удалось НАЧАТЬ (сеть/сервер без стрима) —
       // откатываемся на буферный запрос ниже. Уже начавшийся, но оборвавшийся стрим НЕ
@@ -767,7 +767,7 @@ export default function Builder() {
           const planRe = /<!--\s*RW:plan:(.*?)-->/;
           // Во время стрима НЕ обновляем превью по кусочкам — это перегружало iframe (srcDoc) и
           // превью МОРГАЛО. Теперь показываем состояние «строится» (превью-скелет), а готовый
-          // сайт загружаем ОДИН раз на событии done — без мигания. lastPreview больше не нужен.
+          // проект загружаем ОДИН раз на событии done — без мигания. lastPreview больше не нужен.
           const flushPreview = (_force: boolean) => { /* no-op: см. коммент выше */ };
           void lastPreview;
           // Показывает «план» в самом начале (маркер <!--RW:plan:...--> перед <!DOCTYPE>) отдельным
@@ -832,7 +832,7 @@ export default function Builder() {
                 flushPreview(false);
               } else if (evName === 'done') {
                 settled = true; setStreamStatus(null); setStreamLines(0);
-                // Дифф-статистика для строки файла: новый сайт → +всего строк; правка → +добавлено/−удалено
+                // Дифф-статистика для строки файла: новый проект → +всего строк; правка → +добавлено/−удалено
                 // (приблизительно, по разнице множеств строк old/new — как в логе разработчика).
                 const finalHtml = (payload.html as string) || '';
                 let fileAdded = finalHtml ? finalHtml.split('\n').length : 0;
@@ -902,7 +902,7 @@ export default function Builder() {
       }
     } catch {
       setStreamStatus(null);
-      // Восстанавливаем прежний сайт — ошибка правки НЕ должна оставлять пустое превью.
+      // Восстанавливаем прежний проект — ошибка правки НЕ должна оставлять пустое превью.
       if (siteBeforeGen) { setHtml(siteBeforeGen); setIframeKey(k => k + 1); }
       setMessages(prev => {
         const updated = [...prev];
@@ -911,7 +911,7 @@ export default function Builder() {
       });
     } finally {
       setLoading(false);
-      // Финальная страховка: если после генерации сайт был, а стал пустым (любой сбой) — вернём его.
+      // Финальная страховка: если после генерации проект был, а стал пустым (любой сбой) — вернём его.
       setHtml(h => (!h && siteBeforeGen ? siteBeforeGen : h));
     }
   };
@@ -1214,11 +1214,11 @@ export default function Builder() {
 </` + `script>`;
 
   // КЛЮЧЕВАЯ ЗАЩИТА: <base> с несуществующим доменом. Без него ЛЮБАЯ относительная ссылка
-  // в сгенерированном сайте (href="/", href="/about", переход через форму или JS window.location)
+  // в сгенерированном проекте (href="/", href="/about", переход через форму или JS window.location)
   // резолвится браузером относительно текущей страницы редактора — то есть в корень roboweb.dev —
   // и iframe (у которого есть allow-same-origin) послушно загружает туда весь проект целиком.
   // Перехват кликов по <a> отдельно НЕ спасает от переходов через формы/скрипты, поэтому <base>
-  // обязателен: он делает так, что относительный путь ведёт в никуда, а не на настоящий сайт.
+  // обязателен: он делает так, что относительный путь ведёт в никуда, а не на настоящий проект.
   const PREVIEW_BASE = '<base href="https://preview-sandbox.invalid/">';
 
   // HTML с внедрённым скриптом для режима редактирования
@@ -1366,7 +1366,7 @@ export default function Builder() {
     const reader = new FileReader();
     reader.onload = (ev) => {
       setAttachedImage({ url: ev.target?.result as string, name: file.name });
-      if (!input) setInput(lang === 'ru' ? 'Создай сайт по этому изображению' : 'Create a website based on this image');
+      if (!input) setInput(lang === 'ru' ? 'Создай проект по этому изображению' : 'Create a website based on this image');
     };
     // Обработка ошибки чтения — иначе битый файл молча попадал в запрос.
     reader.onerror = () => {
@@ -1380,7 +1380,7 @@ export default function Builder() {
     setAttachedImage({ url: file.file_url, name: file.file_name, alreadyUploaded: true });
     setRightTab('preview');
     setSidebarOpen(true);
-    if (!input) setInput(lang === 'ru' ? 'Используй это изображение на сайте' : 'Use this image on the site');
+    if (!input) setInput(lang === 'ru' ? 'Используй это изображение на проекте' : 'Use this image on the site');
   };
 
   const initials = user?.name?.split(' ').map(w => w[0]).join('').toUpperCase().slice(0, 2) || 'U';
@@ -1395,7 +1395,7 @@ export default function Builder() {
           <button
             onClick={() => setSidebarOpen(v => !v)}
             className="grid h-8 w-8 place-items-center rounded-lg bg-secondary border border-border text-muted-foreground hover:text-foreground hover:bg-secondary/70 transition-colors shrink-0"
-            title={sidebarOpen ? (lang === 'ru' ? 'Показать сайт' : 'Show site') : (lang === 'ru' ? 'Показать чат' : 'Show chat')}
+            title={sidebarOpen ? (lang === 'ru' ? 'Показать проект' : 'Show site') : (lang === 'ru' ? 'Показать чат' : 'Show chat')}
           >
             <Icon name={sidebarOpen ? 'PanelLeftClose' : 'PanelLeft'} fallback="PanelLeft" size={15} />
           </button>
@@ -1497,7 +1497,7 @@ export default function Builder() {
                   ? 'bg-primary text-primary-foreground border-primary'
                   : 'border-border bg-secondary hover:bg-secondary/70 hover:text-foreground text-muted-foreground'
               }`}
-              title={lang === 'ru' ? 'Изменить текст на сайте' : 'Edit text on the site'}>
+              title={lang === 'ru' ? 'Изменить текст на проекте' : 'Edit text on the site'}>
               <Icon name="MousePointer" size={13} />
             </button>
           )}
@@ -1581,7 +1581,7 @@ export default function Builder() {
                 <div className="flex items-center gap-2 mt-0.5">
                   <span className="text-[11px] text-muted-foreground font-medium">
                     {loading
-                      ? (lang === 'ru' ? 'работаю над сайтом…' : 'working on your site…')
+                      ? (lang === 'ru' ? 'работаю над проектом…' : 'working on your site…')
                       : (<><span className="text-emerald-500">●</span> {lang === 'ru' ? 'на связи, готов помочь' : 'online, ready to help'}</>)}
                   </span>
                 </div>
@@ -1804,7 +1804,7 @@ export default function Builder() {
               </div>
             )}
 
-            {/* Умное уточнение: предложить выбрать стиль дизайна для нового сайта */}
+            {/* Умное уточнение: предложить выбрать стиль дизайна для нового проекта */}
             {showStyleHint && (
               <div className="mx-3 mt-3 rounded-xl px-3 py-2.5 bg-secondary border border-border">
                 <div className="flex items-center gap-2 mb-2">
@@ -1937,7 +1937,7 @@ export default function Builder() {
                     )}
                   </div>
 
-                  {/* Стиль сайта — только для создания нового (при правке html уже есть) */}
+                  {/* Стиль проекта — только для создания нового (при правке html уже есть) */}
                   {!html && (
                     <div className="relative shrink-0">
                       <button onClick={() => setShowStyleMenu(v => !v)}
@@ -1990,7 +1990,7 @@ export default function Builder() {
                         <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold mb-2">{lang === 'ru' ? 'Расширения' : 'Extensions'}</p>
                         {[
                           { icon: 'ShoppingCart', label: lang === 'ru' ? 'Интернет-магазин' : 'E-commerce', desc: lang === 'ru' ? 'Каталог, корзина, оплата' : 'Catalog, cart, checkout' },
-                          { icon: 'MessageSquare', label: lang === 'ru' ? 'Онлайн-чат' : 'Live chat', desc: lang === 'ru' ? 'Виджет чата на сайте' : 'Chat widget on site' },
+                          { icon: 'MessageSquare', label: lang === 'ru' ? 'Онлайн-чат' : 'Live chat', desc: lang === 'ru' ? 'Виджет чата на проекте' : 'Chat widget on site' },
                           { icon: 'BarChart2', label: lang === 'ru' ? 'Аналитика' : 'Analytics', desc: lang === 'ru' ? 'Google Analytics, Яндекс' : 'Google Analytics, Yandex' },
                           { icon: 'CreditCard', label: lang === 'ru' ? 'Оплата' : 'Payments', desc: lang === 'ru' ? 'Stripe, ЮКасса' : 'Stripe, YooKassa' },
                           { icon: 'Mail', label: lang === 'ru' ? 'Email-рассылка' : 'Email list', desc: lang === 'ru' ? 'Форма подписки' : 'Subscription form' },
@@ -2311,13 +2311,13 @@ export default function Builder() {
               ) : (
                 <div className="flex-1 flex flex-col items-center justify-center text-center px-8">
                   {loading ? (
-                    // Состояние «строится» во время генерации нового сайта — без мигания превью.
+                    // Состояние «строится» во время генерации нового проекта — без мигания превью.
                     <>
                       <div className="h-20 w-20 rounded-3xl bg-card border border-border grid place-items-center mx-auto mb-6 shadow-sm">
                         <Icon name="Loader" size={30} className="text-primary animate-spin" />
                       </div>
-                      <h3 className="font-bold text-foreground text-lg mb-2">{lang === 'ru' ? 'Собираю ваш сайт…' : 'Building your site…'}</h3>
-                      <p className="text-muted-foreground text-sm max-w-xs leading-relaxed">{lang === 'ru' ? 'Готовый сайт появится здесь через несколько секунд — ход сборки виден в чате слева.' : 'Your finished site appears here shortly — follow the build in the chat on the left.'}</p>
+                      <h3 className="font-bold text-foreground text-lg mb-2">{lang === 'ru' ? 'Собираю ваш проект…' : 'Building your site…'}</h3>
+                      <p className="text-muted-foreground text-sm max-w-xs leading-relaxed">{lang === 'ru' ? 'Готовый проект появится здесь через несколько секунд — ход сборки виден в чате слева.' : 'Your finished site appears here shortly — follow the build in the chat on the left.'}</p>
                       <div className="w-full max-w-sm mt-8 space-y-3">
                         <div className="h-8 w-2/3 mx-auto rounded-lg bg-secondary animate-pulse" />
                         <div className="h-24 rounded-2xl bg-secondary animate-pulse" />
@@ -2481,10 +2481,10 @@ export default function Builder() {
               <Icon name="CheckCircle" size={24} />
             </div>
             <h3 className="font-bold text-lg text-center mb-1">
-              {lang === 'ru' ? 'Сайт опубликован!' : 'Site published!'}
+              {lang === 'ru' ? 'Проект опубликован!' : 'Site published!'}
             </h3>
             <p className="text-sm text-muted-foreground text-center mb-4">
-              {lang === 'ru' ? 'Ваш сайт доступен по ссылке:' : 'Your site is available at:'}
+              {lang === 'ru' ? 'Ваш проект доступен по ссылке:' : 'Your site is available at:'}
             </p>
             <div className="flex items-center gap-2 bg-secondary rounded-xl px-3 py-2.5 mb-4">
               <Icon name="Link" size={14} className="text-muted-foreground shrink-0" />

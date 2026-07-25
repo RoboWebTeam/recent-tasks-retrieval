@@ -12,8 +12,8 @@ export function IndexSectionsTop({ lang }: Props) {
   const TRUST         = getTRUST(lang);
   const STEPS         = getSTEPS(lang);
   const DOORS = lang === 'ru' ? [
-    { icon: 'Briefcase', tag: 'Фрилансерам и студиям', title: 'Делайте сайты клиентам за час', text: 'Соберите рабочий сайт по брифу и отдайте настоящий код на Next.js прямо в GitHub клиента. Фикс-цена вместо почасовки — ваша ИИ-команда разработки.', cta: 'Собрать сайт клиенту', hot: true },
-    { icon: 'Store', tag: 'Бизнесу и самозанятым', title: 'Сайт, который принимает заявки', text: 'Формы пишут в базу, живой каталог, корзина и оформление заказа — без разработчика и без кода. Сайт, который работает, а не просто выглядит.', cta: 'Запустить сайт', hot: false },
+    { icon: 'Briefcase', tag: 'Фрилансерам и студиям', title: 'Делайте проекты клиентам за час', text: 'Соберите рабочий проект по брифу и отдайте настоящий код на Next.js прямо в GitHub клиента. Фикс-цена вместо почасовки — ваша ИИ-команда разработки.', cta: 'Собрать проект клиенту', hot: true },
+    { icon: 'Store', tag: 'Бизнесу и самозанятым', title: 'Проект, который принимает заявки', text: 'Формы пишут в базу, живой каталог, корзина и оформление заказа — без разработчика и без кода. Проект, который работает, а не просто выглядит.', cta: 'Запустить проект', hot: false },
     { icon: 'Code2', tag: 'Разработчикам', title: 'Готовый каркас за минуту', text: 'Next.js + Prisma + аккаунты + корзина — экспортом в ваш GitHub. Рабочий каркас на старте — дальше допиливаете код сами.', cta: 'Забрать код', hot: false },
   ] : [
     { icon: 'Briefcase', tag: 'Freelancers & studios', title: 'Ship client sites in an hour', text: 'Build a working site from a brief and hand over real Next.js code straight to the client\'s GitHub. Fixed price instead of hourly — your AI dev team.', cta: 'Build a client site', hot: true },
@@ -99,7 +99,7 @@ export function IndexSectionsTop({ lang }: Props) {
                 {lang === 'ru' ? 'Три способа использовать RoboWeb' : 'Three ways to use RoboWeb'}
               </h2>
               <p className="mt-4 text-muted-foreground text-base sm:text-lg">
-                {lang === 'ru' ? 'Не просто «сделай сайт». Выберите свой сценарий.' : 'Not just "make a site". Pick your path.'}
+                {lang === 'ru' ? 'Не просто «сделай проект». Выберите свой сценарий.' : 'Not just "make a site". Pick your path.'}
               </p>
             </div>
           </Reveal>

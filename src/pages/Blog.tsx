@@ -29,7 +29,7 @@ export default function Blog() {
       description: tr('blogSeoDesc', lang),
       url: '/blog',
       keywords: lang === 'ru'
-        ? 'блог о сайтах, AI разработка, создать сайт быстро, конструктор сайтов'
+        ? 'блог о проектах, AI разработка, создать проект быстро, конструктор шаблонов'
         : 'website blog, AI development, build site fast, site builder',
     });
     setBlogJsonLd();

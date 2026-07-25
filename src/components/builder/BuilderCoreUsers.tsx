@@ -49,10 +49,10 @@ export default function BuilderCoreUsers({ lang, projectId }: Props) {
           <div className="grid h-14 w-14 place-items-center rounded-2xl bg-primary/10 text-primary mx-auto mb-4">
             <Icon name="Users" size={26} />
           </div>
-          <h3 className="font-bold text-lg mb-2">{isRu ? 'Пользователей сайта пока нет' : 'No site users yet'}</h3>
+          <h3 className="font-bold text-lg mb-2">{isRu ? 'Пользователей проекта пока нет' : 'No site users yet'}</h3>
           <p className="text-sm text-muted-foreground leading-relaxed">
             {isRu
-              ? 'Попросите в чате «добавь личный кабинет со входом и регистрацией» — посетители сайта смогут регистрироваться и видеть свои заказы, а вы увидите их здесь.'
+              ? 'Попросите в чате «добавь личный кабинет со входом и регистрацией» — посетители проекта смогут регистрироваться и видеть свои заказы, а вы увидите их здесь.'
               : 'Ask in chat to “add a personal account with login and registration” — site visitors can sign up and see their orders, and you\'ll see them here.'}
           </p>
         </div>
@@ -63,7 +63,7 @@ export default function BuilderCoreUsers({ lang, projectId }: Props) {
   return (
     <div className="p-4">
       <div className="mb-4">
-        <h3 className="font-bold text-base">{isRu ? 'Пользователи сайта' : 'Site users'}</h3>
+        <h3 className="font-bold text-base">{isRu ? 'Пользователи проекта' : 'Site users'}</h3>
         <p className="text-xs text-muted-foreground mt-0.5">
           {isRu ? `Зарегистрированные посетители — всего ${total}` : `Registered visitors — ${total} total`}
         </p>

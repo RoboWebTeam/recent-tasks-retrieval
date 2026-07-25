@@ -150,13 +150,13 @@ export const SOURCE_COLORS = ['bg-primary', 'bg-violet-500', 'bg-emerald-500', '
 export const ACTION_LABELS: Record<string, { label: string; color: string; icon: string }> = {
   register:       { label: 'Регистрация',     color: 'text-emerald-600 bg-emerald-100', icon: 'UserPlus' },
   login:          { label: 'Вход',            color: 'text-blue-600 bg-blue-100',       icon: 'LogIn' },
-  generate_site:  { label: 'Генерация сайта', color: 'text-primary bg-primary/10',     icon: 'Sparkles' },
+  generate_site:  { label: 'Генерация проекта', color: 'text-primary bg-primary/10',     icon: 'Sparkles' },
   create_project: { label: 'Новый проект',    color: 'text-violet-600 bg-violet-100',  icon: 'Layers' },
   change_plan:    { label: 'Смена тарифа',    color: 'text-amber-600 bg-amber-100',    icon: 'CreditCard' },
   block_user:     { label: 'Блокировка',      color: 'text-rose-600 bg-rose-100',      icon: 'Ban' },
   unblock_user:   { label: 'Разблокировка',   color: 'text-emerald-600 bg-emerald-100',icon: 'Unlock' },
   delete_user:    { label: 'Удаление',        color: 'text-red-600 bg-red-100',        icon: 'Trash2' },
-  submit_lead:    { label: 'Заявка с сайта',  color: 'text-teal-600 bg-teal-100',      icon: 'Inbox' },
+  submit_lead:    { label: 'Заявка с проекта',  color: 'text-teal-600 bg-teal-100',      icon: 'Inbox' },
 };
 
 export const NOTIF_ICONS: Record<string, string> = {

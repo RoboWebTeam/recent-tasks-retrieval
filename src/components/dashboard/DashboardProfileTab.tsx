@@ -277,7 +277,7 @@ export default function DashboardProfileTab({
           </DialogHeader>
           <p className="text-sm text-muted-foreground">
             {lang === 'ru'
-              ? 'Это действие необратимо. Все ваши сайты будут отвязаны от аккаунта.'
+              ? 'Это действие необратимо. Все ваши проекты будут отвязаны от аккаунта.'
               : 'This action cannot be undone. All your sites will be unlinked from the account.'}
           </p>
           <Input

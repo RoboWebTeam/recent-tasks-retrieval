@@ -24,7 +24,7 @@ export default function DomainDeleteDialog({
         </DialogHeader>
         <p className="text-sm text-muted-foreground">
           {isRu
-            ? `Домен ${deleteTarget?.domain} будет отключён от сайта.`
+            ? `Домен ${deleteTarget?.domain} будет отключён от проекта.`
             : `Domain ${deleteTarget?.domain} will be disconnected from the site.`}
         </p>
         <div className="flex gap-2">

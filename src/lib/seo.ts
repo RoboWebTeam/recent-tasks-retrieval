@@ -93,7 +93,7 @@ export function setBlogJsonLd() {
     '@context': 'https://schema.org',
     '@type': 'Blog',
     name: 'Блог Roboweb',
-    description: 'Статьи об AI-разработке сайтов, советы для бизнеса и кейсы',
+    description: 'Статьи об AI-разработке проектов, советы для бизнеса и кейсы',
     url: `${BASE_URL}/blog`,
     publisher: { '@type': 'Organization', name: 'Roboweb', url: BASE_URL }
   });

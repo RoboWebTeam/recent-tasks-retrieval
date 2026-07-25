@@ -12,8 +12,8 @@ export const L = {
     create:   { ru: 'Собрать проект', en: 'Build project' },
   },
   hero: {
-    badge:  { ru: 'ИИ-разработчик, а не конструктор сайтов', en: 'AI developer, not a website builder' },
-    words:  { ru: ['Ваша ИИ-команда разработки','Сайт, который работает','Приложение из одного промпта','Код Next.js — в ваш GitHub','Фуллстек за минуты, не недели'], en: ['Your AI dev team','A site that actually works','An app from one prompt','Next.js code in your GitHub','Fullstack in minutes, not weeks'] },
+    badge:  { ru: 'ИИ-разработчик, а не конструктор шаблонов', en: 'AI developer, not a website builder' },
+    words:  { ru: ['Ваша ИИ-команда разработки','Проект, который работает','Приложение из одного промпта','Код Next.js — в ваш GitHub','Фуллстек за минуты, не недели'], en: ['Your AI dev team','A site that actually works','An app from one prompt','Next.js code in your GitHub','Fullstack in minutes, not weeks'] },
     desc:   { ru: 'Опишите идею по-русски — и получите настоящий фуллстек: формы пишут в базу, живой каталог, корзина, оформление заказа и личные кабинеты. Когда нужно — заберите код на Next.js + Prisma прямо в свой GitHub. Для бизнеса, фрилансеров и разработчиков.', en: 'Describe your idea in plain words — and get a real full-stack: forms that save to a database, a live catalog, cart, checkout and user accounts. When you need it, export the whole thing as Next.js + Prisma code straight to your GitHub. For businesses, freelancers and developers.' },
     cta:    { ru: 'Собрать проект бесплатно', en: 'Build your project free' },
     demo:   { ru: 'Смотреть демо', en: 'Watch demo' },
@@ -22,8 +22,8 @@ export const L = {
     online:  { ru: 'Roboweb онлайн', en: 'Roboweb online' },
     typing:  { ru: 'пишет…', en: 'typing…' },
     online2: { ru: 'онлайн', en: 'online' },
-    input:   { ru: 'Опишите ваш сайт…', en: 'Describe your website…' },
-    progress:{ ru: 'Создание сайта', en: 'Building site' },
+    input:   { ru: 'Опишите ваш проект…', en: 'Describe your website…' },
+    progress:{ ru: 'Создание проекта', en: 'Building site' },
   },
   features: {
     title: { ru: "Не конструктор, а ИИ-разработчик", en: "Not a builder — an AI developer" },
@@ -31,10 +31,10 @@ export const L = {
   },
   cta1: {
     label: { ru: "Готовы начать?", en: "Ready to start?" },
-    title: { ru: "Соберите первый фуллстек-сайт", en: "Build your first full-stack site" },
+    title: { ru: "Соберите первый фуллстек-проект", en: "Build your first full-stack site" },
     accent:{ ru: "бесплатно", en: "free" },
-    desc:  { ru: "Опишите идею по-русски — получите работающий сайт с бэкендом и код на вынос. Карту привязывать не нужно.", en: "Describe your idea in plain words — get a working site with a backend and code to take with you. No card required." },
-    btn:   { ru: "Собрать сайт бесплатно", en: "Build free" },
+    desc:  { ru: "Опишите идею по-русски — получите работающий проект с бэкендом и код на вынос. Карту привязывать не нужно.", en: "Describe your idea in plain words — get a working site with a backend and code to take with you. No card required." },
+    btn:   { ru: "Собрать проект бесплатно", en: "Build free" },
     input: { ru: "Ваш e-mail", en: "Your e-mail" },
   },
   process: {
@@ -43,7 +43,7 @@ export const L = {
   },
   portfolio: {
     label: { ru: "Бизнес-решения", en: "Business solutions" },
-    title: { ru: "Сложные продукты, а не просто сайты", en: "Complex products, not just websites" },
+    title: { ru: "Сложные продукты, а не просто страницы", en: "Complex products, not just websites" },
     desc:  { ru: "Интернет-магазины и маркетплейсы, порталы и платформы, дашборды и премиум-лендинги. Каждое решение — с рабочим бэкендом, базой данных и кодом на Next.js + Prisma в вашем GitHub.", en: "Online stores and marketplaces, portals and platforms, dashboards and premium landings. Every solution ships with a real backend, a database and Next.js + Prisma code in your GitHub." },
   },
   compare: {
@@ -52,8 +52,8 @@ export const L = {
     desc:  { ru: "Конструктор отдаёт красивую страницу и запирает вас внутри. RoboWeb собирает рабочий бэкенд — заявки, каталог и заказы в базе, кабинеты — и весь проект на Next.js + Prisma выгружается в ваш GitHub. Продукт, которым вы владеете.", en: "A builder hands you a nice page and locks you inside. RoboWeb ships a working backend — leads, catalog and orders in a database, accounts — and the whole Next.js + Prisma project exports to your GitHub. A product you own." },
   },
   cta2: {
-    badge: { ru: "Первый фуллстек-сайт — бесплатно", en: "First full-stack site — free" },
-    title: { ru: "Сайт, который работает, а не просто выглядит", en: "A site that works, not just looks good" },
+    badge: { ru: "Первый фуллстек-проект — бесплатно", en: "First full-stack site — free" },
+    title: { ru: "Проект, который работает, а не просто выглядит", en: "A site that works, not just looks good" },
     desc:  { ru: "Формы в базу, каталог, корзина, кабинеты — и код на Next.js в вашем GitHub. Соберите рабочий продукт сегодня, а не макет на согласование.", en: "Forms to a database, catalog, cart, accounts — and Next.js code in your GitHub. Build a working product today, not a mockup to approve." },
     btn:   { ru: "Собрать проект сейчас", en: "Build project now" },
     phone: { ru: "Написать в Telegram", en: "Message on Telegram" },
@@ -66,7 +66,7 @@ export const L = {
   },
   cta3: {
     badge: { ru: "Первый проект — бесплатно", en: "First project — free" },
-    title: { ru: "Запустите работающий сайт сегодня", en: "Launch a working site today" },
+    title: { ru: "Запустите работающий проект сегодня", en: "Launch a working site today" },
     desc:  { ru: "Оставьте e-mail и опишите проект — ИИ соберёт фуллстек с бэкендом, а код вы сможете забрать в свой GitHub.", en: "Leave your e-mail and describe the project — the AI builds a full-stack with a backend, and you can take the code to your GitHub." },
     btn:   { ru: "Начать бесплатно", en: "Start free" },
     input: { ru: "Ваш e-mail", en: "Your e-mail" },
@@ -86,7 +86,7 @@ export const L = {
     nav:     { ru: 'Навигация', en: 'Navigation' },
     contacts:{ ru: 'Контакты', en: 'Contacts' },
     social:  { ru: 'Мы в сети', en: 'Follow us' },
-    desc:    { ru: "ИИ-разработчик фуллстек-сайтов: из вашего описания собирает рабочий продукт с базой, формами, корзиной и кабинетами — и отдаёт код на Next.js + Prisma в ваш GitHub.", en: "An AI developer for full-stack sites: turns your description into a working product with a database, forms, cart and accounts — and hands you Next.js + Prisma code in your GitHub." },
+    desc:    { ru: "ИИ-разработчик фуллстек-проектов: из вашего описания собирает рабочий продукт с базой, формами, корзиной и кабинетами — и отдаёт код на Next.js + Prisma в ваш GitHub.", en: "An AI developer for full-stack sites: turns your description into a working product with a database, forms, cart and accounts — and hands you Next.js + Prisma code in your GitHub." },
     copy:    { ru: 'Создано с помощью искусственного интеллекта.', en: 'Built with artificial intelligence.' },
   },
 } as const;
@@ -110,7 +110,7 @@ export const getCHAT_STEPS = (lang: Lang) => lang === 'ru' ? [
   { who: 'bot', text: 'Принял! Анализирую нишу и подбираю стиль…', typing: true },
   { who: 'bot', text: 'Структура готова: Каталог → Заявка в базу → Кабинет', progress: 40 },
   { who: 'bot', text: 'Настраиваю бэкенд: форму в PostgreSQL и серверную логику…', progress: 70 },
-  { who: 'bot', text: 'Готово: рабочий сайт и код Next.js + Prisma. Забрать в GitHub?', done: true },
+  { who: 'bot', text: 'Готово: рабочий проект и код Next.js + Prisma. Забрать в GitHub?', done: true },
 ] : [
   { who: 'user', text: 'Create a landing for a coffee shop with menu and delivery' },
   { who: 'bot', text: 'Got it! Analyzing niche and picking style…', typing: true },
@@ -122,13 +122,13 @@ export const getCHAT_STEPS = (lang: Lang) => lang === 'ru' ? [
 export const getFEATURES = (lang: Lang) => lang === 'ru' ? [
   { icon: "MessageSquare", title: "Описываете на русском", text: "Расскажите идею словами — ИИ проектирует страницы, данные и серверную логику и собирает готовое приложение, а не макет." },
   { icon: "Zap", title: "Каркас за минуту — разработчику", text: "Next.js, Prisma, аккаунты и корзина собраны за минуту. Забираете код и допиливаете свою логику сами." },
-  { icon: "Wallet", title: "Код клиенту — фрилансеру и студии", text: "Собираете клиенту рабочий сайт с бэкендом и отдаёте код в его репозиторий. Фикс-цена вместо бесконечных часов." },
+  { icon: "Wallet", title: "Код клиенту — фрилансеру и студии", text: "Собираете клиенту рабочий проект с бэкендом и отдаёте код в его репозиторий. Фикс-цена вместо бесконечных часов." },
   { icon: "Sparkles", title: "Код на вынос", text: "Готовый проект на Next.js + Prisma экспортируется в ваш GitHub или GitFlic (российский аналог). Настоящий код, а не вечная аренда платформы." },
   { icon: "Layers", title: "Настоящий бэкенд", text: "Формы пишут в базу данных, каталог живой, корзина и оформление заказа работают по-настоящему. Данные под контролем." },
   { icon: "ShieldCheck", title: "Личные кабинеты", text: "Регистрация, вход и аккаунты клиентов из коробки — рабочая авторизация, а не бутафория. Клиенты видят свои заказы." },
-  { icon: "BarChart2", title: "Заявки и заказы приходят", text: "Каждая заявка и заказ сохраняются в базе и видны в панели. Сайт приносит клиентов, а не просто выглядит." },
+  { icon: "BarChart2", title: "Заявки и заказы приходят", text: "Каждая заявка и заказ сохраняются в базе и видны в панели. Проект приносит клиентов, а не просто выглядит." },
   { icon: "RefreshCw", title: "Правки в диалоге", text: "Меняете логику, тексты и дизайн словами — ИИ переписывает и данные, и интерфейс, не ломая проект." },
-  { icon: "Globe", title: "Публикация в 1 клик", text: "Хостинг, SSL и домен настраиваются сами. Работающий сайт с бэкендом сразу онлайн — без настройки серверов." },
+  { icon: "Globe", title: "Публикация в 1 клик", text: "Хостинг, SSL и домен настраиваются сами. Работающий проект с бэкендом сразу онлайн — без настройки серверов." },
   { icon: "Search", title: "SEO из коробки", text: "Чистая разметка, метатеги и скорость Next.js — техническая база для индексации в Google и Яндексе." },
   { icon: "Smartphone", title: "Адаптивность", text: "Каталог, корзина и кабинеты одинаково удобны на телефоне, планшете и десктопе — автоматически." },
   { icon: "HeadphonesIcon", title: "Живая поддержка", text: "Команда в Telegram помогает с бэкендом, экспортом кода и доменом на любом этапе. Отвечаем в рабочее время." },
@@ -176,7 +176,7 @@ export const getTRUST = (lang: Lang) => lang === 'ru' ? [
 ];
 
 export const getSTEPS = (lang: Lang) => lang === 'ru' ? [
-  { n: "01", title: "Опишите продукт", text: "Расскажите по-русски, что должен делать сайт: каталог, заявки, корзина, кабинеты. ИИ уточнит детали." },
+  { n: "01", title: "Опишите продукт", text: "Расскажите по-русски, что должен делать проект: каталог, заявки, корзина, кабинеты. ИИ уточнит детали." },
   { n: "02", title: "ИИ собирает фуллстек", text: "За минуты появляется рабочее приложение: фронтенд, база данных, формы, корзина и оформление заказа." },
   { n: "03", title: "Правите в диалоге", text: "Меняете дизайн и логику словами и сразу видите результат в живом приложении — без кода и разработчика." },
   { n: "04", title: "Публикуете или забираете код", text: "Один клик — продукт онлайн с доменом и SSL. Или экспортируете проект на Next.js + Prisma в свой GitHub или GitFlic." },
@@ -187,7 +187,7 @@ export const getSTEPS = (lang: Lang) => lang === 'ru' ? [
   { n: "04", title: "Publish or export the code", text: "One click and the product is live with domain and SSL. Or export the Next.js + Prisma project to your GitHub or GitFlic." },
 ];
 
-// Данные портфолио (63 демо-сайта) вынесены в отдельный чанк portfolioData.ts,
+// Данные портфолио (63 демо-проекта) вынесены в отдельный чанк portfolioData.ts,
 // который подгружается асинхронно на главной странице — см. IndexSectionsMiddle.tsx.
 
 export const getPLANS = (lang: Lang) => lang === 'ru' ? [
@@ -199,11 +199,11 @@ export const getPLANS = (lang: Lang) => lang === 'ru' ? [
 ];
 
 export const getFAQ = (lang: Lang) => lang === 'ru' ? [
-  { q: "Это очередной конструктор сайтов?", a: "Нет. Конструктор отдаёт вёрстку, запертую внутри платформы. RoboWeb — это ИИ-разработчик: он собирает фуллстек с базой данных, формами, корзиной и кабинетами, а готовый проект на Next.js + Prisma можно выгрузить в свой GitHub." },
-  { q: "У сайта правда рабочий бэкенд, а не красивая страница?", a: "Да. Заявки пишутся в настоящую базу данных, каталог живой, корзина и оформление заказа работают, у посетителей есть личные кабинеты. Это приложение, которое реально принимает заявки и заказы — всё видно в панели проекта." },
+  { q: "Это очередной конструктор шаблонов?", a: "Нет. Конструктор отдаёт вёрстку, запертую внутри платформы. RoboWeb — это ИИ-разработчик: он собирает фуллстек с базой данных, формами, корзиной и кабинетами, а готовый проект на Next.js + Prisma можно выгрузить в свой GitHub." },
+  { q: "У проекта правда рабочий бэкенд, а не красивая страница?", a: "Да. Заявки пишутся в настоящую базу данных, каталог живой, корзина и оформление заказа работают, у посетителей есть личные кабинеты. Это приложение, которое реально принимает заявки и заказы — всё видно в панели проекта." },
   { q: "Смогу ли я забрать код проекта себе?", a: "Да, это ключевое отличие. Готовый проект выгружается как настоящий код на Next.js + Prisma в ваш GitHub или его российский аналог GitFlic (gitflic.ru) — с фронтендом, бэкендом, схемой базы и аккаунтами. Вы не заперты в платформе: дорабатывайте и хостите где угодно." },
-  { q: "Нужно ли уметь программировать?", a: "Чтобы получить рабочий сайт — нет: достаточно описать продукт по-русски, ИИ соберёт фуллстек сам. А если вы разработчик, забираете готовый каркас на Next.js + Prisma с аккаунтами и корзиной за минуту и допиливаете код руками." },
-  { q: "Подходит ли это фрилансерам и студиям?", a: "Да, это одна из наших ключевых аудиторий. Собирайте клиенту рабочий сайт с бэкендом за час и отдавайте код в его репозиторий — берите фикс-цену вместо бесконечных часов. RoboWeb ускоряет вас, а не заменяет." },
+  { q: "Нужно ли уметь программировать?", a: "Чтобы получить рабочий проект — нет: достаточно описать продукт по-русски, ИИ соберёт фуллстек сам. А если вы разработчик, забираете готовый каркас на Next.js + Prisma с аккаунтами и корзиной за минуту и допиливаете код руками." },
+  { q: "Подходит ли это фрилансерам и студиям?", a: "Да, это одна из наших ключевых аудиторий. Собирайте клиенту рабочий проект с бэкендом за час и отдавайте код в его репозиторий — берите фикс-цену вместо бесконечных часов. RoboWeb ускоряет вас, а не заменяет." },
   { q: "Можно ли подключить свой домен?", a: "Да. На платных тарифах свой домен, SSL и хостинг подключаются автоматически при публикации. А если вы выгрузили код на Next.js + Prisma — разворачивайте проект где угодно, вы владеете им полностью." },
   { q: "Вы новый продукт — почему вам можно доверить проект?", a: "Потому что доверие здесь не на словах. Код проекта на Next.js + Prisma и все данные в вашей PostgreSQL остаются у вас — даже если мы уйдём. Стек индустриальный, его поддержит любой разработчик. Есть публичная оферта и зарегистрированное ИП с ОГРНИП/ИНН, которые можно проверить в ЕГРИП. Мы не показываем выдуманных клиентов и оценок — только проверяемое." },
   { q: "Можно ли вернуть деньги?", a: "Да. Если оплаченные функции не использовались, вернём оплату в течение 7 дней по оферте. Точные условия и сроки — в публичной оферте." },
