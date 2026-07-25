@@ -187,7 +187,7 @@ export function IndexHero({ lang, typedText, chatStep, isTyping, progress, chatS
             aria-label={L.hero.badge[lang]}
             className="mt-5 font-display font-bold leading-[1.02] text-4xl sm:text-6xl md:text-7xl xl:text-7xl 2xl:text-8xl tracking-tight break-words hyphens-auto"
           >
-            <span aria-hidden="true" className="text-gradient-animated inline-block min-h-[1.1em] drop-shadow-[0_4px_30px_hsl(232_90%_58%_/_0.28)]">
+            <span aria-hidden="true" className="text-gradient-animated inline-block min-h-[1.1em] drop-shadow-[0_4px_30px_hsl(243_82%_66%_/_0.28)]">
               {typedText}
               <span className="typed-cursor">|</span>
             </span>

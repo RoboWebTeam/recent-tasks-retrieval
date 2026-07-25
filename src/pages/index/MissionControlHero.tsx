@@ -26,7 +26,7 @@ export function MissionControlHero({ lang }: { lang: Lang }) {
 
   const card = 'rgba(19,25,39,0.72)';
   const cardBorder = '1px solid rgba(255,255,255,0.09)';
-  const ink = '#eaf0fb', dim = '#93a2bf', dim2 = '#6b7a99', blue = '#4C7DF0', green = '#3ddc84';
+  const ink = '#eaf0fb', dim = '#93a2bf', dim2 = '#6b7a99', blue = '#6366f1', green = '#3ddc84';
   const mono = "ui-monospace,'SF Mono',Menlo,monospace";
   const cardShadow = '0 24px 50px -20px rgba(4,8,18,0.85)';
 
@@ -59,7 +59,7 @@ export function MissionControlHero({ lang }: { lang: Lang }) {
                   { i: 'user', t: ru ? 'Клиенты' : 'Clients' },
                   { i: 'key', t: ru ? 'Кабинеты' : 'Accounts' },
                 ].map(n => (
-                  <div key={n.t} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 7px', marginBottom: 3, borderRadius: 8, background: n.on ? 'rgba(76,125,240,.16)' : 'transparent' }}>
+                  <div key={n.t} style={{ display: 'flex', alignItems: 'center', gap: 8, padding: '6px 7px', marginBottom: 3, borderRadius: 8, background: n.on ? 'rgba(99,102,241,.16)' : 'transparent' }}>
                     <span style={{ width: 6, height: 6, borderRadius: 5, background: n.on ? blue : '#3b475f' }} />
                     <span style={{ fontSize: 11, fontWeight: n.on ? 700 : 500, color: n.on ? '#cfe0ff' : dim2 }}>{n.t}</span>
                   </div>
@@ -93,7 +93,7 @@ export function MissionControlHero({ lang }: { lang: Lang }) {
                 <div style={{ display: 'flex', alignItems: 'flex-end', gap: 8, height: 66, marginTop: 10 }}>
                   {bars.map((h, i) => (
                     <div key={i} className="mc-bar" style={{ flex: 1, height: `${h}%`, borderRadius: 5, animationDelay: `${0.5 + i * 0.08}s`,
-                      background: i === bars.length - 1 ? `linear-gradient(180deg,#7ea0ff,${blue})` : 'linear-gradient(180deg,rgba(76,125,240,.55),rgba(76,125,240,.2))' }} />
+                      background: i === bars.length - 1 ? `linear-gradient(180deg,#818cf8,${blue})` : 'linear-gradient(180deg,rgba(99,102,241,.55),rgba(99,102,241,.2))' }} />
                   ))}
                 </div>
               </div>
@@ -108,7 +108,7 @@ export function MissionControlHero({ lang }: { lang: Lang }) {
               <svg width="13" height="13" viewBox="0 0 24 24" fill="none"><path d="M5 12.5l4.5 4.5L19 7.5" stroke="#06210f" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round" /></svg>
             </span>
             <div style={{ display: 'flex', alignItems: 'center', gap: 9 }}>
-              <span style={{ width: 32, height: 32, borderRadius: 9, background: 'rgba(76,125,240,.16)', border: '1px solid rgba(76,125,240,.32)', display: 'grid', placeItems: 'center' }}>
+              <span style={{ width: 32, height: 32, borderRadius: 9, background: 'rgba(99,102,241,.16)', border: '1px solid rgba(99,102,241,.32)', display: 'grid', placeItems: 'center' }}>
                 <svg width="16" height="16" viewBox="0 0 24 24" fill="none"><path d="M4 5h16v12H4z" stroke="#9fbcff" strokeWidth="1.7" /><path d="M8 9h8M8 13h5" stroke="#9fbcff" strokeWidth="1.7" strokeLinecap="round" /></svg>
               </span>
               <div>
@@ -125,7 +125,7 @@ export function MissionControlHero({ lang }: { lang: Lang }) {
                 <div style={{ fontSize: 12.5, fontWeight: 600, color: ink, marginTop: 1 }}>{f.v}</div>
               </div>
             ))}
-            <div style={{ marginTop: 11, height: 34, borderRadius: 10, background: `linear-gradient(135deg,#5a86f5,${blue})`, display: 'grid', placeItems: 'center', fontSize: 12.5, fontWeight: 700, color: '#fff' }}>
+            <div style={{ marginTop: 11, height: 34, borderRadius: 10, background: `linear-gradient(135deg,#6366f1,${blue})`, display: 'grid', placeItems: 'center', fontSize: 12.5, fontWeight: 700, color: '#fff' }}>
               {ru ? 'Записано в БД ✓' : 'Saved to DB ✓'}
             </div>
           </div>
@@ -154,7 +154,7 @@ export function MissionControlHero({ lang }: { lang: Lang }) {
                 GitHub
               </span>
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: 5, fontSize: 11, fontWeight: 700, color: ink }}>
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="5" fill="#2f6bff" /><path d="M8 8h5.5a3 3 0 0 1 0 6H10v2M10 11h3" stroke="#fff" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg>
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none"><rect x="3" y="3" width="18" height="18" rx="5" fill="#4f46e5" /><path d="M8 8h5.5a3 3 0 0 1 0 6H10v2M10 11h3" stroke="#fff" strokeWidth="1.7" strokeLinecap="round" strokeLinejoin="round" /></svg>
                 GitFlic
               </span>
             </div>
@@ -166,7 +166,7 @@ export function MissionControlHero({ lang }: { lang: Lang }) {
           <div className="mc-float2" style={{ borderRadius: 15, background: card, border: cardBorder, boxShadow: cardShadow, backdropFilter: 'blur(10px)', padding: 13 }}>
             <div style={{ fontSize: 10.5, fontWeight: 800, letterSpacing: '.6px', color: dim2 }}>{ru ? 'КАТАЛОГ · КОРЗИНА' : 'CATALOG · CART'}</div>
             {[
-              { c: 'linear-gradient(135deg,#6d8bff,#4C7DF0)', n: ru ? 'Кресло Aero' : 'Aero Chair', s: ru ? 'на складе · 24' : 'in stock · 24', p: '18 900 ₽' },
+              { c: 'linear-gradient(135deg,#6d8bff,#6366f1)', n: ru ? 'Кресло Aero' : 'Aero Chair', s: ru ? 'на складе · 24' : 'in stock · 24', p: '18 900 ₽' },
               { c: 'linear-gradient(135deg,#38d3e0,#2f9bff)', n: ru ? 'Лампа Nord' : 'Nord Lamp', s: ru ? 'на складе · 61' : 'in stock · 61', p: '4 500 ₽' },
               { c: 'linear-gradient(135deg,#a78bfa,#7c5cf5)', n: ru ? 'Стол Linea' : 'Linea Table', s: ru ? 'под заказ' : 'on order', p: '32 400 ₽' },
             ].map(r => (

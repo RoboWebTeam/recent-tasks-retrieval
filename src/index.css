@@ -15,7 +15,7 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222 47% 12%;
 
-    --primary: 221 83% 54%;
+    --primary: 243 75% 58%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 220 20% 95.5%;
@@ -24,7 +24,7 @@
     --muted: 220 20% 95.5%;
     --muted-foreground: 220 12% 42%;
 
-    --accent: 199 58% 40%;
+    --accent: 258 62% 52%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 72% 48%;
@@ -32,18 +32,18 @@
 
     --border: 220 16% 88%;
     --input: 220 16% 88%;
-    --ring: 221 83% 54%;
+    --ring: 243 75% 58%;
 
     --radius: 0.5rem;
 
     --sidebar-background: 220 20% 98%;
     --sidebar-foreground: 222 20% 30%;
-    --sidebar-primary: 221 83% 54%;
+    --sidebar-primary: 243 75% 58%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 220 20% 95.5%;
     --sidebar-accent-foreground: 222 47% 12%;
     --sidebar-border: 220 16% 88%;
-    --sidebar-ring: 221 83% 54%;
+    --sidebar-ring: 243 75% 58%;
   }
 
   .dark {
@@ -57,7 +57,7 @@
     --popover: 220 20% 10%;
     --popover-foreground: 216 33% 96%;
 
-    --primary: 221 83% 62%;
+    --primary: 240 82% 67%;
     --primary-foreground: 0 0% 100%;
 
     --secondary: 220 18% 16%;
@@ -66,7 +66,7 @@
     --muted: 220 16% 15%;
     --muted-foreground: 216 14% 63%;
 
-    --accent: 199 52% 50%;
+    --accent: 258 76% 64%;
     --accent-foreground: 0 0% 100%;
 
     --destructive: 0 72% 55%;
@@ -74,15 +74,15 @@
 
     --border: 220 15% 20%;
     --input: 220 15% 22%;
-    --ring: 221 83% 62%;
+    --ring: 240 82% 67%;
     --sidebar-background: 220 22% 9%;
     --sidebar-foreground: 216 20% 80%;
-    --sidebar-primary: 221 83% 62%;
+    --sidebar-primary: 240 82% 67%;
     --sidebar-primary-foreground: 0 0% 100%;
     --sidebar-accent: 220 18% 16%;
     --sidebar-accent-foreground: 216 33% 96%;
     --sidebar-border: 220 15% 20%;
-    --sidebar-ring: 221 83% 62%;
+    --sidebar-ring: 240 82% 67%;
   }
 }
 
@@ -184,7 +184,7 @@ section[id] {
 
 @layer utilities {
   .text-gradient {
-    @apply bg-gradient-to-r from-primary to-[hsl(224,62%,33%)] bg-clip-text text-transparent;
+    @apply bg-gradient-to-r from-primary to-[hsl(256,58%,42%)] bg-clip-text text-transparent;
   }
   .grid-bg {
     background-image:
@@ -359,7 +359,7 @@ section[id] {
 @layer utilities {
   .text-gradient-animated {
     /* B2B: сдержанный mono-синий вместо радуги индиго→фиолет→лайм */
-    background-image: linear-gradient(110deg, hsl(226 58% 46%), hsl(224 62% 34%), hsl(226 58% 46%));
+    background-image: linear-gradient(110deg, hsl(244 70% 52%), hsl(256 62% 44%), hsl(244 70% 52%));
     background-size: 250% 250%;
     -webkit-background-clip: text;
     background-clip: text;
@@ -369,7 +369,7 @@ section[id] {
   .aurora {
     /* Тихая одноцветная синяя подсветка фона вместо цветной ауроры */
     background:
-      radial-gradient(40% 50% at 22% 26%, hsl(226 58% 48% / 0.12), transparent 64%),
+      radial-gradient(40% 50% at 22% 26%, hsl(244 70% 54% / 0.12), transparent 64%),
       radial-gradient(38% 46% at 78% 22%, hsl(210 40% 50% / 0.08), transparent 62%);
     filter: blur(46px);
     animation: aurora-pan 22s ease-in-out infinite;
@@ -380,7 +380,7 @@ section[id] {
     inset: -45% -18%;
     z-index: -1;
     pointer-events: none;
-    background: radial-gradient(50% 60% at 50% 50%, hsl(226 58% 48% / 0.22), transparent 72%);
+    background: radial-gradient(50% 60% at 50% 50%, hsl(244 70% 54% / 0.22), transparent 72%);
     filter: blur(26px);
     animation: cta-glow-pulse 4s ease-in-out infinite;
   }
@@ -420,7 +420,7 @@ section[id] {
     inset: 0;
     border-radius: inherit;
     padding: 1px;
-    background: linear-gradient(130deg, hsl(226 58% 52% / 0.9), hsl(224 62% 36% / 0.7), hsl(226 58% 52% / 0.9));
+    background: linear-gradient(130deg, hsl(244 72% 58% / 0.9), hsl(256 62% 46% / 0.7), hsl(244 72% 58% / 0.9));
     background-size: 300% 300%;
     animation: gradient-pan 10s ease-in-out infinite;
     -webkit-mask: linear-gradient(#000 0 0) content-box, linear-gradient(#000 0 0);
@@ -434,7 +434,7 @@ section[id] {
     position: absolute;
     inset: -6px;
     border-radius: inherit;
-    background: linear-gradient(130deg, hsl(226 58% 48% / 0.28), hsl(210 40% 50% / 0.18));
+    background: linear-gradient(130deg, hsl(244 70% 54% / 0.28), hsl(210 40% 50% / 0.18));
     background-size: 300% 300%;
     filter: blur(22px);
     z-index: -1;
@@ -470,16 +470,16 @@ section[id] {
 /* Мягкое амбиентное свечение вверху героя */
 .hero-ambient::before{
   content:"";position:absolute;inset:-20% 0 auto 0;height:520px;pointer-events:none;z-index:0;
-  background:radial-gradient(60% 80% at 50% 0%, hsl(221 83% 62% / 0.10), transparent 70%);
+  background:radial-gradient(60% 80% at 50% 0%, hsl(240 82% 67% / 0.10), transparent 70%);
 }
 
 /* ── Живой инженерный чертёж (hero-блюпринт) ──────────────────────────────── */
 .bp-sheet{
   position:relative; border-radius:1rem; overflow:hidden;
   background:
-    radial-gradient(120% 90% at 20% -10%, hsl(214 60% 16% / .9), transparent 60%),
+    radial-gradient(120% 90% at 20% -10%, hsl(244 48% 18% / .9), transparent 60%),
     linear-gradient(180deg, #0c1526, #0a1120);
-  border:1px solid hsl(214 40% 26%);
+  border:1px solid hsl(244 32% 30%);
   box-shadow: inset 0 1px 0 hsl(210 60% 90% / .06), 0 24px 60px -20px hsl(214 80% 8% / .8);
 }
 .bp-sheet::before{ /* сетка-миллиметровка */
@@ -512,9 +512,9 @@ section[id] {
 /* ── Mission Control hero (командный центр) ──────────────────────────────── */
 .mc-sheet{ position:relative; border-radius:1.25rem; overflow:hidden;
   background:
-    radial-gradient(900px 520px at 78% -10%, hsl(221 70% 24% / .55), transparent 60%),
+    radial-gradient(900px 520px at 78% -10%, hsl(244 62% 27% / .55), transparent 60%),
     radial-gradient(700px 500px at 8% 6%, hsl(258 60% 40% / .28), transparent 62%),
-    radial-gradient(700px 600px at 100% 108%, hsl(190 70% 40% / .16), transparent 60%),
+    radial-gradient(700px 600px at 100% 108%, hsl(266 62% 46% / .16), transparent 60%),
     linear-gradient(180deg,#0c111b,#0a0e16 60%,#080b12);
   border:1px solid hsl(220 40% 30% / .5);
   box-shadow: inset 0 1px 0 hsl(210 60% 90% / .06), 0 40px 90px -30px hsl(220 80% 6% / .85);
@@ -533,7 +533,7 @@ section[id] {
 /* блик по дашборду */
 .mc-shine{ position:absolute; inset:0; pointer-events:none; overflow:hidden; border-radius:inherit; }
 .mc-shine::after{ content:""; position:absolute; top:-60%; left:-30%; width:36%; height:220%;
-  background:linear-gradient(90deg,transparent,hsl(210 100% 90% / .10),transparent); transform:rotate(12deg);
+  background:linear-gradient(90deg,transparent,hsl(250 100% 92% / .10),transparent); transform:rotate(12deg);
   animation: mc-shine 6.5s ease-in-out 1.2s infinite; }
 @keyframes mc-shine{ 0%{left:-40%} 55%,100%{left:130%} }
 /* рост столбиков графика */
