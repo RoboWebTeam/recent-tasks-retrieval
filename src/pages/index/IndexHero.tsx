@@ -11,6 +11,7 @@ import ThemeToggle from '@/components/ThemeToggle';
 import { type Lang } from '@/lib/i18n';
 import { getSession, getStoredUser, clearSession } from '@/lib/auth';
 import { L, getNAV } from './indexData';
+import { BlueprintHero } from './BlueprintHero';
 
 interface IndexNavProps {
   lang: Lang;
@@ -220,45 +221,7 @@ export function IndexHero({ lang, typedText, chatStep, isTyping, progress, chatS
           </div>
         </div>
 
-        {/* Артефакт «Что вы получаете»: репозиторий Next.js + Prisma, которым вы владеете */}
-        <div className="relative animate-scale-in max-w-md mx-auto w-full">
-          <div className="glow-frame relative rounded-2xl md:rounded-3xl border border-border bg-card overflow-hidden">
-            <div className="flex items-center gap-2 border-b border-border px-4 py-3">
-              <Icon name="Github" size={16} className="text-muted-foreground shrink-0" />
-              <span className="text-sm font-semibold">your-project</span>
-              <span className="ml-auto inline-flex items-center gap-1 text-[11px] text-muted-foreground">
-                <Icon name="GitBranch" size={12} /> main
-              </span>
-            </div>
-            <div className="grid sm:grid-cols-[132px_1fr]">
-              <div className="hidden sm:block border-r border-border p-3 text-[11px] font-mono text-muted-foreground space-y-1.5">
-                <div className="flex items-center gap-1.5 text-foreground"><Icon name="Folder" size={12} className="text-primary shrink-0" />app</div>
-                <div className="pl-4">page.tsx</div>
-                <div className="pl-4 flex items-center gap-1.5"><Icon name="Folder" size={12} className="text-primary shrink-0" />api</div>
-                <div className="flex items-center gap-1.5 text-foreground"><Icon name="Folder" size={12} className="text-primary shrink-0" />prisma</div>
-                <div className="pl-4 text-primary">schema.prisma</div>
-                <div className="flex items-center gap-1.5"><Icon name="FileCode2" size={12} className="shrink-0" />.env.example</div>
-              </div>
-              <div className="p-4 font-mono text-[12px] leading-relaxed overflow-x-auto">
-                <div className="text-muted-foreground/70">{'// prisma/schema.prisma'}</div>
-                <div><span className="text-primary">model</span> <span className="text-foreground font-semibold">Lead</span> {'{'}</div>
-                <div className="pl-4 text-foreground/80">id{'        '}<span className="text-accent">String</span>{'   '}@id @default(cuid())</div>
-                <div className="pl-4 text-foreground/80">name{'      '}<span className="text-accent">String</span></div>
-                <div className="pl-4 text-foreground/80">phone{'     '}<span className="text-accent">String</span></div>
-                <div className="pl-4 text-foreground/80">createdAt <span className="text-accent">DateTime</span> @default(now())</div>
-                <div className="text-foreground">{'}'}</div>
-              </div>
-            </div>
-            <div className="border-t border-border px-4 py-3 flex items-center gap-2.5 text-xs">
-              <span className="grid h-6 w-6 place-items-center rounded-md bg-primary/10 text-primary shrink-0"><Icon name="Database" size={12} /></span>
-              <span className="text-muted-foreground">{lang === 'ru' ? 'Новая заявка → ' : 'New lead → '}<span className="text-foreground">Иван, +7 900…</span>{lang === 'ru' ? ' — в вашей PostgreSQL' : ' — in your PostgreSQL'}</span>
-            </div>
-          </div>
-          <p className="mt-3 text-center text-xs text-muted-foreground inline-flex w-full items-center justify-center gap-1.5">
-            <Icon name="Github" size={13} className="text-primary shrink-0" />
-            {lang === 'ru' ? 'Это выгружается в ваш GitHub — код принадлежит вам' : 'This exports to your GitHub — the code is yours'}
-          </p>
-        </div>
+        <BlueprintHero lang={lang} />
       </div>
     </section>
   );
