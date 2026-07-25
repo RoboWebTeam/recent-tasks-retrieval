@@ -121,10 +121,10 @@ export const t = {
 
   // --- BLOG ---
   blogLabel:          { ru: 'Блог', en: 'Blog' },
-  blogTitle:          { ru: 'Всё об AI‑разработке сайтов', en: 'Everything about AI website development' },
-  blogDesc:           { ru: 'Статьи, инструкции и кейсы о том, как создавать сайты быстро и без лишних затрат.', en: 'Articles, guides and case studies on building websites fast and affordably.' },
-  blogSeoTitle:       { ru: 'Блог о AI-разработке сайтов — Roboweb', en: 'Blog about AI website development — Roboweb' },
-  blogSeoDesc:        { ru: 'Статьи, инструкции и кейсы о том, как создавать сайты быстро и без лишних затрат с помощью Roboweb.', en: 'Articles, guides and case studies on how to build websites fast with Roboweb.' },
+  blogTitle:          { ru: 'Блог для бизнеса об ИИ-продуктах', en: 'A business blog on AI products' },
+  blogDesc:           { ru: 'Как бизнесу запускать цифровые продукты с ИИ: экономика, скорость, конверсия, владение кодом и данными.', en: 'How businesses launch digital products with AI: economics, speed, conversion, and owning your code and data.' },
+  blogSeoTitle:       { ru: 'Блог для бизнеса об ИИ-продуктах — Roboweb', en: 'Business blog on AI products — Roboweb' },
+  blogSeoDesc:        { ru: 'Статьи для бизнеса: как ИИ ускоряет запуск цифровых продуктов, снижает затраты и оставляет код и данные вашим активом.', en: 'Business articles: how AI speeds up product launches, cuts costs, and keeps your code and data as your own asset.' },
   blogBackHome:       { ru: 'На главную', en: 'Back to home' },
   blogSearch:         { ru: 'Поиск по статьям…', en: 'Search articles…' },
   blogAll:            { ru: 'Все', en: 'All' },
@@ -139,8 +139,8 @@ export const t = {
   blogReset:          { ru: 'Сбросить фильтры', en: 'Reset filters' },
   blogRead:           { ru: 'Читать', en: 'Read' },
   blogReadTime:       { ru: 'чтения', en: 'read' },
-  blogCtaTitle:       { ru: 'Готовы создать свой сайт?', en: 'Ready to build your site?' },
-  blogCtaDesc:        { ru: 'Попробуйте Roboweb бесплатно — первый сайт за несколько минут', en: 'Try Roboweb for free — first site in minutes' },
+  blogCtaTitle:       { ru: 'Готовы запустить свой продукт?', en: 'Ready to launch your product?' },
+  blogCtaDesc:        { ru: 'Опишите идею — ИИ соберёт фуллстек с бэкендом, а код останется вашим активом', en: 'Describe your idea — the AI builds a full-stack with a backend, and the code stays your asset' },
   blogCtaBtn:        { ru: 'Создать сайт бесплатно', en: 'Create site for free' },
   blogCreate:        { ru: 'Создать сайт', en: 'Create site' },
   // Article

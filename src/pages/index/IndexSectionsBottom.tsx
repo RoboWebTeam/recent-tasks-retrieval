@@ -2,7 +2,7 @@ import { Link } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
-import { ARTICLES } from '@/data/blog';
+import { BLOG_PREVIEW } from '@/data/blogPreview';
 import {
   Accordion, AccordionContent, AccordionItem, AccordionTrigger,
 } from '@/components/ui/accordion';
@@ -141,12 +141,12 @@ export function IndexSectionsBottom({ lang }: Props) {
           <Reveal>
             <div className="mt-8 rounded-2xl md:rounded-3xl border border-border bg-card p-5 sm:p-6 max-w-4xl mx-auto grid sm:grid-cols-2 gap-x-8 gap-y-3.5">
               {(lang === 'ru' ? [
-              { icon: "ShieldCheck", text: "Свой код: Next.js + Prisma выгружается в ваш GitHub" },
+              { icon: "ShieldCheck", text: "Свой код: Next.js + Prisma выгружается в ваш GitHub или GitFlic" },
               { icon: "KeyRound", text: "Без вендор-лока: разворачивайте и хостите где угодно" },
               { icon: "Database", text: "Данные в вашей PostgreSQL — выгрузка в любой момент" },
               { icon: "RefreshCw", text: "Возврат в течение 7 дней по оферте, если оплаченные функции не использовались" }
               ] : [
-              { icon: "ShieldCheck", text: "Your own code: Next.js + Prisma exported to your GitHub" },
+              { icon: "ShieldCheck", text: "Your own code: Next.js + Prisma exported to your GitHub or GitFlic" },
               { icon: "KeyRound", text: "No vendor lock-in: deploy and host anywhere" },
               { icon: "Database", text: "Data in your PostgreSQL — export at any time" },
               { icon: "RefreshCw", text: "Refund within 7 days under the offer if the paid features weren't used" }
@@ -267,26 +267,26 @@ export function IndexSectionsBottom({ lang }: Props) {
             </div>
           </Reveal>
           <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-            {ARTICLES.slice(0, 3).map((article, i) => (
+            {BLOG_PREVIEW.map((article, i) => (
               <Reveal key={article.slug} delay={i * 70}>
                 <Link
                   to={`/blog/${article.slug}`}
                   className="group flex flex-col h-full rounded-2xl md:rounded-3xl border border-border bg-card overflow-hidden hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
                 >
                   <div className="relative h-40 overflow-hidden bg-muted">
-                    <img src={article.cover} alt={article.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                    <img src={article.cover} alt={article.title[lang]} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                   </div>
                   <div className="flex flex-col flex-1 p-5 md:p-6">
                     <div className="flex items-center justify-between mb-3">
-                      <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">{article.category}</span>
-                      <span className="text-xs text-muted-foreground">{article.readTime}{lang === 'ru' ? ' чтения' : ' read'}</span>
+                      <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">{article.category[lang]}</span>
+                      <span className="text-xs text-muted-foreground">{article.readTime[lang]}{lang === 'ru' ? ' чтения' : ' read'}</span>
                     </div>
                     <h3 className="font-display font-bold text-lg leading-snug group-hover:text-primary transition-colors flex-1">
-                      {article.title}
+                      {article.title[lang]}
                     </h3>
-                    <p className="mt-2 text-sm text-muted-foreground line-clamp-2">{article.description}</p>
+                    <p className="mt-2 text-sm text-muted-foreground line-clamp-2">{article.description[lang]}</p>
                     <div className="mt-5 flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground">{article.date}</span>
+                      <span className="text-xs text-muted-foreground">{article.date[lang]}</span>
                       <span className="inline-flex items-center gap-1 text-xs font-semibold text-primary group-hover:gap-2 transition-all">
                         {lang === 'ru' ? 'Читать' : 'Read'} <Icon name="ArrowRight" size={13} />
                       </span>

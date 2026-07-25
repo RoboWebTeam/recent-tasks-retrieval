@@ -209,6 +209,83 @@ function PortfolioSection({ lang, portfolio }: { lang: Lang; portfolio: DemoItem
   );
 }
 
+// --- Варианты дизайна: один продукт, любой стиль ---
+function StylesSection({ lang }: { lang: Lang }) {
+  const STYLES = [
+    { key: 'minimal',   name: lang === 'ru' ? 'Минимал'          : 'Minimal',      bg: '#ffffff', panel: '#f1f3f6', text: '#0f172a', sub: '#a3adbf', accent: '#2563eb', radius: 12, dark: false },
+    { key: 'dark',      name: lang === 'ru' ? 'Тёмный премиум'   : 'Dark premium', bg: '#0e1116', panel: '#191f28', text: '#e8edf7', sub: '#5b6a86', accent: '#5b8cff', radius: 14, dark: true },
+    { key: 'bold',      name: lang === 'ru' ? 'Смелый'           : 'Bold',         bg: '#141210', panel: '#231e19', text: '#fff7ed', sub: '#a8998a', accent: '#ff5b1f', radius: 6,  dark: true },
+    { key: 'corporate', name: lang === 'ru' ? 'Корпоративный'    : 'Corporate',    bg: '#f6f8fc', panel: '#ffffff', text: '#0b2447', sub: '#9aa8c2', accent: '#0b57d0', radius: 8,  dark: false },
+    { key: 'pastel',    name: lang === 'ru' ? 'Пастель'          : 'Pastel',       bg: '#fdf2f8', panel: '#ffffff', text: '#4a044e', sub: '#d3a3c6', accent: '#ec4899', radius: 18, dark: false },
+    { key: 'neon',      name: lang === 'ru' ? 'Неон'             : 'Neon',         bg: '#0a0a12', panel: '#14121f', text: '#eae6ff', sub: '#5b4b7a', accent: '#a855f7', radius: 14, dark: true },
+  ];
+  const line = (s: typeof STYLES[number]) => s.dark ? 'rgba(255,255,255,.07)' : 'rgba(0,0,0,.06)';
+
+  return (
+    <section id="styles" className="py-20 md:py-32 border-y border-border bg-secondary/60">
+      <div className="container">
+        <Reveal>
+          <div className="text-center max-w-2xl mx-auto px-2 mb-10 md:mb-14">
+            <span className="text-xs sm:text-sm font-semibold uppercase tracking-widest text-primary">{lang === 'ru' ? 'Дизайн' : 'Design'}</span>
+            <h2 className="mt-3 font-display font-bold text-3xl sm:text-4xl md:text-5xl tracking-tight">
+              {lang === 'ru' ? 'Один проект — любой стиль' : 'One project — any style'}
+            </h2>
+            <p className="mt-4 text-muted-foreground text-base sm:text-lg">
+              {lang === 'ru'
+                ? 'Не нравится оформление? Скажите словами — и ИИ переоденет тот же продукт в другой дизайн: строгий, тёмный, яркий, корпоративный. Данные и логика остаются — меняется только внешний вид.'
+                : 'Don\'t like the look? Just say so — the AI restyles the same product: minimal, dark, bold, corporate. The data and logic stay — only the appearance changes.'}
+            </p>
+          </div>
+        </Reveal>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
+          {STYLES.map((s, i) => (
+            <Reveal key={s.key} delay={i * 70}>
+              <div className="group rounded-3xl border border-border bg-card p-3 transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/10">
+                <div className="rounded-2xl overflow-hidden border border-border" style={{ background: s.bg }}>
+                  {/* браузер-бар */}
+                  <div className="flex items-center gap-1.5 px-3 py-2" style={{ background: s.dark ? 'rgba(255,255,255,.04)' : 'rgba(0,0,0,.03)', borderBottom: `1px solid ${line(s)}` }}>
+                    <span className="h-2 w-2 rounded-full" style={{ background: '#ff5f57' }} />
+                    <span className="h-2 w-2 rounded-full" style={{ background: '#febc2e' }} />
+                    <span className="h-2 w-2 rounded-full" style={{ background: '#28c840' }} />
+                  </div>
+                  {/* мини-страница в выбранном стиле */}
+                  <div style={{ padding: '16px', height: '184px' }}>
+                    <div style={{ width: '44px', height: '10px', borderRadius: '4px', background: s.accent }} />
+                    <div style={{ marginTop: '12px', width: '76%', height: '14px', borderRadius: '5px', background: s.text }} />
+                    <div style={{ marginTop: '7px', width: '54%', height: '14px', borderRadius: '5px', background: s.text, opacity: 0.85 }} />
+                    <div style={{ marginTop: '10px', width: '86%', height: '7px', borderRadius: '4px', background: s.sub }} />
+                    <div style={{ marginTop: '5px', width: '68%', height: '7px', borderRadius: '4px', background: s.sub }} />
+                    <div style={{ display: 'flex', gap: '8px', marginTop: '16px' }}>
+                      <div style={{ width: '92px', height: '26px', borderRadius: `${Math.min(s.radius, 13)}px`, background: s.accent, boxShadow: s.dark ? `0 6px 16px ${s.accent}55` : 'none' }} />
+                      <div style={{ width: '62px', height: '26px', borderRadius: `${Math.min(s.radius, 13)}px`, border: `1px solid ${s.dark ? 'rgba(255,255,255,.18)' : 'rgba(0,0,0,.14)'}` }} />
+                    </div>
+                    <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '8px', marginTop: '16px' }}>
+                      {[0, 1, 2].map(k => (
+                        <div key={k} style={{ height: '36px', borderRadius: `${Math.min(s.radius, 12)}px`, background: s.panel, border: `1px solid ${line(s)}` }} />
+                      ))}
+                    </div>
+                  </div>
+                </div>
+                <div className="flex items-center justify-between px-1.5 pt-3 pb-1">
+                  <span className="font-display font-bold text-sm">{s.name}</span>
+                  <span className="inline-flex items-center gap-1 text-xs font-semibold text-primary opacity-60 group-hover:opacity-100 transition-opacity">
+                    <Icon name="Sparkles" size={13} /> {lang === 'ru' ? 'Применить' : 'Apply'}
+                  </span>
+                </div>
+              </div>
+            </Reveal>
+          ))}
+        </div>
+        <Reveal>
+          <p className="mt-8 text-center text-sm text-muted-foreground">
+            {lang === 'ru' ? 'Меняйте стиль сколько нужно — пока продукт не станет «вашим».' : 'Restyle as many times as you need — until the product feels like yours.'}
+          </p>
+        </Reveal>
+      </div>
+    </section>
+  );
+}
+
 export function IndexSectionsMiddle({ lang }: Props) {
   const [portfolio, setPortfolio] = useState<DemoItem[]>([]);
 
@@ -223,7 +300,7 @@ export function IndexSectionsMiddle({ lang }: Props) {
   type Pillar = { icon: string; title: string; text: string; link?: { href: string; label: string } };
   const EGRUL = 'https://egrul.nalog.ru/';
   const PILLARS: Pillar[] = lang === 'ru' ? [
-    { icon: "Code2", title: "Вы владеете кодом", text: "Готовый проект выгружается как настоящий Next.js + Prisma в ваш GitHub — фронтенд, бэкенд, схема БД и аккаунты. Это ваш актив, а не аренда платформы: он остаётся у вас, даже если вы уйдёте от нас." },
+    { icon: "Code2", title: "Вы владеете кодом", text: "Готовый проект выгружается как настоящий Next.js + Prisma в ваш GitHub или GitFlic (российский аналог) — фронтенд, бэкенд, схема БД и аккаунты. Это ваш актив, а не аренда платформы: он остаётся у вас, даже если вы уйдёте от нас." },
     { icon: "Database", title: "Данные в вашей БД", text: "Заявки, каталог, заказы и пользователи пишутся в вашу PostgreSQL, изолированную по проекту, по HTTPS/SSL. Данные под вашим контролем — выгружайте, переносите или удаляйте их в любой момент." },
     { icon: "KeyRound", title: "Ноль вендор-лока", text: "Забрали код — разворачивайте где угодно: Vercel, свой сервер, чужая команда. Уйти реально в один клик, и это осознанная позиция, а не недоработка: вы не зависите от нашей судьбы как компании." },
     { icon: "Server", title: "Реальный стек, не чёрный ящик", text: "Next.js, Prisma, PostgreSQL — индустриальный стандарт, который поддержит любой разработчик на рынке. Никакого проприетарного формата: проект можно читать и продолжать без нас." },
@@ -231,7 +308,7 @@ export function IndexSectionsMiddle({ lang }: Props) {
     { icon: "RefreshCw", title: "Возврат денег 7 дней", text: "Если оплаченные функции не использовались, вернём оплату в течение 7 дней по оферте. Риск на нас, а не на вас." },
     { icon: "Building2", title: "Реальная компания, честная о новизне", text: "За сервисом стоит зарегистрированное ИП с ОГРНИП и ИНН и публичная оферта. Мы не показываем выдуманных клиентов и оценок — только то, что можно проверить.", link: { href: EGRUL, label: "Проверить в ЕГРИП" } },
   ] : [
-    { icon: "Code2", title: "You own the code", text: "The finished project exports as real Next.js + Prisma into your GitHub — frontend, backend, DB schema and accounts. It's your asset, not a rented platform: it stays with you even if you leave us." },
+    { icon: "Code2", title: "You own the code", text: "The finished project exports as real Next.js + Prisma into your GitHub or GitFlic (the Russian analog) — frontend, backend, DB schema and accounts. It's your asset, not a rented platform: it stays with you even if you leave us." },
     { icon: "Database", title: "Data in your own DB", text: "Leads, catalog, orders and users are written to your PostgreSQL, isolated per project, over HTTPS/SSL. The data is under your control — export, migrate or delete it at any time." },
     { icon: "KeyRound", title: "Zero vendor lock-in", text: "Once you have the code, deploy it anywhere: Vercel, your own server, another team. Leaving is genuinely one click — a deliberate stance, not an oversight: you don't depend on our fate as a company." },
     { icon: "Server", title: "A real stack, not a black box", text: "Next.js, Prisma, PostgreSQL — an industry standard any developer on the market can maintain. No proprietary format: the project can be read and continued without us." },
@@ -280,6 +357,9 @@ export function IndexSectionsMiddle({ lang }: Props) {
 
       {/* PORTFOLIO */}
       <PortfolioSection lang={lang} portfolio={portfolio} />
+
+      {/* ВАРИАНТЫ ДИЗАЙНА — один продукт, любой стиль */}
+      <StylesSection lang={lang} />
 
       {/* CTA 2 */}
       <section className="py-16 md:py-20 bg-gradient-to-r from-primary to-[hsl(224,60%,44%)]">

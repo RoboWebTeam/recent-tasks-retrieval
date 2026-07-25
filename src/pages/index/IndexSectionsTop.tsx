@@ -168,6 +168,61 @@ export function IndexSectionsTop({ lang }: Props) {
         </div>
       </section>
 
+      {/* СТЕК ТЕХНОЛОГИЙ — на чём ИИ собирает продукты (без упоминания движка) */}
+      <section id="stack" className="py-16 md:py-24 border-y border-border">
+        <div className="container">
+          <Reveal>
+            <div className="text-center max-w-2xl mx-auto px-2 mb-10 md:mb-14">
+              <span className="text-xs sm:text-sm font-semibold uppercase tracking-widest text-primary">{lang === 'ru' ? 'Технологии' : 'Tech stack'}</span>
+              <h2 className="mt-3 font-display font-bold text-3xl sm:text-4xl md:text-5xl tracking-tight">
+                {lang === 'ru' ? 'Собираем на современном стеке' : 'Built on a modern stack'}
+              </h2>
+              <p className="mt-4 text-muted-foreground text-base sm:text-lg">
+                {lang === 'ru'
+                  ? 'От витрины до сложной серверной логики — ИИ пишет на индустриальном стеке, который поддержит любой разработчик. Никакого проприетарного формата.'
+                  : 'From storefront to complex server logic — the AI writes in an industry-standard stack any developer can maintain. No proprietary format.'}
+              </p>
+            </div>
+          </Reveal>
+          <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+            {(lang === 'ru' ? [
+              { icon: 'Layout',   title: 'Фронтенд',            items: ['React', 'Next.js', 'TypeScript', 'Tailwind CSS', 'Vue', 'HTML5 / CSS3'] },
+              { icon: 'Server',   title: 'Бэкенд и логика',     items: ['Node.js', 'Python', 'Серверные функции', 'REST API', 'Вебхуки', 'Авторизация'] },
+              { icon: 'Database', title: 'Данные',              items: ['PostgreSQL', 'Prisma ORM', 'SQL', 'Схемы и миграции', 'Личные кабинеты'] },
+              { icon: 'Blocks',   title: 'Интеграции и запуск', items: ['Платежи (ЮKassa)', 'E-mail', 'Telegram', 'Домен + SSL', 'GitHub / GitFlic', 'SEO'] },
+            ] : [
+              { icon: 'Layout',   title: 'Frontend',            items: ['React', 'Next.js', 'TypeScript', 'Tailwind CSS', 'Vue', 'HTML5 / CSS3'] },
+              { icon: 'Server',   title: 'Backend & logic',     items: ['Node.js', 'Python', 'Server functions', 'REST API', 'Webhooks', 'Auth'] },
+              { icon: 'Database', title: 'Data',                items: ['PostgreSQL', 'Prisma ORM', 'SQL', 'Schemas & migrations', 'User accounts'] },
+              { icon: 'Blocks',   title: 'Integrations & launch', items: ['Payments', 'E-mail', 'Telegram', 'Domain + SSL', 'GitHub / GitFlic', 'SEO'] },
+            ]).map((col, i) => (
+              <Reveal key={col.title} delay={i * 70}>
+                <div className="group h-full rounded-3xl border border-border bg-card p-5 md:p-6 transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/10">
+                  <span className="grid h-11 w-11 place-items-center rounded-2xl bg-primary/10 text-primary transition-all duration-300 group-hover:bg-primary group-hover:text-primary-foreground group-hover:scale-110">
+                    <Icon name={col.icon} size={20} />
+                  </span>
+                  <h3 className="mt-4 font-display font-bold text-lg">{col.title}</h3>
+                  <div className="mt-3 flex flex-wrap gap-1.5">
+                    {col.items.map(t => (
+                      <span key={t} className="inline-flex items-center rounded-lg bg-secondary border border-border px-2.5 py-1 text-xs font-medium text-foreground/80">
+                        {t}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </Reveal>
+            ))}
+          </div>
+          <Reveal>
+            <p className="mt-8 text-center text-sm text-muted-foreground">
+              {lang === 'ru'
+                ? 'Нужен другой инструмент под задачу? Опишите — ИИ подберёт и соберёт под ваш стек.'
+                : 'Need a different tool for the job? Describe it — the AI will pick it and build to your stack.'}
+            </p>
+          </Reveal>
+        </div>
+      </section>
+
       {/* TRUST STATS */}
       <section className="py-12 md:py-16 border-y border-border">
         <div className="container">

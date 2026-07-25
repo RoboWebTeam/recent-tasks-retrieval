@@ -218,7 +218,7 @@ export function IndexHero({ lang, typedText, chatStep, isTyping, progress, chatS
           {/* Trust proof-points (конкретные возможности вместо вымышленных цифр) */}
           <div className="mt-8 flex items-center justify-center lg:justify-start gap-x-5 gap-y-2.5 flex-wrap">
             {[
-              { icon: 'Github', ru: 'Код в вашем GitHub', en: 'Code in your GitHub' },
+              { icon: 'Github', ru: 'Код в GitHub или GitFlic', en: 'Code in GitHub or GitFlic' },
               { icon: 'Database', ru: 'Данные в вашей PostgreSQL', en: 'Data in your PostgreSQL' },
               { icon: 'KeyRound', ru: 'Без вендор-лока', en: 'No vendor lock-in' },
               { icon: 'ShieldCheck', ru: 'SSL и свой домен', en: 'SSL & custom domain' },

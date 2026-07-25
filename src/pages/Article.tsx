@@ -31,15 +31,15 @@ export default function Article() {
     window.scrollTo(0, 0);
     setReadProgress(0);
     setSeo({
-      title: article.title,
-      description: article.description,
+      title: article.title[lang],
+      description: article.description[lang],
       image: article.cover,
       url: `/blog/${article.slug}`,
       type: 'article',
-      publishedTime: article.date,
-      keywords: `${article.category}, AI websites, Roboweb, ${article.title.toLowerCase()}`,
+      publishedTime: article.date[lang],
+      keywords: `${article.category[lang]}, AI websites, Roboweb, ${article.title[lang].toLowerCase()}`,
     });
-    setArticleJsonLd(article);
+    setArticleJsonLd({ title: article.title[lang][lang], description: article.description[lang][lang], date: article.date[lang][lang], cover: article.cover, slug: article.slug });
   }, [slug, article]);
 
   if (!article) return null;
@@ -47,13 +47,13 @@ export default function Article() {
   const currentIdx = ARTICLES.findIndex(a => a.slug === slug);
   const prevArticle = currentIdx > 0 ? ARTICLES[currentIdx - 1] : null;
   const nextArticle = currentIdx < ARTICLES.length - 1 ? ARTICLES[currentIdx + 1] : null;
-  const related = ARTICLES.filter(a => a.slug !== slug && a.category === article.category).slice(0, 3);
+  const related = ARTICLES.filter(a => a.slug !== slug && a.category[lang] === article.category[lang]).slice(0, 3);
   const fallbackRelated = related.length > 0 ? related : ARTICLES.filter(a => a.slug !== slug).slice(0, 3);
 
   const handleShare = async () => {
     const url = window.location.href;
     if (navigator.share) {
-      await navigator.share({ title: article.title, url });
+      await navigator.share({ title: article.title[lang], url });
     } else {
       await navigator.clipboard.writeText(url);
       setCopied(true);
@@ -106,7 +106,7 @@ export default function Article() {
             <span className="text-muted-foreground shrink-0">/</span>
             <Link to="/blog" className="text-sm text-muted-foreground hover:text-foreground transition-colors shrink-0">{tr('blogLabel', lang)}</Link>
             <span className="text-muted-foreground shrink-0 hidden sm:inline">/</span>
-            <span className="text-sm text-foreground truncate hidden sm:inline">{article.title}</span>
+            <span className="text-sm text-foreground truncate hidden sm:inline">{article.title[lang]}</span>
           </div>
           <div className="flex items-center gap-2 shrink-0">
             <span className="text-xs text-muted-foreground hidden sm:inline">{readProgress}%</span>
@@ -130,36 +130,36 @@ export default function Article() {
         {/* Meta */}
         <div className="flex flex-wrap items-center gap-3 mb-6">
           <Link
-            to={`/blog?cat=${encodeURIComponent(article.category)}`}
+            to={`/blog?cat=${encodeURIComponent(article.category[lang])}`}
             className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary hover:bg-primary/20 transition-colors max-w-full truncate"
           >
-            {article.category}
+            {article.category[lang]}
           </Link>
           <span className="text-sm text-muted-foreground flex items-center gap-1.5">
-            <Icon name="Calendar" size={14} />{article.date}
+            <Icon name="Calendar" size={14} />{article.date[lang]}
           </span>
           <span className="text-sm text-muted-foreground flex items-center gap-1.5">
-            <Icon name="Clock" size={14} />{article.readTime} {tr('blogReadTime', lang)}
+            <Icon name="Clock" size={14} />{article.readTime[lang]} {tr('blogReadTime', lang)}
           </span>
         </div>
 
         {/* Title */}
         <h1 className="font-display font-bold text-2xl sm:text-3xl md:text-4xl lg:text-5xl tracking-tight leading-tight mb-6 break-words">
-          {article.title}
+          {article.title[lang]}
         </h1>
 
         <p className="text-base sm:text-lg text-muted-foreground mb-8 border-l-4 border-primary/40 pl-4 break-words">
-          {article.description}
+          {article.description[lang]}
         </p>
 
         {/* Cover */}
         <div className="rounded-2xl overflow-hidden mb-10 aspect-video bg-muted">
-          <img src={article.cover} alt={article.title} className="w-full h-full object-cover" />
+          <img src={article.cover} alt={article.title[lang]} className="w-full h-full object-cover" />
         </div>
 
         {/* Content */}
         <article className="prose-custom">
-          {renderContent(article.content)}
+          {renderContent(article.content[lang])}
         </article>
 
         {/* Share bottom */}
@@ -177,7 +177,7 @@ export default function Article() {
               {copied ? tr('articleCopied', lang) : tr('articleShare', lang)}
             </button>
             <a
-              href={`https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(article.title)}`}
+              href={`https://t.me/share/url?url=${encodeURIComponent(window.location.href)}&text=${encodeURIComponent(article.title[lang])}`}
               target="_blank" rel="noopener noreferrer"
               className="flex items-center gap-2 px-4 py-2 rounded-xl bg-[#2AABEE] text-white text-sm font-semibold hover:bg-[#2AABEE]/90 transition-colors"
             >
@@ -204,7 +204,7 @@ export default function Article() {
                 <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
                   <Icon name="ArrowLeft" size={13} /> {lang === 'ru' ? 'Предыдущая' : 'Previous'}
                 </span>
-                <span className="font-display font-bold text-sm leading-snug group-hover:text-primary transition-colors line-clamp-2 break-words">{prevArticle.title}</span>
+                <span className="font-display font-bold text-sm leading-snug group-hover:text-primary transition-colors line-clamp-2 break-words">{prevArticle.title[lang]}</span>
               </Link>
             ) : <div />}
             {nextArticle && (
@@ -212,7 +212,7 @@ export default function Article() {
                 <span className="flex items-center gap-1.5 text-xs text-muted-foreground justify-end">
                   {lang === 'ru' ? 'Следующая' : 'Next'} <Icon name="ArrowRight" size={13} />
                 </span>
-                <span className="font-display font-bold text-sm leading-snug group-hover:text-primary transition-colors line-clamp-2 break-words">{nextArticle.title}</span>
+                <span className="font-display font-bold text-sm leading-snug group-hover:text-primary transition-colors line-clamp-2 break-words">{nextArticle.title[lang]}</span>
               </Link>
             )}
           </div>
@@ -230,12 +230,12 @@ export default function Article() {
               {fallbackRelated.map(a => (
                 <Link key={a.slug} to={`/blog/${a.slug}`} className="group block rounded-2xl border border-border bg-card overflow-hidden hover:shadow-lg hover:-translate-y-0.5 transition-all duration-300">
                   <div className="h-32 overflow-hidden bg-muted">
-                    <img src={a.cover} alt={a.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                    <img src={a.cover} alt={a.title[lang]} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                   </div>
                   <div className="p-4">
-                    <span className="text-xs font-semibold text-primary truncate block">{a.category}</span>
-                    <h3 className="mt-1.5 font-display font-bold text-sm leading-snug group-hover:text-primary transition-colors line-clamp-2 break-words">{a.title}</h3>
-                    <span className="mt-2 text-xs text-muted-foreground">{a.readTime} {tr('blogReadTime', lang)}</span>
+                    <span className="text-xs font-semibold text-primary truncate block">{a.category[lang]}</span>
+                    <h3 className="mt-1.5 font-display font-bold text-sm leading-snug group-hover:text-primary transition-colors line-clamp-2 break-words">{a.title[lang]}</h3>
+                    <span className="mt-2 text-xs text-muted-foreground">{a.readTime[lang]} {tr('blogReadTime', lang)}</span>
                   </div>
                 </Link>
               ))}

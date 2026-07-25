@@ -1,904 +1,577 @@
+export interface Loc { ru: string; en: string; }
+
 export interface Article {
   slug: string;
-  title: string;
-  description: string;
-  date: string;
-  readTime: string;
-  category: string;
   cover: string;
-  content: string;
+  category: Loc;
+  title: Loc;
+  description: Loc;
+  date: Loc;
+  readTime: Loc;
+  content: Loc;
 }
 
 export const ARTICLES: Article[] = [
   {
-    slug: 'pochemu-ai-luchshe-frilanserov',
-    title: 'Почему AI заменяет фрилансеров при создании сайтов',
-    description: 'Разбираем, почему компании всё чаще выбирают AI-инструменты вместо найма фрилансеров для разработки сайтов.',
-    date: '10 июня 2026',
-    readTime: '5 мин',
-    category: 'AI и бизнес',
-    cover: 'https://s3-nl.hostkey.com/robo/demo/119fb9a0-189b-42d4-b25a-50d014970fd6.jpg',
-    content: `
-## Почему AI заменяет фрилансеров при создании сайтов
-
-Ещё несколько лет назад создание сайта означало одно: найти фрилансера или студию, согласовать техзадание, ждать несколько недель и потратить десятки тысяч рублей. Сегодня всё изменилось. **Roboweb** и подобные AI-платформы перевернули рынок разработки сайтов.
-
-### Скорость, которой не было раньше
-
-Фрилансер тратит от 2 до 6 недель на создание типового лендинга. AI делает это за минуты. Roboweb генерирует полноценный сайт буквально в процессе диалога — вы описываете идею, а система выдаёт готовый результат.
-
-### Цена вопроса
-
-Средний фрилансер берёт от 30 000 до 150 000 рублей за лендинг. Это не считая правок, которые часто оплачиваются отдельно. Roboweb предлагает фиксированную подписку без скрытых платежей.
-
-### Правки без нервов
-
-Попросить фрилансера переделать кнопку — это письмо, ожидание ответа, согласование, снова ожидание. В Roboweb вы просто пишете «сделай кнопку зелёной» — и изменение применяется мгновенно.
-
-### Доступность 24/7
-
-Фрилансер спит, болеет, уходит в отпуск. AI работает круглосуточно. Захотели запустить сайт в воскресенье вечером? Никаких проблем.
-
-### Вывод
-
-Это не значит, что фрилансеры исчезнут полностью. Для сложных кастомных проектов они по-прежнему нужны. Но для малого и среднего бизнеса, которому нужен качественный лендинг или корпоративный сайт, **Roboweb** — это оптимальный выбор по соотношению цена/качество/скорость.
-    `.trim(),
+    "slug": "pochemu-ai-luchshe-frilanserov",
+    "cover": "https://s3-nl.hostkey.com/robo/demo/119fb9a0-189b-42d4-b25a-50d014970fd6.jpg",
+    "category": {
+      "ru": "Бизнес и ROI",
+      "en": "Business & ROI"
+    },
+    "title": {
+      "ru": "ИИ-команда против фрилансеров: экономика для бизнеса",
+      "en": "AI Team vs Freelancers: The Business Case for Owners"
+    },
+    "description": {
+      "ru": "Разбираем, почему ИИ-команда RoboWeb обходится бизнесу дешевле и быстрее фрилансеров, а код остаётся вашим активом.",
+      "en": "Why an AI team ships faster and cheaper than freelancers, with fixed pricing and code that stays your own asset."
+    },
+    "date": {
+      "ru": "10 июня 2026",
+      "en": "June 10, 2026"
+    },
+    "readTime": {
+      "ru": "5 мин",
+      "en": "5 min"
+    },
+    "content": {
+      "ru": "## ИИ-команда против фрилансеров: экономика для бизнеса\n\nКогда бизнесу нужен рабочий продукт — интернет-магазин, портал, CRM или дашборд — обычно рассматривают два пути: нанять фрилансера (или студию) либо собрать сайт на конструкторе. У обоих есть скрытая цена, которую видно только через несколько месяцев. Разберём выбор с точки зрения владельца, а не подрядчика.\n\n### Настоящая стоимость найма\n\nЦенник фрилансера в договоре — это только вершина. Реальный бюджет складывается из брифов, созвонов, правок, ожидания ответов и переделок «не так поняли». Средний фуллстек-продукт с базой данных и личными кабинетами — это недели переписки и суммы, которые легко выходят за первоначальную оценку.\n\nДобавьте риски. Исполнитель заболел, пропал, поднял ставку или ушёл на проект покрупнее — и вы остаётесь с недоделанным продуктом, в чужом коде, без документации. Найти второго человека, который разберётся в чужой работе, часто дороже, чем начать заново.\n\n### Что даёт ИИ-команда\n\nПлатформа RoboWeb работает иначе. Вы описываете продукт человеческим языком — «маркетплейс услуг с каталогом, корзиной и кабинетом мастера» — и искусственный интеллект собирает **настоящий фуллстек**: формы пишут в базу данных, каталог живой, оформление заказа работает, у клиентов есть личные кабинеты. Это не макет и не «сайт-визитка», а продукт, который сразу принимает реальные заявки и деньги.\n\nКлючевых отличий три.\n\n**Фиксированная и предсказуемая цена.** Вы не оплачиваете часы и не спорите о том, сколько стоит очередная правка. Стоимость привязана к объёму работы, а не к настроению исполнителя.\n\n**Нет простоев.** ИИ не уходит в отпуск и не пропадает на неделю. Итерация, которая у фрилансера растягивается на дни ожидания, здесь занимает минуты. Для бизнеса это прямая экономия: продукт начинает зарабатывать раньше.\n\n**Код остаётся у вас.** Готовый проект на современном стеке — Next.js и Prisma — выгружается в ваш репозиторий: в GitHub или в российский аналог GitFlic. Это принципиально. Вы владеете активом, а не арендуете место на чужой платформе, откуда нельзя забрать наработки.\n\n### Владение против аренды\n\nКонструкторы сайтов удобны ровно до момента, когда бизнес вырастает. Вы платите ежемесячно, а если перестаёте — теряете всё. Ваши данные, ваша логика, ваши клиенты живут на условиях чужого сервиса.\n\nЭкспорт кода переворачивает эту логику. Продукт становится вашей собственностью, как оборудование или помещение. Захотите — доработаете сами, наймёте разработчика на точечную задачу, перенесёте на свой сервер. Вы не заперты ни в платформе, ни в конкретном исполнителе.\n\n### Когда фрилансер всё-таки нужен\n\nБудем честны: живой специалист незаменим там, где нужна нестандартная интеграция, глубокая экспертиза в узкой нише или долгое сопровождение сложной системы. Но и здесь ИИ-команда меняет расклад — она даёт готовую рабочую основу за день. Разработчик подключается не к пустому месту, а к работающему продукту, и решает конкретную задачу вместо того, чтобы месяц собирать фундамент.\n\n### Считаем экономику\n\nПредставьте небольшой магазин, которому нужен каталог, корзина, оформление заказа и кабинет покупателя. Классический путь — недели переписки, аванс, правки, риск переделок. Путь через ИИ-команду — работающий продукт с базой за день, фиксированная стоимость и код в вашем репозитории уже вечером того же дня.\n\nЭто иллюстрация, а не гарантия конкретных цифр — но логика применима к большинству продуктов. Чем раньше запуск, тем раньше выручка. Чем предсказуемее цена, тем спокойнее планирование. Чем полнее владение кодом, тем прочнее ваш актив.\n\n### Вывод\n\nФрилансеры и студии останутся частью рынка. Но для запуска рабочего продукта ИИ-команда бьёт их по трём параметрам, важным именно для бизнеса: скорость, предсказуемость и владение. Вы получаете не строчку расходов, а актив, который зарабатывает.",
+      "en": "## AI Team vs Freelancers: The Business Case for Owners\n\nWhen a business needs a working product — an online store, a portal, a CRM, a dashboard — it usually weighs two options: hire a freelancer (or agency), or assemble something on a website builder. Both carry a hidden price that only shows up months later. Let's look at the choice from the owner's seat, not the contractor's.\n\n### The real cost of hiring\n\nThe rate in the contract is only the tip. Your actual budget is briefs, calls, revisions, waiting on replies, and \"that's not what I meant\" rework. A typical full-stack product with a database and user accounts means weeks of back-and-forth and totals that quietly drift past the original estimate.\n\nThen add the risk. A contractor gets sick, goes quiet, raises their rate, or leaves for a bigger project — and you're left with a half-finished product, unfamiliar code, and no documentation. Finding a second person to untangle someone else's work often costs more than starting over.\n\n### What an AI team gives you\n\nThe RoboWeb platform works differently. You describe the product in plain language — \"a services marketplace with a catalog, cart, and a provider dashboard\" — and the AI assembles a **real full stack**: forms write to a database, the catalog is live, checkout works, and customers get their own accounts. This isn't a mockup or a brochure page. It's a product that accepts real orders and real money from day one.\n\nThree differences matter most.\n\n**Fixed, predictable pricing.** You don't pay by the hour or argue over what the next tweak should cost. Price tracks the scope of work, not the contractor's mood.\n\n**No downtime.** AI doesn't take vacations or vanish for a week. An iteration that stretches across days of waiting with a freelancer takes minutes here. For a business that's direct savings: the product starts earning sooner.\n\n**The code stays yours.** The finished project runs on a modern stack — Next.js and Prisma — and exports straight into your own repository, on GitHub or the Russian alternative GitFlic. That's the point. You own an asset instead of renting a slot on someone else's platform you can never fully leave.\n\n### Owning versus renting\n\nWebsite builders are convenient right up until the business outgrows them. You pay monthly, and the day you stop, you lose everything. Your data, your logic, your customers all live on someone else's terms.\n\nExporting the code flips that. The product becomes property, like equipment or a lease you actually hold. Want to extend it yourself, hire a developer for one focused task, or move it to your own server? You can. You're locked into neither a platform nor a single contractor.\n\n### When you still want a freelancer\n\nLet's be fair: a human specialist is irreplaceable for an unusual integration, deep niche expertise, or long-term stewardship of a complex system. But even here an AI team changes the math — it hands you a working foundation in a day. The developer plugs into a live product and solves a specific problem, instead of spending a month building the base.\n\n### Running the numbers\n\nPicture a small shop that needs a catalog, a cart, checkout, and a customer account. The classic path is weeks of messaging, a deposit, revisions, and rework risk. The AI-team path is a working product with a database in a day, a fixed price, and the code sitting in your repository by that same evening.\n\nThis is an illustration, not a promise of specific figures — but the logic holds for most products. The sooner you launch, the sooner revenue starts. The more predictable the price, the calmer the planning. The fuller your ownership of the code, the sturdier your asset.\n\n### The bottom line\n\nFreelancers and agencies aren't going anywhere. But for launching a working product, an AI team beats them on the three things a business actually cares about: speed, predictability, and ownership. You don't get a line item — you get an asset that earns."
+    }
   },
   {
-    slug: 'kak-sozdать-sajt-za-5-minut',
-    title: 'Как создать сайт за 5 минут с помощью Roboweb',
-    description: 'Пошаговая инструкция: от идеи до готового сайта за 5 минут используя AI-конструктор Roboweb.',
-    date: '12 июня 2026',
-    readTime: '4 мин',
-    category: 'Инструкции',
-    cover: 'https://s3-nl.hostkey.com/robo/demo/08ca2384-7d8f-4aec-826e-e0d57ef5fc9e.jpg',
-    content: `
-## Как создать сайт за 5 минут с помощью Roboweb
-
-Звучит как реклама, но это реальность. Мы провели эксперимент и засекли время от регистрации до публикации готового сайта. Результат — 4 минуты 38 секунд.
-
-### Шаг 1: Опишите идею
-
-Зайдите на Roboweb и в строке ввода напишите, что вам нужно. Например: *«Сделай лендинг для барбершопа в Москве. Название — IronCut. Стиль — тёмный, мужской, брутальный»*.
-
-Не нужно никакого технического задания. Просто говорите как человеку.
-
-### Шаг 2: Получите первую версию
-
-Через 30–60 секунд Roboweb сгенерирует полноценный сайт: с шапкой, описанием услуг, блоком с преимуществами, формой записи и футером.
-
-### Шаг 3: Скажите, что хотите изменить
-
-«Сделай кнопку красной», «Добавь раздел с ценами», «Поменяй шрифт на более строгий» — AI понимает обычный русский язык и применяет правки мгновенно.
-
-### Шаг 4: Опубликуйте
-
-Нажмите «Опубликовать» — сайт получает адрес и становится доступен в интернете. Можно привязать свой домен.
-
-### Почему это работает
-
-Roboweb обучен на тысячах реальных сайтов и знает, что нужно для конверсии. Он не просто красиво верстает — он создаёт сайты, которые продают.
-    `.trim(),
+    "slug": "kak-sozdать-sajt-za-5-minut",
+    "cover": "https://s3-nl.hostkey.com/robo/demo/08ca2384-7d8f-4aec-826e-e0d57ef5fc9e.jpg",
+    "category": {
+      "ru": "Запуск продукта",
+      "en": "Product launch"
+    },
+    "title": {
+      "ru": "От идеи до рабочего продукта за день: пошагово",
+      "en": "From Idea to a Working Product in a Day: Step by Step"
+    },
+    "description": {
+      "ru": "Пошаговый разбор, как за день запустить продукт с бэкендом и базой, опубликовать его и забрать код в свой репозиторий.",
+      "en": "A step-by-step look at launching a product with a backend and database in a day, publishing it, and owning the code."
+    },
+    "date": {
+      "ru": "12 июня 2026",
+      "en": "June 12, 2026"
+    },
+    "readTime": {
+      "ru": "4 мин",
+      "en": "4 min"
+    },
+    "content": {
+      "ru": "## От идеи до рабочего продукта за день: пошагово\n\n«Сайт за пять минут» звучит как реклама конструктора, из которого выходит красивая, но пустая витрина. Бизнесу нужно другое — **рабочий продукт**: с базой данных, формами, каталогом, корзиной, личными кабинетами. То, что принимает заявки и деньги, а не просто существует. Хорошая новость: собрать такое реально за день, а не за месяцы. Разберём путь от идеи до публикации по шагам.\n\n### Шаг 1. Сформулируйте продукт, а не «сайт»\n\nНачните не с дизайна, а с сути. Что продукт делает? Кто им пользуется? Какие действия совершает посетитель? Опишите это человеческим языком: «магазин с каталогом товаров, корзиной, оформлением заказа и кабинетом покупателя, где видна история покупок». Чем конкретнее сценарий, тем точнее результат.\n\nНа этом шаге вы экономите больше всего времени. Классический проект тонет именно здесь — в брифах и уточнениях. Платформа RoboWeb понимает описание на естественном языке, поэтому вместо технического задания на двадцать страниц достаточно ясно рассказать, что нужно бизнесу.\n\n### Шаг 2. ИИ собирает фуллстек\n\nДальше искусственный интеллект превращает описание в настоящий продукт. Это не набор картинок: формы пишут данные в базу, каталог живой и редактируемый, корзина считает, оформление заказа работает, а у пользователей появляются личные кабинеты.\n\nЗдесь и проходит граница между витриной и продуктом. Витрина показывает информацию. Продукт **обрабатывает** её: сохраняет заявку, заводит заказ, пускает клиента в кабинет. Именно это раньше требовало недель работы команды — теперь собирается за минуты.\n\n### Шаг 3. Проверьте на реальных сценариях\n\nНе любуйтесь главной страницей — пройдите продукт как клиент. Оставьте заявку. Положите товар в корзину и оформите заказ. Зарегистрируйтесь и зайдите в кабинет. Убедитесь, что данные действительно сохраняются и видны там, где нужно.\n\nЕсли чего-то не хватает — добавьте описанием. «Добавь фильтр по цене», «сделай поле комментария в заявке», «покажи статус заказа в кабинете». Каждая итерация занимает минуты, а не дни ожидания правок. Это и есть скорость, которую бизнес превращает в раннюю выручку.\n\n### Шаг 4. Опубликуйте\n\nКогда продукт делает то, что нужно, его публикуют — он становится доступен по адресу, который можно дать клиентам, добавить в рекламу и на визитки. С этого момента он работает: принимает заявки и заказы круглосуточно, без вашего участия.\n\nВажно, что это полноценная публикация рабочего приложения с бэкендом, а не статичная страница. База данных живёт, логика исполняется, кабинеты доступны.\n\n### Шаг 5. Заберите код как актив\n\nСамый недооценённый шаг. Готовый проект на современном стеке — Next.js и Prisma — выгружается в **ваш** репозиторий: в GitHub или в российский аналог GitFlic. Это превращает продукт из услуги в собственность.\n\nЧто это даёт бизнесу на практике. Вы не заперты в платформе и можете уйти в любой момент, забрав всё. Захотите доработку — наймёте разработчика на точечную задачу, и он подключится к готовому коду, а не соберёт его заново. Захотите — перенесёте на свой сервер и полностью контролируете данные и безопасность. Код — это актив, как оборудование: он ваш и работает на вас.\n\n### Сколько это стоит по времени\n\nПредставьте студию услуг, которой нужен сайт с записью: каталог мастеров, форма записи в базу, кабинет клиента с историей. Классический путь — бриф, оценка, недели разработки, правки. Путь через ИИ — описание утром, работающий продукт с базой к обеду, публикация и код в репозитории к вечеру.\n\nЭто иллюстративный сценарий, а не обещание точных сроков для любого проекта. Но принцип устойчив: узкое место переносится с «написать код» на «понять, что нужно». А это как раз то, что бизнес знает про себя лучше всех.\n\n### Вывод\n\n«Продукт за день» — не про спешку, а про устранение простоев между шагами. Идея, фуллстек, проверка, публикация, владение кодом — цепочка, которая раньше растягивалась на месяцы, теперь укладывается в рабочий день. А на выходе не витрина, а актив, который зарабатывает и остаётся вашим.",
+      "en": "## From Idea to a Working Product in a Day: Step by Step\n\n\"A website in five minutes\" sounds like a builder ad — the kind that hands you a pretty but empty shopfront. Business needs something else: a **working product** with a database, forms, a catalog, a cart, user accounts. Something that takes orders and money, not just something that exists. The good news: you can assemble that in a day, not months. Here's the path from idea to launch, step by step.\n\n### Step 1. Define a product, not a \"website\"\n\nStart with substance, not design. What does the product do? Who uses it? What actions does a visitor take? Describe it in plain language: \"a store with a product catalog, a cart, checkout, and a customer account that shows purchase history.\" The more concrete the scenario, the sharper the result.\n\nThis is where you save the most time. Classic projects drown right here — in briefs and clarifications. The RoboWeb platform understands natural-language descriptions, so instead of a twenty-page spec you simply state clearly what the business needs.\n\n### Step 2. The AI assembles the full stack\n\nNext, the AI turns your description into a real product. Not a set of pictures: forms write to a database, the catalog is live and editable, the cart calculates, checkout works, and users get their own accounts.\n\nThis is the line between a shopfront and a product. A shopfront displays information. A product **processes** it — saves the request, creates the order, lets the customer into their account. That used to take a team weeks. Now it comes together in minutes.\n\n### Step 3. Test it on real scenarios\n\nDon't admire the homepage — walk through the product as a customer. Submit a request. Add an item to the cart and check out. Register and open your account. Confirm the data actually saves and shows up where it should.\n\nIf something's missing, add it by describing it. \"Add a price filter,\" \"put a comment field on the request form,\" \"show order status in the account.\" Each iteration takes minutes, not days of waiting on revisions. That's the speed a business converts into earlier revenue.\n\n### Step 4. Publish\n\nWhen the product does what it should, you publish it — it goes live at an address you can hand to customers, put in ads, print on cards. From that moment it works: taking requests and orders around the clock, without you.\n\nWhat matters is that this is a full publish of a working application with a backend, not a static page. The database is live, the logic runs, the accounts are open.\n\n### Step 5. Take the code as an asset\n\nThe most underrated step. The finished project runs on a modern stack — Next.js and Prisma — and exports into **your** repository, on GitHub or the Russian alternative GitFlic. That turns the product from a service into property.\n\nWhat that means in practice. You're not locked into a platform and can leave anytime, taking everything with you. Want an enhancement? Hire a developer for one focused task, and they plug into finished code instead of rebuilding it. Want full control? Move it to your own server and own the data and security outright. Code is an asset, like equipment: it's yours and it works for you.\n\n### How long it really takes\n\nPicture a services studio that needs a booking site: a catalog of providers, a booking form that writes to a database, a client account with history. The classic path is a brief, an estimate, weeks of development, revisions. The AI path is a description in the morning, a working product with a database by lunch, publish and code in the repository by evening.\n\nThis is an illustrative scenario, not a promise of exact timelines for every project. But the principle holds: the bottleneck moves from \"writing the code\" to \"knowing what you need.\" And that's exactly what a business knows about itself better than anyone.\n\n### The bottom line\n\n\"A product in a day\" isn't about rushing — it's about removing the idle time between steps. Idea, full stack, testing, publishing, owning the code: a chain that used to stretch across months now fits inside a workday. And what comes out isn't a shopfront — it's an asset that earns and stays yours."
+    }
   },
   {
-    slug: 'preimushchestva-ai-sajtov',
-    title: '7 преимуществ сайтов, созданных с помощью AI',
-    description: 'Что отличает AI-сайты от созданных вручную: скорость, SEO, адаптивность и не только.',
-    date: '14 июня 2026',
-    readTime: '6 мин',
-    category: 'AI и бизнес',
-    cover: 'https://s3-nl.hostkey.com/robo/demo/9cc14c55-085e-48e2-9ae1-6623505e8aa2.jpg',
-    content: `
-## 7 преимуществ сайтов, созданных с помощью AI
-
-Многие думают, что AI-сайты — это шаблонные и безликие страницы. Это миф. Рассказываем, в чём реальные преимущества.
-
-### 1. Скорость запуска
-
-Сайт от Roboweb готов за минуты. Не за дни и не за недели. Это критично, когда нужно срочно запустить акцию или выйти на рынок раньше конкурентов.
-
-### 2. Встроенная адаптивность
-
-Каждый сайт, созданный в Roboweb, автоматически адаптирован под мобильные устройства. Никаких дополнительных настроек.
-
-### 3. Оптимизация под поисковики
-
-AI знает базовые принципы SEO и применяет их автоматически: правильная структура заголовков, мета-теги, скорость загрузки.
-
-### 4. Постоянные улучшения
-
-Обычный сайт, сделанный фрилансером, остаётся статичным. Roboweb регулярно обновляет платформу, и ваш сайт автоматически получает улучшения.
-
-### 5. Низкий порог входа
-
-Не нужно знать HTML, CSS или JavaScript. Достаточно уметь объяснить, чего вы хотите.
-
-### 6. Неограниченные правки
-
-Хотите попробовать другой цвет, другой текст, другую структуру? Правки в Roboweb занимают секунды и не стоят денег сверх подписки.
-
-### 7. Профессиональный результат
-
-Roboweb создаёт сайты на уровне профессиональных студий. Современный дизайн, чистый код, высокая производительность.
-    `.trim(),
+    "slug": "preimushchestva-ai-sajtov",
+    "cover": "https://s3-nl.hostkey.com/robo/demo/9cc14c55-085e-48e2-9ae1-6623505e8aa2.jpg",
+    "category": {
+      "ru": "Бизнес и ROI",
+      "en": "Business & ROI"
+    },
+    "title": {
+      "ru": "7 деловых выгод фуллстек-продукта на ИИ",
+      "en": "7 Business Wins of an AI-Built Full-Stack Product"
+    },
+    "description": {
+      "ru": "Скорость запуска, экономика без штата разработчиков, владение кодом как активом и контроль над данными — разбираем по пунктам.",
+      "en": "Launch speed, no dev payroll, code you own as an asset, and full control over your data — broken down point by point."
+    },
+    "date": {
+      "ru": "14 июня 2026",
+      "en": "June 14, 2026"
+    },
+    "readTime": {
+      "ru": "6 мин",
+      "en": "6 min"
+    },
+    "content": {
+      "ru": "## 7 деловых выгод фуллстек-продукта на ИИ\n\nСайт-визитка больше не окупается. Бизнесу нужен рабочий цифровой продукт: чтобы заявки падали в базу, каталог жил, корзина считала, а личный кабинет держал клиента. Платформа **RoboWeb** собирает именно такие фуллстек-продукты — интернет-магазины, порталы, дашборды — и отдаёт вам готовый код на Next.js и Prisma. Ниже — семь выгод, которые считаются в деньгах, а не в комплиментах дизайну.\n\n### 1. Скорость выхода на рынок\n\nКлассическая разработка продукта — это недели согласований и месяцы кода. Каждая неделя простоя — это упущенная выручка и фора конкуренту. ИИ собирает работающий прототип с формами, каталогом и оформлением заказа за часы. Вы тестируете гипотезу на живых клиентах, пока другие ещё пишут техзадание.\n\n### 2. Экономика без штата разработчиков\n\nКоманда из фронтендера, бэкендера и дизайнера — это сотни тысяч рублей в месяц постоянных издержек, ещё до первой продажи. Платформа заменяет этот фонд оплаты труда предсказуемой подпиской. Вы платите за результат, а не за часы, больничные и простой между задачами.\n\n### 3. Код как актив, а не аренда платформы\n\nКонструкторы держат вас в заложниках: уйдёте — потеряете всё. Здесь наоборот. Готовый проект выгружается в **ваш** репозиторий — в GitHub или в российский аналог **GitFlic (gitflic.ru)**. Код становится активом на балансе бизнеса: его можно продать вместе с компанией, передать своей команде, доработать у любого подрядчика. Вы владелец, а не арендатор.\n\n### 4. Данные под вашим контролем\n\nЗаявки, клиенты, заказы пишутся в вашу базу данных, а не в чужое облако с непрозрачными правилами. Это и требование закона о персональных данных, и элементарная деловая гигиена: клиентская база — один из самых дорогих активов компании. Она должна принадлежать вам, а не платформе-посреднику.\n\n### 5. Конверсия, заложенная в структуру\n\nПродукт собирается по проверенным паттернам продающих сценариев: понятный путь от первого экрана до оплаты, работающие формы, кабинет, который возвращает клиента. Речь не о красивой картинке, а о выручке — о том, сколько посетителей превращается в заявки и оплаты.\n\n### 6. Правки за минуты, а не за релизы\n\nНовая акция, раздел, поле в форме — всё это меняется в диалоге, а не через очередь задач подрядчика. Бизнес перестаёт зависеть от чужого расписания. Возможность быстро проверять идеи и откатывать неудачные — это прямое конкурентное преимущество на живом рынке.\n\n### 7. Масштабирование без переписывания\n\nСтарт с лендинга, рост до каталога, дальше — личные кабинеты и внутренний дашборд. Современный стек Next.js и Prisma рассчитан на нагрузку и развитие. Вы не упрётесь в потолок «конструктора» на первой тысяче клиентов и не будете переписывать продукт с нуля, когда бизнес пойдёт вверх.\n\n### Что в итоге\n\nФуллстек-продукт на ИИ — это не про экономию на дизайне. Это про скорость проверки гипотез, предсказуемые издержки и владение своим кодом и данными как активами. Для владельца бизнеса, основателя или студии это переводит цифровой продукт из статьи расходов в инструмент выручки.",
+      "en": "## 7 Business Wins of an AI-Built Full-Stack Product\n\nA brochure site no longer pays for itself. What a business actually needs is a working digital product: somewhere leads land in a database, a catalog stays current, a cart does the math, and a client account keeps customers coming back. The **RoboWeb** platform builds exactly these full-stack products — online stores, portals, dashboards — and hands you finished code on Next.js and Prisma. Below are seven benefits measured in money, not design compliments.\n\n### 1. Speed to market\n\nClassic product development means weeks of sign-offs and months of code. Every idle week is lost revenue and a head start handed to a competitor. AI assembles a working prototype — with forms, a catalog, and checkout — in hours. You test the hypothesis on real customers while others are still drafting the spec.\n\n### 2. Economics without a dev team\n\nA front-end, back-end, and designer on payroll add up to a heavy fixed cost every month, before your first sale. The platform replaces that wage bill with a predictable subscription. You pay for the result, not for hours, sick days, and idle gaps between tasks.\n\n### 3. Code as an asset, not a platform rental\n\nWebsite builders keep you hostage: leave and you lose everything. Here it is the opposite. The finished project is exported to **your** repository — GitHub or the Russian alternative **GitFlic (gitflic.ru)**. The code becomes an asset on the balance sheet: you can sell it with the company, hand it to your own team, or extend it with any contractor. You are an owner, not a tenant.\n\n### 4. Your data under your control\n\nLeads, customers, and orders are written to your own database — not into someone else's cloud with opaque terms. This is both a legal requirement for personal data and basic business hygiene: your customer base is one of a company's most valuable assets, and it should belong to you, not to a middleman platform.\n\n### 5. Conversion built into the structure\n\nThe product is assembled from proven selling patterns: a clear path from the first screen to payment, forms that actually work, and an account that brings the customer back. This is not about a pretty picture but about revenue — how many visitors turn into leads and paid orders.\n\n### 6. Edits in minutes, not release cycles\n\nA new promotion, a new section, an extra form field — all of it changes in a conversation, not through a contractor's task queue. The business stops depending on someone else's schedule. Being able to test ideas fast and roll back the weak ones is a direct competitive edge in a live market.\n\n### 7. Scaling without a rewrite\n\nStart with a landing page, grow into a catalog, then add client accounts and an internal dashboard. The modern Next.js and Prisma stack is built for load and growth. You won't hit a builder's ceiling at your first thousand customers, and you won't rebuild the product from scratch when the business takes off.\n\n### The bottom line\n\nAn AI-built full-stack product is not about saving on design. It is about the speed of testing hypotheses, predictable costs, and owning your code and data as assets. For a business owner, founder, or studio, that turns a digital product from a line in the expense column into a revenue tool."
+    }
   },
   {
-    slug: 'ai-sajt-dlya-malogo-biznesa',
-    title: 'AI-сайт для малого бизнеса: зачем и как',
-    description: 'Почему малому бизнесу особенно важно иметь сайт и как Roboweb делает это доступным для каждого.',
-    date: '15 июня 2026',
-    readTime: '5 мин',
-    category: 'Малый бизнес',
-    cover: 'https://s3-nl.hostkey.com/robo/demo/5ac55f01-7429-4b4e-acdb-0e5f0ce36cac.jpg',
-    content: `
-## AI-сайт для малого бизнеса: зачем и как
-
-Малый бизнес часто откладывает создание сайта — дорого, долго, непонятно. Roboweb убирает все три барьера.
-
-### Почему сайт необходим
-
-По статистике, 81% покупателей изучают информацию онлайн перед покупкой. Если вас нет в интернете — вас нет для большинства потенциальных клиентов.
-
-Сайт — это:
-- Круглосуточная витрина вашего бизнеса
-- Инструмент доверия (без сайта вы выглядите несерьёзно)
-- Канал привлечения клиентов через поиск
-
-### Почему раньше не делали
-
-**Дорого.** Нормальный сайт у студии стоит от 50 000 рублей. Для малого бизнеса это серьёзная сумма.
-
-**Долго.** Пока согласовываете, пока делают, пока правят — проходит 1–2 месяца.
-
-**Непонятно.** Технические термины, ТЗ, макеты — всё это требует погружения.
-
-### Как Roboweb решает эти проблемы
-
-С Roboweb вы просто описываете свой бизнес обычными словами. «У меня кофейня в центре Екатеринбурга, работаем с 8 до 22, есть кофе на вынос и wi-fi» — этого достаточно для создания первой версии сайта.
-
-Цена — фиксированная подписка, без неожиданностей. Срок — минуты. Технические знания — не нужны.
-
-### Реальный пример
-
-Владелец автосервиса в Воронеже создал сайт через Roboweb за 7 минут. Через 2 недели он получил первые заявки из поиска Google. До этого клиенты находили его только по сарафанному радио.
-    `.trim(),
+    "slug": "ai-sajt-dlya-malogo-biznesa",
+    "cover": "https://s3-nl.hostkey.com/robo/demo/5ac55f01-7429-4b4e-acdb-0e5f0ce36cac.jpg",
+    "category": {
+      "ru": "Инфраструктура",
+      "en": "Infrastructure"
+    },
+    "title": {
+      "ru": "Своя цифровая инфраструктура для малого бизнеса",
+      "en": "Real Digital Infrastructure for Small Business"
+    },
+    "description": {
+      "ru": "Заявки в базу, живой каталог, личные кабинеты и собственный код — рабочий продукт без штата разработчиков и без аренды платформы.",
+      "en": "Leads in a database, a live catalog, client accounts and code you own — a working product with no dev team and no platform lock-in."
+    },
+    "date": {
+      "ru": "15 июня 2026",
+      "en": "June 15, 2026"
+    },
+    "readTime": {
+      "ru": "5 мин",
+      "en": "5 min"
+    },
+    "content": {
+      "ru": "## Своя цифровая инфраструктура для малого бизнеса\n\nМалому бизнесу давно нужен не «сайт», а рабочая инфраструктура: место, куда падают заявки, где обновляется каталог, где клиент заходит в свой кабинет. Раньше это означало нанимать разработчиков или платить студии — дорого и долго. Платформа **RoboWeb** собирает такой продукт по описанию и отдаёт вам код. Без штата, без месяцев ожидания, без вечной аренды чужой площадки.\n\n### Что на самом деле нужно бизнесу\n\nВитрина-визитка не решает задач. Деньги приносит другое:\n\n- **Заявки, которые не теряются.** Форма пишет обращение в базу данных, а не отправляет письмо в никуда. Вся история лидов у вас под рукой.\n- **Живой каталог.** Товары и услуги обновляются вами, без вызова подрядчика ради смены цены.\n- **Оформление заказа и корзина.** Клиент доводит покупку до конца прямо на сайте.\n- **Личные кабинеты.** Клиент видит свои заказы и возвращается — а это удержание и повторные продажи.\n\nЭто уже не страница, а инструмент, который работает на выручку круглосуточно.\n\n### Почему раньше это было недоступно\n\n**Дорого.** Полноценный продукт с базой и кабинетами у команды стоит сотни тысяч рублей плюс постоянная поддержка.\n\n**Долго.** Пока согласовали, собрали, отладили — уходит один-два месяца, а рынок не ждёт.\n\n**Рискованно.** Наняли фрилансера — и завязли в зависимости от одного человека, который может пропасть вместе с доступами.\n\nДля малого бизнеса каждый из этих барьеров часто означает «отложить на потом» — то есть навсегда.\n\n### Как это работает без разработчиков\n\nВы описываете бизнес обычными словами: чем торгуете, какие услуги, что должно происходить с заявкой. ИИ собирает работающий продукт — со страницами, формами, каталогом и кабинетами. Правки идут в диалоге: добавить поле, раздел, изменить условия доставки — минуты вместо очереди задач у подрядчика.\n\nВаши данные при этом остаются вашими. Заявки и клиентская база пишутся в вашу базу данных — это и требование закона о персональных данных, и просто здравый смысл: список клиентов слишком ценен, чтобы жить в чужом облаке.\n\n### Код остаётся у вас\n\nГлавное отличие от конструкторов — вы не арендуете продукт, а владеете им. Готовый проект на Next.js и Prisma выгружается в **ваш** репозиторий: в GitHub или в российский аналог **GitFlic (gitflic.ru)**. Захотите нанять разработчика для доработки — он получит нормальный современный код, а не закрытую платформу. Захотите продать бизнес — код пойдёт активом в сделку.\n\n### Иллюстративный сценарий\n\nПредставьте кофейню с доставкой. Вместо статичной страницы у неё каталог напитков, корзина, оформление заказа и кабинет, где постоянный гость повторяет любимый заказ в два клика. Заявки складываются в базу, владелец видит спрос и не платит комиссию агрегатору за каждого клиента. Это не «сайт ради галочки» — это канал продаж, которым бизнес управляет сам.\n\n### С чего начать\n\nНачните с малого — с работающего каталога и формы заявки — и растите продукт по мере роста бизнеса: добавляйте кабинеты, дашборд, автоматизацию рутины. Современный стек выдержит развитие, а код и данные всё это время остаются вашими. Для малого бизнеса это шанс получить инфраструктуру уровня крупных игроков — без их бюджета и штата.",
+      "en": "## Real Digital Infrastructure for Small Business\n\nA small business hasn't needed just a \"website\" for a long time — it needs working infrastructure: a place where leads land, where the catalog stays current, where a customer signs into their own account. That used to mean hiring developers or paying a studio: expensive and slow. The **RoboWeb** platform builds that product from your description and hands you the code. No dev team, no months of waiting, no permanent rent on someone else's turf.\n\n### What a business actually needs\n\nA brochure storefront solves nothing. The money comes from other things:\n\n- **Leads that don't get lost.** The form writes each inquiry into a database instead of firing an email into the void. Your entire lead history stays at your fingertips.\n- **A live catalog.** You update products and services yourself, with no contractor call just to change a price.\n- **Checkout and a cart.** The customer completes the purchase right on the site.\n- **Client accounts.** Customers see their orders and come back — that is retention and repeat sales.\n\nThis is no longer a page; it is a tool that works for revenue around the clock.\n\n### Why this used to be out of reach\n\n**Expensive.** A full product with a database and accounts costs a team hundreds of thousands of rubles, plus ongoing support.\n\n**Slow.** Between agreeing, building, and debugging, a month or two disappears — and the market doesn't wait.\n\n**Risky.** Hire a freelancer and you become dependent on one person who can vanish along with the access credentials.\n\nFor a small business, each of these barriers usually means \"put it off\" — which in practice means never.\n\n### How it works without developers\n\nYou describe the business in plain words: what you sell, which services you offer, what should happen to an inquiry. AI assembles a working product — with pages, forms, a catalog, and accounts. Edits happen in conversation: add a field, a section, change delivery terms — minutes instead of a contractor's task queue.\n\nYour data stays yours the whole time. Leads and the customer base are written into your own database — both a legal requirement for personal data and plain common sense: a customer list is far too valuable to live in someone else's cloud.\n\n### The code stays with you\n\nThe key difference from website builders: you don't rent the product, you own it. The finished Next.js and Prisma project is exported to **your** repository — GitHub or the Russian alternative **GitFlic (gitflic.ru)**. Want to hire a developer to extend it? They get normal modern code, not a closed platform. Want to sell the business? The code goes into the deal as an asset.\n\n### An illustrative scenario\n\nPicture a coffee shop with delivery. Instead of a static page it has a drinks catalog, a cart, checkout, and an account where a regular repeats their favorite order in two clicks. Inquiries pile up in a database, the owner sees demand, and pays no aggregator commission on every customer. This isn't a \"website for the sake of a checkbox\" — it is a sales channel the business runs itself.\n\n### Where to start\n\nStart small — with a working catalog and a lead form — and grow the product as the business grows: add accounts, a dashboard, routine automation. The modern stack handles the expansion, and the code and data stay yours the whole way. For a small business, this is a chance to get infrastructure at the level of the big players — without their budget or their headcount."
+    }
   },
   {
-    slug: 'sajt-za-minuty-ne-mif',
-    title: 'Сайт за минуты — это не миф: как работает Roboweb',
-    description: 'Объясняем технологию за Roboweb: как AI понимает ваш запрос и превращает его в готовый сайт.',
-    date: '16 июня 2026',
-    readTime: '7 мин',
-    category: 'Технологии',
-    cover: 'https://s3-nl.hostkey.com/robo/demo/46139957-ab81-4334-9839-4ab615f4099d.jpg',
-    content: `
-## Сайт за минуты — это не миф: как работает Roboweb
-
-Когда люди впервые слышат «сайт за минуты», первая реакция — скептицизм. Давайте разберём, как это реально работает.
-
-### Под капотом Roboweb
-
-Roboweb использует передовые технологии искусственного интеллекта, обученные на огромном массиве данных о дизайне, веб-разработке и успешных бизнес-сайтах. Когда вы описываете свою идею, система:
-
-1. **Анализирует контекст** — понимает вашу нишу, целевую аудиторию, стиль
-2. **Генерирует структуру** — определяет нужные блоки: шапка, услуги, цены, отзывы, контакты
-3. **Создаёт дизайн** — подбирает цвета, шрифты, компоновку под вашу сферу
-4. **Пишет тексты** — формирует продающие заголовки и описания
-
-### Почему это не шаблон
-
-Шаблонный конструктор даёт вам заготовку, которую нужно заполнить вручную. Roboweb создаёт сайт персонально под вас — с вашим названием, вашими услугами, вашим стилем.
-
-### Качество кода
-
-Сгенерированный сайт использует современный стек: React, Vite, Tailwind CSS. Это не устаревший HTML из 2010-х, а код, который соответствует современным стандартам производительности и доступности.
-
-### Ограничения
-
-Честно скажем: для очень сложных интерактивных проектов (маркетплейсы, социальные сети) Roboweb пока не подойдёт. Но для лендингов, корпоративных сайтов, портфолио и интернет-визиток — это оптимальное решение.
-    `.trim(),
+    "slug": "sajt-za-minuty-ne-mif",
+    "cover": "https://s3-nl.hostkey.com/robo/demo/46139957-ab81-4334-9839-4ab615f4099d.jpg",
+    "category": {
+      "ru": "Запуск продукта",
+      "en": "Product launch"
+    },
+    "title": {
+      "ru": "Не сайт, а продукт: фуллстек от ИИ за часы",
+      "en": "Not a Page, a Product: Full-Stack AI in Hours"
+    },
+    "description": {
+      "ru": "Почему ИИ на RoboWeb собирает рабочий продукт с базой, логикой и кабинетами, а не статичную страницу — и что бизнес получает на выходе.",
+      "en": "Why RoboWeb's AI ships a working product with a database, logic and accounts — not a static page — and what your business gets."
+    },
+    "date": {
+      "ru": "16 июня 2026",
+      "en": "June 16, 2026"
+    },
+    "readTime": {
+      "ru": "7 мин",
+      "en": "7 min"
+    },
+    "content": {
+      "ru": "## Фуллстек за часы, а не статичная страница\n\nКогда говорят «сайт за минуты», обычно имеют в виду красивую картинку: заголовок, блок с преимуществами, форма, которая в лучшем случае шлёт письмо на почту. Для бизнеса это витрина, а не инструмент. Деньги приносит не картинка, а рабочий процесс: заказ оформился, данные легли в базу, клиент вошёл в личный кабинет, менеджер увидел заявку. Именно это собирает платформа RoboWeb — не лендинг, а фуллстек-продукт.\n\n### Что значит «настоящий бэкенд»\n\nРазница между визиткой и продуктом лежит под капотом. Статичная страница ничего не помнит: перезагрузили — и корзина пуста, заявка нигде не сохранилась. Фуллстек-продукт имеет три слоя, которые ИИ собирает по вашему описанию.\n\n**База данных.** Каждая форма, товар, заказ и пользователь — это запись, которая никуда не исчезает. Каталог живой: добавили позицию — она появилась на витрине.\n\n**Серверная логика.** Расчёт корзины, проверка остатков, статусы заказа, отправка уведомлений, права доступа. Это не оформление, а правила, по которым работает бизнес.\n\n**Личные кабинеты.** Посетитель регистрируется, входит, видит свои заказы и историю. Для B2B это отдельный кабинет клиента, для сервиса — профиль с подпиской.\n\n### Что бизнес получает на выходе\n\nПредставьте небольшой магазин, который сегодня живёт в переписке и таблицах. На фуллстек-продукте он получает витрину с живым каталогом, корзину, оформление заказа с сохранением в базу и кабинет покупателя. Заявки перестают теряться, а рутина по переносу данных из мессенджера в таблицу исчезает.\n\nПредставьте студию услуг: клиент оставляет бриф через форму, заявка падает в базу и в кабинет менеджера, статусы меняются, клиент видит прогресс. Это уже мини-CRM, а не страница «о нас».\n\nСмысл прост: вы описываете задачу словами, а на выходе получаете продукт, который *работает*, а не просто выглядит. Скорость запуска при этом измеряется часами, а не неделями согласований с подрядчиком.\n\n### Экономика без штата разработчиков\n\nОбычный путь к такому продукту — нанять команду или агентство: аналитик, дизайнер, фронтендер, бэкендер, месяцы работы и бюджет, который не каждый бизнес потянет на старте. ИИ-платформа снимает большую часть этой стоимости: типовую сборку берёт на себя искусственный интеллект, а вы платите за результат, а не за часы команды. Это меняет саму экономику проверки идей — можно запустить гипотезу, посмотреть на спрос и только потом вкладываться.\n\n### Главное — код остаётся вашим\n\nВажнейшее отличие от конструкторов: готовый проект — это не аренда чужой платформы, с которой нельзя уйти. RoboWeb собирает продукт на современном и промышленном стеке (Next.js и Prisma) и выгружает исходный код в ваш репозиторий — в GitHub или в российский аналог GitFlic (gitflic.ru). Код становится вашим активом.\n\nЧто это даёт на практике. Вы не привязаны к одному поставщику: любой разработчик сможет открыть проект, доработать и развивать его дальше. Данные хранятся в вашей базе, а не в чужом закрытом сервисе. Продукт можно развернуть на своей инфраструктуре, что важно для безопасности и требований к хранению данных. Проект переживёт саму платформу, на которой был собран.\n\n### Как это меняет подход\n\nБизнесу больше не нужно выбирать между «быстро и дёшево, но игрушка» и «настоящий продукт, но долго и дорого». Фуллстек от ИИ закрывает разрыв: рабочий продукт с базой, логикой и кабинетами собирается за часы, стоит кратно дешевле команды, а исходный код вы забираете себе.\n\nСтартовать можно с малого — витрина с каталогом, форма заявок с сохранением, кабинет клиента — и наращивать функциональность по мере роста. Сайт за минуты перестаёт быть мифом ровно тогда, когда под красивой обёрткой оказывается настоящий бэкенд.",
+      "en": "## Full-Stack in Hours, Not a Static Page\n\nWhen people say \"a website in minutes,\" they usually mean a pretty picture: a headline, a features block, and a form that, at best, emails you. For a business that's a shop window, not a tool. Revenue doesn't come from the picture — it comes from the workflow: the order is placed, the data lands in a database, the customer signs into an account, the manager sees the request. That is exactly what the RoboWeb platform builds — not a landing page, but a full-stack product.\n\n### What a \"real backend\" actually means\n\nThe difference between a business card and a product lives under the hood. A static page remembers nothing: reload it and the cart is empty, the request is gone. A full-stack product has three layers that the AI assembles from your description.\n\n**A database.** Every form, product, order and user is a record that doesn't vanish. The catalog is live: add an item and it appears on the storefront.\n\n**Server-side logic.** Cart calculations, stock checks, order statuses, notifications, access rights. This isn't styling — it's the rules your business runs on.\n\n**User accounts.** A visitor registers, signs in, and sees their orders and history. For B2B that's a client portal; for a service, a profile with a subscription.\n\n### What the business gets\n\nPicture a small shop that today lives in chat threads and spreadsheets. On a full-stack product it gets a storefront with a live catalog, a cart, checkout that saves to a database, and a customer account. Requests stop getting lost, and the busywork of copying data from a messenger into a spreadsheet disappears.\n\nPicture a services studio: a client submits a brief through a form, the request lands in the database and in the manager's dashboard, statuses change, the client sees progress. That's already a mini-CRM, not an \"about us\" page.\n\nThe idea is simple: you describe the task in words and get a product that *works*, not one that merely looks the part. And the time to launch is measured in hours, not weeks of back-and-forth with a contractor.\n\n### Economics without a dev team\n\nThe usual route to such a product is hiring a team or agency: an analyst, a designer, a frontend and a backend developer, months of work, and a budget many businesses can't carry at the start. An AI platform removes most of that cost: the AI handles the standard build, and you pay for the result, not for the team's hours. That changes the very economics of testing ideas — you can launch a hypothesis, watch demand, and only then invest.\n\n### The key part: the code stays yours\n\nThe biggest difference from website builders: the finished project isn't a rental on someone else's platform you can never leave. RoboWeb builds on a modern, industrial-grade stack (Next.js and Prisma) and exports the source code to your own repository — either GitHub or the Russian alternative GitFlic (gitflic.ru). The code becomes your asset.\n\nWhat that means in practice. You're not locked to one vendor: any developer can open the project, extend it and keep it growing. Your data lives in your database, not inside a closed third-party service. The product can run on your own infrastructure — which matters for security and data-residency requirements. And the project outlives the very platform it was built on.\n\n### How this shifts the approach\n\nBusinesses no longer have to choose between \"fast and cheap but a toy\" and \"a real product but slow and expensive.\" Full-stack from AI closes the gap: a working product with a database, logic and accounts is assembled in hours, costs a fraction of a team, and the source code is yours to keep.\n\nYou can start small — a storefront with a catalog, a request form that saves data, a client account — and add features as you grow. \"A website in minutes\" stops being a myth precisely when there's a real backend behind the pretty wrapper."
+    }
   },
   {
-    slug: 'seo-ai-sajtov',
-    title: 'SEO AI-сайтов: как Roboweb помогает попасть в топ поиска',
-    description: 'Разбираем SEO-возможности сайтов, созданных в Roboweb, и как они помогают привлекать клиентов из поиска.',
-    date: '17 июня 2026',
-    readTime: '6 мин',
-    category: 'SEO',
-    cover: 'https://s3-nl.hostkey.com/robo/demo/6bdecfb6-b342-474b-be2b-8ff8584df360.jpg',
-    content: `
-## SEO AI-сайтов: как Roboweb помогает попасть в топ поиска
-
-Красивый сайт — это хорошо. Сайт, который находят в Google — ещё лучше. Рассказываем, как Roboweb помогает с SEO.
-
-### Что такое SEO и почему это важно
-
-SEO (Search Engine Optimization) — это оптимизация сайта для поисковых систем. Когда потенциальный клиент вводит «барбершоп в Москве» или «заказать торт Екатеринбург» — хорошо оптимизированный сайт появляется в верхних строчках.
-
-По данным исследований, 75% пользователей не переходят на вторую страницу поиска. Быть в топ-10 критически важно.
-
-### Что Roboweb делает автоматически
-
-**Правильная структура заголовков.** H1, H2, H3 расставлены корректно — поисковики понимают структуру страницы.
-
-**Мета-теги.** Title и description генерируются автоматически с учётом вашей ниши и ключевых слов.
-
-**Скорость загрузки.** Сайты на Roboweb получают высокие баллы в Google PageSpeed благодаря оптимизированному коду.
-
-**Мобильная версия.** Google использует mobile-first индексацию. Все сайты Roboweb адаптированы под мобильные.
-
-**Семантическая разметка.** Правильные теги помогают поисковикам понять содержание страницы.
-
-### Что нужно сделать самостоятельно
-
-AI не может за вас создать уникальный контент и собрать ссылочную массу. Для устойчивого продвижения нужны:
-- Регулярные статьи и обновления (как этот блог!)
-- Регистрация в Яндекс Бизнес и Google Business
-- Получение отзывов от клиентов
-
-### Итог
-
-Roboweb создаёт технически грамотную основу для SEO. Дальнейшее продвижение — это работа с контентом и репутацией.
-    `.trim(),
+    "slug": "seo-ai-sajtov",
+    "cover": "https://s3-nl.hostkey.com/robo/demo/6bdecfb6-b342-474b-be2b-8ff8584df360.jpg",
+    "category": {
+      "ru": "Рост и SEO",
+      "en": "Growth & SEO"
+    },
+    "title": {
+      "ru": "SEO для бизнеса: почему продукт растёт в поиске",
+      "en": "SEO for Business: Why the Product Ranks in Search"
+    },
+    "description": {
+      "ru": "Как продукт на Next.js технически растёт в Google и Яндексе, почему это влияет на выручку и что даёт владение исходным кодом.",
+      "en": "How a Next.js product ranks technically in Google and Yandex, why it drives revenue, and what owning the source code adds."
+    },
+    "date": {
+      "ru": "17 июня 2026",
+      "en": "June 17, 2026"
+    },
+    "readTime": {
+      "ru": "6 мин",
+      "en": "6 min"
+    },
+    "content": {
+      "ru": "## SEO как канал выручки, а не галочка\n\nДля бизнеса поисковый трафик — это не про «попасть в топ ради топа». Это самый выгодный канал: человек уже ищет ваш товар или услугу, и если он находит вас, а не конкурента, продажа стоит вам ноль рублей за клик. Разница между первой и пятой позицией в поиске — это разница в выручке. Поэтому вопрос «почему продукт RoboWeb технически растёт в Google и Яндексе» — это вопрос про деньги, а не про технологии.\n\n### Что поисковики на самом деле оценивают\n\nGoogle и Яндекс ранжируют не намерения, а то, что видит их робот. И здесь фундамент важнее любых «SEO-хитростей».\n\n**Скорость загрузки.** Медленный сайт теряет и позиции, и покупателей: значительная часть посетителей уходит, не дождавшись загрузки. Быстрый сайт удерживает людей и лучше ранжируется.\n\n**Читаемость для робота.** Поисковик должен увидеть текст, заголовки и ссылки сразу, а не ждать, пока в браузере догрузятся скрипты. Многие сайты-конструкторы и тяжёлые одностраничники этим грешат: робот приходит на пустую страницу.\n\n**Структура и разметка.** Правильные заголовки, описания, адреса страниц, микроразметка для карточек товаров и статей — то, из чего складывается сниппет в выдаче и кликабельность.\n\n### Почему Next.js выигрывает по фундаменту\n\nПродукты на RoboWeb собираются на Next.js — и это не модное слово, а конкретное техническое преимущество для поиска.\n\nГлавное — *серверный рендеринг*. Страница приходит роботу уже готовой: с текстом, заголовками и содержимым, а не пустым каркасом, который дорисовывается скриптами. Поисковику не нужно ничего «ждать» — он сразу индексирует контент. Для бизнеса это значит, что страницы товаров и статьи реально попадают в выдачу, а не остаются невидимыми.\n\nВторое — *скорость из коробки*. Современный стек умеет отдавать лёгкие страницы, разбивать код на части и кэшировать контент, поэтому продукт быстрый без ручной оптимизации каждой мелочи.\n\nТретье — *чистые адреса и структура*. Каждый товар и каждая статья получают свой понятный адрес и мета-описание. Живой каталог из базы автоматически превращается в десятки и сотни индексируемых страниц — а чем больше качественных страниц под конкретные запросы, тем шире охват.\n\n### Как это превращается в выручку\n\nПредставьте магазин с каталогом на несколько сотен позиций. На фуллстек-продукте каждая карточка — это отдельная индексируемая страница под конкретный запрос вроде «купить [товар] в [городе]». Сотни таких страниц — это сотни точек входа из поиска, каждая из которых работает на вас годами и не требует платы за клик.\n\nПредставьте студию, которая ведёт блог. Быстрые, серверно отрендеренные статьи с чистой структурой постепенно набирают позиции по профильным запросам и приводят клиентов, которые уже прогреты вашей экспертизой. Это не разовая реклама, а актив, который накапливает ценность.\n\nВажный нюанс: техническая база не заменяет содержания. ИИ соберёт быстрый и правильно размеченный продукт, но тексты и ассортимент под спрос — это ваша зона. Зато вы стартуете не с ямы, из которой сайт годами выбирается, а с крепкого технического фундамента.\n\n### Владение кодом = контроль над SEO\n\nЕсть ещё одно деловое преимущество. Поскольку RoboWeb выгружает исходный код в ваш репозиторий — в GitHub или в российский аналог GitFlic (gitflic.ru), — вы полностью контролируете техническую сторону продвижения. Мета-теги, карту сайта, скорость, структуру адресов, интеграцию с системами аналитики — всё это можно менять и развивать без оглядки на ограничения чужой платформы.\n\nНа арендованных конструкторах вы упираетесь в то, что «так нельзя»: не поменять адрес страницы, не ускорить загрузку, не добавить разметку. С собственным кодом таких потолков нет: любой специалист по SEO работает с вашим продуктом напрямую, а сам продукт можно развернуть на своей инфраструктуре.\n\n### Итог\n\nSEO начинается не с ключевых слов, а с техники. Продукт на Next.js растёт в Google и Яндексе, потому что отдаёт роботу готовый контент, грузится быстро и имеет чистую структуру — а живой каталог сам порождает индексируемые страницы. Для бизнеса это означает поток бесплатного трафика, который конвертируется в выручку, и полный контроль над продвижением благодаря тому, что код принадлежит вам.",
+      "en": "## SEO as a Revenue Channel, Not a Checkbox\n\nFor a business, search traffic isn't about \"ranking for the sake of ranking.\" It's the most profitable channel there is: the person is already looking for your product or service, and if they find you instead of a competitor, that sale costs you nothing per click. The gap between the first and the fifth position in search is a gap in revenue. So the question \"why does a RoboWeb product technically rank in Google and Yandex\" is a question about money, not technology.\n\n### What search engines actually judge\n\nGoogle and Yandex rank not intentions but what their crawler sees. And here the foundation matters more than any \"SEO tricks.\"\n\n**Load speed.** A slow site loses both rankings and buyers: a large share of visitors leave before it even loads. A fast site keeps people and ranks better.\n\n**Readability for the crawler.** The search engine has to see the text, headings and links immediately — not wait for scripts to load in the browser. Many builder sites and heavy single-page apps fail here: the crawler arrives at a blank page.\n\n**Structure and markup.** Proper headings, descriptions, page URLs, and structured data for product cards and articles — the raw material of your search snippet and click-through rate.\n\n### Why Next.js wins on fundamentals\n\nRoboWeb products are built on Next.js — not as a buzzword, but as a concrete technical advantage for search.\n\nThe key is *server-side rendering*. The page reaches the crawler already complete: with text, headings and content, not an empty shell that scripts fill in later. The search engine has nothing to \"wait\" for — it indexes the content right away. For a business that means your product pages and articles genuinely land in results instead of staying invisible.\n\nSecond is *speed out of the box*. A modern stack serves lightweight pages, splits code into parts, and caches content, so the product is fast without hand-tuning every detail.\n\nThird is *clean URLs and structure*. Every product and every article gets its own readable address and meta description. A live catalog from the database automatically turns into dozens or hundreds of indexable pages — and the more quality pages targeting specific queries, the wider your reach.\n\n### How this turns into revenue\n\nPicture a shop with a catalog of a few hundred items. On a full-stack product, each card is a separate indexable page targeting a specific query like \"buy [product] in [city].\" Hundreds of such pages are hundreds of entry points from search, each working for you for years with no per-click cost.\n\nPicture a studio running a blog. Fast, server-rendered articles with clean structure gradually climb for their niche queries and bring in clients already warmed up by your expertise. That's not one-off advertising — it's an asset that compounds in value.\n\nOne important caveat: the technical base doesn't replace substance. The AI builds a fast, properly marked-up product, but the copy and the assortment matching real demand are your job. What you gain is starting not from a hole a site claws out of for years, but from a solid technical foundation.\n\n### Owning the code = control over SEO\n\nThere's one more business advantage. Because RoboWeb exports the source code to your own repository — either GitHub or the Russian alternative GitFlic (gitflic.ru) — you fully control the technical side of promotion. Meta tags, the sitemap, speed, URL structure, analytics integrations — all of it can be changed and developed without bumping into someone else's platform limits.\n\nOn rented builders you hit \"you can't do that\": can't change a page URL, can't speed up loading, can't add markup. With your own code there are no such ceilings: any SEO specialist works with your product directly, and the product itself can run on your own infrastructure.\n\n### The bottom line\n\nSEO starts not with keywords but with engineering. A Next.js product ranks in Google and Yandex because it hands the crawler finished content, loads fast, and has a clean structure — and a live catalog generates indexable pages on its own. For a business that means a stream of free traffic that converts into revenue, plus full control over promotion because the code belongs to you."
+    }
   },
   {
-    slug: 'sravnenie-ai-vs-konstruktory',
-    title: 'Roboweb vs конструкторы сайтов: Tilda, Wix, Тинькофф',
-    description: 'Честное сравнение: чем AI-разработка отличается от классических конструкторов сайтов.',
-    date: '18 июня 2026',
-    readTime: '8 мин',
-    category: 'Сравнения',
-    cover: 'https://s3-nl.hostkey.com/robo/demo/d1d14788-7bde-4ecd-840d-3da0b64fe4a3.jpg',
-    content: `
-## Roboweb vs конструкторы сайтов: Tilda, Wix, Тинькофф
-
-Конструкторы сайтов существуют давно. Почему тогда появились AI-платформы вроде Roboweb? Сравниваем честно.
-
-### Классические конструкторы: как это работает
-
-Tilda, Wix, Тинькофф Сайты — все они работают по одному принципу: вы берёте готовые блоки и собираете из них страницу как конструктор Lego. Звучит просто, но на практике:
-
-- Нужно разобраться в интерфейсе (у каждого он свой)
-- Самостоятельно писать все тексты
-- Выбирать и настраивать дизайн
-- Возиться с адаптивностью под мобильные
-
-По статистике, средний пользователь тратит 8–12 часов на создание первого сайта в конструкторе.
-
-### Roboweb: другой подход
-
-В Roboweb вы не собираете сайт — вы **описываете** его. Разница принципиальная:
-
-| | Конструктор | Roboweb |
-|---|---|---|
-| Время создания | 8–12 часов | 5–15 минут |
-| Нужен дизайн-вкус | Да | Нет |
-| Тексты пишете сами | Да | AI пишет за вас |
-| Правки | Вручную | Голосом/текстом |
-| Порог входа | Средний | Минимальный |
-
-### Где конструкторы лучше
-
-Если вы профессиональный дизайнер и хотите попиксельного контроля — Tilda даст больше свободы. Конструкторы также хороши для тех, кто хочет глубоко изучить веб-дизайн как профессию.
-
-### Вывод
-
-Для предпринимателя, которому нужен сайт — а не хобби по веб-дизайну — **Roboweb** выигрывает по всем ключевым параметрам: скорость, простота, результат.
-    `.trim(),
+    "slug": "sravnenie-ai-vs-konstruktory",
+    "cover": "https://s3-nl.hostkey.com/robo/demo/d1d14788-7bde-4ecd-840d-3da0b64fe4a3.jpg",
+    "category": {
+      "ru": "Код как актив",
+      "en": "Code ownership"
+    },
+    "title": {
+      "ru": "Конструктор в аренду или свой код как актив",
+      "en": "Website Builder Rental vs. Owning Your Code"
+    },
+    "description": {
+      "ru": "Почему бизнесу выгоднее собственный код в GitHub или GitFlic, чем вечная аренда конструктора с вендор-локом.",
+      "en": "Why owning your codebase in GitHub or GitFlic beats renting a website builder locked to one vendor forever."
+    },
+    "date": {
+      "ru": "18 июня 2026",
+      "en": "June 18, 2026"
+    },
+    "readTime": {
+      "ru": "8 мин",
+      "en": "8 min"
+    },
+    "content": {
+      "ru": "## Конструктор в аренду или свой код как актив\n\nКогда бизнесу нужен сайт или веб-приложение, выбор почти всегда сводится к двум путям. Первый — арендовать место в конструкторе: платить помесячно, собирать продукт из готовых блоков, жить внутри чужой платформы. Второй — получить собственный код, который принадлежит компании и лежит в её репозитории. На первый взгляд разница только в цене подписки. На деле это выбор между расходом и активом.\n\n### Что вы на самом деле арендуете\n\nКонструктор удобен на старте: за вечер собирается витрина, домен подключается в пару кликов. Но вы не покупаете продукт — вы **арендуете доступ** к нему. Перестали платить — сайт выключился. Данные клиентов, каталог, история заказов остаются внутри платформы в её формате. Забрать их целиком и запустить в другом месте обычно невозможно: экспорт отдаёт разрозненные таблицы, а логика форм, корзины и личных кабинетов не переносится вообще.\n\nЭто и есть **вендор-лок** — зависимость, при которой стоимость ухода настолько высока, что проще терпеть повышение цен, ограничения тарифа и чужие правила игры. Бизнес растёт, а платформа диктует, что можно, а что нет.\n\n### Код — это капитал, а не квитанция\n\nRoboWeb собирает не набор блоков, а настоящий фуллстек-продукт на Next.js и Prisma: формы пишут заявки в базу, живой каталог, корзина, оформление заказа, личные кабинеты. Ключевое отличие в том, что готовый проект **выгружается в ваш репозиторий** — в GitHub или российский аналог GitFlic. Код становится собственностью компании.\n\nЧто это меняет для бизнеса:\n\n- **Актив на балансе.** Работающий продукт с исходным кодом — имущество, которое повышает стоимость компании при продаже, привлечении инвестиций или оценке.\n- **Свобода хостинга.** Разместить проект можно где угодно — своя инфраструктура, любой облачный провайдер, российский или зарубежный. Никто не отключит рубильник за неоплату подписки чужому сервису.\n- **Любой подрядчик продолжит работу.** Обычный современный стек означает, что доработать продукт сможет любая команда или штатный разработчик. Вы не заперты у одного вендора.\n- **Данные ваши.** Клиентская база, заказы, аналитика лежат в вашей БД, а не в чужом облаке. Это вопрос и безопасности, и соответствия требованиям к хранению данных.\n\n### Экономика на дистанции\n\nАренда кажется дешевле, пока считаешь один месяц. На горизонте двух-трёх лет картина меняется. Подписка — это платёж, который никогда не заканчивается и растёт вместе с тарифной сеткой. Собственный код — разовое вложение, после которого вы платите только за хостинг, а он на порядок дешевле платформенных планов.\n\nПредставьте интернет-магазин, который за два года на конструкторе отдал сумму, сопоставимую со стоимостью полноценной разработки, — и всё ещё не владеет ни строчкой кода. При переезде ему придётся собирать продукт заново. Владелец собственного кода в той же ситуации просто меняет хостинг за вечер.\n\n### Когда конструктор всё-таки уместен\n\nБудем честны: если нужна одностраничная визитка на неделю или тест гипотезы, ради которого не жалко переделать, конструктор решает задачу. Проблема начинается там, где сайт превращается в **рабочий инструмент бизнеса** — принимает заявки, ведёт клиентов, обрабатывает заказы, хранит данные. Здесь зависимость от чужой платформы становится риском для выручки.\n\n### Вывод\n\nАренда конструктора — это операционный расход без права собственности и с растущим вендор-локом. Собственный код в GitHub или GitFlic — актив, который вы контролируете, переносите и развиваете на своих условиях. Для бизнеса, который смотрит дальше следующего месяца, второй путь почти всегда выгоднее — и по деньгам, и по свободе, и по безопасности данных.",
+      "en": "## Website Builder Rental vs. Owning Your Code\n\nWhen a business needs a website or web app, the choice almost always comes down to two paths. The first is renting space inside a website builder: pay monthly, assemble your product from prebuilt blocks, and live inside someone else's platform. The second is getting your own code — code that belongs to the company and sits in its own repository. At first glance the only difference is the subscription price. In reality it's the difference between an expense and an asset.\n\n### What you're actually renting\n\nA builder is convenient at the start: you can stand up a storefront in an evening and connect a domain in a couple of clicks. But you're not buying a product — you're **renting access** to one. Stop paying and the site goes dark. Your customer data, catalog, and order history stay inside the platform in its own format. Taking all of it out and running it elsewhere is usually impossible: the export hands you scattered tables, while the logic behind forms, carts, and user accounts doesn't transfer at all.\n\nThat's **vendor lock-in** — a dependency where the cost of leaving is so high that it's easier to tolerate price hikes, plan limits, and someone else's rules. Your business grows, but the platform decides what you can and can't do.\n\n### Code is capital, not a receipt\n\nRoboWeb builds not a stack of blocks but a real full-stack product on Next.js and Prisma: forms write leads to a database, a live catalog, a cart, checkout, and user accounts. The crucial difference is that the finished project is **exported to your repository** — GitHub or the Russian equivalent, GitFlic. The code becomes company property.\n\nWhat that changes for a business:\n\n- **An asset on the books.** A working product with its source code is property that raises company value in a sale, a funding round, or a valuation.\n- **Hosting freedom.** You can deploy the project anywhere — your own infrastructure, any cloud provider, domestic or foreign. Nobody flips a kill switch because a subscription lapsed.\n- **Any contractor can continue.** A standard modern stack means any team or in-house developer can extend the product. You're not locked to a single vendor.\n- **Your data is yours.** Customer records, orders, and analytics live in your database, not someone else's cloud. That matters for both security and data-storage compliance.\n\n### The economics over time\n\nRenting looks cheaper as long as you count a single month. Over two or three years the picture flips. A subscription is a payment that never ends and grows with the pricing tiers. Owning your code is a one-time investment, after which you pay only for hosting — and hosting costs a fraction of platform plans.\n\nPicture an online store that, after two years on a builder, has paid out a sum comparable to full custom development — and still owns not a single line of code. To move, it would have to rebuild the product from scratch. The owner of their own code, in the same situation, simply switches hosting in an evening.\n\n### When a builder still makes sense\n\nLet's be fair: if you need a one-page business card for a week or a quick hypothesis test you won't mind throwing away, a builder does the job. The trouble starts when the site becomes a **working business tool** — taking leads, managing clients, processing orders, storing data. There, dependence on someone else's platform turns into a risk to revenue.\n\n### The bottom line\n\nRenting a builder is an operating expense with no ownership and a growing lock-in. Owning your code in GitHub or GitFlic is an asset you control, move, and develop on your own terms. For any business looking beyond next month, the second path is almost always the better deal — in money, in freedom, and in data security."
+    }
   },
   {
-    slug: 'landing-s-pomoschyu-ai',
-    title: 'Как создать продающий лендинг с помощью AI',
-    description: 'Практическое руководство по созданию лендинга, который конвертирует посетителей в клиентов, с помощью Roboweb.',
-    date: '19 июня 2026',
-    readTime: '7 мин',
-    category: 'Инструкции',
-    cover: 'https://s3-nl.hostkey.com/robo/demo/e825a615-cfdb-4506-845c-1cd2c0648d8f.jpg',
-    content: `
-## Как создать продающий лендинг с помощью AI
-
-Лендинг — это одностраничный сайт с одной целью: превратить посетителя в клиента. Рассказываем, как создать его в Roboweb и сделать по-настоящему продающим.
-
-### Что такое хороший лендинг
-
-Хороший лендинг отвечает на три вопроса посетителя за первые 5 секунд:
-1. Что это за сайт?
-2. Что мне это даст?
-3. Что нужно сделать дальше?
-
-### Структура продающего лендинга
-
-**Шапка (Hero)** — главный заголовок, подзаголовок, призыв к действию. Самая важная часть.
-
-**Блок доверия** — цифры, достижения, логотипы клиентов.
-
-**Услуги/Продукты** — что именно вы предлагаете, с ценами или без.
-
-**Отзывы** — социальное доказательство. Без этого блока конверсия падает на 30–40%.
-
-**FAQ** — ответы на частые вопросы снимают возражения.
-
-**CTA (призыв к действию)** — финальная кнопка/форма.
-
-### Как попросить Roboweb создать правильный лендинг
-
-Чем конкретнее ваш запрос, тем лучше результат. Вместо «сделай лендинг для фитнеса» напишите:
-
-*«Создай лендинг для фитнес-клуба "СилаПлюс" в Казани. Целевая аудитория — женщины 25–45 лет. Главный оффер — похудеть на 5 кг за месяц. Есть групповые тренировки и персональный тренер. Хочу форму записи на первое бесплатное занятие».*
-
-### Оптимизация после создания
-
-После генерации попросите Roboweb:
-- Усилить заголовок (сделать его конкретнее)
-- Добавить цифры и факты
-- Проверить, есть ли призыв к действию в каждом блоке
-    `.trim(),
+    "slug": "landing-s-pomoschyu-ai",
+    "cover": "https://s3-nl.hostkey.com/robo/demo/e825a615-cfdb-4506-845c-1cd2c0648d8f.jpg",
+    "category": {
+      "ru": "Продажи и конверсия",
+      "en": "Sales & conversion"
+    },
+    "title": {
+      "ru": "Продающий лендинг, который приносит заявки в базу",
+      "en": "A Landing Page That Actually Captures Leads"
+    },
+    "description": {
+      "ru": "Как собрать лендинг, который не просто красиво выглядит, а реально принимает заявки в базу и приносит клиентов.",
+      "en": "How to build a landing page that doesn't just look good but captures real leads and brings in customers."
+    },
+    "date": {
+      "ru": "19 июня 2026",
+      "en": "June 19, 2026"
+    },
+    "readTime": {
+      "ru": "7 мин",
+      "en": "7 min"
+    },
+    "content": {
+      "ru": "## Продающий лендинг, который приносит заявки в базу\n\nКрасивый лендинг, на котором никто не оставил заявку, — это дорогая картинка. Для бизнеса лендинг существует не ради дизайна, а ради одной измеримой цели: превратить посетителя в контакт, а контакт — в клиента. Всё остальное — обёртка вокруг этой механики. Разберём, из чего складывается страница, которая реально работает на выручку.\n\n### Форма, которая пишет в базу, а не в пустоту\n\nСамая частая и самая дорогая ошибка — форма, которая красиво выглядит, но никуда не отправляет данные. Посетитель нажимает «Оставить заявку», видит «Спасибо», уходит довольным — а менеджер об этом никогда не узнает. Каждая такая заявка — это потерянный клиент и потраченный впустую рекламный бюджет.\n\nRoboWeb собирает лендинги, где форма — **рабочий механизм**: заявка пишется в базу данных, попадает в личный кабинет и не теряется. Вы видите каждый контакт, дату, источник и можете сразу перезвонить, пока лид тёплый. Это и есть разница между витриной и инструментом продаж.\n\n### Структура, которая ведёт к действию\n\nПродающая страница — это не набор блоков, а маршрут. Посетитель должен за несколько секунд понять, что вы предлагаете, почему это ему нужно и что сделать дальше. Работающая последовательность обычно такая:\n\n- **Первый экран** отвечает на вопрос «что это и кому» и сразу даёт целевое действие.\n- **Ценность** — короткие блоки о том, какую проблему вы снимаете, языком выгоды, а не характеристик.\n- **Доверие** — отзывы, логотипы, гарантии, всё, что снижает страх покупки.\n- **Ответы на возражения** — честный блок «а что если...».\n- **Финальный призыв** с той же формой, что и в начале.\n\nКаждый блок ведёт к одному действию — оставить заявку. Ничто не должно уводить посетителя в сторону.\n\n### Скорость запуска как конкурентное преимущество\n\nКлассическая разработка лендинга — это недели согласований, дизайнер, верстальщик, программист под форму. Пока вы запускаетесь, рынок уходит вперёд. Платформа RoboWeb собирает готовую страницу с рабочей формой по текстовому описанию за часы, а не недели. Это значит, что гипотезу можно проверить быстро: запустить рекламу, посмотреть на конверсию, поправить оффер и запустить снова.\n\nБыстрый цикл «запуск — данные — правка» — это и есть современный маркетинг. Побеждает не тот, у кого красивее, а тот, кто быстрее находит работающую связку.\n\n### Конверсия — это про данные, а не про вкус\n\nКрасиво или некрасиво — вопрос вкуса. Приносит заявки или нет — вопрос цифр. Поскольку форма пишет в базу, у вас есть реальная аналитика: сколько людей зашло, сколько оставило контакт, откуда пришёл самый дешёвый лид. На этих данных офферы и заголовки правятся осознанно, а не наугад.\n\nПредставьте студию, которая запустила две версии лендинга с разными заголовками. Через неделю данные из базы показывают, какая приносит вдвое больше заявок при том же бюджете. Без сбора данных этот выбор был бы монеткой.\n\n### Свой лендинг — свой актив\n\nЛендинг на RoboWeb — это не аренда странички в чужом сервисе. Готовый код выгружается в ваш репозиторий — в GitHub или российский аналог GitFlic. База заявок ваша, страница ваша, хостинг выбираете вы. Никто не отключит рекламную посадочную из-за неоплаченной подписки в разгар кампании, и клиентские контакты не заперты в чужом облаке.\n\n### Вывод\n\nПродающий лендинг — это не про то, чтобы было красиво. Это про рабочую форму, которая пишет заявки в базу, про структуру, которая ведёт к действию, про быстрый запуск и честную аналитику. Красота помогает, но продают механика и данные. А когда код и база принадлежат вам, лендинг становится активом, который приносит клиентов на ваших условиях.",
+      "en": "## A Landing Page That Actually Captures Leads\n\nA beautiful landing page that no one submits a form on is an expensive picture. For a business, a landing page exists not for the design but for one measurable goal: turn a visitor into a contact, and a contact into a customer. Everything else is packaging around that mechanism. Let's break down what makes a page that genuinely works for revenue.\n\n### A form that writes to a database, not into the void\n\nThe most common and most expensive mistake is a form that looks great but sends the data nowhere. The visitor clicks \"Submit,\" sees \"Thank you,\" leaves happy — and the sales team never hears about it. Every lost submission is a lost customer and wasted ad spend.\n\nRoboWeb builds landing pages where the form is a **working mechanism**: the lead is written to a database, lands in a dashboard, and doesn't disappear. You see every contact, its date and source, and can call back while the lead is still warm. That's the difference between a storefront and a sales tool.\n\n### Structure that drives action\n\nA selling page isn't a pile of blocks — it's a route. Within seconds a visitor must grasp what you offer, why they need it, and what to do next. A sequence that works usually looks like this:\n\n- **The hero** answers \"what is this and for whom\" and offers the target action right away.\n- **Value** — short blocks about the problem you remove, in the language of benefit, not specs.\n- **Trust** — reviews, logos, guarantees, anything that lowers the fear of buying.\n- **Objection handling** — an honest \"but what if...\" section.\n- **Final call to action** with the same form as at the top.\n\nEvery block leads to a single action — submit the form. Nothing should pull the visitor sideways.\n\n### Speed to launch as a competitive edge\n\nClassic landing-page development means weeks of approvals, a designer, a front-end coder, and a programmer for the form. While you launch, the market moves on. The RoboWeb platform assembles a finished page with a working form from a text description in hours, not weeks. That means you can test a hypothesis fast: run the ads, watch conversion, tweak the offer, and launch again.\n\nA fast launch–data–edit cycle is what modern marketing is. The winner isn't whoever looks prettier, but whoever finds the working combination faster.\n\n### Conversion is about data, not taste\n\nPretty or ugly is a matter of taste. Captures leads or not is a matter of numbers. Because the form writes to a database, you get real analytics: how many people arrived, how many left a contact, and which channel delivered the cheapest lead. On that data you refine offers and headlines deliberately, not by guessing.\n\nPicture a studio that launches two versions of a landing page with different headlines. A week later the data in the database shows which one pulls twice the leads at the same budget. Without collecting data, that choice would be a coin toss.\n\n### Your landing page, your asset\n\nA RoboWeb landing page isn't a rented slot in someone else's service. The finished code is exported to your repository — GitHub or the Russian equivalent, GitFlic. The lead database is yours, the page is yours, you choose the hosting. No one shuts down your ad landing page over a lapsed subscription mid-campaign, and your customer contacts aren't locked in someone else's cloud.\n\n### The bottom line\n\nA selling landing page isn't about looking good. It's about a working form that writes leads to a database, a structure that drives action, a fast launch, and honest analytics. Good looks help, but mechanics and data are what sell. And when the code and the database belong to you, the landing page becomes an asset that brings in customers on your terms."
+    }
   },
   {
-    slug: 'istorii-uspeha-roboweb',
-    title: 'Истории успеха: реальные бизнесы, запущенные через Roboweb',
-    description: 'Реальные кейсы предпринимателей, которые создали сайты через Roboweb и получили результат.',
-    date: '21 июня 2026',
-    readTime: '6 мин',
-    category: 'Кейсы',
-    cover: 'https://s3-nl.hostkey.com/robo/demo/c5f4a8e0-9102-436b-b88f-adf01134cadf.jpg',
-    content: `
-## Истории успеха: реальные бизнесы, запущенные через Roboweb
-
-Цифры и теория — это хорошо. Но ничто не убеждает лучше реальных историй. Вот несколько кейсов наших пользователей.
-
-### Автосервис «ДвигательПро», Воронеж
-
-Владелец Алексей 7 лет работал без сайта — клиенты приходили по сарафану. Создал лендинг в Roboweb за 8 минут. Добавил в Google Бизнес ссылку на сайт. Через 3 недели начали звонить люди, которые нашли его в поиске. За первый месяц — 12 новых клиентов из интернета.
-
-*«Я ожидал, что это будет сложно. Оказалось — проще, чем заказать пиццу»*, — говорит Алексей.
-
-### Кондитерская «Сахарный дом», Краснодар
-
-Марина делала торты на заказ и принимала заказы через Instagram. Создала сайт в Roboweb с каталогом, ценами и формой заказа. Конверсия из просмотров в заказы выросла в 3 раза — люди охотнее заказывают через сайт, чем через директ.
-
-### Юридическая консультация, Москва
-
-Адвокат Игорь создал сайт за 15 минут. Добавил блок «Бесплатная первичная консультация» с формой. За первый месяц — 23 заявки, из которых 8 стали клиентами. Средний чек — 25 000 рублей. ROI: вложения окупились в первые три дня.
-
-### Детская школа робототехники, Новосибирск
-
-Директор Ольга создала сайт для набора в кружок. С помощью Roboweb сделала отдельные страницы для разных возрастных групп. Запись на курсы полностью автоматизирована через форму на сайте.
-
-### Что объединяет все эти истории
-
-Во всех случаях предприниматели не имели технического опыта. Все они создали сайты самостоятельно за 5–15 минут. И все получили реальный бизнес-результат.
-    `.trim(),
+    "slug": "istorii-uspeha-roboweb",
+    "cover": "https://s3-nl.hostkey.com/robo/demo/c5f4a8e0-9102-436b-b88f-adf01134cadf.jpg",
+    "category": {
+      "ru": "Кейсы",
+      "en": "Case studies"
+    },
+    "title": {
+      "ru": "Как бизнес запускает продукт без разработчиков",
+      "en": "How Businesses Launch Products Without Developers"
+    },
+    "description": {
+      "ru": "Иллюстративные сценарии: магазин, сфера услуг и студия собирают рабочий продукт на RoboWeb без штата программистов.",
+      "en": "Illustrative scenarios: a shop, a service business and a studio ship a working product on RoboWeb without a dev team."
+    },
+    "date": {
+      "ru": "21 июня 2026",
+      "en": "June 21, 2026"
+    },
+    "readTime": {
+      "ru": "6 мин",
+      "en": "6 min"
+    },
+    "content": {
+      "ru": "## Как бизнес запускает продукт без разработчиков\n\nСамая частая причина, по которой хорошая бизнес-идея так и не выходит в свет, — не деньги на рекламу и не спрос. Это разработка. Найти команду, согласовать смету, ждать месяцы, платить за каждую правку. **RoboWeb** меняет саму отправную точку: вы описываете, что должен делать продукт, а платформа собирает настоящее фуллстек-приложение — с базой данных, формами, каталогом и личными кабинетами.\n\nНиже — не отчёт о клиентах, а иллюстративные сценарии. Они показывают, как разные типы бизнеса проходят путь от идеи до работающего продукта, и почему это уже не про «сайт-визитку».\n\n### Сценарий первый: интернет-магазин\n\nПредставьте небольшой магазин локальных продуктов. Раньше владелец продавал через мессенджеры: заказы терялись, остатки считали в тетради, оплату сверяли вручную.\n\nНа RoboWeb он описывает нужное: живой каталог с категориями, корзина, оформление заказа, статусы и уведомления. Платформа собирает не картинку, а **рабочий продукт**: товары лежат в базе, заказы туда же записываются, у клиента есть личный кабинет с историей.\n\nГлавное здесь — экономика. Не нужно нанимать разработчика на месяцы и платить за каждую доработку. Запуск занимает не кварталы, а дни, и владелец сразу проверяет спрос на реальных заказах, а не на предположениях.\n\n### Сценарий второй: сфера услуг\n\nТеперь — студия эстетики или сервисный центр. Ключевая боль сферы услуг — запись и загрузка мастеров. Звонки, переписки, пропущенные окна в расписании, потерянная выручка.\n\nПродукт на RoboWeb закрывает это по-настоящему: онлайн-запись пишет заявку в базу, у клиента появляется кабинет со своими визитами, администратор видит поток в одном месте. Формы не отправляют письмо «в никуда» — данные остаются у бизнеса и превращаются в аналитику: кто вернулся, какие услуги приносят больше, где проседает конверсия.\n\nТакой продукт снимает рутину с администратора и напрямую влияет на выручку, потому что меньше заявок теряется между звонком и записью.\n\n### Сценарий третий: студия и фрилансер\n\nВеб-студия или фрилансер обычно продаёт часы. RoboWeb меняет модель: за то же время можно сдавать клиенту не макет, а готовый фуллстек-продукт.\n\nИ вот важная деталь для этого сегмента — **владение кодом**. Готовый проект на Next.js и Prisma выгружается в репозиторий: в GitHub или в российский аналог *GitFlic*. Это не аренда закрытой платформы, из которой нельзя уйти. Это ваш актив — код, который можно развивать, передавать клиенту, дорабатывать своей командой.\n\nДля студии это способ брать больше проектов без раздувания штата. Для клиента — гарантия, что продукт принадлежит ему, а не заперт в чужом сервисе.\n\n### Что объединяет эти истории\n\nВо всех трёх сценариях меняется одно и то же. Бизнес перестаёт зависеть от длинного и дорогого цикла разработки и получает возможность **быстро проверять гипотезы деньгами клиентов**, а не сметами подрядчиков.\n\nОбратите внимание: речь не о временном прототипе, который потом «нужно переписать нормально». Это сразу настоящий продукт со своими данными, логикой и кодом, который вы контролируете.\n\nИскусственный интеллект здесь берёт на себя техническую сборку. А предпринимателю остаётся то, в чём он силён: понимать своего клиента, считать экономику и растить выручку. Именно в этом сдвиге — от «когда-нибудь построю» к «уже работает» — и есть настоящая история успеха.",
+      "en": "## How Businesses Launch Products Without Developers\n\nThe most common reason a good business idea never sees daylight is not the ad budget and not the demand. It is the build. Finding a team, agreeing on a quote, waiting months, paying for every small change. **RoboWeb** changes the starting point itself: you describe what the product should do, and the platform assembles a real full-stack application, complete with a database, forms, a catalog and customer accounts.\n\nWhat follows are not client testimonials but illustrative scenarios. They show how different kinds of business move from an idea to a working product, and why this is no longer about a simple brochure site.\n\n### Scenario one: an online store\n\nPicture a small shop selling local groceries. The owner used to take orders through messengers: orders got lost, stock was tracked in a notebook, payments were reconciled by hand.\n\nOn RoboWeb the owner describes what is needed: a live catalog with categories, a cart, checkout, order statuses and notifications. The platform assembles not a picture but a **working product**: items live in a database, orders are written to the same place, and each customer gets a personal account with their history.\n\nThe key point here is economics. There is no need to hire a developer for months and pay for every revision. The launch takes days, not quarters, and the owner tests real demand on actual orders instead of assumptions.\n\n### Scenario two: a service business\n\nNow a beauty studio or a repair center. The core pain of any service business is scheduling and staff utilization. Calls, chat threads, missed slots, lost revenue.\n\nA product on RoboWeb closes this properly: an online booking form writes the request to the database, the client gets an account with their own visits, and the administrator sees the whole flow in one place. Forms do not send mail into a void, the data stays with the business and turns into analytics: who came back, which services earn more, where conversion drops.\n\nSuch a product removes routine from the administrator and directly affects revenue, because fewer requests are lost between a call and a booking.\n\n### Scenario three: a studio or freelancer\n\nA web studio or a freelancer usually sells hours. RoboWeb changes the model: in the same time you can hand the client a finished full-stack product instead of a mockup.\n\nAnd here is the detail that matters for this segment, **code ownership**. The finished Next.js and Prisma project is exported to a repository: to GitHub or to the Russian alternative *GitFlic*. This is not renting a closed platform you cannot leave. It is your asset, code you can grow, hand over to the client, and extend with your own team.\n\nFor a studio this is a way to take on more projects without inflating headcount. For the client it is a guarantee that the product belongs to them and is not locked inside someone else's service.\n\n### What ties these stories together\n\nAll three scenarios change the same thing. The business stops depending on a long and expensive build cycle and gains the ability to **validate hypotheses fast with customer money**, not with contractor invoices.\n\nNote this is not a throwaway prototype that later needs to be rebuilt properly. It is a real product from the start, with its own data, logic and code that you control.\n\nHere the artificial intelligence takes on the technical assembly. What remains for the founder is what they are good at: understanding the customer, running the numbers and growing revenue. That shift, from someday I will build it to it already works, is the real success story."
+    }
   },
   {
-    slug: 'budushchee-sozdaniya-sajtov',
-    title: 'Будущее создания сайтов: как AI меняет индустрию',
-    description: 'Куда движется веб-разработка и почему AI — это не тренд, а новая реальность для бизнеса.',
-    date: '23 июня 2026',
-    readTime: '8 мин',
-    category: 'Технологии',
-    cover: 'https://s3-nl.hostkey.com/robo/demo/9f942d58-5f05-460c-a15a-8839c5dbdecd.jpg',
-    content: `
-## Будущее создания сайтов: как AI меняет индустрию
-
-Мы живём в переломный момент. AI меняет веб-разработку быстрее, чем менялось что-либо за последние 20 лет. Что нас ждёт?
-
-### Где мы сейчас
-
-Ещё в 2022 году создание сайта требовало либо технических знаний, либо значительного бюджета. Сегодня Roboweb и другие AI-платформы делают это доступным для любого предпринимателя.
-
-Но это только начало.
-
-### Что будет через 2–3 года
-
-**Персонализация в реальном времени.** Сайт будет адаптироваться под каждого посетителя — показывать разные тексты, офферы и цены в зависимости от того, кто смотрит.
-
-**Голосовое управление.** Вместо того чтобы печатать запросы, вы будете говорить с AI голосом: «Добавь акцию на этой неделе».
-
-**Автоматическая оптимизация.** AI будет сам тестировать разные версии сайта и оставлять то, что лучше конвертирует.
-
-**Интеграция с бизнес-процессами.** Сайт будет напрямую связан с вашей CRM, складом и бухгалтерией.
-
-### Что это значит для бизнеса
-
-Те, кто освоит AI-инструменты сейчас, получат конкурентное преимущество на годы вперёд. Запуск новых продуктов, тестирование гипотез, выход на новые рынки — всё это станет в разы быстрее и дешевле.
-
-### Roboweb сегодня
-
-Roboweb уже сейчас даёт малому бизнесу возможности, которые раньше были доступны только крупным компаниям с большими бюджетами. И это только первая версия.
-
-Будущее создания сайтов — за AI. И это будущее уже наступило.
-
-### Главный вывод
-
-Не ждите «лучшего момента». Создайте сайт сегодня с помощью Roboweb — и окажитесь на шаг впереди конкурентов, которые всё ещё думают, нанимать ли им фрилансера.
-    `.trim(),
+    "slug": "budushchee-sozdaniya-sajtov",
+    "cover": "https://s3-nl.hostkey.com/robo/demo/9f942d58-5f05-460c-a15a-8839c5dbdecd.jpg",
+    "category": {
+      "ru": "Бизнес и ROI",
+      "en": "Business & ROI"
+    },
+    "title": {
+      "ru": "Будущее веб-разработки: скорость и владение кодом",
+      "en": "The Future of Web Development: Speed and Code Ownership"
+    },
+    "description": {
+      "ru": "ИИ ускоряет запуск продукта, а владение кодом в GitHub или GitFlic превращает его в защищённый актив компании.",
+      "en": "AI shortens time to launch, while owning your code in GitHub or GitFlic turns the product into a protected company asset."
+    },
+    "date": {
+      "ru": "23 июня 2026",
+      "en": "June 23, 2026"
+    },
+    "readTime": {
+      "ru": "8 мин",
+      "en": "8 min"
+    },
+    "content": {
+      "ru": "## Будущее веб-разработки: скорость и владение кодом\n\nБудущее веб-разработки для бизнеса определяют две силы, которые обычно рассматривают порознь, а работают они вместе. Первая — **скорость**: искусственный интеллект сжимает путь от идеи до работающего продукта с месяцев до дней. Вторая — **владение**: код становится активом компании, а не арендой у чужой платформы. Порознь каждая полезна. Вместе они меняют экономику цифрового продукта.\n\n### Скорость перестаёт быть узким местом\n\nДолгие годы главным ограничителем была не идея, а её реализация. Между «мы придумали» и «это работает» стояли месяцы разработки, найм, согласование смет и очередь правок.\n\nИИ убирает это узкое место. На платформе **RoboWeb** вы описываете, что должен делать продукт, а система собирает настоящее фуллстек-приложение: интернет-магазин с живым каталогом и корзиной, портал с личными кабинетами, дашборд для CRM или финтеха. Формы пишут в базу, заказы оформляются, данные остаются у бизнеса.\n\nСмысл скорости не в том, чтобы «побыстрее сделать сайт». Он в другом: вы проверяете бизнес-гипотезу деньгами реальных клиентов, пока она ещё актуальна. Быстрый запуск — это не про технологию, а про своевременность выручки.\n\n### Скорость без владения — это ловушка\n\nМногие быстрые инструменты решают только половину задачи. Вы собираете продукт за день, но он навсегда заперт внутри конструктора. Нельзя забрать код, нельзя сменить хостинг, нельзя развивать проект своей командой. По сути это аренда: перестали платить — потеряли всё.\n\nДля бизнеса это стратегический риск. Продукт, который приносит выручку, оказывается не активом на балансе, а зависимостью от чужого сервиса и его цен, правил и сроков жизни.\n\nИменно поэтому вторая сила — владение — так важна. Скорость без владения не масштабируется в долгую.\n\n### Код как актив компании\n\nRoboWeb решает это принципиально иначе. Готовый проект на **Next.js и Prisma** — это чистый, современный код, который выгружается в ваш репозиторий: в *GitHub* или в российский аналог *GitFlic*. Он ваш.\n\nЧто это даёт бизнесу на практике.\n\n- **Независимость.** Вы не заперты в одной платформе. Продукт можно перенести на любую инфраструктуру, отдать на развитие своей команде или подрядчику.\n- **Безопасность и свои данные.** База и логика принадлежат вам. Данные клиентов не растворяются в чужом облаке без выхода.\n- **Стоимость на балансе.** Код — это интеллектуальная собственность. Он повышает ценность компании при продаже, привлечении инвестиций или партнёрстве.\n\nВыбор между GitHub и GitFlic — тоже часть этой независимости. Бизнес сам решает, где хранить актив, исходя из своих требований к инфраструктуре и юрисдикции.\n\n### Что это меняет для команд\n\nБудущее — не в том, что разработчики исчезнут. Оно в том, что рутинная сборка уходит к ИИ, а люди концентрируются на продукте, клиенте и развитии.\n\nСтудии и фрилансеры сдают клиенту готовый продукт, а не бесконечные часы. Основатели тестируют идеи, не сжигая бюджет на месяцы разработки. Бизнес получает и скорость запуска, и контроль над результатом.\n\n### Итог\n\nБудущее веб-разработки для бизнеса — это не «сайты по кнопке». Это сочетание двух вещей: продукт запускается быстро, потому что техническую сборку берёт на себя искусственный интеллект, и остаётся вашим, потому что код живёт в вашем репозитории на GitHub или GitFlic.\n\nСкорость даёт своевременную выручку. Владение защищает её как актив. Именно на пересечении этих двух сил и строится устойчивый цифровой бизнес.",
+      "en": "## The Future of Web Development: Speed and Code Ownership\n\nThe future of web development for business is shaped by two forces usually discussed apart, though they work together. The first is **speed**: artificial intelligence compresses the path from an idea to a working product from months to days. The second is **ownership**: the code becomes a company asset rather than a rental from someone else's platform. Each is useful alone. Together they change the economics of a digital product.\n\n### Speed stops being the bottleneck\n\nFor years the main constraint was not the idea but its execution. Between we thought of it and it works stood months of development, hiring, quote approvals and a queue of revisions.\n\nAI removes that bottleneck. On the **RoboWeb** platform you describe what the product should do, and the system assembles a real full-stack application: an online store with a live catalog and cart, a portal with personal accounts, a dashboard for CRM or fintech. Forms write to a database, orders are placed, the data stays with the business.\n\nThe point of speed is not to make a site faster. It is different: you test a business hypothesis with real customer money while it is still relevant. A fast launch is not about technology, it is about the timing of revenue.\n\n### Speed without ownership is a trap\n\nMany fast tools solve only half the problem. You assemble a product in a day, but it is locked forever inside a builder. You cannot take the code, cannot change hosting, cannot grow the project with your own team. In effect it is a rental: stop paying and you lose everything.\n\nFor a business this is a strategic risk. A product that generates revenue turns out not to be an asset on the balance sheet but a dependency on someone else's service, its prices, its rules and its lifespan.\n\nThat is exactly why the second force, ownership, matters so much. Speed without ownership does not scale over the long run.\n\n### Code as a company asset\n\nRoboWeb solves this on a fundamental level. The finished **Next.js and Prisma** project is clean, modern code exported to your repository: to *GitHub* or to the Russian alternative *GitFlic*. It is yours.\n\nHere is what that gives a business in practice.\n\n- **Independence.** You are not locked into a single platform. The product can move to any infrastructure and be handed to your own team or a contractor to develop further.\n- **Security and your own data.** The database and logic belong to you. Customer data does not dissolve into someone else's cloud with no way out.\n- **Value on the balance sheet.** Code is intellectual property. It raises the company's value in a sale, an investment round or a partnership.\n\nThe choice between GitHub and GitFlic is part of that independence too. The business decides where to keep the asset, based on its own infrastructure and jurisdiction requirements.\n\n### What this changes for teams\n\nThe future is not that developers disappear. It is that routine assembly moves to AI while people concentrate on the product, the customer and growth.\n\nStudios and freelancers hand the client a finished product instead of endless hours. Founders test ideas without burning the budget on months of development. The business gets both launch speed and control over the result.\n\n### The takeaway\n\nThe future of web development for business is not sites at the push of a button. It is the combination of two things: the product launches fast because AI handles the technical assembly, and it stays yours because the code lives in your repository on GitHub or GitFlic.\n\nSpeed delivers timely revenue. Ownership protects it as an asset. It is precisely at the intersection of these two forces that a durable digital business is built."
+    }
   },
   {
-    slug: 'prioritety-razrabotki-sajta-s-ii',
-    title: 'Главные приоритеты при создании сайта с помощью ИИ',
-    description: 'На что обращать внимание в первую очередь, когда создаёшь сайт с Roboweb — порядок действий, который даёт результат.',
-    date: '24 июня 2026',
-    readTime: '6 мин',
-    category: 'Стратегия',
-    cover: 'https://s3-nl.hostkey.com/robo/demo/1f97a636-3e57-493a-8ea5-e18031b3dca4.jpg',
-    content: `
-## Главные приоритеты при создании сайта с помощью ИИ
-
-Когда Roboweb создаёт ваш сайт за минуты, возникает соблазн считать работу законченной. Но профессиональный результат требует правильной расстановки приоритетов.
-
-### Приоритет #1: Цель сайта прежде дизайна
-
-Прежде чем думать о цветах и шрифтах, ответьте на вопрос: что должен делать посетитель на вашем сайте? Оставить заявку? Купить товар? Записаться на приём?
-
-Roboweb создаёт сайт под задачу, а не ради красоты. Чем точнее вы формулируете цель в диалоге, тем эффективнее получается результат.
-
-### Приоритет #2: Мобильные пользователи — первые
-
-По данным 2026 года, 73% трафика на коммерческие сайты приходит со смартфонов. Roboweb автоматически строит сайт по принципу mobile-first — это не опция, это базовое требование.
-
-**Проверяйте мобильную версию сразу** — именно её увидит большинство ваших клиентов.
-
-### Приоритет #3: Скорость загрузки важнее красоты
-
-Google снижает позиции сайтов, которые загружаются дольше 3 секунд. Roboweb генерирует оптимизированный код без лишних библиотек и тяжёлых скриптов.
-
-Если вы добавляете много изображений — сжимайте их до публикации.
-
-### Приоритет #4: Один чёткий призыв к действию
-
-Не пытайтесь уместить всё сразу. Один главный CTA работает лучше, чем пять конкурирующих кнопок. В диалоге с Roboweb скажите: «Сделай одну главную кнопку — записаться на консультацию» — и AI построит структуру вокруг этого действия.
-
-### Приоритет #5: Контакты на виду
-
-По исследованиям, 68% пользователей уходят с сайта, если не могут быстро найти контакты. Попросите Roboweb: «Добавь телефон и кнопку WhatsApp в шапку» — это займёт 10 секунд диалога.
-
-### Итог
-
-Правильная расстановка приоритетов с Roboweb: цель → мобильная версия → скорость → один CTA → доступные контакты. Следуя этому порядку, вы получите сайт, который не просто красиво выглядит, но и продаёт.
-    `.trim(),
+    "slug": "prioritety-razrabotki-sajta-s-ii",
+    "cover": "https://s3-nl.hostkey.com/robo/demo/1f97a636-3e57-493a-8ea5-e18031b3dca4.jpg",
+    "category": {
+      "ru": "Запуск продукта",
+      "en": "Product launch"
+    },
+    "title": {
+      "ru": "Приоритеты бизнеса при запуске цифрового продукта",
+      "en": "Business Priorities When Launching a Digital Product"
+    },
+    "description": {
+      "ru": "Почему при запуске цифрового продукта функция и данные важнее дизайна, и что решить до старта, чтобы продукт зарабатывал.",
+      "en": "Why function and data matter more than design when you launch a digital product, and what to decide before you start."
+    },
+    "date": {
+      "ru": "24 июня 2026",
+      "en": "June 24, 2026"
+    },
+    "readTime": {
+      "ru": "6 мин",
+      "en": "6 min"
+    },
+    "content": {
+      "ru": "## Приоритеты бизнеса при запуске цифрового продукта\n\nКогда цифровой продукт можно собрать за часы, а не за месяцы, соблазн велик: выбрать красивый шаблон и запуститься. Но бизнес выигрывает не от красоты первого экрана, а от того, что продукт реально делает и какие данные он накапливает. Ниже — порядок приоритетов, который отделяет рабочий продукт от дорогой картинки.\n\n### Сначала функция, потом оформление\n\nПервый вопрос не «как это выглядит», а «какое действие приносит деньги». Оформление заказа, заявка, регистрация в личном кабинете, бронирование — вот что кормит бизнес. Дизайн должен вести к этому действию, а не соревноваться с ним за внимание.\n\nПлатформа RoboWeb собирает не витрину, а работающий механизм: формы пишут данные в базу, каталог живой, корзина считает, оформление заказа доводит клиента до оплаты. Красоту наводят после того, как сценарий работает от начала до конца.\n\n### Данные — это ядро, а не побочный эффект\n\nКаждая заявка, заказ и профиль клиента — актив. Продукт, который не сохраняет данные, теряет главное: историю, по которой можно считать выручку, повторные продажи и поведение аудитории.\n\nРешите заранее, что вы собираете и где это живёт. У RoboWeb данные лежат в вашей базе проекта, а не в чужом закрытом сервисе, откуда их не выгрузить. Это разница между арендой и владением.\n\n### Экономика без раздутого штата\n\nКлассический запуск — это дизайнер, фронтендер, бэкендер и недели согласований. Для проверки гипотезы это дорого и медленно. Задача бизнеса на старте — потратить минимум, пока спрос не подтверждён.\n\nИИ-сборка снимает основную статью расходов: рабочий фуллстек-продукт появляется за часы. Бюджет, который ушёл бы на команду, остаётся на маркетинг и привлечение — то, что реально проверяет идею на деньгах.\n\n### Код — актив, а не подписка на платформу\n\nМногие конструкторы держат вас на крючке: перестал платить — сайт исчез, а вынуть свою логику некуда. Это не владение, это аренда.\n\nRoboWeb отдаёт готовый проект на современном стеке в ваш репозиторий — в GitHub или в российский аналог GitFlic. Код принадлежит вам: его можно развивать своими силами, передать любой студии, перенести на любой хостинг. Продукт становится активом на балансе, а не вечной статьёй расходов.\n\n### Свои данные и безопасность\n\nЧем ближе продукт к деньгам и персональным данным клиентов, тем важнее контроль. Личные кабинеты, история заказов, платежи — это зона ответственности, которую нельзя целиком отдавать закрытой платформе.\n\nКогда код и база в вашем распоряжении, вы решаете, где всё размещено и кто имеет доступ. Для многих компаний в России это ещё и вопрос требований к хранению данных — и здесь выгрузка в GitFlic с размещением на своей инфраструктуре снимает часть рисков.\n\n### Что решить до старта\n\nПеред запуском ответьте на пять вопросов:\n\n- Какое одно действие приносит выручку и как быстро клиент до него доходит\n- Какие данные вы собираете и зачем они нужны бизнесу\n- Нужны ли личные кабинеты и платежи уже сейчас или на втором шаге\n- Кто и как будет развивать код после запуска\n- Где размещаются данные и какие есть требования к безопасности\n\nОтветы на эти вопросы важнее выбора палитры. Они определяют, будет ли продукт зарабатывать.\n\n### Итог\n\nПорядок приоритетов у бизнеса обратный интуиции: функция и данные вперёд, оформление — следом. Продукт, который доводит клиента до целевого действия, сохраняет данные и живёт в вашем собственном коде, — это актив. Красивая витрина без этого — просто расход. RoboWeb собирает именно первое: рабочий продукт, который остаётся вашим.",
+      "en": "## Business Priorities When Launching a Digital Product\n\nWhen a digital product can be assembled in hours instead of months, the temptation is obvious: pick a pretty template and ship. But a business wins not from a beautiful first screen — it wins from what the product actually does and what data it accumulates. Here is the order of priorities that separates a working product from an expensive picture.\n\n### Function first, polish second\n\nThe first question isn't \"how does it look\" but \"which action makes money.\" Checkout, a lead form, account signup, a booking — that is what feeds the business. Design should lead the visitor to that action, not compete with it for attention.\n\nThe RoboWeb platform builds a working mechanism, not a shop window: forms write to a database, the catalog is live, the cart calculates, and checkout carries the customer through to payment. You add the polish after the whole scenario works end to end.\n\n### Data is the core, not a side effect\n\nEvery lead, order, and customer profile is an asset. A product that doesn't store data loses the most important thing: the history you use to measure revenue, repeat sales, and how your audience behaves.\n\nDecide up front what you collect and where it lives. With RoboWeb the data sits in your own project database, not in someone else's closed service you can't export from. That's the difference between renting and owning.\n\n### Economics without a bloated team\n\nA classic launch means a designer, a frontend dev, a backend dev, and weeks of coordination. For testing a hypothesis that's expensive and slow. At the start the job is to spend as little as possible until demand is confirmed.\n\nAI assembly removes the biggest cost line: a working full-stack product appears in hours. The budget that would have gone to a team stays available for marketing and acquisition — the thing that actually tests your idea with real money.\n\n### Code as an asset, not a subscription\n\nMany site builders keep you on a hook: stop paying and the site disappears, with nowhere to extract your logic. That isn't ownership, it's rent.\n\nRoboWeb hands you the finished project on a modern stack, delivered to your own repository — on GitHub or on the Russian alternative GitFlic. The code is yours: develop it in-house, hand it to any studio, move it to any host. The product becomes an asset on your books, not a permanent expense line.\n\n### Your data and security\n\nThe closer a product gets to money and to customers' personal data, the more control matters. Accounts, order history, payments — that's a zone of responsibility you can't fully hand to a closed platform.\n\nWhen the code and database are in your hands, you decide where everything is hosted and who has access. For many companies this is also a data-residency question — and here, exporting to GitFlic and hosting on your own infrastructure removes part of the risk.\n\n### What to decide before you start\n\nAnswer five questions before launch:\n\n- Which single action generates revenue, and how quickly the customer reaches it\n- What data you collect and why the business needs it\n- Whether you need accounts and payments now or as a second step\n- Who will develop the code after launch, and how\n- Where the data is hosted and what security requirements apply\n\nThese answers matter more than your color palette. They decide whether the product earns.\n\n### The takeaway\n\nFor a business the priority order is counterintuitive: function and data first, polish second. A product that carries the customer to the target action, keeps the data, and lives in code you own is an asset. A pretty window without that is just a cost. RoboWeb builds the former — a working product that stays yours."
+    }
   },
   {
-    slug: 'skorost-zagruzki-prioritet-sajta',
-    title: 'Почему скорость загрузки — приоритет №1 для сайта в 2026 году',
-    description: 'Как ИИ-сайты от Roboweb автоматически оптимизируются под скорость и почему это напрямую влияет на ваши продажи.',
-    date: '25 июня 2026',
-    readTime: '5 мин',
-    category: 'Стратегия',
-    cover: 'https://s3-nl.hostkey.com/robo/demo/f3b3e1f6-93fa-4aa7-aae2-db66460f0121.jpg',
-    content: `
-## Почему скорость загрузки — приоритет №1 для сайта в 2026 году
-
-Цифры, которые меняют приоритеты:
-
-- **53%** мобильных пользователей уходят, если сайт грузится дольше 3 секунд
-- **1 секунда задержки** снижает конверсию на 7%
-- Google понижает позиции медленных сайтов с 2021 года
-
-### Почему традиционные сайты медленные
-
-Типичный сайт, сделанный фрилансером или в конструкторе, несёт лишний груз:
-
-- Десятки неоптимизированных изображений
-- Тяжёлые JavaScript-библиотеки (часто ненужные)
-- Устаревший код с дублирующимися стилями
-- Внешние шрифты, загружаемые без оптимизации
-
-### Как Roboweb решает эту проблему
-
-Когда вы создаёте сайт через Roboweb, ИИ изначально генерирует **минималистичный, быстрый код**:
-
-- Только необходимые компоненты без лишних зависимостей
-- Встроенные стили вместо тяжёлых CSS-фреймворков
-- Правильная структура для кэширования браузером
-- Оптимизированная загрузка шрифтов
-
-### Практические советы
-
-**1. Оптимизируйте изображения** перед загрузкой на сайт. Используйте формат WebP — он на 30% легче JPEG.
-
-**2. Попросите Roboweb** «Оптимизируй изображения на сайте для быстрой загрузки» — ИИ перепишет атрибуты загрузки.
-
-**3. Проверяйте скорость** через Google PageSpeed Insights после каждого большого изменения.
-
-**4. Минимизируйте сторонние скрипты** — каждый внешний сервис добавляет задержку.
-
-### Реальный кейф
-
-Владелец пекарни в Самаре после создания сайта через Roboweb получил оценку 94/100 в Google PageSpeed без каких-либо дополнительных настроек. Его старый сайт от студии показывал 43/100.
-
-Скорость — это не технический показатель. Это деньги.
-    `.trim(),
+    "slug": "skorost-zagruzki-prioritet-sajta",
+    "cover": "https://s3-nl.hostkey.com/robo/demo/f3b3e1f6-93fa-4aa7-aae2-db66460f0121.jpg",
+    "category": {
+      "ru": "Продажи и конверсия",
+      "en": "Sales & conversion"
+    },
+    "title": {
+      "ru": "Скорость загрузки — это деньги: конверсия и выручка",
+      "en": "Page Speed Is Money: Conversion and Real Revenue"
+    },
+    "description": {
+      "ru": "Как задержки загрузки снижают конверсию и выручку и почему современный стек Next.js делает продукт быстрым по умолчанию.",
+      "en": "How slow load times cut conversion and revenue, and why a modern Next.js stack makes your product fast by default."
+    },
+    "date": {
+      "ru": "25 июня 2026",
+      "en": "June 25, 2026"
+    },
+    "readTime": {
+      "ru": "5 мин",
+      "en": "5 min"
+    },
+    "content": {
+      "ru": "## Скорость загрузки — это деньги\n\nСкорость — не техническая деталь для программистов, а прямой рычаг выручки. Пока страница грузится, клиент решает, остаться или уйти, и это решение он принимает за секунды. Медленный продукт теряет деньги ещё до того, как показал товар.\n\n### Каждая секунда стоит конверсии\n\nИсследования крупных ритейлеров годами показывают одно и то же: задержка загрузки в одну-две секунды заметно снижает долю посетителей, которые доходят до покупки. Мобильные пользователи уходят особенно быстро — на телефоне терпения меньше, а соединение хуже.\n\nЛогика простая. Трафик стоит денег: реклама, SEO, время на контент. Если половина привлечённых посетителей уходит на медленной загрузке, вы платите за них дважды — и не получаете ни заявки, ни заказа.\n\n### Медленно — значит дороже привлечение\n\nПосчитайте на примере. Магазин тратит на рекламу фиксированный бюджет и приводит тысячу посетителей. Если ускорение страницы поднимает конверсию хотя бы на пару процентов, это десятки дополнительных заказов при тех же расходах на трафик. Скорость снижает стоимость привлечения клиента, ничего не меняя в самой рекламе.\n\nПлюс поисковые системы давно учитывают скорость в ранжировании. Быстрый продукт получает больше бесплатного трафика — и снова экономит бюджет.\n\n### Почему обычные сайты тормозят\n\nТипичная причина — накопленный лишний вес. Тяжёлые конструкторы тянут за собой десятки скриптов и сторонних библиотек, которые грузятся, даже если не нужны. Каждый плагин, каждый внешний виджет добавляет задержку. В результате красивый на вид сайт открывается мучительно долго.\n\nВторая причина — картинки без сжатия и код, который выполняется в браузере клиента вместо того, чтобы прийти уже готовым.\n\n### Почему стек решает проблему\n\nПродукты RoboWeb собираются на современном стеке — Next.js и Prisma. Это не маркетинговые слова, а конкретная архитектура, которая работает на скорость.\n\nСтраницы отдаются уже собранными, без ожидания тяжёлых скриптов. Данные приходят из базы через оптимизированный слой, а не через цепочку сторонних запросов. Код чистый и без балласта — в него не зашиты плагины, которые вы не заказывали. Такой продукт открывается быстро по умолчанию, а не после долгой ручной оптимизации.\n\n### Владение кодом — это контроль над скоростью\n\nКогда продукт живёт в закрытой платформе, вы не управляете тем, что и как грузится, — архитектуру диктует владелец сервиса. Ускорить можно только в тех рамках, что вам оставили.\n\nRoboWeb отдаёт готовый проект в ваш репозиторий — в GitHub или в российский GitFlic. Вы контролируете хостинг, можете разместить продукт ближе к аудитории, настроить кеширование и доставку под свою нагрузку. Скорость становится тем, чем вы управляете, а не тем, что вам досталось.\n\n### Что делать бизнесу\n\nНесколько практичных шагов:\n\n- Проверяйте скорость на телефоне и на среднем интернете, а не только на быстром офисном\n- Сжимайте изображения до загрузки — это самая частая причина торможения\n- Не навешивайте лишние внешние виджеты ради галочки\n- Держите продукт на стеке, который быстр по умолчанию, а не требует постоянных костылей\n\n### Итог\n\nСкорость загрузки — это не про эстетику, а про деньги: она напрямую влияет на конверсию, стоимость привлечения и позиции в поиске. Медленный продукт молча теряет выручку каждый день. RoboWeb собирает продукт на стеке, который быстр изначально, и отдаёт код вам — чтобы скорость оставалась под вашим контролем, а не под чужим.",
+      "en": "## Page Speed Is Money\n\nSpeed isn't a technical detail for programmers — it's a direct lever on revenue. While a page loads, the customer decides whether to stay or leave, and they make that call in seconds. A slow product loses money before it has even shown the goods.\n\n### Every second costs conversion\n\nStudies from large retailers have shown the same thing for years: a load delay of one or two seconds noticeably lowers the share of visitors who reach a purchase. Mobile users leave especially fast — less patience on a phone, a weaker connection.\n\nThe logic is simple. Traffic costs money: ads, SEO, time spent on content. If half of the visitors you paid for leave on a slow load, you're paying for them twice — and getting neither a lead nor an order.\n\n### Slow means costlier acquisition\n\nRun the numbers. A store spends a fixed ad budget and brings in a thousand visitors. If speeding up the page lifts conversion by even a couple of percent, that's dozens of extra orders at the same traffic cost. Speed lowers your cost per acquired customer without changing the ads at all.\n\nOn top of that, search engines have long factored speed into ranking. A fast product earns more free traffic — saving budget again.\n\n### Why ordinary sites are slow\n\nThe usual cause is accumulated dead weight. Heavy builders drag along dozens of scripts and third-party libraries that load even when unused. Every plugin, every external widget adds delay. The result: a good-looking site that opens painfully slowly.\n\nThe second cause is uncompressed images and code that runs in the customer's browser instead of arriving ready-made.\n\n### Why the stack solves it\n\nRoboWeb products are built on a modern stack — Next.js and Prisma. That's not marketing language but a concrete architecture that works in favor of speed.\n\nPages are served pre-rendered, without waiting on heavy scripts. Data comes from the database through an optimized layer, not through a chain of third-party requests. The code is clean and ballast-free — no plugins you never ordered are baked in. A product like this opens fast by default, not after long manual tuning.\n\n### Owning the code means controlling speed\n\nWhen a product lives on a closed platform, you don't govern what loads or how — the service owner dictates the architecture. You can only speed things up within the limits you were left.\n\nRoboWeb delivers the finished project to your own repository — on GitHub or the Russian GitFlic. You control the hosting, can place the product closer to your audience, and tune caching and delivery for your load. Speed becomes something you manage, not something you inherited.\n\n### What a business should do\n\nA few practical steps:\n\n- Test speed on a phone and on average internet, not just fast office Wi-Fi\n- Compress images before uploading — the most common cause of slowdown\n- Don't pile on external widgets just to tick a box\n- Keep the product on a stack that's fast by default rather than one that needs constant patching\n\n### The takeaway\n\nLoad speed isn't about aesthetics — it's about money: it directly affects conversion, acquisition cost, and search ranking. A slow product quietly loses revenue every day. RoboWeb builds the product on a stack that's fast from the start and hands the code to you — so speed stays under your control, not someone else's."
+    }
   },
   {
-    slug: 'ux-prioritet-pri-sozdanii-sajta',
-    title: 'UX как главный приоритет: почему удобство важнее красоты',
-    description: 'Как ИИ Roboweb ставит пользовательский опыт в основу каждого сайта и почему это правильная стратегия.',
-    date: '26 июня 2026',
-    readTime: '7 мин',
-    category: 'Дизайн',
-    cover: 'https://s3-nl.hostkey.com/robo/demo/412a8208-c0f9-408d-964b-f2a4a41554ba.jpg',
-    content: `
-## UX как главный приоритет: почему удобство важнее красоты
-
-«Красивый сайт» и «удобный сайт» — не одно и то же. Исследования показывают: пользователи выбирают удобство над эстетикой, когда цели расходятся.
-
-### Что такое UX простыми словами
-
-User Experience (UX) — это то, что человек чувствует при взаимодействии с вашим сайтом. Смог ли он быстро найти нужное? Понял ли, что делать дальше? Не запутался ли в меню?
-
-### Принципы хорошего UX, которые Roboweb соблюдает автоматически
-
-**Иерархия информации.** Самое важное — вверху. Roboweb всегда строит Hero-блок с главным посланием, а не начинает со второстепенных деталей.
-
-**Понятные кнопки.** «Записаться», «Заказать», «Узнать цену» — конкретные действия, а не расплывчатые «Подробнее» или «Нажмите здесь».
-
-**Достаточно пространства.** ИИ не набивает страницу под завязку. Белое пространство помогает мозгу сфокусироваться.
-
-**Логичная структура меню.** Не больше 5-7 пунктов, понятные названия, предсказуемая навигация.
-
-### Как улучшить UX через Roboweb
-
-Скажите в диалоге:
-- «Сделай навигацию проще — убери лишние пункты»
-- «Добавь якорные ссылки в меню для быстрого перехода»
-- «Сделай форму заявки из двух полей — только имя и телефон»
-- «Добавь хлебные крошки для удобной навигации»
-
-### Частая ошибка
-
-Многие заказывают «красивый сайт» вместо «удобного сайта». Красота привлекает на 1-2 секунды. Удобство удерживает и конвертирует.
-
-С Roboweb вы получаете оба качества — но в правильном порядке приоритетов: сначала функция, потом форма.
-    `.trim(),
+    "slug": "ux-prioritet-pri-sozdanii-sajta",
+    "cover": "https://s3-nl.hostkey.com/robo/demo/412a8208-c0f9-408d-964b-f2a4a41554ba.jpg",
+    "category": {
+      "ru": "Продажи и конверсия",
+      "en": "Sales & conversion"
+    },
+    "title": {
+      "ru": "UX как драйвер выручки, а не украшение",
+      "en": "UX as a Revenue Driver, Not Decoration"
+    },
+    "description": {
+      "ru": "Почему удобство пути пользователя напрямую влияет на конверсию, средний чек и повторные покупки бизнеса.",
+      "en": "Why a smooth user journey directly lifts conversion, average order value and repeat business revenue."
+    },
+    "date": {
+      "ru": "26 июня 2026",
+      "en": "June 26, 2026"
+    },
+    "readTime": {
+      "ru": "7 мин",
+      "en": "7 min"
+    },
+    "content": {
+      "ru": "## UX как драйвер выручки, а не украшение\n\nUX часто воспринимают как «сделать красиво». Для бизнеса это ошибка мышления. Интерфейс — это не витрина, а **механика сделки**: каждый экран либо приближает клиента к оплате, либо теряет его. Хороший UX измеряется не в лайках дизайнеров, а в деньгах: сколько людей дошли до заявки, сколько положили в корзину, сколько вернулись во второй раз.\n\n### Путь пользователя — это воронка выручки\n\nЛюбое действие клиента можно разложить на шаги: зашёл, нашёл нужное, понял ценность, оставил заявку или оплатил. На каждом шаге часть людей отваливается. Лишнее поле в форме, непонятная кнопка, долгая загрузка каталога — всё это невидимые дыры, через которые утекает выручка.\n\nПредставьте интернет-магазин, где оформление заказа занимает семь шагов вместо двух. Даже заинтересованный покупатель устаёт и уходит. Сократите путь — и та же аудитория, тот же трафик начнут приносить заметно больше заказов. Вы не привлекли ни одного нового клиента, но выручка выросла. Это и есть UX как рычаг экономики.\n\n### Удобство поднимает средний чек\n\nUX влияет не только на то, *купят ли*, но и на то, *сколько купят*. Понятные карточки товара, честные фото, разумные рекомендации «с этим берут», прозрачная стоимость доставки — всё это снижает тревогу и повышает готовность добавить ещё позицию в корзину.\n\nКогда клиент доверяет интерфейсу, он тратит больше. Когда путается — берёт минимум или откладывает решение. Продуманный UX работает как тихий продавец, который не давит, но аккуратно ведёт к большему заказу.\n\n### Скорость и ясность важнее визуальных эффектов\n\nБизнес нередко просит «повау-эффект»: анимации, сложные экраны, модные приёмы. Но пользователю нужно другое — быстро понять, что здесь предлагают, и легко это получить. Тяжёлые эффекты замедляют загрузку, а каждая лишняя секунда ожидания снижает конверсию.\n\nПлатформа RoboWeb проектирует продукт от задачи клиента, а не от декора. ИИ собирает интерфейс так, чтобы ключевое действие — заявка, заказ, оплата — было очевидным и достижимым в минимум кликов. Живой каталог, рабочая корзина, оформление заказа и личный кабинет создаются как единый путь, а не как набор красивых экранов.\n\n### UX и мобильные пользователи\n\nБольшая часть трафика сегодня — телефоны. Если на мобильном кнопка мелкая, форма не помещается, а текст приходится увеличивать пальцами, вы теряете именно тех, кто был готов купить прямо сейчас. Адаптивность — не приятная опция, а условие выручки. Продукт должен одинаково хорошо работать и на десктопе, и на смартфоне.\n\n### Данные вместо догадок\n\nUX нельзя строить «на вкус». Важно видеть, где люди останавливаются, что не нажимают, на каком шаге бросают корзину. Когда продукт собран как настоящий фуллстек на Next.js и Prisma, а его код выгружается в ваш репозиторий — в GitHub или в российский аналог GitFlic — у вас остаются и сами данные, и полный контроль над логикой. Вы можете дорабатывать сценарии под реальное поведение аудитории, а не арендовать чужую платформу с чужими правилами.\n\n### Что это даёт бизнесу\n\nИнвестиция в UX окупается тем, что вы выжимаете больше из уже оплаченного трафика. Реклама, SEO, соцсети приводят людей дорого — а плохой интерфейс сливает их бесплатно для конкурентов.\n\nУлучшая путь пользователя, вы одновременно поднимаете конверсию, средний чек и долю возвратов. Это три множителя выручки, которые работают на одной и той же аудитории. Поэтому UX — не статья расходов на красоту, а прямой инструмент роста бизнеса. Начните проектировать интерфейс с вопроса «как клиенту быстрее дойти до оплаты», и деньги подтянутся за удобством.",
+      "en": "## UX as a Revenue Driver, Not Decoration\n\nUX is often treated as \"making things pretty.\" For a business, that mindset is a mistake. The interface is not a display window — it is the **mechanics of the deal**. Every screen either moves the customer closer to payment or loses them. Good UX is measured not in designers' applause but in money: how many people reached the request form, added to cart, and came back a second time.\n\n### The user journey is a revenue funnel\n\nEvery customer action breaks down into steps: they arrive, find what they need, understand the value, and leave a request or pay. At each step, a share of people drop off. An extra form field, an unclear button, a slow-loading catalog — these are invisible holes through which revenue leaks out.\n\nImagine an online store where checkout takes seven steps instead of two. Even a motivated buyer gets tired and leaves. Shorten the path, and the same audience and the same traffic start producing noticeably more orders. You attracted no new customers, yet revenue grew. That is UX working as economic leverage.\n\n### Convenience raises the average order value\n\nUX affects not only *whether* people buy, but *how much* they buy. Clear product cards, honest photos, sensible \"frequently bought with\" suggestions, transparent shipping costs — all of this lowers anxiety and increases willingness to add one more item to the cart.\n\nWhen a customer trusts the interface, they spend more. When they get confused, they buy the minimum or postpone the decision. Thoughtful UX acts like a quiet salesperson who never pushes but gently guides toward a larger order.\n\n### Speed and clarity beat visual effects\n\nBusinesses often ask for a \"wow effect\": animations, elaborate screens, trendy tricks. But the user wants something else — to quickly grasp what is offered and to get it easily. Heavy effects slow down loading, and every extra second of waiting cuts conversion.\n\nThe RoboWeb platform designs the product around the customer's task, not around decoration. The AI assembles the interface so that the key action — a request, an order, a payment — is obvious and reachable in the fewest clicks. A live catalog, a working cart, checkout, and a personal account are built as one continuous journey, not as a set of pretty screens.\n\n### UX and mobile users\n\nMost traffic today comes from phones. If the button is tiny on mobile, the form doesn't fit, and the text has to be pinch-zoomed, you lose exactly the people who were ready to buy right now. Responsiveness is not a nice-to-have; it is a condition of revenue. The product must work equally well on desktop and on a smartphone.\n\n### Data instead of guesswork\n\nUX cannot be built \"by taste.\" You need to see where people stall, what they don't click, at which step they abandon the cart. When the product is built as a genuine full-stack app on Next.js and Prisma, and its code is exported to your own repository — on GitHub or the Russian alternative GitFlic — you keep both the data and full control over the logic. You can refine the flows around real audience behavior instead of renting someone else's platform with someone else's rules.\n\n### What the business gets\n\nInvesting in UX pays off because you extract more from traffic you already paid for. Ads, SEO, and social media bring people in at a cost — and a poor interface hands them to competitors for free.\n\nBy improving the user journey, you raise conversion, average order value, and repeat-purchase share at the same time. These are three revenue multipliers working on the very same audience. That is why UX is not a cosmetic expense but a direct instrument of business growth. Start designing the interface with the question \"how does the customer reach payment faster,\" and the money will follow the convenience."
+    }
   },
   {
-    slug: 'konversiya-prioritet-biznesa',
-    title: 'Конверсия как главный KPI: как ИИ строит продающие сайты',
-    description: 'Что такое конверсия сайта, почему это главный показатель бизнеса и как Roboweb помогает её повысить.',
-    date: '27 июня 2026',
-    readTime: '6 мин',
-    category: 'Маркетинг',
-    cover: 'https://s3-nl.hostkey.com/robo/demo/1e25f3a5-0a4b-442e-a367-2d21f7fd9f65.jpg',
-    content: `
-## Конверсия как главный KPI: как ИИ строит продающие сайты
-
-1000 посетителей в день без единой заявки — это не успех. Успех — когда из 100 посетителей 3-5 становятся клиентами. Это и есть конверсия.
-
-### Почему конверсия важнее трафика
-
-Стандартная ошибка малого бизнеса: тратить деньги на рекламу, гоня трафик на сайт с низкой конверсией. Это как наливать воду в дырявое ведро.
-
-**Формула:** Доход = Трафик × Конверсия × Средний чек
-
-Увеличить конверсию с 1% до 3% — значит утроить доход при том же рекламном бюджете.
-
-### Что влияет на конверсию
-
-1. **Скорость загрузки** — медленный сайт снижает конверсию на 7% за каждую секунду
-2. **Чёткий оффер** — посетитель должен за 5 секунд понять, что вы предлагаете
-3. **Социальные доказательства** — отзывы, кейсы, цифры
-4. **Простая форма** — каждое лишнее поле снижает заполняемость на 10-15%
-5. **Мобильная версия** — 73% трафика с телефонов
-
-### Как Roboweb строит сайт с высокой конверсией
-
-В отличие от конструкторов, Roboweb знает, **что работает**. ИИ автоматически:
-
-- Ставит главный CTA выше линии прокрутки
-- Добавляет элементы доверия (отзывы, цифры, сертификаты)
-- Строит форму с минимальным числом полей
-- Создаёт срочность через таймеры и ограниченные предложения
-- Оптимизирует заголовки под конверсию, а не под красоту
-
-### Практический совет
-
-Когда описываете сайт Roboweb, добавляйте бизнес-контекст: «Мне нужно получать 10+ заявок в день» или «Конверсия должна быть не ниже 3%». ИИ адаптирует структуру под вашу цель.
-    `.trim(),
+    "slug": "konversiya-prioritet-biznesa",
+    "cover": "https://s3-nl.hostkey.com/robo/demo/1e25f3a5-0a4b-442e-a367-2d21f7fd9f65.jpg",
+    "category": {
+      "ru": "Продажи и конверсия",
+      "en": "Sales & conversion"
+    },
+    "title": {
+      "ru": "Конверсия — главный KPI бизнеса в вебе",
+      "en": "Conversion — the Main Business KPI Online"
+    },
+    "description": {
+      "ru": "Как ИИ проектирует веб-продукт под заявки, заказы и оплату, превращая трафик в реальную выручку.",
+      "en": "How AI designs a web product around requests, orders and payments, turning traffic into real revenue."
+    },
+    "date": {
+      "ru": "27 июня 2026",
+      "en": "June 27, 2026"
+    },
+    "readTime": {
+      "ru": "6 мин",
+      "en": "6 min"
+    },
+    "content": {
+      "ru": "## Конверсия — главный KPI бизнеса в вебе\n\nУ бизнеса в интернете есть десятки метрик, но по-настоящему решающая одна — **конверсия**. Это доля посетителей, которые сделали то, ради чего вы вообще запускали продукт: оставили заявку, оформили заказ, оплатили. Всё остальное — трафик, показы, время на сайте — имеет смысл только в той мере, в какой превращается в это целевое действие.\n\n### Почему конверсия важнее трафика\n\nПривлекать людей дорого. Реклама, продвижение, контент — всё это расходы. Если из ста пришедших покупает один, вы платите за девяносто девять впустую. Поднимите конверсию с 1% до 2% — и вы удвоили выручку, не потратив на привлечение ни рубля больше.\n\nИменно поэтому опытный предприниматель сначала чинит конверсию, а уже потом наращивает трафик. Лить рекламу в дырявую воронку — значит масштабировать убытки. Сначала продукт должен уметь превращать посетителя в клиента.\n\n### Продукт, спроектированный под целевое действие\n\nВысокая конверсия — это не «волшебная кнопка» и не удачный заголовок. Это когда весь продукт выстроен вокруг одного: довести человека до заявки, заказа или оплаты. Понятное предложение на первом экране, минимум препятствий, честные условия, рабочая форма, которая реально отправляет данные, а не создаёт видимость.\n\nПлатформа RoboWeb собирает не «сайт-визитку», а рабочий бизнес-продукт. ИИ проектирует сценарий так, чтобы целевое действие было в центре: живой каталог ведёт к корзине, корзина — к оформлению, форма пишет заявку в базу, а не в пустоту. Личный кабинет удерживает клиента и стимулирует повторные покупки. Конверсия закладывается в саму архитектуру продукта, а не подкручивается косметикой потом.\n\n### Заявки, которые не теряются\n\nСамая обидная потеря — когда клиент готов, нажимает «Отправить», а заявка не доходит. Форма для галочки, которая никуда не пишет, обнуляет весь маркетинг. Поэтому важно, чтобы данные попадали в настоящую базу, были доступны для обработки и не терялись.\n\nКогда продукт собран как полноценный фуллстек на Next.js и Prisma, каждая заявка сохраняется в вашей базе данных, а код выгружается в ваш репозиторий — в GitHub или в российский аналог GitFlic. Вы владеете и логикой, и данными о клиентах. Это не арендованный конструктор, где ваши лиды живут на чужих серверах по чужим правилам, — это ваш актив.\n\n### Убрать трение на пути к оплате\n\nКаждое лишнее действие между желанием купить и оплатой снижает конверсию. Обязательная регистрация до покупки, десять полей в форме, неясная цена, отсутствие удобного способа оплаты — всё это причины бросить корзину.\n\nПроектируя продукт, стоит безжалостно спрашивать по каждому шагу: он приближает к оплате или мешает? Всё, что мешает, — убрать или упростить. Гость должен иметь возможность оформить заказ без лишних барьеров, а оплата — быть очевидной и быстрой.\n\n### Доверие как условие конверсии\n\nЛюди платят там, где не боятся. Понятные условия, честные цены, прозрачная доставка и возврат, аккуратный интерфейс без ощущения «однодневки» — всё это снимает тревогу и повышает готовность оставить деньги. Особенно это важно для нового бренда, у которого ещё нет репутации: доверие приходится выстраивать самим продуктом.\n\n### Конверсию нужно измерять и улучшать\n\nКонверсия — не разовая настройка, а постоянная работа. Нужно видеть, на каком шаге теряются люди, тестировать формулировки, упрощать формы, убирать препятствия. Владея кодом и данными, вы можете менять продукт под реальное поведение аудитории столько, сколько нужно, — не выпрашивая доработок у платформы.\n\nВ итоге конверсия — это не про красивые проценты в отчёте. Это про то, окупается ли ваш маркетинг и растёт ли выручка. Поставьте целевое действие в центр продукта, уберите трение на пути к оплате, сохраните свои данные как актив — и трафик начнёт превращаться в деньги.",
+      "en": "## Conversion — the Main Business KPI Online\n\nA business online has dozens of metrics, but only one is truly decisive — **conversion**. It is the share of visitors who did the thing you launched the product for in the first place: left a request, placed an order, paid. Everything else — traffic, impressions, time on site — matters only insofar as it turns into that target action.\n\n### Why conversion beats traffic\n\nAttracting people is expensive. Advertising, promotion, content — all of it costs money. If one out of a hundred visitors buys, you pay for ninety-nine in vain. Raise conversion from 1% to 2%, and you have doubled revenue without spending a single ruble more on acquisition.\n\nThat is exactly why an experienced entrepreneur fixes conversion first and scales traffic later. Pouring ads into a leaky funnel means scaling losses. The product must first be able to turn a visitor into a customer.\n\n### A product designed around the target action\n\nHigh conversion is not a \"magic button\" or a clever headline. It is when the entire product is built around one thing: guiding a person to a request, an order, or a payment. A clear offer on the first screen, minimal obstacles, honest terms, and a working form that actually submits data rather than faking it.\n\nThe RoboWeb platform builds not a \"business-card site\" but a working business product. The AI designs the flow so the target action sits at the center: a live catalog leads to the cart, the cart to checkout, and the form writes the request into a database rather than into the void. A personal account retains the customer and encourages repeat purchases. Conversion is embedded in the product architecture itself, not tacked on with cosmetics afterward.\n\n### Requests that don't get lost\n\nThe most painful loss is when a customer is ready, clicks \"Submit,\" and the request never arrives. A decorative form that writes nowhere cancels out all your marketing. So it matters that the data lands in a real database, stays available for processing, and isn't lost.\n\nWhen the product is built as a full-fledged full-stack app on Next.js and Prisma, every request is saved in your own database, and the code is exported to your repository — on GitHub or the Russian alternative GitFlic. You own both the logic and the customer data. This is not a rented site builder where your leads live on someone else's servers under someone else's rules — it is your asset.\n\n### Remove friction on the path to payment\n\nEvery extra action between the wish to buy and the payment lowers conversion. Mandatory registration before purchase, ten fields in a form, an unclear price, no convenient payment method — these are all reasons to abandon the cart.\n\nWhen designing the product, ruthlessly ask at every step: does it move toward payment or get in the way? Anything in the way should be removed or simplified. A guest should be able to check out without needless barriers, and payment should be obvious and fast.\n\n### Trust as a condition of conversion\n\nPeople pay where they aren't afraid. Clear terms, honest prices, transparent shipping and returns, a tidy interface that doesn't feel fly-by-night — all of this removes anxiety and raises willingness to part with money. This matters especially for a new brand with no reputation yet: trust has to be built by the product itself.\n\n### Conversion must be measured and improved\n\nConversion is not a one-time setting but ongoing work. You need to see at which step people are lost, test wording, simplify forms, remove obstacles. Owning the code and the data, you can reshape the product around real audience behavior as much as you need — without begging a platform for changes.\n\nIn the end, conversion isn't about pretty percentages in a report. It's about whether your marketing pays off and whether revenue grows. Put the target action at the center of the product, remove friction on the path to payment, keep your data as an asset — and traffic will start turning into money."
+    }
   },
   {
-    slug: 'mobilnaya-versiya-pervyj-prioritet',
-    title: 'Mobile First: почему мобильная версия должна быть приоритетом',
-    description: 'В 2026 году большинство клиентов приходят со смартфонов. Как Roboweb автоматически ставит мобильную версию на первое место.',
-    date: '28 июня 2026',
-    readTime: '5 мин',
-    category: 'Стратегия',
-    cover: 'https://s3-nl.hostkey.com/robo/demo/efead282-5f5e-464c-895c-12807b8b424f.jpg',
-    content: `
-## Mobile First: почему мобильная версия должна быть приоритетом
-
-В 2018 году мобильный трафик впервые обогнал десктопный. С тех пор разрыв только растёт. В 2026 году доля мобильных пользователей в России превышает 73%.
-
-### Что значит Mobile First
-
-Это не просто «сделать адаптивную вёрстку». Mobile First — подход, при котором **дизайн начинается с телефона**, а не адаптируется к нему в последнюю очередь.
-
-Традиционный подход: сначала десктоп → потом «ужимаем» под мобильный.
-
-Mobile First: сначала телефон → потом расширяем для десктопа.
-
-### Почему это важно для бизнеса
-
-**SEO.** Google с 2019 года использует мобильный индекс как основной. Плохая мобильная версия = низкие позиции.
-
-**Конверсия.** Если кнопка «Заказать» не помещается на экране телефона — клиент уходит.
-
-**Скорость.** Мобильные сети медленнее. Оптимизированный под мобильные сайт загружается быстрее.
-
-### Как Roboweb реализует Mobile First
-
-Каждый сайт, созданный через Roboweb, изначально строится по принципу Mobile First:
-
-- Крупные кнопки, удобные для нажатия пальцем
-- Текст нужного размера без горизонтальной прокрутки
-- Сжатые изображения для экономии трафика
-- Упрощённая навигация с бургер-меню
-- Форма с полями под размер мобильной клавиатуры
-
-### Чек-лист мобильной версии
-
-☑ Кнопки не менее 44×44 пикселей
-☑ Текст не мельче 16px
-☑ Нет горизонтальной прокрутки
-☑ Время загрузки до 3 секунд
-☑ Телефон кликабелен (ссылка tel:)
-☑ Форма работает без зума
-
-Попросите Roboweb проверить: «Оптимизируй сайт для мобильных» — ИИ пройдётся по каждому пункту.
-    `.trim(),
+    "slug": "mobilnaya-versiya-pervyj-prioritet",
+    "cover": "https://s3-nl.hostkey.com/robo/demo/efead282-5f5e-464c-895c-12807b8b424f.jpg",
+    "category": {
+      "ru": "Рост и SEO",
+      "en": "Growth & SEO"
+    },
+    "title": {
+      "ru": "Mobile First: почему телефон решает судьбу выручки",
+      "en": "Mobile First: Why the Phone Now Decides Your Revenue"
+    },
+    "description": {
+      "ru": "Большинство клиентов приходят и платят с телефона — разбираем, сколько выручки теряет бизнес без мобильного продукта.",
+      "en": "Most customers arrive and pay from a phone — here is exactly how much revenue a business loses without a mobile product."
+    },
+    "date": {
+      "ru": "28 июня 2026",
+      "en": "June 28, 2026"
+    },
+    "readTime": {
+      "ru": "5 мин",
+      "en": "5 min"
+    },
+    "content": {
+      "ru": "## Mobile First: почему телефон решает судьбу выручки\n\nПосмотрите на свою аналитику. С вероятностью 60–70% основная часть посетителей открывает ваш сайт с телефона, а не с компьютера. Это не тренд будущего — это текущая реальность рынка. И если продукт на маленьком экране работает плохо, вы теряете не «часть трафика», а самую платёжеспособную его половину — прямо в момент, когда человек готов купить.\n\nMobile First — это не про то, чтобы «сайт помещался в экран». Это управленческое решение: проектировать продукт так, будто телефон — единственное устройство клиента. Потому что для многих он именно такой.\n\n### Что именно теряет компания\n\nКаждая проблема на мобильном экране — это деньги, которые не дошли до кассы.\n\n- **Брошенные корзины.** Мелкие кнопки, неудобная форма оплаты, поля, куда невозможно попасть пальцем — и покупатель уходит на второй минуте.\n- **Дорогой трафик впустую.** Вы платите за рекламу, человек приходит с телефона, видит нечитаемый макет и закрывает вкладку. Бюджет сгорел, заявки нет.\n- **Просадка в поиске.** Поисковые системы оценивают удобство именно мобильной версии. Медленный и неадаптивный продукт опускается в выдаче — и вы недополучаете бесплатный трафик.\n- **Потеря доверия.** На телефоне человек за секунды решает, серьёзная перед ним компания или нет. Кривой интерфейс читается как «здесь рискованно платить».\n\n### Мобильный — это не уменьшенная копия\n\nТипичная ошибка — сделать десктопный сайт и «сжать» его. Так рождаются крошечные ссылки, горизонтальная прокрутка и формы в шесть экранов.\n\nПравильный подход обратный: сначала сценарий на телефоне, потом — расширение под большой экран. *Представьте магазин*: клиент едет в метро, видит товар в ленте, добавляет в корзину одним касанием, платит в два тапа. Если этот путь безупречен на телефоне, на десктопе он тем более сработает.\n\nВот что критично для бизнеса на маленьком экране:\n\n- **Скорость загрузки.** Каждая лишняя секунда ожидания — минус к конверсии.\n- **Крупные зоны нажатия.** Кнопки и поля под палец, а не под курсор.\n- **Короткий путь к оплате.** Меньше шагов между «хочу» и «оплатил».\n- **Читаемость без зума.** Цена, кнопка и суть — видны сразу.\n\n### Почему это работающий продукт, а не картинка\n\nАдаптивная вёрстка — половина дела. Бизнесу нужно, чтобы с телефона реально *работали* корзина, оформление заказа, личный кабинет и формы, которые пишут заявку в базу, а не в пустоту.\n\nПлатформа RoboWeb собирает по описанию именно такой фуллстек-продукт: живой каталог, корзина, оформление заказа и кабинеты, спроектированные под мобильный сценарий с самого начала. Формы попадают в вашу базу данных, а не в чужую CRM, к которой у вас нет ключей.\n\n### Мобильный продукт — это ваш актив\n\nЕсть принципиальная разница между «арендой» страницы на конструкторе и владением продуктом. Когда мобильная версия — часть настоящего кода, вы контролируете скорость, безопасность и развитие.\n\nГотовый проект на Next.js выгружается в ваш репозиторий — в GitHub или в российский GitFlic (gitflic.ru). Это значит, что мобильный продукт, который приносит вам основную выручку, принадлежит вам как актив: его нельзя внезапно заблокировать или поднять цену за доступ.\n\n### С чего начать уже сегодня\n\nНе нужно ждать большого редизайна. Начните с ревизии денежного пути.\n\n- Пройдите свой сценарий покупки **с телефона**, как это делает клиент.\n- Найдите шаг, где хочется бросить, — обычно это форма или оплата.\n- Замерьте, какая доля выручки уже приходит с мобильных, и оцените, сколько теряется на неудобстве.\n\nMobile First — это не про моду на адаптивность. Это про то, что ваш клиент уже в кармане держит устройство, с которого готов заплатить. Задача бизнеса — не мешать ему это сделать.",
+      "en": "## Mobile First: Why the Phone Now Decides Your Revenue\n\nLook at your analytics. There is a 60–70% chance that most of your visitors open your site on a phone, not a desktop. This is not a future trend — it is today's market reality. And when your product works badly on a small screen, you are not losing \"some traffic.\" You are losing its most valuable, ready-to-pay half — at the exact moment someone wants to buy.\n\nMobile First is not about \"making the site fit the screen.\" It is a business decision: design the product as if the phone were the customer's only device. Because for many of them, it is.\n\n### What a company actually loses\n\nEvery friction point on a mobile screen is money that never reaches the till.\n\n- **Abandoned carts.** Tiny buttons, an awkward checkout, fields you can't hit with a thumb — and the buyer leaves within two minutes.\n- **Wasted ad spend.** You pay for an ad, the person arrives on a phone, sees an unreadable layout, and closes the tab. Budget burned, no lead.\n- **Lower search rankings.** Search engines judge usability by the mobile version. A slow, non-responsive product slips down the results, and you leave free traffic on the table.\n- **Lost trust.** On a phone, people decide in seconds whether a company is serious. A broken interface reads as \"paying here is risky.\"\n\n### Mobile is not a shrunken copy\n\nThe classic mistake is to build a desktop site and \"squeeze\" it down. That is how you get microscopic links, horizontal scrolling, and six-screen forms.\n\nThe right approach is the opposite: design the phone journey first, then expand it for the large screen. *Picture a shop*: a customer on the train sees a product in the feed, adds it to the cart with one tap, and pays in two. If that path is flawless on a phone, it will certainly hold up on desktop.\n\nHere is what matters most for business on a small screen:\n\n- **Load speed.** Every extra second of waiting costs you conversions.\n- **Large tap targets.** Buttons and fields sized for a thumb, not a cursor.\n- **A short path to payment.** Fewer steps between \"I want it\" and \"I paid.\"\n- **Readability without zoom.** Price, button, and the point are visible at once.\n\n### Why this is a working product, not a picture\n\nResponsive layout is only half the job. A business needs the cart, checkout, customer account, and forms to genuinely *work* from a phone — with forms writing a real order into your database, not into thin air.\n\nThe RoboWeb platform builds exactly this kind of full-stack product from a description: a live catalog, cart, checkout, and accounts, designed for the mobile journey from the start. Submissions land in *your* database, not in some third-party CRM you don't hold the keys to.\n\n### Your mobile product is an asset\n\nThere is a fundamental difference between \"renting\" a page on a website builder and owning a product. When the mobile version is part of real code, you control its speed, security, and future.\n\nThe finished Next.js project is exported into your own repository — on GitHub or the Russian GitFlic (gitflic.ru). That means the mobile product driving most of your revenue belongs to you as an asset: nobody can suddenly lock it or raise the price of access.\n\n### Where to start today\n\nYou don't need to wait for a big redesign. Start by auditing the money path.\n\n- Walk through your own purchase flow **on a phone**, the way a customer does.\n- Find the step where you feel like quitting — usually a form or the payment.\n- Measure how much of your revenue already comes from mobile, and estimate how much friction is costing you.\n\nMobile First is not about a fashion for responsiveness. It is about the fact that your customer is already holding, in their pocket, the device they are ready to pay from. The job of the business is simply not to get in their way."
+    }
   },
   {
-    slug: 'kontent-prioritet-prodvizhenie',
-    title: 'Контент как приоритет: почему тексты важнее дизайна для продвижения',
-    description: 'Как ИИ Roboweb создаёт SEO-контент, который привлекает клиентов из поиска, и почему это первое что нужно настроить.',
-    date: '29 июня 2026',
-    readTime: '7 мин',
-    category: 'Контент',
-    cover: 'https://s3-nl.hostkey.com/robo/demo/513346aa-6578-409d-aeca-824ebafac864.jpg',
-    content: `
-## Контент как приоритет: почему тексты важнее дизайна для продвижения
-
-«Контент — король» — это не просто фраза. Поисковые системы не видят дизайн. Они читают текст.
-
-### Что такое контент-приоритет
-
-Многие тратят 80% времени на дизайн и 20% на тексты. При этом именно тексты определяют:
-
-- Найдут ли вас в поиске
-- Поймут ли посетители, чем вы занимаетесь
-- Захотят ли они оставить заявку
-
-### Три уровня контента для сайта
-
-**Уровень 1 — Ключевые сообщения** (Hero-блок):
-Главный заголовок должен за 5 секунд объяснить: кто вы, что предлагаете, кому это нужно.
-
-Плохо: «Добро пожаловать на наш сайт»
-Хорошо: «Ремонт квартир в Екатеринбурге — под ключ за 30 дней»
-
-**Уровень 2 — Убеждающий контент** (описания услуг, преимущества):
-Отвечайте на вопросы, которые задаёт клиент. Не «Мы лучшие на рынке», а «Гарантия 3 года — ваш ремонт простоит без проблем».
-
-**Уровень 3 — SEO-контент** (для поисковиков):
-Ключевые слова в заголовках, мета-тегах, alt-тексты к изображениям.
-
-### Как Roboweb создаёт контент
-
-ИИ знает, как писать продающие тексты. Просто скажите в диалоге:
-
-- «Напиши заголовок, который сразу объясняет нашу ценность»
-- «Добавь блок с преимуществами, написанный на языке клиента»
-- «Напиши тексты для SEO под запрос "ремонт квартир Екатеринбург"»
-
-### Правило трёх «П»
-
-Хороший контент должен быть:
-- **Понятным** — без профессионального жаргона
-- **Полезным** — отвечать на реальные вопросы клиентов
-- **Продающим** — каждый блок ведёт к следующему шагу
-
-Roboweb создаёт тексты по этому правилу автоматически, но вы всегда можете уточнить: «Перепиши этот текст проще и добавь призыв к действию».
-    `.trim(),
+    "slug": "kontent-prioritet-prodvizhenie",
+    "cover": "https://s3-nl.hostkey.com/robo/demo/513346aa-6578-409d-aeca-824ebafac864.jpg",
+    "category": {
+      "ru": "Рост и SEO",
+      "en": "Growth & SEO"
+    },
+    "title": {
+      "ru": "Контент как актив роста: тексты, которые приносят выручку",
+      "en": "Content as a Growth Asset: Words That Bring Revenue"
+    },
+    "description": {
+      "ru": "Почему тексты на сайте — это не украшение, а канал трафика и продаж, работающий на бизнес годами без рекламного бюджета.",
+      "en": "Why site copy is not decoration but a traffic and sales channel that works for a business for years without ad spend."
+    },
+    "date": {
+      "ru": "29 июня 2026",
+      "en": "June 29, 2026"
+    },
+    "readTime": {
+      "ru": "7 мин",
+      "en": "7 min"
+    },
+    "content": {
+      "ru": "## Контент как актив роста: тексты, которые приносят выручку\n\nБольшинство компаний относится к текстам на сайте как к обязательной формальности: «напишем что-нибудь про нас и услуги». В результате контент ничего не продаёт и не приводит клиентов. А ведь именно он способен работать как актив — приносить трафик и заявки годами, без ежедневных вливаний в рекламу.\n\nРазница простая. Реклама перестаёт работать в ту секунду, когда вы перестаёте платить. Хорошая статья продолжает приводить клиентов из поиска и через год, и через три. Это принципиально другая экономика роста.\n\n### Что контент делает для выручки\n\nТекст на сайте выполняет три бизнес-задачи одновременно.\n\n- **Приводит трафик из поиска.** Люди ищут решение своей проблемы. Если ваша страница отвечает на их вопрос, они находят именно вас — бесплатно.\n- **Прогревает и убеждает.** Пока клиент читает, он снимает возражения и начинает доверять. К кнопке «купить» он подходит уже готовым.\n- **Отсеивает не своих.** Хороший текст честно объясняет, кому вы подходите, и экономит время менеджеров на пустых заявках.\n\n### Контент, который продаёт, а не «наполняет»\n\nПродающий текст говорит на языке клиента и его задач, а не перечисляет ваши регалии.\n\n*Представьте компанию*, которая пишет: «мы динамично развивающийся лидер рынка». Это не значит ничего. А теперь другая формулировка: «поможем запустить интернет-магазин за неделю, а не за три месяца». Вторая фраза попадает в реальную боль — и её же человек набирает в поиске.\n\nПравила деловых текстов, которые действительно работают:\n\n- **Одна страница — одна задача клиента.** Не пытайтесь рассказать всё сразу.\n- **Конкретика вместо воды.** Сроки, шаги, результат — вместо прилагательных.\n- **Заголовок про выгоду.** Читатель за пару секунд решает, читать ли дальше.\n- **Чёткий следующий шаг.** После текста должно быть ясно, что делать: оставить заявку, посмотреть каталог, написать.\n\n### SEO — это не магия, а структура\n\nЧтобы поиск приводил клиентов, контент должен быть не только полезным, но и технически правильно устроенным: понятные заголовки, логичная структура, скорость загрузки, адаптивность под телефон. Поисковые системы вознаграждают продукты, которыми удобно пользоваться.\n\nИменно поэтому контент нельзя отделять от самого продукта. Красивый текст на медленном, неадаптивном сайте не выстрелит в поиске.\n\n### Когда контент — часть настоящего продукта\n\nПлатформа RoboWeb собирает по описанию не витрину, а рабочий бизнес-продукт: живой каталог, корзину, оформление заказа, личные кабинеты. Контент здесь встроен в структуру, которую любит поиск, а формы из статей ведут клиента дальше — в заявку, которая пишется в вашу базу данных.\n\nЭто превращает статью из «текста для галочки» в точку входа в воронку: человек пришёл из поиска, прочитал, оставил заявку — и всё это в одном продукте, а не в трёх разных сервисах.\n\n### Контент как накопительный актив\n\nУ контента есть свойство, которого нет у рекламы: он накапливается. Десять сильных статей работают лучше одной, а через год этот массив становится источником стабильного трафика, за который вы уже заплатили один раз.\n\nИ как любой актив, он должен принадлежать вам. Когда сайт с контентом выгружается в ваш репозиторий на Next.js — в GitHub или в российский GitFlic (gitflic.ru) — вы владеете и продуктом, и текстами, которые приводят клиентов. Их нельзя потерять вместе с чужой платформой, нельзя лишиться доступа при смене тарифа.\n\n### С чего начать\n\nНе нужно писать сто статей сразу. Начните с малого и по делу.\n\n- Выпишите **пять реальных вопросов**, которые задают ваши клиенты перед покупкой.\n- На каждый напишите отдельную честную страницу, отвечающую по существу.\n- В конце каждой — понятный следующий шаг в вашу воронку.\n\nКонтент — это не расходы на копирайтера. Это инвестиция в канал, который приводит клиентов, пока вы спите, и остаётся с вами как актив бизнеса.",
+      "en": "## Content as a Growth Asset: Words That Bring Revenue\n\nMost companies treat website copy as a formality: \"let's write something about us and our services.\" As a result, the content sells nothing and brings in no customers. Yet content is precisely what can work as an asset — driving traffic and leads for years, without daily spending on ads.\n\nThe logic is simple. Advertising stops working the second you stop paying. A good article keeps bringing customers from search a year later, and three years later. That is a fundamentally different economics of growth.\n\n### What content does for revenue\n\nCopy on a site performs three business jobs at once.\n\n- **It brings search traffic.** People look for a solution to their problem. If your page answers their question, they find you — for free.\n- **It warms up and convinces.** As the customer reads, they resolve objections and start to trust you. They reach the \"buy\" button already sold.\n- **It filters out the wrong fit.** Honest copy explains who you are right for, saving your team time on dead-end leads.\n\n### Content that sells, not \"fills space\"\n\nSelling copy speaks the customer's language and addresses their problems, instead of listing your credentials.\n\n*Picture a company* that writes: \"we are a dynamically growing market leader.\" That means nothing. Now another version: \"we'll help you launch an online store in a week, not three months.\" The second line hits a real pain — and it is exactly what a person types into search.\n\nThe rules of business writing that actually works:\n\n- **One page, one customer job.** Don't try to say everything at once.\n- **Specifics over fluff.** Timelines, steps, outcomes — not adjectives.\n- **A benefit-driven headline.** Readers decide in seconds whether to keep reading.\n- **A clear next step.** After the text it must be obvious what to do: submit a request, browse the catalog, get in touch.\n\n### SEO is not magic — it is structure\n\nFor search to bring customers, content must be not only useful but technically sound: clear headings, logical structure, fast loading, mobile responsiveness. Search engines reward products that are genuinely easy to use.\n\nThat is exactly why content can't be separated from the product itself. Beautiful copy on a slow, non-responsive site will never break through in search.\n\n### When content is part of a real product\n\nThe RoboWeb platform builds, from a description, not a storefront mockup but a working business product: a live catalog, cart, checkout, and customer accounts. Content lives inside a structure that search engines love, and forms inside your articles carry the customer onward — into a lead that writes straight into your database.\n\nThis turns an article from a \"box-ticking text\" into an entry point to your funnel: a person arrives from search, reads, submits a request — all inside one product, not across three separate services.\n\n### Content as a compounding asset\n\nContent has a property advertising lacks: it accumulates. Ten strong articles work better than one, and within a year that body of work becomes a source of steady traffic you paid for only once.\n\nAnd like any asset, it should belong to you. When the content-rich site is exported into your own Next.js repository — on GitHub or the Russian GitFlic (gitflic.ru) — you own both the product and the words that bring in customers. They can't vanish with someone else's platform, and you can't be locked out when a subscription tier changes.\n\n### Where to start\n\nYou don't need to write a hundred articles at once. Start small and to the point.\n\n- Write down **five real questions** your customers ask before buying.\n- For each, write a separate, honest page that answers it properly.\n- End every page with a clear next step into your funnel.\n\nContent is not an expense for a copywriter. It is an investment in a channel that brings customers while you sleep, and stays with you as an asset of the business."
+    }
   },
   {
-    slug: 'bezopasnost-sajta-prioritet',
-    title: 'Безопасность сайта: почему это приоритет, а не опция',
-    description: 'SSL, защита данных, резервные копии — как Roboweb автоматически обеспечивает безопасность вашего сайта.',
-    date: '30 июня 2026',
-    readTime: '5 мин',
-    category: 'Безопасность',
-    cover: 'https://s3-nl.hostkey.com/robo/demo/c1d18b74-eacb-4b0b-8b3f-cfe8048b6ef8.jpg',
-    content: `
-## Безопасность сайта: почему это приоритет, а не опция
-
-В 2025 году было взломано более 1,7 миллиона сайтов малого бизнеса. 60% из них не восстановились полностью. Безопасность — это не параноя, это бизнес-необходимость.
-
-### Почему небезопасный сайт — это убытки
-
-**Репутация.** Браузеры помечают сайты без SSL как «Небезопасные». Клиенты закрывают такие сайты мгновенно.
-
-**SEO.** Google снижает позиции сайтов без HTTPS с 2014 года.
-
-**Данные клиентов.** Если через вашу форму утекут данные клиентов — это юридическая ответственность.
-
-**Деньги.** Восстановление взломанного сайта стоит от 50 000 до 500 000 рублей.
-
-### Что Roboweb делает автоматически
-
-**SSL-сертификат.** Каждый сайт получает бесплатный HTTPS автоматически. Никаких настроек — это работает из коробки.
-
-**Изолированное окружение.** Каждый сайт работает в отдельном контейнере. Взлом одного сайта не затрагивает другие.
-
-**Регулярные бэкапы.** Ваш код сохраняется автоматически. История версий позволяет откатиться к любому состоянию.
-
-**Защита форм.** Встроенная защита от спама и SQL-инъекций в формах заявок.
-
-### Что нужно сделать самостоятельно
-
-1. **Используйте сложный пароль** для доступа к аккаунту Roboweb
-2. **Включите двухфакторную аутентификацию**
-3. **Не публикуйте** в текстах сайта личные данные (паспорт, ИНН физлица)
-4. **Регулярно проверяйте** работу форм — мошенники иногда меняют контактные данные
-
-Безопасность сайта — это фундамент. Roboweb строит его автоматически, пока вы фокусируетесь на бизнесе.
-    `.trim(),
+    "slug": "bezopasnost-sajta-prioritet",
+    "cover": "https://s3-nl.hostkey.com/robo/demo/c1d18b74-eacb-4b0b-8b3f-cfe8048b6ef8.jpg",
+    "category": {
+      "ru": "Инфраструктура",
+      "en": "Infrastructure"
+    },
+    "title": {
+      "ru": "Безопасность данных бизнеса: свой код, своя база",
+      "en": "Business Data Security: Own Your Code and Database"
+    },
+    "description": {
+      "ru": "Почему контроль над данными, своя PostgreSQL и код в собственном репозитории — это защита выручки, а не строка расходов.",
+      "en": "Why data control, your own PostgreSQL, and code in your own repository protect revenue rather than adding cost."
+    },
+    "date": {
+      "ru": "30 июня 2026",
+      "en": "June 30, 2026"
+    },
+    "readTime": {
+      "ru": "5 мин",
+      "en": "5 min"
+    },
+    "content": {
+      "ru": "## Безопасность данных бизнеса: свой код, своя база\n\nДля бизнеса безопасность — это не абстрактная «защита от хакеров», а вопрос сохранности актива. Заявки клиентов, история заказов, контакты, финансовые данные — всё это стоит денег и создаёт юридические обязательства. Когда продукт собран на арендной платформе, вы не владеете ни данными, ни логикой, ни возможностью уйти. Платформа RoboWeb строит бизнес-продукты иначе: вы получаете рабочий актив, которым управляете сами.\n\n### Данные бизнеса — это актив, а не побочный эффект\n\nКаждая форма заявки, каждый оформленный заказ, каждая регистрация в личном кабинете пишутся в **вашу собственную базу PostgreSQL**. Это не таблица внутри чужого сервиса, откуда данные нельзя нормально выгрузить. Это промышленная база, которую используют банки и крупные платформы. Вы в любой момент можете сделать резервную копию, перенести данные, подключить свою аналитику или бухгалтерию.\n\nРазница принципиальная. На типовом конструкторе ваши клиентские базы — заложник тарифа. Перестали платить или сервис закрылся — данные ушли вместе с ним. Когда база ваша, бизнес не зависит от чужих решений.\n\n### Владение кодом снижает риск\n\nГотовый продукт на Next.js и Prisma выгружается в **ваш репозиторий — в GitHub или в российский аналог GitFlic**. Это значит, что весь исходный код — актив на балансе бизнеса, а не аренда. Если завтра вы захотите нанять своего разработчика, сменить подрядчика или развернуть проект на собственных серверах — ничто вас не держит.\n\nС точки зрения безопасности это ключевой момент. Код в вашем репозитории можно аудировать, версионировать и откатывать. История изменений фиксирует, кто и что менял. Вы не зависите от одной кнопки на чужой панели, за которой скрыта вся ваша инфраструктура.\n\n### Что закрыто по умолчанию\n\n**Шифрование трафика.** Каждый продукт работает по HTTPS с SSL-сертификатом. Данные клиента между браузером и сервером зашифрованы. Браузеры не помечают сайт как «Небезопасный», а поисковые системы не понижают его в выдаче.\n\n**Изоляция.** Продукт работает в отдельном окружении. Проблемы одного проекта не затрагивают другие, а доступ к базе ограничен вашим приложением.\n\n**Защита форм и запросов.** Ввод пользователей проверяется, запросы к базе параметризуются — это закрывает классические атаки на подстановку данных. Спам-защита отсекает поток мусорных заявок, которые иначе засоряют отдел продаж.\n\n**История версий.** Каждое состояние продукта сохраняется. Если правка что-то сломала, можно вернуться назад без потери данных.\n\n### Зона ответственности бизнеса\n\nТехнология закрывает инфраструктуру, но часть контроля остаётся за вами. Используйте надёжные пароли и двухфакторную аутентификацию для доступа к аккаунту и репозиторию. Ограничьте круг людей с правами на прод. Не публикуйте в открытых текстах персональные и платёжные данные. Регулярно проверяйте, что контакты в формах не подменены.\n\n### Безопасность как экономика\n\nПосчитайте стоимость инцидента: простой продаж, восстановление, отток клиентов, штрафы за утечку персональных данных. На этом фоне архитектура, где данные и код принадлежат вам, а трафик зашифрован по умолчанию, — это не расход, а страховка выручки.\n\nБизнес, который владеет своей базой и своим кодом, управляет собственным риском. Именно поэтому безопасность здесь встроена в фундамент продукта, а не продаётся отдельной опцией.",
+      "en": "## Business Data Security: Own Your Code and Database\n\nFor a business, security isn't an abstract \"protection from hackers\" — it's about safeguarding an asset. Customer leads, order history, contacts, financial records: all of it has monetary value and carries legal obligations. When your product runs on a rented platform, you own neither the data, nor the logic, nor the freedom to leave. The RoboWeb platform builds business products differently: you get a working asset that you control.\n\n### Your data is an asset, not a side effect\n\nEvery lead form, every completed order, every account registration is written to **your own PostgreSQL database**. This is not a table locked inside someone else's service that you can't properly export. It's the industrial-grade database used by banks and major platforms. At any moment you can back it up, migrate it, or connect your own analytics or accounting.\n\nThe difference is fundamental. On a typical website builder, your customer records are hostage to a subscription. Stop paying, or the service shuts down, and the data goes with it. When the database is yours, the business no longer depends on someone else's decisions.\n\n### Owning the code reduces risk\n\nThe finished product, built on Next.js and Prisma, is exported to **your repository — either GitHub or its Russian counterpart GitFlic**. That means the entire source code is an asset on the company's books, not a rental. If tomorrow you want to hire your own developer, switch contractors, or deploy on your own servers, nothing holds you back.\n\nFrom a security standpoint this is decisive. Code in your repository can be audited, versioned, and rolled back. The change history records who changed what. You're not dependent on a single button in someone else's dashboard hiding your entire infrastructure.\n\n### What's covered by default\n\n**Encrypted traffic.** Every product runs over HTTPS with an SSL certificate. Customer data between browser and server is encrypted. Browsers don't flag the site as \"Not secure,\" and search engines don't push it down the rankings.\n\n**Isolation.** The product runs in its own environment. One project's problems don't touch the others, and database access is restricted to your application.\n\n**Form and query protection.** User input is validated and database queries are parameterized, which shuts down the classic injection attacks. Spam protection filters out the flood of junk submissions that would otherwise clog your sales team.\n\n**Version history.** Every state of the product is saved. If an edit breaks something, you roll back without losing data.\n\n### Where the business stays responsible\n\nTechnology covers the infrastructure, but part of the control stays with you. Use strong passwords and two-factor authentication for both the account and the repository. Limit who has access to production. Don't publish personal or payment details in open text. Regularly check that the contact details in your forms haven't been tampered with.\n\n### Security as economics\n\nAdd up the cost of an incident: lost sales, recovery, customer churn, fines for leaked personal data. Against that, an architecture where the data and the code belong to you, and traffic is encrypted by default, isn't an expense — it's revenue insurance.\n\nA business that owns its database and its code owns its risk. That's exactly why security here is built into the product's foundation, not sold as a separate add-on."
+    }
   },
   {
-    slug: 'analitika-sayta-prioritet-rosta',
-    title: 'Аналитика сайта: как данные помогают расставить приоритеты развития',
-    description: 'Какие метрики отслеживать в первую очередь и как Roboweb помогает принимать решения на основе данных.',
-    date: '30 июня 2026',
-    readTime: '6 мин',
-    category: 'Аналитика',
-    cover: 'https://s3-nl.hostkey.com/robo/demo/2522d1b9-ab99-4cf1-9602-e51f5e90912a.jpg',
-    content: `
-## Аналитика сайта: как данные помогают расставить приоритеты развития
-
-«Мне кажется, кнопка должна быть красной» vs «Красная кнопка повысила конверсию на 14% — вот данные». Второй подход выигрывает всегда.
-
-### Почему аналитика — это приоритет
-
-Без данных вы улучшаете сайт наугад. С данными вы знаете:
-
-- Откуда приходят клиенты
-- На каком шаге они уходят
-- Какие страницы работают, а какие нет
-- Сколько стоит привлечение одного клиента
-
-### Ключевые метрики для малого бизнеса
-
-**Посещаемость** — сколько людей приходит на сайт. Базовая метрика.
-
-**Показатель отказов** — процент посетителей, которые ушли сразу. Норма: 40-60%. Выше 80% — проблема.
-
-**Время на сайте** — сколько минут проводит посетитель. Меньше 30 секунд — контент не захватывает.
-
-**Источники трафика** — откуда идут посетители: поиск, соцсети, реклама, прямые заходы.
-
-**Конверсия** — главная метрика. Доля посетителей, которые совершили целевое действие.
-
-### Как использовать аналитику Roboweb
-
-В разделе «Аналитика» вы видите все эти данные в реальном времени:
-
-- График посещаемости по дням
-- Разбивку по устройствам
-- Топ страниц
-- Источники трафика
-
-### Практический цикл улучшений
-
-1. Смотрите на страницы с высоким отказом → переписываете контент через Roboweb
-2. Видите мало мобильного трафика → проверяете мобильную версию
-3. Конверсия низкая → просите ИИ усилить призывы к действию
-4. Повторяете
-
-Данные → Гипотеза → Изменение → Измерение → Данные. Этот цикл и есть приоритет роста.
-    `.trim(),
+    "slug": "analitika-sayta-prioritet-rosta",
+    "cover": "https://s3-nl.hostkey.com/robo/demo/2522d1b9-ab99-4cf1-9602-e51f5e90912a.jpg",
+    "category": {
+      "ru": "Рост и SEO",
+      "en": "Growth & SEO"
+    },
+    "title": {
+      "ru": "Аналитика для решений: данные заявок как двигатель роста",
+      "en": "Analytics for Decisions: Lead Data as a Growth Engine"
+    },
+    "description": {
+      "ru": "Как данные о заявках и заказах в вашей базе помогают бизнесу расставлять приоритеты и вкладывать деньги туда, где они дают выручку.",
+      "en": "How lead and order data in your own database helps a business set priorities and invest where it actually drives revenue."
+    },
+    "date": {
+      "ru": "30 июня 2026",
+      "en": "June 30, 2026"
+    },
+    "readTime": {
+      "ru": "6 мин",
+      "en": "6 min"
+    },
+    "content": {
+      "ru": "## Аналитика для решений: данные заявок как двигатель роста\n\n«Мне кажется, надо поменять баннер» против «Заявки просели на этапе оформления — вот цифры». Второй разговор всегда выигрывает, потому что он про деньги, а не про ощущения. Для бизнеса аналитика — это способ вкладывать ограниченный бюджет туда, где он приносит выручку, а не туда, где просто хочется что-то улучшить.\n\n### Данные о заявках важнее счётчика посещений\n\nМного трафика без продаж — это красивый график и пустая касса. По-настоящему растить бизнес помогают данные о том, что происходит **после** захода на сайт: сколько заявок оставили, сколько заказов оформили, на каком шаге воронки люди уходят.\n\nПродукты RoboWeb пишут это в **вашу собственную базу**. Значит, у вас есть не просто внешняя статистика, а сырые бизнес-данные: конкретные заявки, заказы, регистрации в личных кабинетах. С ними можно считать реальные показатели — среднюю сумму заказа, повторные покупки, отклик по каналам, — а не только абстрактные визиты.\n\n### Метрики, которые двигают решения\n\n**Конверсия в заявку.** Доля посетителей, дошедших до целевого действия. Это главный рычаг: рост конверсии на пару процентов часто дороже, чем удвоение трафика.\n\n**Стоимость привлечения.** Сколько денег ушло на одного клиента. Без этой цифры реклама превращается в лотерею.\n\n**Проседания в воронке.** Где именно теряются люди — на форме, на выборе доставки, при оформлении. Каждый брошенный шаг — это недополученная выручка.\n\n**Источники заявок.** Какой канал приносит не просто клики, а платящих клиентов. Часто дешёвый канал даёт лучшие продажи, чем дорогой.\n\n**Повторные обращения.** Возвращаются ли клиенты. Удержание почти всегда дешевле привлечения.\n\n### От цифр к приоритетам\n\nПредставьте интернет-магазин, где половина посетителей доходит до корзины, но лишь малая часть — до оплаты. Данные ясно показывают: проблема не в трафике и не в товаре, а в шаге оформления. Значит, деньги и время идут туда, а не в новую рекламу. Это и есть работа аналитики — она превращает бюджет в точечные действия.\n\nИли представьте студию услуг, которая видит, что заявки с одного канала почти не доходят до сделки. Разумное решение — перераспределить бюджет в канал, который реально приносит клиентов. Без данных такое решение принимается наугад и обычно ошибочно.\n\n### Рабочий цикл роста\n\nБизнес-аналитика работает как повторяемый цикл. Вы смотрите на данные и находите узкое место. Формулируете гипотезу — что именно мешает выручке. Вносите изменение: правите текст, упрощаете форму, усиливаете призыв к действию. Затем снова смотрите на цифры и проверяете, сработало ли. Данные, гипотеза, изменение, измерение — и снова по кругу.\n\nПлатформа RoboWeb упрощает шаг изменения: вы описываете правку словами, и продукт обновляется. Но сила подхода — в том, что решения опираются на ваши собственные данные, а не на догадки.\n\n### Данные — это ваш актив\n\nПоскольку заявки и заказы лежат в вашей базе, а код продукта выгружен в **ваш репозиторий на GitHub или GitFlic**, аналитику можно наращивать без ограничений: подключать свои дашборды, выгружать данные в отчёты, строить прогнозы. Вы не заперты в чужой панели с тем набором графиков, который кто-то решил вам показать.\n\nБизнес, который принимает решения по данным, растёт предсказуемо. Аналитика здесь — не отчёт для галочки, а инструмент, который каждый месяц подсказывает, куда вложить следующий рубль.",
+      "en": "## Analytics for Decisions: Lead Data as a Growth Engine\n\n\"I think we should change the banner\" versus \"Leads dropped at checkout — here are the numbers.\" The second conversation always wins, because it's about money, not feelings. For a business, analytics is how you invest a limited budget where it generates revenue, instead of where you simply feel like improving something.\n\n### Lead data matters more than a visitor counter\n\nHeavy traffic with no sales is a pretty chart and an empty till. What actually grows a business is data about what happens **after** the visit: how many leads came in, how many orders were placed, and where in the funnel people drop off.\n\nRoboWeb products write this into **your own database**. So you don't just get external statistics — you get raw business data: specific leads, orders, account registrations. With that you can calculate real metrics — average order value, repeat purchases, response by channel — not just abstract visits.\n\n### Metrics that move decisions\n\n**Lead conversion.** The share of visitors who complete the target action. This is the main lever: a couple of percentage points of conversion is often worth more than doubling traffic.\n\n**Cost of acquisition.** How much money it took to win one customer. Without this figure, advertising is a lottery.\n\n**Funnel drop-offs.** Exactly where people are lost — on the form, at delivery selection, at checkout. Every abandoned step is revenue left on the table.\n\n**Lead sources.** Which channel brings not just clicks but paying customers. Often a cheap channel outsells an expensive one.\n\n**Repeat business.** Whether customers come back. Retention is almost always cheaper than acquisition.\n\n### From numbers to priorities\n\nPicture an online store where half of visitors reach the cart, but only a fraction reach payment. The data makes it clear: the problem isn't traffic or the product, it's the checkout step. So money and time go there, not into more advertising. That's what analytics does — it turns budget into targeted action.\n\nOr picture a services studio that sees leads from one channel almost never turn into deals. The sensible move is to shift budget toward the channel that genuinely brings customers. Without data, that decision is a guess, and usually a wrong one.\n\n### The working growth cycle\n\nBusiness analytics runs as a repeatable loop. You look at the data and find a bottleneck. You form a hypothesis about what's holding revenue back. You make a change: rewrite the copy, simplify the form, strengthen the call to action. Then you check the numbers again to see whether it worked. Data, hypothesis, change, measurement — and around again.\n\nThe RoboWeb platform makes the change step easy: you describe the edit in plain words and the product updates. But the strength of the approach is that decisions rest on your own data, not on guesswork.\n\n### Your data is your asset\n\nBecause leads and orders live in your database, and the product's code is exported to **your repository on GitHub or GitFlic**, you can grow your analytics without limits: connect your own dashboards, export data into reports, build forecasts. You aren't locked into someone else's panel with whatever charts they decided to show you.\n\nA business that decides by data grows predictably. Analytics here isn't a report for show — it's a tool that tells you, month after month, where to put your next ruble."
+    }
   },
   {
-    slug: 'avtomatizatsiya-prioritet-ii-sajty',
-    title: 'Автоматизация как приоритет: что ИИ делает за вас при создании сайта',
-    description: 'Список задач, которые Roboweb берёт на себя автоматически — и почему это экономит не только время, но и деньги.',
-    date: '30 июня 2026',
-    readTime: '5 мин',
-    category: 'AI и бизнес',
-    cover: 'https://s3-nl.hostkey.com/robo/demo/aaa41df7-117b-4bcd-8041-af8004500463.jpg',
-    content: `
-## Автоматизация как приоритет: что ИИ делает за вас при создании сайта
-
-Каждая задача, которую делает ИИ — это время и деньги, которые остаются у вас. Давайте посчитаем.
-
-### Что Roboweb автоматизирует полностью
-
-**Написание кода.** Средний разработчик тратит 40-80 часов на создание лендинга. Roboweb — минуты. Экономия: от 50 000 рублей.
-
-**SEO-оптимизация.** Правильные мета-теги, заголовки H1-H3, alt-тексты — всё создаётся автоматически при генерации сайта.
-
-**Адаптивная вёрстка.** Мобильная, планшетная и десктопная версии создаются одновременно без дополнительных настроек.
-
-**Хостинг и SSL.** Не нужно выбирать хостинг-провайдера, оплачивать сервер, настраивать SSL. Всё включено.
-
-**Обновления.** Платформа обновляется сама — вы всегда работаете с актуальным стеком технологий.
-
-### Что автоматизируется при правках
-
-Когда вы говорите Roboweb «Поменяй цвет кнопок на зелёный» — ИИ находит все кнопки на сайте и меняет их одновременно. Вручную это заняло бы полчаса и риск что-то пропустить.
-
-### Что остаётся за вами
-
-- Описание идеи и задачи
-- Выбор из предложенных вариантов
-- Предоставление реальных фото и данных
-- Финальное одобрение
-
-Это занимает 10-15% времени традиционного процесса создания сайта.
-
-### ROI автоматизации
-
-Если ваше время стоит 3000 рублей в час, а создание сайта традиционным способом занимает 40 часов вашего участия — вы теряете 120 000 рублей.
-
-Roboweb сокращает ваше участие до 2-3 часов. Экономия — более 100 000 рублей на одном проекте.
-
-Автоматизация — это не лень. Это правильный приоритет.
-    `.trim(),
+    "slug": "avtomatizatsiya-prioritet-ii-sajty",
+    "cover": "https://s3-nl.hostkey.com/robo/demo/aaa41df7-117b-4bcd-8041-af8004500463.jpg",
+    "category": {
+      "ru": "Автоматизация",
+      "en": "Automation"
+    },
+    "title": {
+      "ru": "Автоматизация рутины: что ИИ берёт на себя",
+      "en": "Routine on Autopilot: What AI Takes Off Your Plate"
+    },
+    "description": {
+      "ru": "Как ИИ снимает с бизнеса рутину создания и ведения цифрового продукта — экономия недель работы и денег на штате.",
+      "en": "How AI removes the routine of building and running a digital product, saving weeks of work and payroll costs."
+    },
+    "date": {
+      "ru": "30 июня 2026",
+      "en": "June 30, 2026"
+    },
+    "readTime": {
+      "ru": "5 мин",
+      "en": "5 min"
+    },
+    "content": {
+      "ru": "## Автоматизация рутины: что ИИ берёт на себя\n\nБольшая часть стоимости цифрового продукта уходит не на уникальные идеи, а на однотипную работу: сверстать формы, подключить базу, настроить корзину, оформить личный кабинет, развернуть инфраструктуру. Именно эту рутину платформа RoboWeb автоматизирует — и здесь прячется главная деловая выгода: недели работы превращаются в часы, а бюджет не уходит на содержание команды под каждую мелочь.\n\n### Где рутина съедает деньги бизнеса\n\nПосчитайте, сколько стоит запуск обычного интернет-магазина силами подрядчика. Дизайн, вёрстка, каталог, оформление заказа, интеграция с базой, тестирование на телефонах, деплой на сервер. Каждый этап — это ставки специалистов и календарные недели ожидания. Пока продукт не запущен, он не приносит ни рубля выручки. Простой на старте — это упущенная прибыль, которую редко считают в смете.\n\nИИ берёт на себя именно ту часть, которая повторяется от проекта к проекту. Вы описываете задачу деловым языком — «маркетплейс услуг с личными кабинетами исполнителей и заказчиков» — а платформа собирает рабочий продукт: живой каталог, формы, которые пишут в базу, корзину, оформление заказа, аутентификацию.\n\n### Что конкретно уходит на автопилот\n\n**Сборка структуры.** Страницы, навигация, адаптив под мобильные — без ручной вёрстки под каждый экран. Мобильный трафик часто больше половины, и продукт сразу рассчитан на него.\n\n**Работа с данными.** Формы обратной связи, заявки, заказы попадают в настоящую базу, а не в никуда. Каталог живой: товары и категории хранятся и обновляются, а не прибиты гвоздями в разметку.\n\n**Личные кабинеты и роли.** Регистрация посетителей, вход, разделение прав — типовая, но трудоёмкая логика, которую ИИ разворачивает по описанию.\n\n**Инфраструктура и выгрузка.** Готовый проект на современном стеке выгружается в репозиторий — в GitHub или в российский аналог GitFlic. Вам не нужно вручную настраивать сборку и структуру кода: вы получаете актив, готовый к запуску и развитию.\n\n### Экономика без раздутого штата\n\nСамая недооценённая статья расходов — это не разовая разработка, а *содержание*. Держать в штате верстальщика, бэкендера и девопса ради нерегулярных правок дорого и неэффективно. Автоматизация меняет модель: рутинные изменения — новый раздел, ещё одна форма, правка каталога — делаются по описанию, а дорогих специалистов вы привлекаете только под действительно сложные, уникальные задачи.\n\nДля владельца бизнеса это прямая экономия. Меньше людей в цепочке — меньше согласований, меньше времени на постановку задач, ниже риск, что мелкая правка застрянет в очереди на неделю.\n\n### Скорость как конкурентное преимущество\n\nВ бизнесе выигрывает тот, кто быстрее проверяет гипотезы. Автоматизация рутины сокращает путь от идеи до работающего продукта до считанных дней. Вы запускаете первую версию, смотрите на реальных пользователей и выручку, корректируете. Дешёвая и быстрая итерация — это не про экономию на качестве, а про то, что вы платите не за процесс, а за результат.\n\n### Где всё-таки нужен человек\n\nИИ снимает рутину, но не отменяет здравый смысл. Бизнес-логика ценообразования, договорённости с платёжными провайдерами, юридические тексты, стратегия продукта — это зона решений владельца. Правильная модель: искусственный интеллект делает тяжёлую механическую работу, а вы вкладываете время туда, где создаётся реальная ценность — в предложение, клиентов и деньги.\n\n### С чего начать\n\nВыпишите процессы, которые сейчас держатся на ручном труде: приём заявок в мессенджерах, учёт заказов в таблицах, обновление каталога вручную. Каждый такой процесс — кандидат на автоматизацию. Опишите нужный продукт простыми словами, получите рабочую версию, заберите код в свой репозиторий на GitHub или GitFlic — и у вас на руках актив, который принадлежит бизнесу, а не арендуется у платформы. Именно так рутина перестаёт быть статьёй расходов и становится тем, о чём можно просто не думать.",
+      "en": "## Routine on Autopilot: What AI Takes Off Your Plate\n\nMost of what a digital product costs has nothing to do with original ideas. It goes into repetitive work: wiring up forms, connecting a database, setting up a cart, building user accounts, standing up infrastructure. This is exactly the routine the RoboWeb platform automates — and that is where the real business value hides. Weeks of work collapse into hours, and your budget stops feeding a team hired for every small change.\n\n### Where routine drains money\n\nAdd up what it takes to launch a normal online store through an agency. Design, markup, catalog, checkout, database integration, testing on phones, deployment. Every stage means specialist rates and calendar weeks of waiting. Until the product ships, it earns nothing. That launch delay is lost revenue — a cost rarely written into the estimate.\n\nAI absorbs the part that repeats from project to project. You describe the goal in plain business language — \"a services marketplace with accounts for providers and clients\" — and the platform assembles a working product: a live catalog, forms that write to a database, a cart, checkout, authentication.\n\n### What actually goes on autopilot\n\n**Structure assembly.** Pages, navigation, mobile layouts — no hand-coding each screen. Mobile is often more than half your traffic, and the product is built for it from the start.\n\n**Data handling.** Contact forms, requests, and orders land in a real database instead of disappearing. The catalog is live: products and categories are stored and updated, not nailed into the markup.\n\n**Accounts and roles.** Visitor sign-up, login, permission tiers — standard but labor-heavy logic that AI stands up from a description.\n\n**Infrastructure and export.** The finished project ships on a modern stack into a repository — either GitHub or its Russian equivalent GitFlic. You skip the manual build and code setup: you get an asset ready to launch and grow.\n\n### Economics without a bloated headcount\n\nThe most underrated expense is not the one-time build — it is *upkeep*. Keeping a front-end dev, a back-end dev, and a DevOps engineer on payroll for occasional tweaks is expensive and inefficient. Automation flips the model: routine changes — a new section, another form, a catalog edit — happen from a description, and you bring in costly specialists only for the genuinely hard, unique problems.\n\nFor an owner, that is direct savings. Fewer people in the chain means fewer approvals, less time spent briefing, and less risk that a minor fix sits in a queue for a week.\n\n### Speed as a competitive edge\n\nIn business, the winner is whoever tests hypotheses faster. Automating the routine shrinks the path from idea to working product to a few days. You ship a first version, watch real users and real revenue, and adjust. Cheap, fast iteration is not about cutting quality — it is about paying for outcomes instead of process.\n\n### Where a human is still needed\n\nAI removes the routine, but it does not replace judgment. Pricing logic, deals with payment providers, legal copy, product strategy — those stay the owner's call. The right model: artificial intelligence does the heavy mechanical lifting, and you spend your time where real value is created — the offer, the customers, the money.\n\n### Where to start\n\nList the processes currently held together by manual effort: taking requests in messengers, tracking orders in spreadsheets, updating the catalog by hand. Each is a candidate for automation. Describe the product you need in plain words, get a working version, and pull the code into your own repository on GitHub or GitFlic — and you hold an asset the business owns rather than rents from a platform. That is how routine stops being a line in the budget and becomes something you simply no longer have to think about."
+    }
   },
   {
-    slug: 'zapusk-sajta-prioritety-chek-list',
-    title: 'Чек-лист запуска: 10 приоритетов перед публикацией сайта',
-    description: 'Практический чек-лист из 10 пунктов, которые нужно проверить перед публикацией сайта, созданного с помощью Roboweb.',
-    date: '30 июня 2026',
-    readTime: '4 мин',
-    category: 'Инструкции',
-    cover: 'https://s3-nl.hostkey.com/robo/demo/b7796f12-0c75-4de7-a739-85e27577a6b2.jpg',
-    content: `
-## Чек-лист запуска: 10 приоритетов перед публикацией сайта
-
-Сайт готов — но не спешите нажимать «Опубликовать». Пройдитесь по этому чек-листу за 15 минут и избегите типичных ошибок.
-
-### ✅ 1. Проверьте заголовок страницы
-
-Откройте сайт и посмотрите на вкладку браузера. Там должно быть название вашей компании и ключевое слово, а не «Новый сайт» или «Untitled».
-
-### ✅ 2. Все ссылки работают
-
-Кликните по каждой кнопке и ссылке. Ни одна не должна вести в никуда или выдавать ошибку 404.
-
-### ✅ 3. Форма заявки отправляется
-
-Заполните форму тестовыми данными и убедитесь, что получили уведомление на свою почту.
-
-### ✅ 4. Мобильная версия корректна
-
-Откройте сайт на смартфоне. Всё должно читаться, кнопки нажиматься, форма заполняться без проблем.
-
-### ✅ 5. Контакты реальные и актуальные
-
-Телефон кликабелен, email рабочий, адрес правильный. Проверьте каждый контакт.
-
-### ✅ 6. Нет чужих фото и текстов
-
-Убедитесь, что все изображения ваши или лицензированные. Чужие фото — это юридический риск.
-
-### ✅ 7. Скорость загрузки
-
-Проверьте через Google PageSpeed Insights. Если меньше 50 баллов — попросите Roboweb оптимизировать.
-
-### ✅ 8. SSL работает
-
-В адресной строке должен быть замочек и «https://». Без этого браузеры показывают предупреждение.
-
-### ✅ 9. Политика конфиденциальности
-
-Если на сайте есть форма сбора данных — нужна политика конфиденциальности. Roboweb поможет: «Добавь страницу с политикой конфиденциальности».
-
-### ✅ 10. Метрика подключена
-
-Добавьте Яндекс Метрику или Google Analytics до запуска — иначе потеряете данные первых посетителей.
-
-После того как все 10 пунктов отмечены — смело публикуйте. Ваш сайт готов к работе.
-    `.trim(),
-  },
+    "slug": "zapusk-sajta-prioritety-chek-list",
+    "cover": "https://s3-nl.hostkey.com/robo/demo/b7796f12-0c75-4de7-a739-85e27577a6b2.jpg",
+    "category": {
+      "ru": "Запуск продукта",
+      "en": "Product launch"
+    },
+    "title": {
+      "ru": "Чек-лист запуска: 10 приоритетов перед стартом",
+      "en": "Launch Checklist: 10 Priorities Before You Ship"
+    },
+    "description": {
+      "ru": "Десять бизнес-приоритетов перед публикацией цифрового продукта — от данных и мобайла до выгрузки кода в GitHub или GitFlic.",
+      "en": "Ten business priorities before you publish a digital product — from data and mobile to code export on GitHub or GitFlic."
+    },
+    "date": {
+      "ru": "30 июня 2026",
+      "en": "June 30, 2026"
+    },
+    "readTime": {
+      "ru": "4 мин",
+      "en": "4 min"
+    },
+    "content": {
+      "ru": "## Чек-лист запуска: 10 приоритетов перед стартом\n\nЗапуск цифрового продукта — это не «выложить страницу», а решение о том, что бизнес готов принимать клиентов и деньги. Ниже — десять приоритетов, которые стоит закрыть до публикации. Не про красоту кнопок, а про то, что напрямую влияет на выручку, риски и стоимость владения.\n\n### 1. Продукт решает деловую задачу, а не просто существует\n\nПеред стартом ответьте на один вопрос: какое действие пользователя приносит деньги? Заявка, заказ, регистрация, оплата. Если продукт не ведёт человека к этому действию, всё остальное — декорация. Запуск оправдан, когда есть работающий путь от посетителя к клиенту.\n\n### 2. Данные попадают в базу, а не в пустоту\n\nФормы, заявки и заказы должны сохраняться в настоящую базу данных. Заявка, ушедшая в никуда, — это потерянный клиент и репутационный риск. Проверьте, что каждое обращение фиксируется, доступно для обработки и не теряется при всплеске трафика.\n\n### 3. Мобильные устройства — в приоритете\n\nЧасто больше половины трафика приходит с телефонов. Если на маленьком экране ломается вёрстка или не нажимается кнопка оформления, вы теряете выручку ещё до того, как её увидели. Проверьте ключевые сценарии именно на мобильном, а не только на десктопе.\n\n### 4. Путь к покупке короткий и понятный\n\nКаждый лишний шаг в корзине и оформлении заказа снижает конверсию. Уберите ненужные поля, лишние экраны, непонятные формулировки. Чем меньше препятствий между интересом и оплатой, тем выше выручка при том же трафике.\n\n### 5. Личные кабинеты и роли работают корректно\n\nЕсли продукт предполагает регистрацию, проверьте вход, восстановление доступа и разделение прав. Клиент не должен видеть чужие данные, а сотрудник — иметь доступ туда, куда не положено. Ошибки в правах доступа — это одновременно репутационный и юридический риск.\n\n### 6. Свои данные и базовая безопасность\n\nДанные клиентов — ваш актив и ваша ответственность. До запуска убедитесь, что чувствительная информация не утекает наружу, доступ к панели управления ограничен, а пароли и токены не лежат в открытом виде. Владение данными означает и обязанность их защищать.\n\n### 7. Оплата и юридическая часть закрыты\n\nЕсли принимаете деньги — платёжный провайдер подключён и протестирован на реальном сценарии. Рядом должны быть согласие на обработку данных, публичная оферта и контакты. Это не бюрократия, а условие, при котором бизнес работает легально и вызывает доверие.\n\n### 8. Аналитика включена с первого дня\n\nБез цифр вы управляете вслепую. До публикации подключите базовую аналитику: откуда приходят люди, где отваливаются, что приносит заявки. Первые дни после запуска — самые ценные данные для корректировки продукта.\n\n### 9. Код выгружен и принадлежит вам\n\nКлючевой приоритет для долгосрочной устойчивости — владение кодом как активом, а не аренда чужой платформы. Убедитесь, что готовый проект выгружается в ваш репозиторий: в GitHub или в российский аналог GitFlic. Это значит, что вы не привязаны к одному поставщику, можете передать проект любой команде и развивать продукт на своих условиях. Код в вашем репозитории — это застрахованная инвестиция, а не арендованная витрина.\n\n### 10. Есть план развития после запуска\n\nЗапуск — это не финиш, а старт. Заранее решите, кто и как вносит правки, как быстро вы можете добавить раздел или изменить каталог, где смотрите обратную связь. Продукт, который умеет дёшево и быстро меняться, окупается кратно лучше того, что заморожен в первой версии.\n\n### Как этим пользоваться\n\nПройдите по пунктам сверху вниз и честно отметьте, что закрыто. Пробелы в первых восьми — это прямые потери выручки и риски. Пункты про выгрузку кода и план развития — это про стоимость владения на годы вперёд. Продукт, собранный на платформе RoboWeb, закрывает механику — данные, мобайл, кабинеты, выгрузку в GitHub или GitFlic, — а ваша задача перед стартом убедиться, что бизнес-часть так же готова, как техническая.",
+      "en": "## Launch Checklist: 10 Priorities Before You Ship\n\nLaunching a digital product is not \"putting a page online\" — it is a decision that the business is ready to take on customers and money. Below are ten priorities to close before you publish. Not about pretty buttons, but about what directly moves revenue, risk, and cost of ownership.\n\n### 1. The product solves a business task, not just exists\n\nBefore launch, answer one question: which user action earns money? A request, an order, a sign-up, a payment. If the product does not lead people toward that action, everything else is decoration. A launch is justified when there is a working path from visitor to customer.\n\n### 2. Data lands in a database, not the void\n\nForms, requests, and orders must be stored in a real database. A request that disappears is a lost customer and a reputational risk. Confirm that every inquiry is recorded, available for processing, and survives a traffic spike.\n\n### 3. Mobile comes first\n\nOften more than half of traffic arrives from phones. If the layout breaks on a small screen or the checkout button won't tap, you lose revenue before you ever see it. Test the key flows on mobile, not just on desktop.\n\n### 4. The path to purchase is short and clear\n\nEvery extra step in the cart and checkout lowers conversion. Cut unnecessary fields, redundant screens, and confusing wording. The fewer obstacles between interest and payment, the more revenue you earn from the same traffic.\n\n### 5. Accounts and roles work correctly\n\nIf the product involves sign-up, test login, access recovery, and permission tiers. A customer must not see someone else's data, and a staff member must not reach places they shouldn't. Broken access rules are both a reputational and a legal risk.\n\n### 6. Your own data and basic security\n\nCustomer data is your asset and your responsibility. Before launch, make sure sensitive information doesn't leak, access to the admin panel is restricted, and passwords and tokens aren't sitting in the open. Owning the data also means being obligated to protect it.\n\n### 7. Payments and legal basics are handled\n\nIf you take money, the payment provider is connected and tested on a real scenario. Alongside it you need consent for data processing, public terms, and contacts. This is not bureaucracy — it is what lets the business operate legally and earn trust.\n\n### 8. Analytics is on from day one\n\nWithout numbers you steer blind. Before publishing, connect basic analytics: where people come from, where they drop off, what generates requests. The first days after launch are your most valuable data for adjusting the product.\n\n### 9. The code is exported and belongs to you\n\nThe key priority for long-term resilience is owning the code as an asset rather than renting someone else's platform. Make sure the finished project exports to your own repository — GitHub or its Russian equivalent GitFlic. That means you are not locked to a single vendor, you can hand the project to any team, and you can grow the product on your own terms. Code in your repository is an insured investment, not a rented storefront.\n\n### 10. There is a plan for after launch\n\nLaunch is not the finish line — it is the start. Decide in advance who makes changes and how, how fast you can add a section or update the catalog, and where you review feedback. A product that changes cheaply and quickly pays back far better than one frozen in its first version.\n\n### How to use this\n\nGo through the list top to bottom and honestly mark what is closed. Gaps in the first eight are direct revenue losses and risks. The points about code export and a growth plan are about cost of ownership for years ahead. A product built on the RoboWeb platform covers the mechanics — data, mobile, accounts, export to GitHub or GitFlic — and your job before launch is to make sure the business side is as ready as the technical one."
+    }
+  }
 ];
 
 export const getArticle = (slug: string) => ARTICLES.find(a => a.slug === slug);

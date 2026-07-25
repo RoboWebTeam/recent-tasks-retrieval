@@ -10,7 +10,7 @@ import { SiteFooter } from '@/components/SiteFooter';
 export default function Blog() {
   const lang = getLang();
   const ALL = tr('blogAll', lang);
-  const CATEGORIES = [ALL, ...Array.from(new Set(ARTICLES.map(a => a.category)))];
+  const CATEGORIES = [ALL, ...Array.from(new Set(ARTICLES.map(a => a.category[lang])))];
   const [searchParams] = useSearchParams();
 
   const [category, setCategory] = useState(ALL);
@@ -38,7 +38,7 @@ export default function Blog() {
   const isFiltering = category !== ALL;
 
   const filtered = useMemo(() => {
-    return ARTICLES.filter(a => category === ALL || a.category === category);
+    return ARTICLES.filter(a => category === ALL || a.category[lang] === category);
   }, [category]);
 
   const featured = !isFiltering ? filtered[0] : null;
@@ -102,7 +102,7 @@ export default function Blog() {
               {cat}
               {cat !== ALL && (
                 <span className={`ml-1.5 text-[10px] font-bold ${category === cat ? 'opacity-70' : 'opacity-50'}`}>
-                  {ARTICLES.filter(a => a.category === cat).length}
+                  {ARTICLES.filter(a => a.category[lang] === cat).length}
                 </span>
               )}
             </button>
@@ -137,24 +137,24 @@ export default function Blog() {
                 className="group relative flex flex-col md:flex-row mb-8 sm:mb-10 rounded-3xl border border-border bg-card overflow-hidden hover:shadow-2xl hover:border-primary/30 transition-all duration-300"
               >
                 <div className="relative w-full md:w-1/2 h-56 sm:h-72 md:h-auto overflow-hidden bg-muted shrink-0">
-                  <img src={featured.cover} alt={featured.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                  <img src={featured.cover} alt={featured.title[lang]} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/0 to-black/0 md:bg-gradient-to-r" />
                   <span className="absolute top-3 left-3 rounded-full bg-primary px-3 py-1 text-[10px] font-bold text-primary-foreground uppercase tracking-wide">
                     {lang === 'ru' ? 'Свежее' : 'Latest'}
                   </span>
                 </div>
                 <div className="flex flex-col justify-center flex-1 p-6 sm:p-8 md:p-10">
-                  <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary w-fit mb-3">{featured.category}</span>
+                  <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary w-fit mb-3">{featured.category[lang]}</span>
                   <h2 className="font-display font-bold text-xl sm:text-2xl md:text-3xl leading-snug group-hover:text-primary transition-colors break-words">
-                    {featured.title}
+                    {featured.title[lang]}
                   </h2>
-                  <p className="mt-3 text-sm sm:text-base text-muted-foreground line-clamp-2 sm:line-clamp-3">{featured.description}</p>
+                  <p className="mt-3 text-sm sm:text-base text-muted-foreground line-clamp-2 sm:line-clamp-3">{featured.description[lang]}</p>
                   <div className="mt-5 flex items-center gap-4">
                     <span className="text-xs text-muted-foreground flex items-center gap-1.5">
-                      <Icon name="Calendar" size={12} />{featured.date}
+                      <Icon name="Calendar" size={12} />{featured.date[lang]}
                     </span>
                     <span className="text-xs text-muted-foreground flex items-center gap-1.5">
-                      <Icon name="Clock" size={12} />{featured.readTime} {tr('blogReadTime', lang)}
+                      <Icon name="Clock" size={12} />{featured.readTime[lang]} {tr('blogReadTime', lang)}
                     </span>
                   </div>
                   <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-primary group-hover:gap-2.5 transition-all w-fit">
@@ -173,21 +173,21 @@ export default function Blog() {
                   className="group flex flex-col rounded-3xl border border-border bg-card overflow-hidden hover:shadow-2xl hover:-translate-y-1 hover:border-primary/30 transition-all duration-300"
                 >
                   <div className="relative h-44 sm:h-48 overflow-hidden bg-muted">
-                    <img src={article.cover} alt={article.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
+                    <img src={article.cover} alt={article.title[lang]} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
                     <span className="absolute top-3 left-3 rounded-full bg-black/50 backdrop-blur px-2.5 py-1 text-[10px] font-semibold text-white flex items-center gap-1">
-                      <Icon name="Clock" size={10} />{article.readTime} {tr('blogReadTime', lang)}
+                      <Icon name="Clock" size={10} />{article.readTime[lang]} {tr('blogReadTime', lang)}
                     </span>
                   </div>
                   <div className="flex flex-col flex-1 p-5 sm:p-6">
-                    <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary w-fit max-w-full truncate mb-3">{article.category}</span>
+                    <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary w-fit max-w-full truncate mb-3">{article.category[lang]}</span>
                     <h2 className="font-display font-bold text-base sm:text-lg leading-snug group-hover:text-primary transition-colors flex-1 line-clamp-2 break-words">
-                      {article.title}
+                      {article.title[lang]}
                     </h2>
-                    <p className="mt-3 text-sm text-muted-foreground line-clamp-2">{article.description}</p>
+                    <p className="mt-3 text-sm text-muted-foreground line-clamp-2">{article.description[lang]}</p>
                     <div className="mt-5 flex items-center justify-between">
                       <span className="text-xs text-muted-foreground flex items-center gap-1.5">
-                        <Icon name="Calendar" size={12} />{article.date}
+                        <Icon name="Calendar" size={12} />{article.date[lang]}
                       </span>
                       <span className="inline-flex items-center gap-1 text-xs font-semibold text-primary group-hover:gap-2 transition-all">
                         {tr('blogRead', lang)} <Icon name="ArrowRight" size={13} />
