@@ -12,19 +12,19 @@ export function IndexSectionsTop({ lang }: Props) {
   const TRUST         = getTRUST(lang);
   const STEPS         = getSTEPS(lang);
   const DOORS = lang === 'ru' ? [
-    { icon: 'Briefcase', tag: 'Фрилансерам и студиям', title: 'Делай сайты клиентам за час', text: 'Собери рабочий сайт по брифу и отдай настоящий код на Next.js прямо в GitHub клиента. Фикс-цена вместо почасовки — твоя ИИ-команда разработки.', cta: 'Стать быстрее', hot: true },
-    { icon: 'Store', tag: 'Бизнесу и самозанятым', title: 'Сайт, который принимает заявки', text: 'Формы пишут в базу, живой каталог, корзина и оформление заказа — без разработчика и без кода. Сайт, который работает, а не просто выглядит.', cta: 'Запуститься онлайн', hot: false },
-    { icon: 'Code2', tag: 'Разработчикам', title: 'Готовый каркас за минуту', text: 'Next.js + Prisma + аккаунты + корзина — экспортом в твой GitHub. Скелет собран и собирается, дальше допиливаешь сам.', cta: 'Забрать код', hot: false },
+    { icon: 'Briefcase', tag: 'Фрилансерам и студиям', title: 'Делайте сайты клиентам за час', text: 'Соберите рабочий сайт по брифу и отдайте настоящий код на Next.js прямо в GitHub клиента. Фикс-цена вместо почасовки — ваша ИИ-команда разработки.', cta: 'Собрать сайт клиенту', hot: true },
+    { icon: 'Store', tag: 'Бизнесу и самозанятым', title: 'Сайт, который принимает заявки', text: 'Формы пишут в базу, живой каталог, корзина и оформление заказа — без разработчика и без кода. Сайт, который работает, а не просто выглядит.', cta: 'Запустить сайт', hot: false },
+    { icon: 'Code2', tag: 'Разработчикам', title: 'Готовый каркас за минуту', text: 'Next.js + Prisma + аккаунты + корзина — экспортом в ваш GitHub. Рабочий каркас на старте — дальше допиливаете код сами.', cta: 'Забрать код', hot: false },
   ] : [
-    { icon: 'Briefcase', tag: 'Freelancers & studios', title: 'Ship client sites in an hour', text: 'Build a working site from a brief and hand over real Next.js code straight to the client\'s GitHub. Fixed price instead of hourly — your AI dev team.', cta: 'Get faster', hot: true },
-    { icon: 'Store', tag: 'Small business', title: 'A site that takes orders', text: 'Forms save to a database, a live catalog, cart and checkout — no developer, no code. A site that works, not just looks good.', cta: 'Launch online', hot: false },
-    { icon: 'Code2', tag: 'Developers', title: 'A ready scaffold in a minute', text: 'Next.js + Prisma + accounts + cart, exported to your GitHub. The skeleton is built and compiles — you finish the rest.', cta: 'Grab the code', hot: false },
+    { icon: 'Briefcase', tag: 'Freelancers & studios', title: 'Ship client sites in an hour', text: 'Build a working site from a brief and hand over real Next.js code straight to the client\'s GitHub. Fixed price instead of hourly — your AI dev team.', cta: 'Build a client site', hot: true },
+    { icon: 'Store', tag: 'Small business', title: 'A site that takes orders', text: 'Forms save to a database, a live catalog, cart and checkout — no developer, no code. A site that works, not just looks good.', cta: 'Launch a site', hot: false },
+    { icon: 'Code2', tag: 'Developers', title: 'A ready scaffold in a minute', text: 'Next.js + Prisma + accounts + cart, exported to your GitHub. A working scaffold to start from — you finish the rest.', cta: 'Grab the code', hot: false },
   ];
 
   return (
     <>
       {/* B2B-ПРИЗЫВ: профессиональный инструмент уровня команды разработки */}
-      <section className="py-16 md:py-24 border-b border-border bg-card/30">
+      <section className="py-16 md:py-24 border-y border-border bg-secondary/60">
         <div className="container">
           <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
             <Reveal>
@@ -56,6 +56,10 @@ export function IndexSectionsTop({ lang }: Props) {
                     </Button>
                   </a>
                 </div>
+                <p className="mt-4 flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground">
+                  <Icon name="Check" size={15} className="text-primary shrink-0" />
+                  {lang === 'ru' ? 'Первый проект бесплатно · без карты · код в вашем GitHub' : 'First project free · no card · code in your GitHub'}
+                </p>
               </div>
             </Reveal>
             <Reveal delay={100}>
@@ -86,7 +90,7 @@ export function IndexSectionsTop({ lang }: Props) {
       </section>
 
       {/* 3 ДВЕРИ — под 3 аудитории (позиционирование: ИИ-разработчик, не конструктор) */}
-      <section id="doors" className="py-16 md:py-24">
+      <section id="doors" className="py-20 md:py-32">
         <div className="container">
           <Reveal>
             <div className="text-center max-w-2xl mx-auto px-2">
@@ -102,7 +106,7 @@ export function IndexSectionsTop({ lang }: Props) {
           <div className="mt-10 md:mt-14 grid md:grid-cols-3 gap-4 md:gap-6">
             {DOORS.map((d, i) => (
               <Reveal key={d.tag} delay={i * 80}>
-                <div className={`group relative h-full rounded-2xl md:rounded-3xl border p-6 md:p-8 transition-all duration-300 hover:shadow-xl ${d.hot ? 'border-primary/40 bg-primary/[0.04] hover:shadow-primary/15' : 'border-border bg-card hover:border-primary/30 hover:shadow-primary/10'}`}>
+                <div className={`group relative h-full rounded-3xl border p-6 md:p-8 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${d.hot ? 'border-primary/40 bg-primary/[0.04] hover:shadow-primary/15' : 'border-border bg-card hover:border-primary/30 hover:shadow-primary/10'}`}>
                   {d.hot && (
                     <span className="absolute top-5 right-5 text-[11px] font-bold uppercase tracking-wide text-primary bg-primary/10 rounded-full px-2.5 py-1">
                       {lang === 'ru' ? 'рекомендуем' : 'top pick'}
@@ -126,7 +130,7 @@ export function IndexSectionsTop({ lang }: Props) {
       </section>
 
       {/* FEATURES */}
-      <section id="features" className="py-16 md:py-24">
+      <section id="features" className="py-16 md:py-24 border-y border-border bg-secondary/60">
         <div className="container">
           <Reveal>
             <div className="text-center max-w-2xl mx-auto px-2">
@@ -142,8 +146,8 @@ export function IndexSectionsTop({ lang }: Props) {
           <div className="mt-10 md:mt-14 grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {FEATURES.map((f, i) => (
               <Reveal key={f.title} delay={i * 70}>
-                <div className="group h-full rounded-2xl md:rounded-3xl border border-border bg-card p-5 md:p-7 transition-all duration-300 hover:shadow-xl hover:shadow-primary/10 hover:border-primary/30 cursor-default">
-                  <span className="grid h-10 w-10 md:h-12 md:w-12 place-items-center rounded-xl md:rounded-2xl bg-primary/10 text-primary transition-all duration-300 group-hover:bg-primary group-hover:text-primary-foreground group-hover:scale-110">
+                <div className="group h-full rounded-3xl border border-border bg-card p-5 md:p-7 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10 hover:border-primary/30 cursor-default">
+                  <span className="grid h-10 w-10 md:h-12 md:w-12 place-items-center rounded-2xl bg-primary/10 text-primary transition-all duration-300 group-hover:bg-primary group-hover:text-primary-foreground group-hover:scale-110">
                     <Icon name={f.icon} size={20} />
                   </span>
                   <h3 className="mt-4 font-display font-bold text-lg md:text-xl">{f.title}</h3>
@@ -152,21 +156,30 @@ export function IndexSectionsTop({ lang }: Props) {
               </Reveal>
             ))}
           </div>
+          <Reveal>
+            <div className="mt-10 text-center">
+              <a href="/register" className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground font-semibold px-8 py-3 hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20 text-sm sm:text-base">
+                <Icon name="Sparkles" size={16} />
+                {lang === 'ru' ? 'Собрать проект бесплатно' : 'Build your project free'}
+                <Icon name="ArrowRight" size={16} />
+              </a>
+            </div>
+          </Reveal>
         </div>
       </section>
 
       {/* TRUST STATS */}
-      <section className="py-12 md:py-16 border-y border-border bg-card/40">
+      <section className="py-12 md:py-16 border-y border-border">
         <div className="container">
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-8">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-y-8 md:divide-x md:divide-border">
             {TRUST.map((t, i) => (
               <Reveal key={t.label} delay={i * 80}>
-                <div className="text-center flex flex-col items-center">
-                  <div className="inline-flex items-center justify-center h-11 w-11 rounded-xl bg-primary/10 mb-3">
-                    <Icon name={t.icon} size={20} className="text-primary" />
+                <div className="text-center flex flex-col items-center md:px-6">
+                  <div className="inline-flex items-center justify-center h-12 w-12 rounded-2xl bg-primary/10 mb-3">
+                    <Icon name={t.icon} size={22} className="text-primary" />
                   </div>
-                  <div className="font-display font-bold text-base sm:text-lg text-foreground tracking-tight">{t.value}</div>
-                  <div className="text-xs sm:text-sm text-muted-foreground mt-1.5 max-w-[15rem] leading-relaxed">{t.label}</div>
+                  <div className="font-display font-bold text-lg sm:text-xl text-foreground tracking-tight">{t.value}</div>
+                  <div className="text-xs sm:text-sm text-muted-foreground mt-1.5 leading-relaxed">{t.label}</div>
                 </div>
               </Reveal>
             ))}
@@ -175,7 +188,7 @@ export function IndexSectionsTop({ lang }: Props) {
       </section>
 
       {/* COMPARE TABLE */}
-      <section className="py-16 md:py-24">
+      <section className="py-16 md:py-24 border-y border-border bg-secondary/60">
         <div className="container">
           <Reveal>
             <div className="text-center max-w-2xl mx-auto px-2 mb-10 md:mb-14">
@@ -190,7 +203,7 @@ export function IndexSectionsTop({ lang }: Props) {
           </Reveal>
           <Reveal>
             <div className="overflow-x-auto rounded-2xl md:rounded-3xl border border-border">
-              <table className="w-full text-sm">
+              <table className="w-full min-w-[620px] text-sm">
                 <thead>
                   <tr className="border-b border-border bg-secondary/50">
                     <th className="text-left p-4 md:p-5 font-display font-bold text-base">{lang === 'ru' ? 'Критерий' : 'Criteria'}</th>
@@ -238,7 +251,7 @@ export function IndexSectionsTop({ lang }: Props) {
       </section>
 
       {/* PROCESS */}
-      <section id="process" className="py-16 md:py-24 bg-card/40 border-y border-border relative overflow-hidden">
+      <section id="process" className="py-16 md:py-24 relative overflow-hidden">
         <div className="absolute -top-20 left-1/2 -translate-x-1/2 h-80 w-[40rem] rounded-full bg-primary/10 blur-3xl" />
         <div className="container relative">
           <Reveal>
@@ -252,7 +265,7 @@ export function IndexSectionsTop({ lang }: Props) {
           <div className="mt-10 md:mt-14 grid sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
             {STEPS.map((s, i) => (
               <Reveal key={s.n} delay={i * 120}>
-                <div className="relative rounded-2xl md:rounded-3xl border border-border bg-card p-5 md:p-7 h-full group hover:border-primary/30 transition-all duration-300">
+                <div className="relative rounded-3xl border border-border bg-card p-5 md:p-7 h-full group hover:-translate-y-1 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300">
                   <div className="font-display font-bold text-4xl md:text-5xl text-primary/80 group-hover:text-primary transition-colors">{s.n}</div>
                   <h3 className="mt-3 md:mt-4 font-display font-bold text-lg md:text-xl">{s.title}</h3>
                   <p className="mt-2 text-muted-foreground text-sm md:text-base">{s.text}</p>

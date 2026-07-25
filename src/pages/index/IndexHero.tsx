@@ -42,8 +42,8 @@ export function IndexNav({ lang, menuOpen, setMenuOpen, onLangSwitch }: IndexNav
         <div className="hidden md:flex items-center gap-6 lg:gap-7 text-sm font-medium text-muted-foreground">
           {NAV.map((n) => (
             n.href.startsWith('/') && !n.href.startsWith('/#')
-              ? <Link key={n.href} to={n.href} className="hover:text-foreground transition-colors relative group">{n.label}<span className="absolute -bottom-0.5 left-0 h-px w-0 bg-primary transition-all group-hover:w-full" /></Link>
-              : <a key={n.href} href={n.href} className="hover:text-foreground transition-colors relative group">{n.label}<span className="absolute -bottom-0.5 left-0 h-px w-0 bg-primary transition-all group-hover:w-full" /></a>
+              ? <Link key={n.href} to={n.href} className="whitespace-nowrap hover:text-foreground transition-colors relative group">{n.label}<span className="absolute -bottom-0.5 left-0 h-px w-0 bg-primary transition-all group-hover:w-full" /></Link>
+              : <a key={n.href} href={n.href} className="whitespace-nowrap hover:text-foreground transition-colors relative group">{n.label}<span className="absolute -bottom-0.5 left-0 h-px w-0 bg-primary transition-all group-hover:w-full" /></a>
           ))}
         </div>
         <div className="flex items-center gap-2">
@@ -102,14 +102,16 @@ export function IndexNav({ lang, menuOpen, setMenuOpen, onLangSwitch }: IndexNav
           <button
             onClick={() => setMenuOpen((v) => !v)}
             className="md:hidden grid h-9 w-9 place-items-center rounded-xl border border-border bg-card transition-colors hover:bg-secondary"
-            aria-label="Меню"
+            aria-label={lang === 'ru' ? 'Меню' : 'Menu'}
+            aria-expanded={menuOpen}
+            aria-controls="mobile-nav"
           >
             <Icon name={menuOpen ? 'X' : 'Menu'} size={20} />
           </button>
         </div>
       </nav>
       {menuOpen && (
-        <div className="md:hidden border-t border-border bg-background/95 backdrop-blur-xl px-4 pb-6 pt-4 space-y-1 animate-slide-up">
+        <div id="mobile-nav" className="md:hidden border-t border-border bg-background/95 backdrop-blur-xl px-4 pb-6 pt-4 space-y-1 animate-slide-up">
           {NAV.map((n) => (
             n.href.startsWith('/') && !n.href.startsWith('/#')
               ? <Link key={n.href} to={n.href} onClick={() => setMenuOpen(false)} className="flex items-center gap-2 py-3 px-4 rounded-xl font-medium hover:bg-secondary transition-colors">{n.label}</Link>
@@ -153,6 +155,7 @@ export function IndexHero({ lang, typedText, chatStep, isTyping, progress, chatS
   const handleParallax = (e: React.MouseEvent) => {
     const el = secRef.current;
     if (!el) return;
+    if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const r = el.getBoundingClientRect();
     el.style.setProperty('--px', (((e.clientX - r.left) / r.width) - 0.5).toFixed(3));
     el.style.setProperty('--py', (((e.clientY - r.top) / r.height) - 0.5).toFixed(3));
@@ -180,8 +183,11 @@ export function IndexHero({ lang, typedText, chatStep, isTyping, progress, chatS
             <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
             {L.hero.badge[lang]}
           </span>
-          <h1 className="mt-5 font-display font-bold leading-[1.02] text-5xl sm:text-6xl md:text-7xl xl:text-7xl 2xl:text-8xl tracking-tight">
-            <span className="text-gradient-animated inline-block min-h-[1.1em] drop-shadow-[0_4px_30px_hsl(232_90%_58%_/_0.28)]">
+          <h1
+            aria-label={L.hero.badge[lang]}
+            className="mt-5 font-display font-bold leading-[1.02] text-4xl sm:text-6xl md:text-7xl xl:text-7xl 2xl:text-8xl tracking-tight break-words hyphens-auto"
+          >
+            <span aria-hidden="true" className="text-gradient-animated inline-block min-h-[1.1em] drop-shadow-[0_4px_30px_hsl(232_90%_58%_/_0.28)]">
               {typedText}
               <span className="typed-cursor">|</span>
             </span>
@@ -204,6 +210,10 @@ export function IndexHero({ lang, typedText, chatStep, isTyping, progress, chatS
               <Icon name="Play" size={16} className="mr-1" /> {L.hero.demo[lang]}
             </Button>
           </div>
+          <p className="mt-4 flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground justify-center lg:justify-start">
+            <Icon name="Check" size={15} className="text-primary shrink-0" />
+            {lang === 'ru' ? 'Бесплатный старт · карта не нужна · код остаётся у вас' : 'Free to start · no card · the code stays yours'}
+          </p>
 
           {/* Trust proof-points (конкретные возможности вместо вымышленных цифр) */}
           <div className="mt-8 flex items-center justify-center lg:justify-start gap-x-5 gap-y-2.5 flex-wrap">

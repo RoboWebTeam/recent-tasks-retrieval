@@ -398,7 +398,17 @@ section[id] {
   50% { opacity: 0.6; transform: scale(1.05); }
 }
 @media (prefers-reduced-motion: reduce) {
-  .text-gradient-animated, .aurora, .cta-glow { animation: none !important; }
+  .text-gradient-animated, .aurora, .cta-glow,
+  .animate-glow, .animate-pulse-ring, .animate-pulse, .animate-bounce-x { animation: none !important; }
+  .animate-fade-in, .animate-slide-up, .animate-scale-in { animation: none !important; opacity: 1 !important; transform: none !important; }
+  .typed-cursor { animation: none !important; opacity: 1; }
+}
+
+/* Единое видимое кольцо фокуса для клавиатурной навигации (обе темы) */
+:focus-visible {
+  outline: 2px solid hsl(var(--ring));
+  outline-offset: 2px;
+  border-radius: 0.375rem;
 }
 
 /* --- Extra wow: glow frame + counter pop (feat/hero-bold-visual) --- */

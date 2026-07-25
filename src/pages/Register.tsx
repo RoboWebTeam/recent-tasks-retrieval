@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
@@ -11,8 +11,13 @@ import { trackGoal, GOALS } from '@/lib/analytics';
 
 const Register = () => {
   const lang = getLang();
+  const [searchParams] = useSearchParams();
+  // Контекст из лендинга: e-mail из форм, промпт из портфолио, намерение тарифа.
+  const emailParam = searchParams.get('email') || '';
+  const promptParam = searchParams.get('prompt') || '';
+  const planParam = searchParams.get('plan') || '';
   const [name, setName] = useState('');
-  const [email, setEmail] = useState('');
+  const [email, setEmail] = useState(emailParam);
   const [password, setPassword] = useState('');
   const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
@@ -42,7 +47,13 @@ const Register = () => {
       storeUser(data.user as Parameters<typeof storeUser>[0]);
       trackGoal(GOALS.REGISTRATION_SUCCESS);
       localStorage.setItem('show_energy_bonus', '1');
-      window.location.href = '/dashboard';
+      // Ведём туда, откуда пришёл интент: собрать по промпту → оплатить тариф → иначе кабинет.
+      const dest = promptParam
+        ? `/builder?prompt=${encodeURIComponent(promptParam)}`
+        : (planParam && planParam !== 'free' && planParam !== 'trial')
+          ? `/pricing?plan=${encodeURIComponent(planParam)}`
+          : '/dashboard';
+      window.location.href = dest;
     } catch (err: unknown) {
       setError(err instanceof Error ? err.message : tr('builderError', lang));
     } finally {

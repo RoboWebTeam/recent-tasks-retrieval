@@ -68,7 +68,7 @@ function PortfolioSection({ lang, portfolio }: { lang: Lang; portfolio: DemoItem
   };
 
   return (
-    <section id="portfolio" className="py-16 md:py-24 bg-secondary/30">
+    <section id="portfolio" className="py-20 md:py-32">
       <div className="container">
         <Reveal>
           <div className="text-center max-w-2xl mx-auto px-2 mb-6">
@@ -220,13 +220,31 @@ export function IndexSectionsMiddle({ lang }: Props) {
     return () => { cancelled = true; };
   }, [lang]);
 
+  type Pillar = { icon: string; title: string; text: string; link?: { href: string; label: string } };
+  const EGRUL = 'https://egrul.nalog.ru/';
+  const PILLARS: Pillar[] = lang === 'ru' ? [
+    { icon: "Code2", title: "Вы владеете кодом", text: "Готовый проект выгружается как настоящий Next.js + Prisma в ваш GitHub — фронтенд, бэкенд, схема БД и аккаунты. Это ваш актив, а не аренда платформы: он остаётся у вас, даже если вы уйдёте от нас." },
+    { icon: "Database", title: "Данные в вашей БД", text: "Заявки, каталог, заказы и пользователи пишутся в вашу PostgreSQL, изолированную по проекту, по HTTPS/SSL. Данные под вашим контролем — выгружайте, переносите или удаляйте их в любой момент." },
+    { icon: "KeyRound", title: "Ноль вендор-лока", text: "Забрали код — разворачивайте где угодно: Vercel, свой сервер, чужая команда. Уйти реально в один клик, и это осознанная позиция, а не недоработка: вы не зависите от нашей судьбы как компании." },
+    { icon: "Server", title: "Реальный стек, не чёрный ящик", text: "Next.js, Prisma, PostgreSQL — индустриальный стандарт, который поддержит любой разработчик на рынке. Никакого проприетарного формата: проект можно читать и продолжать без нас." },
+    { icon: "FileCheck", title: "Прозрачно и до оплаты", text: "Вы видите живое приложение, схему базы и весь код ещё до оплаты и публикации — никаких чёрных ящиков. Цена фиксированная за готовый продукт, без скрытых часов и сюрпризов в счёте." },
+    { icon: "RefreshCw", title: "Возврат денег 7 дней", text: "Если оплаченные функции не использовались, вернём оплату в течение 7 дней по оферте. Риск на нас, а не на вас." },
+    { icon: "Building2", title: "Реальная компания, честная о новизне", text: "За сервисом стоит зарегистрированное ИП с ОГРНИП и ИНН и публичная оферта. Мы не показываем выдуманных клиентов и оценок — только то, что можно проверить.", link: { href: EGRUL, label: "Проверить в ЕГРИП" } },
+  ] : [
+    { icon: "Code2", title: "You own the code", text: "The finished project exports as real Next.js + Prisma into your GitHub — frontend, backend, DB schema and accounts. It's your asset, not a rented platform: it stays with you even if you leave us." },
+    { icon: "Database", title: "Data in your own DB", text: "Leads, catalog, orders and users are written to your PostgreSQL, isolated per project, over HTTPS/SSL. The data is under your control — export, migrate or delete it at any time." },
+    { icon: "KeyRound", title: "Zero vendor lock-in", text: "Once you have the code, deploy it anywhere: Vercel, your own server, another team. Leaving is genuinely one click — a deliberate stance, not an oversight: you don't depend on our fate as a company." },
+    { icon: "Server", title: "A real stack, not a black box", text: "Next.js, Prisma, PostgreSQL — an industry standard any developer on the market can maintain. No proprietary format: the project can be read and continued without us." },
+    { icon: "FileCheck", title: "Transparent, before you pay", text: "You see the live app, the database schema and all the code before you pay or publish — no black boxes. A fixed price for a finished product, with no hidden hours or surprises on the invoice." },
+    { icon: "RefreshCw", title: "7-day money back", text: "If the paid features weren't used, we refund within 7 days under the offer. The risk is on us, not you." },
+    { icon: "Building2", title: "A real company, honest that it's new", text: "Behind the service is a registered sole proprietor with a state ID (ОГРНИП/ИНН) and a public offer. We show no invented clients or ratings — only what you can verify.", link: { href: EGRUL, label: "Verify on the register" } },
+  ];
+
   return (
     <>
-      {/* PORTFOLIO */}
-      <PortfolioSection lang={lang} portfolio={portfolio} />
-
-      {/* TRUST — почему нам можно доверить проект (заменяет фейковые отзывы) */}
-      <section className="py-16 md:py-24 bg-secondary/40">
+      {/* TRUST — почему нам можно доверить проект (заменяет фейковые отзывы); выше портфолио,
+          чтобы возражения снимались ДО длинного скролла демо-сайтов */}
+      <section className="py-16 md:py-24 border-y border-border bg-secondary/60">
         <div className="container">
           <Reveal>
             <div className="text-center max-w-2xl mx-auto px-2 mb-10 md:mb-14">
@@ -240,34 +258,28 @@ export function IndexSectionsMiddle({ lang }: Props) {
             </div>
           </Reveal>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
-            {(lang === 'ru' ? [
-              { icon: "Code2", title: "Вы владеете кодом", text: "Готовый проект выгружается как настоящий Next.js + Prisma в ваш GitHub — фронтенд, бэкенд, схема БД и аккаунты. Это ваш актив, а не аренда платформы: он остаётся у вас, даже если вы уйдёте от нас." },
-              { icon: "Database", title: "Данные в вашей БД", text: "Заявки, каталог, заказы и пользователи пишутся в вашу PostgreSQL, изолированную по проекту, по HTTPS/SSL. Данные под вашим контролем — выгружайте, переносите или удаляйте их в любой момент." },
-              { icon: "KeyRound", title: "Ноль вендор-лока", text: "Забрали код — разворачивайте где угодно: Vercel, свой сервер, чужая команда. Уйти реально в один клик, и это осознанная позиция, а не недоработка: вы не зависите от нашей судьбы как компании." },
-              { icon: "Server", title: "Реальный стек, не чёрный ящик", text: "Next.js, Prisma, PostgreSQL — индустриальный стандарт, который поддержит любой разработчик на рынке. Никакого проприетарного формата: проект можно читать и продолжать без нас." },
-              { icon: "FileCheck", title: "Прозрачно и до оплаты", text: "Вы видите живое приложение, схему базы и весь код ещё до оплаты и публикации — никаких чёрных ящиков. Цена фиксированная за готовый продукт, без скрытых часов и сюрпризов в счёте." },
-              { icon: "Building2", title: "Реальная компания, честная о новизне", text: "За сервисом стоит зарегистрированное ИП с ОГРНИП и ИНН и публичная оферта — это можно проверить в реестре. Мы не показываем выдуманных клиентов и оценок; вместо них — возврат в течение 7 дней по оферте, если оплаченные функции не использовались." }
-            ] : [
-              { icon: "Code2", title: "You own the code", text: "The finished project exports as real Next.js + Prisma into your GitHub — frontend, backend, DB schema and accounts. It's your asset, not a rented platform: it stays with you even if you leave us." },
-              { icon: "Database", title: "Data in your own DB", text: "Leads, catalog, orders and users are written to your PostgreSQL, isolated per project, over HTTPS/SSL. The data is under your control — export, migrate or delete it at any time." },
-              { icon: "KeyRound", title: "Zero vendor lock-in", text: "Once you have the code, deploy it anywhere: Vercel, your own server, another team. Leaving is genuinely one click — a deliberate stance, not an oversight: you don't depend on our fate as a company." },
-              { icon: "Server", title: "A real stack, not a black box", text: "Next.js, Prisma, PostgreSQL — an industry standard any developer on the market can maintain. No proprietary format: the project can be read and continued without us." },
-              { icon: "FileCheck", title: "Transparent, before you pay", text: "You see the live app, the database schema and all the code before you pay or publish — no black boxes. A fixed price for a finished product, with no hidden hours or surprises on the invoice." },
-              { icon: "Building2", title: "A real company, honest that it's new", text: "Behind the service is a registered sole proprietor with a state ID (ОГРНИП/ИНН) and a public offer — verifiable on the state register. We show no invented clients or ratings; instead — a refund within 7 days under the offer if the paid features weren't used." }
-            ]).map((p, i) => (
+            {PILLARS.map((p, i) => (
               <Reveal key={p.title} delay={i * 60}>
-                <div className="h-full rounded-2xl md:rounded-3xl bg-card border border-border p-5 md:p-6 flex flex-col gap-3 hover:border-primary/30 transition-colors duration-300">
-                  <span className="grid h-11 w-11 place-items-center rounded-xl bg-primary/10 text-primary">
+                <div className="group h-full rounded-3xl bg-card border border-border p-5 md:p-6 flex flex-col gap-3 hover:-translate-y-1 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300">
+                  <span className="grid h-11 w-11 place-items-center rounded-2xl bg-primary/10 text-primary transition-all duration-300 group-hover:bg-primary group-hover:text-primary-foreground group-hover:scale-110">
                     <Icon name={p.icon} size={20} />
                   </span>
                   <h3 className="mt-1 font-display font-bold text-lg">{p.title}</h3>
                   <p className="text-muted-foreground text-sm md:text-base leading-relaxed">{p.text}</p>
+                  {p.link && (
+                    <a href={p.link.href} target="_blank" rel="noopener noreferrer" className="mt-auto inline-flex items-center gap-1 text-sm font-semibold text-primary hover:underline">
+                      {p.link.label} <Icon name="ArrowUpRight" size={14} />
+                    </a>
+                  )}
                 </div>
               </Reveal>
             ))}
           </div>
         </div>
       </section>
+
+      {/* PORTFOLIO */}
+      <PortfolioSection lang={lang} portfolio={portfolio} />
 
       {/* CTA 2 */}
       <section className="py-16 md:py-20 bg-gradient-to-r from-primary to-[hsl(224,60%,44%)]">

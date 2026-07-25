@@ -34,8 +34,9 @@ export function IndexSectionsBottom({ lang }: Props) {
   return (
     <>
       {/* PRICING */}
-      <section id="pricing" className="py-16 md:py-24 bg-secondary/50">
-        <div className="container">
+      <section id="pricing" className="relative overflow-hidden py-20 md:py-32 border-y border-border bg-secondary/60">
+        <div className="absolute -top-24 left-1/2 -translate-x-1/2 h-80 w-[42rem] rounded-full bg-primary/10 blur-3xl pointer-events-none" />
+        <div className="container relative">
           <Reveal>
             <div className="text-center max-w-2xl mx-auto px-2">
               <span className="text-xs sm:text-sm font-semibold uppercase tracking-widest text-primary">{L.pricing.label[lang]}</span>
@@ -50,7 +51,7 @@ export function IndexSectionsBottom({ lang }: Props) {
           <div className="mt-10 md:mt-14 grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 max-w-5xl mx-auto">
             {PLANS.map((p, i) => (
               <Reveal key={`${p.name}-${p.tag}`} delay={i * 100}>
-                <div className={`relative h-full rounded-2xl md:rounded-3xl border p-6 md:p-8 transition-all duration-300 hover:shadow-xl flex flex-col ${
+                <div className={`relative h-full rounded-3xl border p-6 md:p-8 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl flex flex-col ${
                   p.hot ? 'border-primary bg-card shadow-2xl shadow-primary/15' : 'border-border bg-card'
                 }`}>
                   {p.badge && (
@@ -79,13 +80,13 @@ export function IndexSectionsBottom({ lang }: Props) {
                     ))}
                   </ul>
                   <Button asChild className={`mt-6 w-full rounded-full font-semibold transition-all hover:scale-105 ${p.hot ? 'shadow-lg shadow-primary/20' : 'bg-foreground text-background hover:bg-foreground/90'}`}>
-                    <Link to="/pricing">{p.cta}</Link>
+                    <Link to={p.hot ? '/register?plan=premium' : '/register'}>{p.cta}</Link>
                   </Button>
                 </div>
               </Reveal>
             ))}
             <Reveal delay={PLANS.length * 100}>
-              <div className="relative h-full rounded-2xl md:rounded-3xl border border-border bg-card p-6 md:p-8 transition-all duration-300 hover:shadow-xl flex flex-col">
+              <div className="relative h-full rounded-3xl border border-border bg-card p-6 md:p-8 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl flex flex-col">
                 <div>
                   <h3 className="font-display font-bold text-xl md:text-2xl">{lang === 'ru' ? 'Профи' : 'Pro'}</h3>
                   <div className="mt-2 flex items-end gap-1 flex-wrap">
@@ -127,7 +128,7 @@ export function IndexSectionsBottom({ lang }: Props) {
                   ))}
                 </ul>
                 <Button asChild className="mt-6 w-full rounded-full font-semibold transition-all hover:scale-105 bg-foreground text-background hover:bg-foreground/90">
-                  <Link to="/pricing">{lang === 'ru' ? 'Выбрать Профи' : 'Choose Pro'}</Link>
+                  <Link to={`/register?plan=${selectedPro.plan_code}`}>{lang === 'ru' ? 'Выбрать Профи' : 'Choose Pro'}</Link>
                 </Button>
               </div>
             </Reveal>
@@ -195,7 +196,7 @@ export function IndexSectionsBottom({ lang }: Props) {
       </section>
 
       {/* FAQ */}
-      <section id="faq" className="py-16 md:py-24 bg-secondary/50">
+      <section id="faq" className="py-16 md:py-24 border-y border-border bg-secondary/60">
         <div className="container max-w-3xl">
           <Reveal>
             <div className="text-center px-2">
@@ -226,6 +227,12 @@ export function IndexSectionsBottom({ lang }: Props) {
               <p className="text-muted-foreground text-sm sm:text-base mb-5">{L.faq.ctaDesc[lang]}</p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center">
                 <Button className="rounded-full font-semibold px-6" asChild>
+                  <Link to="/register">
+                    <Icon name="Sparkles" size={16} className="mr-2" />
+                    {lang === 'ru' ? 'Собрать проект бесплатно' : 'Build your project free'}
+                  </Link>
+                </Button>
+                <Button variant="outline" className="rounded-full font-semibold px-6" asChild>
                   <a href="mailto:roboweb.site@yandex.ru">
                     <Icon name="Mail" size={16} className="mr-2" />
                     {L.faq.mail[lang]}
@@ -244,18 +251,18 @@ export function IndexSectionsBottom({ lang }: Props) {
       </section>
 
       {/* BLOG */}
-      <section className="py-16 md:py-24 bg-secondary/40">
+      <section className="py-16 md:py-24">
         <div className="container">
           <Reveal>
             <div className="flex items-end justify-between mb-10 md:mb-14 gap-4">
               <div>
-                <span className="text-xs sm:text-sm font-semibold uppercase tracking-widest text-primary">Блог</span>
+                <span className="text-xs sm:text-sm font-semibold uppercase tracking-widest text-primary">{lang === 'ru' ? 'Блог' : 'Blog'}</span>
                 <h2 className="mt-3 font-display font-bold text-3xl sm:text-4xl md:text-5xl tracking-tight">
-                  Всё об AI‑разработке
+                  {lang === 'ru' ? 'Всё об ИИ‑разработке' : 'All about AI development'}
                 </h2>
               </div>
               <Link to="/blog" className="hidden sm:inline-flex items-center gap-2 text-sm font-semibold text-primary hover:underline shrink-0">
-                Все статьи <Icon name="ArrowRight" size={16} />
+                {lang === 'ru' ? 'Все статьи' : 'All articles'} <Icon name="ArrowRight" size={16} />
               </Link>
             </div>
           </Reveal>
@@ -272,7 +279,7 @@ export function IndexSectionsBottom({ lang }: Props) {
                   <div className="flex flex-col flex-1 p-5 md:p-6">
                     <div className="flex items-center justify-between mb-3">
                       <span className="rounded-full bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">{article.category}</span>
-                      <span className="text-xs text-muted-foreground">{article.readTime} чтения</span>
+                      <span className="text-xs text-muted-foreground">{article.readTime}{lang === 'ru' ? ' чтения' : ' read'}</span>
                     </div>
                     <h3 className="font-display font-bold text-lg leading-snug group-hover:text-primary transition-colors flex-1">
                       {article.title}
@@ -281,7 +288,7 @@ export function IndexSectionsBottom({ lang }: Props) {
                     <div className="mt-5 flex items-center justify-between">
                       <span className="text-xs text-muted-foreground">{article.date}</span>
                       <span className="inline-flex items-center gap-1 text-xs font-semibold text-primary group-hover:gap-2 transition-all">
-                        Читать <Icon name="ArrowRight" size={13} />
+                        {lang === 'ru' ? 'Читать' : 'Read'} <Icon name="ArrowRight" size={13} />
                       </span>
                     </div>
                   </div>
@@ -291,7 +298,7 @@ export function IndexSectionsBottom({ lang }: Props) {
           </div>
           <div className="mt-8 text-center sm:hidden">
             <Link to="/blog" className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:underline">
-              Все статьи <Icon name="ArrowRight" size={16} />
+              {lang === 'ru' ? 'Все статьи' : 'All articles'} <Icon name="ArrowRight" size={16} />
             </Link>
           </div>
         </div>

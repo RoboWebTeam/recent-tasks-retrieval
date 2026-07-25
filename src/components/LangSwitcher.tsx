@@ -19,12 +19,14 @@ export default function LangSwitcher({ lang, dark = false, onSwitch }: Props) {
   };
 
   return (
-    <div className={`flex items-center gap-0.5 rounded-lg p-0.5 ${dark ? 'bg-white/10' : 'bg-secondary'}`}>
+    <div role="group" aria-label={lang === 'ru' ? 'Язык интерфейса' : 'Interface language'} className={`flex items-center gap-0.5 rounded-lg p-0.5 ${dark ? 'bg-white/10' : 'bg-secondary'}`}>
       {(['ru', 'en'] as Lang[]).map(l => (
         <button
           key={l}
           onClick={() => handleClick(l)}
-          className={`px-2.5 py-1 rounded-md text-xs font-bold uppercase tracking-wide transition-all ${
+          aria-pressed={lang === l}
+          aria-label={l === 'ru' ? 'Переключить на русский' : 'Switch to English'}
+          className={`min-h-[32px] px-2.5 py-1 rounded-md text-xs font-bold uppercase tracking-wide transition-all ${
             lang === l
               ? dark
                 ? 'bg-white text-black'

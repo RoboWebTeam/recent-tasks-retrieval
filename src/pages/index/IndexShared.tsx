@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import { SEND_EMAIL_URL } from './indexData';
-import { getLang, tr } from '@/lib/i18n';
+import { getLang } from '@/lib/i18n';
 
 // --- Hooks ---
 
@@ -20,26 +21,6 @@ export function useReveal() {
   return { ref, shown };
 }
 
-export function useCounter(target: number, duration = 1800, active = false) {
-  const [val, setVal] = useState(0);
-  useEffect(() => {
-    if (!active) return;
-    let raf = 0;
-    let startTs = 0;
-    const easeOutExpo = (t: number) => (t >= 1 ? 1 : 1 - Math.pow(2, -10 * t));
-    const tick = (ts: number) => {
-      if (!startTs) startTs = ts;
-      const p = Math.min((ts - startTs) / duration, 1);
-      setVal(Math.round(target * easeOutExpo(p)));
-      if (p < 1) raf = requestAnimationFrame(tick);
-      else setVal(target);
-    };
-    raf = requestAnimationFrame(tick);
-    return () => cancelAnimationFrame(raf);
-  }, [active, target, duration]);
-  return val;
-}
-
 // --- Components ---
 
 export function Reveal({ children, delay = 0, className = '' }: { children: React.ReactNode; delay?: number; className?: string }) {
@@ -48,23 +29,38 @@ export function Reveal({ children, delay = 0, className = '' }: { children: Reac
     <div
       ref={ref}
       style={{ transitionDelay: `${delay}ms` }}
-      className={`transition-opacity duration-700 ${shown ? 'opacity-100' : 'opacity-0'} ${className}`}
+      className={`transition-[opacity,transform] duration-700 ease-out motion-reduce:transition-none motion-reduce:translate-y-0 ${shown ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-6'} ${className}`}
     >
       {children}
     </div>
   );
 }
 
-export function CounterStat({ value, suffix, label }: { value: number; suffix: string; label: string }) {
-  const { ref, shown } = useReveal();
-  const count = useCounter(value, 1600, shown);
-  const done = shown && count >= value;
+/** Единый заголовок секции: надзаголовок (eyebrow) → H2 (с опц. акцентом) → описание.
+ *  Убирает дублирование блока eyebrow+h2+p по ~9 секциям и держит отступы одинаковыми. */
+export function SectionHeading({
+  eyebrow, title, accent, desc, gradient = false, align = 'center', className = '',
+}: {
+  eyebrow?: React.ReactNode;
+  title: React.ReactNode;
+  accent?: React.ReactNode;
+  desc?: React.ReactNode;
+  gradient?: boolean;
+  align?: 'center' | 'left';
+  className?: string;
+}) {
+  const isCenter = align === 'center';
   return (
-    <div ref={ref} className="text-center">
-      <div className={`font-display font-bold text-2xl sm:text-3xl text-gradient tabular-nums ${done ? 'counter-pop' : ''}`}>
-        {count.toLocaleString()}{suffix}
-      </div>
-      <div className="text-sm text-muted-foreground">{label}</div>
+    <div className={`${isCenter ? 'text-center max-w-2xl mx-auto px-2' : ''} ${className}`}>
+      {eyebrow && (
+        <span className="text-xs sm:text-sm font-semibold uppercase tracking-widest text-primary">{eyebrow}</span>
+      )}
+      <h2 className={`mt-3 font-display font-bold text-3xl sm:text-4xl md:text-5xl tracking-tight leading-[1.1] text-balance ${gradient ? 'inline-block text-gradient' : ''}`}>
+        {title}{accent ? <> <span className="text-gradient">{accent}</span></> : null}
+      </h2>
+      {desc && (
+        <p className={`mt-4 text-muted-foreground text-base sm:text-lg leading-relaxed ${isCenter ? '' : 'max-w-xl'}`}>{desc}</p>
+      )}
     </div>
   );
 }
@@ -75,36 +71,24 @@ export function EmailForm({ dark = false, placeholder, btnText }: {
   btnText?: string;
 }) {
   const lang = getLang();
+  const navigate = useNavigate();
   const resolvedPlaceholder = placeholder ?? (lang === 'ru' ? 'Ваш e-mail' : 'Your e-mail');
   const resolvedBtnText = btnText ?? (lang === 'ru' ? 'Начать бесплатно' : 'Start for free');
   const [email, setEmail] = useState('');
-  const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  // Горячий трафик не должен упираться в «мы свяжемся с вами»: письмо-лид уходит фоном,
+  // а пользователь мгновенно попадает в регистрацию с уже подставленным e-mail.
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!email || status === 'loading') return;
-    setStatus('loading');
-    try {
-      const res = await fetch(SEND_EMAIL_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email }),
-      });
-      if (res.ok) { setStatus('success'); setEmail(''); }
-      else setStatus('error');
-    } catch { setStatus('error'); }
+    const value = email.trim();
+    if (!value) return;
+    fetch(SEND_EMAIL_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email: value }),
+    }).catch(() => {/* лид не критичен для перехода */});
+    navigate(`/register?email=${encodeURIComponent(value)}`);
   };
-
-  if (status === 'success') {
-    return (
-      <div className={`inline-flex items-center gap-2 rounded-full px-6 py-3 font-semibold animate-slide-up ${
-        dark ? 'bg-white/10 border border-white/20 text-background' : 'bg-primary/10 border border-primary/20 text-primary'
-      }`}>
-        <Icon name="CheckCircle" size={20} />
-        {tr('successEmail', lang)}
-      </div>
-    );
-  }
 
   return (
     <div>
@@ -115,6 +99,7 @@ export function EmailForm({ dark = false, placeholder, btnText }: {
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
+          aria-label={lang === 'ru' ? 'Ваш e-mail' : 'Your e-mail'}
           className={`h-12 rounded-full px-5 ${
             dark
               ? 'bg-white/10 border-white/20 text-background placeholder:text-background/50'
@@ -124,22 +109,13 @@ export function EmailForm({ dark = false, placeholder, btnText }: {
         <Button
           type="submit"
           size="lg"
-          disabled={status === 'loading'}
           className={`h-12 rounded-full font-semibold px-8 whitespace-nowrap w-full sm:w-auto transition-all ${
             dark ? '' : 'shadow-xl shadow-primary/25'
           }`}
         >
-          {status === 'loading'
-            ? <><Icon name="Loader" size={16} className="mr-2 animate-spin" />{tr('sending', lang)}</>
-            : <>{resolvedBtnText} <Icon name="ArrowRight" size={16} className="ml-1 animate-bounce-x" /></>
-          }
+          {resolvedBtnText} <Icon name="ArrowRight" size={16} className="ml-1 animate-bounce-x" />
         </Button>
       </form>
-      {status === 'error' && (
-        <p className={`mt-2 text-sm text-center ${dark ? 'text-rose-700 dark:text-rose-300' : 'text-rose-500'}`}>
-          {tr('errorSend', lang)}
-        </p>
-      )}
     </div>
   );
 }

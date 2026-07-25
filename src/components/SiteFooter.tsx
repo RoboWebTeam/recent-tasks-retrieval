@@ -88,6 +88,15 @@ export function SiteFooter({ lang }: Props) {
         <p>© 2026 Roboweb. {L.footer.copy[lang]}</p>
         <p className="text-[11px] sm:text-xs text-muted-foreground/70">
           ИП Аракелов Станислав Владиславович · ОГРНИП 324508100357892 · ИНН 501210007760
+          {' · '}
+          <a
+            href="https://egrul.nalog.ru/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-primary/90 hover:text-primary hover:underline"
+          >
+            {lang === 'ru' ? 'Проверить в ЕГРИП →' : 'Verify on the register →'}
+          </a>
         </p>
       </div>
     </footer>

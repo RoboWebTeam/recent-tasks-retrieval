@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { getLang, type Lang } from '@/lib/i18n';
+import Icon from '@/components/ui/icon';
 import DemoModal from '@/components/DemoModal';
 import { IndexNav, IndexHero } from './index/IndexHero';
 import { IndexSections } from './index/IndexSections';
@@ -15,6 +17,7 @@ const Index = () => {
   const [wordIdx, setWordIdx] = useState(0);
   const [typedText, setTypedText] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showSticky, setShowSticky] = useState(false);
 
   const CHAT_STEPS = getCHAT_STEPS(lang);
   const typedWords = L.hero.words[lang] as unknown as string[];
@@ -70,6 +73,14 @@ const Index = () => {
     return () => clearTimeout(t);
   }, [typedText, isDeleting, wordIdx, typedWords]);
 
+  // Липкий нижний CTA для мобилы — показываем после ухода героя за экран
+  useEffect(() => {
+    const onScroll = () => setShowSticky(window.scrollY > 620);
+    window.addEventListener('scroll', onScroll, { passive: true });
+    onScroll();
+    return () => window.removeEventListener('scroll', onScroll);
+  }, []);
+
   // Lock scroll on mobile menu
   useEffect(() => {
     if (menuOpen) {
@@ -93,22 +104,45 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background text-foreground">
+      <a
+        href="#main"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:font-semibold focus:text-primary-foreground focus:shadow-lg"
+      >
+        {lang === 'ru' ? 'К содержимому' : 'Skip to content'}
+      </a>
       <IndexNav
         lang={lang}
         menuOpen={menuOpen}
         setMenuOpen={setMenuOpen}
         onLangSwitch={handleLangSwitch}
       />
-      <IndexHero
-        lang={lang}
-        typedText={typedText}
-        chatStep={chatStep}
-        isTyping={isTyping}
-        progress={progress}
-        chatSteps={CHAT_STEPS}
-        onDemoOpen={() => setDemoOpen(true)}
-      />
-      <IndexSections lang={lang} />
+      <main id="main">
+        <IndexHero
+          lang={lang}
+          typedText={typedText}
+          chatStep={chatStep}
+          isTyping={isTyping}
+          progress={progress}
+          chatSteps={CHAT_STEPS}
+          onDemoOpen={() => setDemoOpen(true)}
+        />
+        <IndexSections lang={lang} />
+      </main>
+
+      {/* Липкий мобильный CTA */}
+      <div
+        className={`fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/90 px-4 py-3 backdrop-blur-xl transition-transform duration-300 sm:hidden ${showSticky ? 'translate-y-0' : 'translate-y-full'}`}
+        style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))' }}
+      >
+        <Link
+          to="/register"
+          className="flex w-full items-center justify-center gap-2 rounded-full bg-primary px-6 py-3 font-semibold text-primary-foreground shadow-lg shadow-primary/25"
+        >
+          {lang === 'ru' ? 'Собрать проект бесплатно' : 'Build your project free'}
+          <Icon name="ArrowRight" size={17} />
+        </Link>
+      </div>
+
       <DemoModal open={demoOpen} onClose={() => setDemoOpen(false)} lang={lang} />
     </div>
   );

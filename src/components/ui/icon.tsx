@@ -8,6 +8,10 @@ interface IconProps extends LucideProps {
 }
 
 const Icon: React.FC<IconProps> = ({ name, fallback = 'CircleAlert', ...props }) => {
+  // Декоративные по умолчанию: прячем от скринридеров, если не задан явный aria-label/role.
+  const a11y = props['aria-label'] || props.role
+    ? {}
+    : { 'aria-hidden': true as const, focusable: false as const };
   const IconComponent = (LucideIcons as Record<string, React.FC<LucideProps>>)[name];
 
   if (!IconComponent) {
@@ -16,13 +20,13 @@ const Icon: React.FC<IconProps> = ({ name, fallback = 'CircleAlert', ...props })
 
     // Если даже fallback не найден, возвращаем пустой span
     if (!FallbackIcon) {
-      return <span className="text-xs text-gray-400">[icon]</span>;
+      return <span className="text-xs text-gray-400" aria-hidden="true">[icon]</span>;
     }
 
-    return <FallbackIcon {...props} />;
+    return <FallbackIcon {...a11y} {...props} />;
   }
 
-  return <IconComponent {...props} />;
+  return <IconComponent {...a11y} {...props} />;
 };
 
 export default Icon;
