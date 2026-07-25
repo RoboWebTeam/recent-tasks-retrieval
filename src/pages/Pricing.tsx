@@ -308,8 +308,8 @@ export default function Pricing() {
 
         <p className="text-center text-xs sm:text-sm text-muted-foreground max-w-2xl mx-auto mb-10">
           {isRu
-            ? 'Одна генерация на Sonnet 5 списывает 1 единицу тарифа, на Opus 4.8 — 9 (модель мощнее для сложных задач). Указанные числа — это генерации на Sonnet 5.'
-            : 'One generation on Sonnet 5 uses 1 plan unit; on Opus 4.8 — 9 (a stronger model for complex tasks). The numbers shown are Sonnet 5 generations.'}
+            ? 'Одна генерация в стандартном режиме списывает 1 единицу тарифа, в усиленном (для сложных проектов) — 9. Указанные числа — генерации в стандартном режиме.'
+            : 'One generation in Standard mode uses 1 plan unit; in Enhanced mode (for complex projects) — 9. The numbers shown are Standard-mode generations.'}
         </p>
 
         {payError && (

@@ -1,23 +1,20 @@
 // Лёгкий файл с категориями портфолио — импортируется статически (используется сразу для рендера фильтров),
-// в отличие от тяжёлых данных 63 демо-сайтов в portfolioData.ts, которые грузятся отдельным чанком.
-export type DemoCategory = 'all' | 'food' | 'services' | 'store' | 'business' | 'tech' | 'other';
+// в отличие от данных портфолио в portfolioData.ts, которые грузятся отдельным чанком.
+// Направление: премиум бизнес-решения (магазины, маркетплейсы, порталы, дашборды, лендинги).
+export type DemoCategory = 'all' | 'ecommerce' | 'portal' | 'saas' | 'landing';
 
 export const DEMO_CATEGORIES_RU: { id: DemoCategory; label: string }[] = [
-  { id: 'all',      label: '✦ Все' },
-  { id: 'food',     label: '🍽 Общепит' },
-  { id: 'services', label: '💼 Услуги' },
-  { id: 'store',    label: '🛍 Магазины' },
-  { id: 'business', label: '🏢 Бизнес' },
-  { id: 'tech',     label: '💻 IT и технологии' },
-  { id: 'other',    label: '🎯 Другое' },
+  { id: 'all',       label: 'Все решения' },
+  { id: 'ecommerce', label: 'Магазины и маркетплейсы' },
+  { id: 'portal',    label: 'Порталы и платформы' },
+  { id: 'saas',      label: 'SaaS и дашборды' },
+  { id: 'landing',   label: 'Премиум-лендинги' },
 ];
 
 export const DEMO_CATEGORIES_EN: { id: DemoCategory; label: string }[] = [
-  { id: 'all',      label: '✦ All' },
-  { id: 'food',     label: '🍽 Food' },
-  { id: 'services', label: '💼 Services' },
-  { id: 'store',    label: '🛍 Stores' },
-  { id: 'business', label: '🏢 Business' },
-  { id: 'tech',     label: '💻 IT & Tech' },
-  { id: 'other',    label: '🎯 Other' },
+  { id: 'all',       label: 'All solutions' },
+  { id: 'ecommerce', label: 'Stores & marketplaces' },
+  { id: 'portal',    label: 'Portals & platforms' },
+  { id: 'saas',      label: 'SaaS & dashboards' },
+  { id: 'landing',   label: 'Premium landings' },
 ];

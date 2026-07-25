@@ -42,9 +42,9 @@ export const L = {
     title: { ru: '4 шага до рабочего продукта', en: '4 steps to a working product' },
   },
   portfolio: {
-    label: { ru: "Что собирает ИИ", en: "What the AI builds" },
-    title: { ru: "Фуллстек-приложения, а не визитки", en: "Full-stack apps, not business cards" },
-    desc:  { ru: "От сайта услуг с заявками в базу до интернет-магазина с корзиной, оформлением заказа и кабинетами. Каждый проект — с рабочим бэкендом и кодом на Next.js + Prisma, который можно забрать в свой GitHub.", en: "From a service site with leads in a database to an online store with cart, checkout and accounts. Every project ships with a real backend and Next.js + Prisma code you can take to your GitHub." },
+    label: { ru: "Бизнес-решения", en: "Business solutions" },
+    title: { ru: "Сложные продукты, а не просто сайты", en: "Complex products, not just websites" },
+    desc:  { ru: "Интернет-магазины и маркетплейсы, порталы и платформы, дашборды и премиум-лендинги. Каждое решение — с рабочим бэкендом, базой данных и кодом на Next.js + Prisma в вашем GitHub.", en: "Online stores and marketplaces, portals and platforms, dashboards and premium landings. Every solution ships with a real backend, a database and Next.js + Prisma code in your GitHub." },
   },
   compare: {
     label: { ru: 'Сравнение', en: 'Comparison' },

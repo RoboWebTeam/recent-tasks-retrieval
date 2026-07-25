@@ -1615,8 +1615,8 @@ export default function Builder() {
                         </p>
                         <p className="text-xs text-muted-foreground mt-0.5">
                           {lang === 'ru'
-                            ? 'Выбирайте модель ИИ — Claude Sonnet 5 или Opus 4.8 — прямо в редакторе.'
-                            : 'Pick your AI model — Claude Sonnet 5 or Opus 4.8 — right in the editor.'}
+                            ? 'Выбирайте режим ИИ — «Стандарт» или «Максимум» — прямо в редакторе.'
+                            : 'Pick your AI mode — Standard or Enhanced — right in the editor.'}
                         </p>
                       </div>
                       <button onClick={dismissEnergyBonus} className="shrink-0 text-primary/60 hover:text-primary">
@@ -1904,20 +1904,21 @@ export default function Builder() {
                   </button>
                   <input ref={imageInputRef} type="file" accept="image/*" className="hidden" onChange={handleImageUpload} />
 
-                  {/* Модель AI — выбор между Claude Sonnet 5 и Opus 4.8 (напрямую через Anthropic) */}
+                  {/* Режим ИИ — «Стандарт» / «Максимум». Названия движков клиенту не показываем;
+                      внутренние id ('sonnet'/'opus') используются только для роутинга на бэкенде. */}
                   <div className="relative shrink-0">
                     <button onClick={() => setShowModelMenu(v => !v)}
                       className={`flex items-center gap-1 h-7 px-2 rounded-lg transition-colors text-[11px] font-semibold ${aiModel === 'opus' ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-foreground hover:bg-secondary'}`}
-                      title={aiModel === 'opus' ? 'Claude Opus 4.8' : 'Claude Sonnet 5'}>
+                      title={aiModel === 'opus' ? (lang === 'ru' ? 'Режим «Максимум»' : 'Enhanced mode') : (lang === 'ru' ? 'Режим «Стандарт»' : 'Standard mode')}>
                       <Icon name="Cpu" size={13} />
-                      <span className="hidden sm:inline">{aiModel === 'opus' ? 'Opus 4.8' : 'Sonnet 5'}</span>
+                      <span className="hidden sm:inline">{aiModel === 'opus' ? (lang === 'ru' ? 'Максимум' : 'Enhanced') : (lang === 'ru' ? 'Стандарт' : 'Standard')}</span>
                       <Icon name="ChevronDown" size={11} className="opacity-60" />
                     </button>
                     {showModelMenu && (
                       <div className="absolute bottom-10 left-0 z-50 w-60 max-w-[calc(100vw-2rem)] bg-secondary border border-border rounded-2xl shadow-2xl p-1.5">
                         {[
-                          { id: 'sonnet' as const, name: 'Sonnet 5', desc: lang === 'ru' ? 'Быстро и универсально' : 'Fast & versatile', cost: lang === 'ru' ? '1 единица / генерация' : '1 unit / generation' },
-                          { id: 'opus' as const, name: 'Opus 4.8', desc: lang === 'ru' ? 'Мощнее для сложных сайтов' : 'Stronger for complex sites', cost: lang === 'ru' ? '9 единиц / генерация' : '9 units / generation' },
+                          { id: 'sonnet' as const, name: lang === 'ru' ? 'Стандарт' : 'Standard', desc: lang === 'ru' ? 'Быстро и универсально' : 'Fast & versatile', cost: lang === 'ru' ? '1 единица / генерация' : '1 unit / generation' },
+                          { id: 'opus' as const, name: lang === 'ru' ? 'Максимум' : 'Enhanced', desc: lang === 'ru' ? 'Мощнее для сложных проектов' : 'Stronger for complex projects', cost: lang === 'ru' ? '9 единиц / генерация' : '9 units / generation' },
                         ].map(m => (
                           <button key={m.id}
                             onClick={() => { setAiModel(m.id); try { localStorage.setItem('builder_model', m.id); } catch { /* приватный режим */ } setShowModelMenu(false); }}

@@ -54,8 +54,8 @@ export default function PersonalData() {
         <h2>4. Data Transfer to Third Parties</h2>
         <p>
           I am informed and agree that, to the extent necessary to achieve the purposes above, my personal data
-          may be transferred to: the YooKassa payment system, Anthropic and OpenAI (for AI content generation
-          based on my requests), and the Yandex.Metrika analytics service.
+          may be transferred to: the YooKassa payment system, third-party AI service providers (for AI content
+          generation based on my requests), and the Yandex.Metrika analytics service.
         </p>
         <h2>5. Consent Validity Period</h2>
         <p>
@@ -122,8 +122,8 @@ export default function PersonalData() {
       <h2>4. Передача данных третьим лицам</h2>
       <p>
         Я проинформирован(а) и согласен(на) с тем, что в объёме, необходимом для достижения указанных выше целей,
-        мои персональные данные могут передаваться: платёжной системе ЮKassa, компаниям Anthropic и OpenAI
-        (для генерации контента с помощью AI на основе моих запросов), а также сервису аналитики Яндекс.Метрика.
+        мои персональные данные могут передаваться: платёжной системе ЮKassa, сторонним поставщикам ИИ-сервисов
+        (для генерации контента с помощью ИИ на основе моих запросов), а также сервису аналитики Яндекс.Метрика.
       </p>
 
       <h2>5. Срок действия согласия</h2>

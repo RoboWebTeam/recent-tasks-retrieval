@@ -135,8 +135,8 @@ export function IndexSectionsBottom({ lang }: Props) {
           </div>
           <p className="mt-6 text-center text-xs sm:text-sm text-muted-foreground max-w-2xl mx-auto px-4">
             {lang === 'ru'
-              ? 'Одна генерация на Sonnet 5 списывает 1 единицу тарифа, на Opus 4.8 — 9 (модель мощнее для сложных задач). Указанные числа — это генерации на Sonnet 5.'
-              : 'One generation on Sonnet 5 uses 1 plan unit; on Opus 4.8 — 9 (a stronger model for complex tasks). The numbers shown are Sonnet 5 generations.'}
+              ? 'Одна генерация в стандартном режиме списывает 1 единицу тарифа, в усиленном (для сложных проектов) — 9. Указанные числа — генерации в стандартном режиме.'
+              : 'One generation in Standard mode uses 1 plan unit; in Enhanced mode (for complex projects) — 9. The numbers shown are Standard-mode generations.'}
           </p>
           <Reveal>
             <div className="mt-8 rounded-2xl md:rounded-3xl border border-border bg-card p-5 sm:p-6 max-w-4xl mx-auto grid sm:grid-cols-2 gap-x-8 gap-y-3.5">

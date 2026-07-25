@@ -65,7 +65,7 @@ export default function Privacy() {
         <p>4.1. We do not sell personal data to third parties. Data may be shared only with:</p>
         <ul>
           <li><strong>YooKassa</strong> — for payment processing;</li>
-          <li><strong>Anthropic / OpenAI</strong> — your chat messages are sent to generate website content and images (DALL-E); these providers process the request text but are not authorized to use it for purposes other than generating the response;</li>
+          <li><strong>AI service providers</strong> — your chat messages are sent to third-party AI providers to generate website content; these providers process the request text but are not authorized to use it for purposes other than generating the response;</li>
           <li><strong>Yandex.Metrika</strong> — anonymized usage/analytics data;</li>
           <li>government authorities — only if required by applicable law.</li>
         </ul>
@@ -172,9 +172,9 @@ export default function Privacy() {
       <p>4.1. Мы не продаём персональные данные третьим лицам. Данные могут передаваться только:</p>
       <ul>
         <li><strong>ЮKassa</strong> — для обработки платежей;</li>
-        <li><strong>Anthropic / OpenAI</strong> — текст ваших сообщений в чате передаётся для генерации контента
-          сайта и изображений (DALL-E); эти поставщики обрабатывают текст запроса, но не вправе использовать
-          его для иных целей, кроме генерации ответа;</li>
+        <li><strong>поставщики ИИ-сервисов</strong> — текст ваших сообщений в чате передаётся сторонним
+          поставщикам ИИ для генерации контента сайта; эти поставщики обрабатывают текст запроса, но не вправе
+          использовать его для иных целей, кроме генерации ответа;</li>
         <li><strong>Яндекс.Метрика</strong> — обезличенные данные об использовании сайта;</li>
         <li>государственным органам — только в случаях, предусмотренных законодательством РФ.</li>
       </ul>

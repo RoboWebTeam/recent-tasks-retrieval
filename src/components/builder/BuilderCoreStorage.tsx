@@ -139,7 +139,7 @@ export default function BuilderCoreStorage({ lang, projectId, onUseInChat, onFil
                 <div className="relative shrink-0">
                   <img src={f.file_url} alt={f.file_name} className="h-9 w-9 rounded-xl object-cover border border-border" />
                   {isAiImage && (
-                    <span className="absolute -top-1.5 -right-1.5 grid h-4 w-4 place-items-center rounded-full bg-primary text-primary-foreground border border-background" title="DALL-E">
+                    <span className="absolute -top-1.5 -right-1.5 grid h-4 w-4 place-items-center rounded-full bg-primary text-primary-foreground border border-background" title={isRu ? 'ИИ-изображение' : 'AI image'}>
                       <Icon name="Sparkles" size={9} />
                     </span>
                   )}
