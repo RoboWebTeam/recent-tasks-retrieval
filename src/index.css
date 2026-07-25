@@ -508,3 +508,44 @@ section[id] {
 @media (prefers-reduced-motion: reduce){
   .bp-scan{ animation:none; opacity:0 } .bp-draw{ animation:none; stroke-dashoffset:0 } .bp-node{ animation:none; opacity:1; transform:none } .bp-pulse{ animation:none }
 }
+
+/* ── Mission Control hero (командный центр) ──────────────────────────────── */
+.mc-sheet{ position:relative; border-radius:1.25rem; overflow:hidden;
+  background:
+    radial-gradient(900px 520px at 78% -10%, hsl(221 70% 24% / .55), transparent 60%),
+    radial-gradient(700px 500px at 8% 6%, hsl(258 60% 40% / .28), transparent 62%),
+    radial-gradient(700px 600px at 100% 108%, hsl(190 70% 40% / .16), transparent 60%),
+    linear-gradient(180deg,#0c111b,#0a0e16 60%,#080b12);
+  border:1px solid hsl(220 40% 30% / .5);
+  box-shadow: inset 0 1px 0 hsl(210 60% 90% / .06), 0 40px 90px -30px hsl(220 80% 6% / .85);
+}
+.mc-sheet::before{ content:""; position:absolute; inset:0; pointer-events:none; opacity:.5;
+  background-image:linear-gradient(hsl(210 60% 70% / .05) 1px,transparent 1px),linear-gradient(90deg,hsl(210 60% 70% / .05) 1px,transparent 1px);
+  background-size:44px 44px;
+  -webkit-mask-image:radial-gradient(900px 640px at 62% 24%,#000 0%,transparent 80%); mask-image:radial-gradient(900px 640px at 62% 24%,#000 0%,transparent 80%); }
+/* всплытие модулей на старте */
+.mc-in{ opacity:0; animation: mc-in .7s cubic-bezier(.22,1,.36,1) forwards; }
+@keyframes mc-in{ 0%{opacity:0; transform:translateY(16px) scale(.97)} 100%{opacity:1; transform:none} }
+/* мягкое парение (после появления) */
+.mc-float{ animation: mc-float 6s ease-in-out infinite; }
+.mc-float2{ animation: mc-float 7.5s ease-in-out infinite; }
+@keyframes mc-float{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-9px)} }
+/* блик по дашборду */
+.mc-shine{ position:absolute; inset:0; pointer-events:none; overflow:hidden; border-radius:inherit; }
+.mc-shine::after{ content:""; position:absolute; top:-60%; left:-30%; width:36%; height:220%;
+  background:linear-gradient(90deg,transparent,hsl(210 100% 90% / .10),transparent); transform:rotate(12deg);
+  animation: mc-shine 6.5s ease-in-out 1.2s infinite; }
+@keyframes mc-shine{ 0%{left:-40%} 55%,100%{left:130%} }
+/* рост столбиков графика */
+.mc-bar{ transform-origin:bottom; animation: mc-bar .8s cubic-bezier(.22,1,.36,1) both; }
+@keyframes mc-bar{ 0%{transform:scaleY(.04)} 100%{transform:scaleY(1)} }
+/* пульс галочки «Записано в БД» */
+.mc-ok{ animation: mc-ok 2.6s ease-in-out infinite; }
+@keyframes mc-ok{ 0%,100%{box-shadow:0 0 0 0 hsl(150 70% 45% / .5)} 50%{box-shadow:0 0 0 7px hsl(150 70% 45% / 0)} }
+/* бегущая линия прогресса-акцента */
+.mc-live{ animation: mc-live 1.8s ease-in-out infinite; }
+@keyframes mc-live{ 0%,100%{opacity:.5} 50%{opacity:1} }
+@media (prefers-reduced-motion: reduce){
+  .mc-in,.mc-float,.mc-float2,.mc-bar{ animation:none; opacity:1; transform:none }
+  .mc-shine::after,.mc-ok,.mc-live{ animation:none }
+}

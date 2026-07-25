@@ -11,7 +11,7 @@ import ThemeToggle from '@/components/ThemeToggle';
 import { type Lang } from '@/lib/i18n';
 import { getSession, getStoredUser, clearSession } from '@/lib/auth';
 import { L, getNAV } from './indexData';
-import { BlueprintHero } from './BlueprintHero';
+import { MissionControlHero } from './MissionControlHero';
 
 interface IndexNavProps {
   lang: Lang;
@@ -231,7 +231,7 @@ export function IndexHero({ lang, typedText, chatStep, isTyping, progress, chatS
           </div>
         </div>
 
-        <BlueprintHero lang={lang} />
+        <MissionControlHero lang={lang} />
       </div>
     </section>
   );
