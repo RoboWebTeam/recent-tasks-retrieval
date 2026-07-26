@@ -127,6 +127,16 @@ def handler(event: dict, context) -> dict:
                 if not file_name or not file_content_b64:
                     return err('Не переданы данные файла')
 
+                # project_id приходит из тела запроса — проверяем владельца, иначе файл можно было
+                # записать в ЧУЖОЙ проект (запись жила бы в чужой карточке и удалялась вместе с ней).
+                if project_id:
+                    cur.execute(
+                        f"SELECT 1 FROM {schema}.projects WHERE id = %s AND user_id = %s",
+                        (project_id, user_id)
+                    )
+                    if not cur.fetchone():
+                        return err('Проект не найден', 404)
+
                 raw = base64.b64decode(file_content_b64)
 
                 if is_zip and not zipfile.is_zipfile(io.BytesIO(raw)):

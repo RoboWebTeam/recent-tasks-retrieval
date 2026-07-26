@@ -103,11 +103,13 @@ def handler(event: dict, context) -> dict:
                         'created_at': r[9].isoformat(),
                     })
 
-                # Сводка по действиям
+                # Сводка по действиям. Алиас `al` обязателен: условия в {where} собраны с ним,
+                # без алиаса в FROM запрос падал с «missing FROM-clause entry for table al» —
+                # то есть весь GET ломался 500-й для любого не-админа.
                 cur.execute(f"""
-                    SELECT action, COUNT(*) as cnt FROM {schema}.activity_log
-                    {where.replace('LIMIT %s', '') if where else ''}
-                    GROUP BY action ORDER BY cnt DESC LIMIT 10
+                    SELECT al.action, COUNT(*) as cnt FROM {schema}.activity_log al
+                    {where}
+                    GROUP BY al.action ORDER BY cnt DESC LIMIT 10
                 """, params[:-1])
                 summary = [{'action': r[0], 'count': r[1]} for r in cur.fetchall()]
 

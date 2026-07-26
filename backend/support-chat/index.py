@@ -204,14 +204,23 @@ def handler(event: dict, context) -> dict:
                     return err('visitor_id обязателен')
 
                 cur.execute(f"""
-                    SELECT id, status, unread_by_visitor FROM {schema}.support_conversations
+                    SELECT id, status, unread_by_visitor, user_id FROM {schema}.support_conversations
                     WHERE visitor_id = %s ORDER BY id DESC LIMIT 1
                 """, (visitor_id,))
                 row = cur.fetchone()
                 if not row:
                     return ok({'conversation_id': None, 'messages': []})
 
-                conv_id, status, unread = row
+                conv_id, status, unread, conv_user_id = row
+
+                # ВАЖНО: visitor_id — обычный идентификатор из localStorage, он ездит в СТРОКЕ ЗАПРОСА
+                # (а значит оседает в логах nginx/прокси). Если беседа привязана к аккаунту, читать её
+                # может только владелец аккаунта — иначе по подсмотренному visitor_id открывалась
+                # чужая переписка с именем, e-mail и вложениями. Гостевые беседы работают как раньше.
+                if conv_user_id:
+                    urow = get_user_by_session(cur, schema, session_id)
+                    if not urow or urow[0] != conv_user_id:
+                        return ok({'conversation_id': None, 'messages': []})
                 cur.execute(f"""
                     SELECT id, sender, text, created_at, file_url, file_type, file_name
                     FROM {schema}.support_messages
@@ -297,18 +306,24 @@ def handler(event: dict, context) -> dict:
                 if not visitor_id or (not text and not file_content_b64):
                     return err('visitor_id и (text или file) обязательны')
 
-                file_url = file_type = file_name = None
-                if file_content_b64 and file_name_in:
-                    file_url, file_type, file_name = upload_chat_file(file_name_in, file_content_b64, visitor_id)
-
                 user_row = get_user_by_session(cur, schema, session_id)
                 user_id = user_row[0] if user_row else None
                 if user_row:
                     name = name or user_row[1]
                     email = email or user_row[2]
 
-                cur.execute(f"SELECT id FROM {schema}.support_conversations WHERE visitor_id = %s ORDER BY id DESC LIMIT 1", (visitor_id,))
+                cur.execute(f"SELECT id, user_id FROM {schema}.support_conversations WHERE visitor_id = %s ORDER BY id DESC LIMIT 1", (visitor_id,))
                 row = cur.fetchone()
+
+                # Писать в беседу, привязанную к аккаунту, может только владелец аккаунта —
+                # иначе по подсмотренному visitor_id можно было отправлять сообщения от чужого имени.
+                # Проверяем ДО загрузки файла в S3, чтобы отказ не оставлял мусор в хранилище.
+                if row and row[1] and row[1] != user_id:
+                    return err('Эта переписка привязана к аккаунту — войдите в него, чтобы продолжить', 401)
+
+                file_url = file_type = file_name = None
+                if file_content_b64 and file_name_in:
+                    file_url, file_type, file_name = upload_chat_file(file_name_in, file_content_b64, visitor_id)
 
                 is_new_conversation = row is None
 

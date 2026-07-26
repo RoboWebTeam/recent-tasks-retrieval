@@ -79,7 +79,11 @@ export default function SupportChatWidget() {
 
   const loadMessages = useCallback(async (silent = false) => {
     try {
-      const res = await fetch(`${SUPPORT_CHAT_URL}?visitor_id=${visitorId}`);
+      // Сессию передаём и на чтении: беседа, привязанная к аккаунту, отдаётся только его владельцу
+      // (по одному visitor_id из localStorage чужую переписку теперь не открыть).
+      const res = await fetch(`${SUPPORT_CHAT_URL}?visitor_id=${visitorId}`, {
+        headers: session ? { 'x-session-id': session } : {},
+      });
       const data = await unwrap(res);
       const msgs: ChatMessage[] = data.messages || [];
       setMessages(msgs);
@@ -91,7 +95,7 @@ export default function SupportChatWidget() {
       }
       lastMsgCountRef.current = msgs.length;
     } catch { /* тихо */ }
-  }, [visitorId, open]);
+  }, [visitorId, open, session]);
 
   useEffect(() => {
     loadMessages();

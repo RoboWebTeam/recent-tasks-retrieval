@@ -1,6 +1,16 @@
 import os
+import hmac
 import json
 import psycopg2
+
+
+def is_admin_key(admin_key: str) -> bool:
+    """Сверка админ-ключа. Пустой ключ (или незаданный ADMIN_KEY) — ОТКАЗ: иначе запрос без
+    заголовка проходил как админский и отдавал список всех пользователей и лидов."""
+    expected = os.environ.get('ADMIN_KEY', '')
+    if not expected or not admin_key:
+        return False
+    return hmac.compare_digest(admin_key, expected)
 
 
 def is_rate_limited(conn, schema: str, key: str, max_attempts: int = 5, window_minutes: int = 15) -> bool:
@@ -81,7 +91,7 @@ def handler(event: dict, context) -> dict:
             'body': {'error': 'Слишком много попыток входа. Попробуйте через 15 минут.'}
         }
 
-    if admin_key != os.environ.get('ADMIN_KEY', ''):
+    if not is_admin_key(admin_key):
         record_failed_attempt(conn, schema, rate_key)
         conn.close()
         return {

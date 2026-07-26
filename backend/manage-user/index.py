@@ -1,6 +1,17 @@
 import os
+import hmac
 import json
 import psycopg2
+
+def is_admin_key(admin_key: str) -> bool:
+    """Сверка админ-ключа. ВАЖНО: пустой ключ (или незаданный ADMIN_KEY в окружении) — это ОТКАЗ.
+    Раньше сравнение было простым `!=`, и при незаданном ADMIN_KEY запрос без заголовка проходил
+    как админский — открывая чтение данных любого пользователя и безвозвратное удаление аккаунтов.
+    Сравнение постоянного времени — чтобы ключ нельзя было подобрать по времени ответа."""
+    expected = os.environ.get('ADMIN_KEY', '')
+    if not expected or not admin_key:
+        return False
+    return hmac.compare_digest(admin_key, expected)
 
 CORS = {
     'Access-Control-Allow-Origin': '*',
@@ -32,7 +43,7 @@ def handler(event: dict, context) -> dict:
 
     headers = {k.lower(): v for k, v in (event.get('headers') or {}).items()}
     admin_key = headers.get('x-admin-key', '')
-    if admin_key != os.environ.get('ADMIN_KEY', ''):
+    if not is_admin_key(admin_key):
         return err('Unauthorized', 401)
 
     schema = os.environ.get('MAIN_DB_SCHEMA', 'public')

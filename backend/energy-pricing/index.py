@@ -1,6 +1,16 @@
 import os
+import hmac
 import json
 import psycopg2
+
+
+def is_admin_key(admin_key: str) -> bool:
+    """Сверка админ-ключа. Пустой ключ (или незаданный ADMIN_KEY) — ОТКАЗ: иначе запрос без
+    заголовка проходил как админский и позволял переписать цены пакетов энергии."""
+    expected = os.environ.get('ADMIN_KEY', '')
+    if not expected or not admin_key:
+        return False
+    return hmac.compare_digest(admin_key, expected)
 
 
 def cors():
@@ -42,7 +52,7 @@ def handler(event: dict, context) -> dict:
             if method == 'PUT':
                 headers = {k.lower(): v for k, v in (event.get('headers') or {}).items()}
                 admin_key = headers.get('x-admin-key', '')
-                if admin_key != os.environ.get('ADMIN_KEY', ''):
+                if not is_admin_key(admin_key):
                     return err('Unauthorized', 401)
 
                 body = json.loads(event.get('body') or '{}')
