@@ -856,7 +856,13 @@ export default function Builder() {
               let payload: Record<string, unknown>;
               try { payload = JSON.parse(dataStr); } catch { continue; }
               receivedAny = true;
-              if (evName === 'token') {
+              if (evName === 'phase') {
+                // Команда обдумывает решение до того, как пойдёт код. Раньше это была тишина
+                // на десятки секунд, и казалось, что редактор завис.
+                setStreamStatus(payload.stage === 'thinking'
+                  ? (lang === 'ru' ? 'Продумываю структуру проекта…' : 'Thinking through the structure…')
+                  : null);
+              } else if (evName === 'token') {
                 const chunk = (payload.t as string) || '';
                 acc += chunk;
                 if (chunk.includes('-->')) { showPlan(); pushSteps(); }   // новый план/шаг-маркер завершился
