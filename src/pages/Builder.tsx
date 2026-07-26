@@ -14,6 +14,9 @@ import ReportMessage from '@/components/builder/ReportMessage';
 import ChatMarkdown from '@/components/builder/ChatMarkdown';
 import Typewriter from '@/components/builder/Typewriter';
 import { AgentFileCard, AgentStep } from '@/components/builder/AgentSteps';
+import BuilderStartScreen from '@/components/builder/BuilderStartScreen';
+import BuilderShowcase from '@/components/builder/BuilderShowcase';
+import { PRODUCT_TYPES, type ProductType } from '@/components/builder/builderTemplates';
 import { trackGoal, GOALS } from '@/lib/analytics';
 import { apiUrl } from '@/lib/apiConfig';
 
@@ -122,11 +125,11 @@ const DEVICE_WIDTHS: Record<DeviceMode, string> = {
   mobile: 'min(375px, 100%)',
 };
 
-// Приветственное сообщение ассистента при первом входе в новый проект.
-const WELCOME_MESSAGE = (lang: 'ru' | 'en') =>
+// Приветствие при возврате в проект, у которого есть код, но переписка не сохранилась.
+const WELCOME_BACK_MESSAGE = (lang: 'ru' | 'en') =>
   lang === 'ru'
-    ? 'Привет :) Roboweb заменяет фрилансеров и конструкторы шаблонов. Опишите идею в диалоге — и получите готовый проект, магазин, IT-стартап за минуты, а не недели. Ваш личный разработчик! И это всё реальность! Попробуйте, вам обязательно понравится.'
-    : 'Hi :) Roboweb replaces freelancers and site builders. Describe your idea in the chat — and get a ready website, store or IT startup in minutes, not weeks. Your personal developer! And it\'s all real! Give it a try — you\'ll love it.';
+    ? 'С возвращением! Проект открыт — справа его превью. Напишите, что доработать: добавить раздел, поменять дизайн, подключить корзину или личный кабинет. Команда на связи.'
+    : 'Welcome back! Your project is open — the preview is on the right. Tell me what to change: add a section, restyle it, plug in a cart or user accounts. The team is standing by.';
 
 const QUICK_EDITS_RU = [
   { icon: 'Palette', label: 'Тёмная тема', prompt: 'Сделай тёмную цветовую схему' },
@@ -154,8 +157,22 @@ const QUICK_EDITS_EN = [
   { icon: 'Award', label: 'Benefits', prompt: 'Add a key company benefits block (4-6 items)' },
 ];
 
-// Библиотека готовых секций — добавление целых блоков проекта в один клик.
-const SECTION_LIBRARY_RU = [
+// Библиотека готовых блоков — добавление целых кусков проекта в один клик.
+// Две группы: «Возможности» превращают страницу в рабочий продукт (каталог, корзина, кабинет,
+// таблицы, база данных), «Секции» — обычные блоки лендинга. Раньше был только второй список,
+// поэтому редактор изнутри выглядел конструктором одностраничников, хотя умеет собирать
+// магазины, порталы и рабочие панели.
+interface LibraryItem { icon: string; label: string; prompt: string; power?: boolean }
+
+const SECTION_LIBRARY_RU: LibraryItem[] = [
+  { icon: 'LayoutGrid', label: 'Каталог с фильтрами', power: true, prompt: 'Добавь отдельный экран-каталог: карточки товаров/записей из базы, фильтры по категории и цене, поиск по названию и сортировка. Каталог должен быть отдельной страницей приложения, а не блоком на лендинге' },
+  { icon: 'ShoppingCart', label: 'Корзина и заказ', power: true, prompt: 'Добавь рабочую корзину: кнопка «В корзину» на карточках товаров, счётчик в шапке, отдельный экран корзины с количеством и суммой, оформление заказа с сохранением заказа в базу' },
+  { icon: 'UserCircle', label: 'Вход и кабинет', power: true, prompt: 'Добавь настоящие регистрацию и вход, а также личный кабинет: профиль, свои записи и заказы. Данные каждого пользователя приватны — чужие видеть нельзя' },
+  { icon: 'LayoutDashboard', label: 'Панель с KPI', power: true, prompt: 'Добавь экран рабочей панели: плитки ключевых показателей с динамикой, график на инлайн-SVG и список последних событий' },
+  { icon: 'Table', label: 'Таблица данных', power: true, prompt: 'Добавь экран с таблицей записей из базы: колонки, фильтры, поиск, сортировка, кнопка добавления и редактирование строки' },
+  { icon: 'Files', label: 'Отдельные страницы', power: true, prompt: 'Разбей проект на отдельные экраны приложения с рабочим меню-навигацией: каждый пункт меню открывает свою страницу, а не якорь на той же' },
+  { icon: 'Database', label: 'Форма пишет в базу', power: true, prompt: 'Сделай так, чтобы форма заявки сохраняла обращения в базу данных, а не просто показывала сообщение. Добавь экран со списком принятых заявок для владельца' },
+  { icon: 'Bell', label: 'Уведомление о заявке', power: true, prompt: 'Настрой отправку уведомления на почту владельца при каждой новой заявке и показывай клиенту подтверждение с номером обращения' },
   { icon: 'Image', label: 'Галерея', prompt: 'Добавь красивую галерею изображений в виде адаптивной сетки с hover-эффектом' },
   { icon: 'CreditCard', label: 'Тарифы', prompt: 'Добавь секцию с тарифами: 3 карточки цен, у средней выдели «Популярный», с кнопками' },
   { icon: 'Users', label: 'Команда', prompt: 'Добавь секцию «Наша команда» с карточками сотрудников (фото, имя, должность)' },
@@ -168,7 +185,15 @@ const SECTION_LIBRARY_RU = [
   { icon: 'Newspaper', label: 'Новости/блог', prompt: 'Добавь секцию с последними новостями или статьями блога (3 карточки)' },
 ];
 
-const SECTION_LIBRARY_EN = [
+const SECTION_LIBRARY_EN: LibraryItem[] = [
+  { icon: 'LayoutGrid', label: 'Catalog with filters', power: true, prompt: 'Add a dedicated catalog screen: product/record cards from the database, category and price filters, search by name and sorting. The catalog must be its own app screen, not a landing block' },
+  { icon: 'ShoppingCart', label: 'Cart & checkout', power: true, prompt: 'Add a working cart: an "Add to cart" button on product cards, a header counter, a dedicated cart screen with quantities and totals, and checkout that saves the order to the database' },
+  { icon: 'UserCircle', label: 'Sign-in & account', power: true, prompt: 'Add real registration and sign-in plus a user account: profile, own records and orders. Each user\'s data is private — nobody can see anyone else\'s' },
+  { icon: 'LayoutDashboard', label: 'KPI dashboard', power: true, prompt: 'Add a dashboard screen: KPI tiles with trends, an inline-SVG chart and a list of recent events' },
+  { icon: 'Table', label: 'Data table', power: true, prompt: 'Add a screen with a table of database records: columns, filters, search, sorting, an add button and row editing' },
+  { icon: 'Files', label: 'Separate screens', power: true, prompt: 'Split the project into separate app screens with working menu navigation: each menu item opens its own page instead of anchoring on the same one' },
+  { icon: 'Database', label: 'Form writes to DB', power: true, prompt: 'Make the lead form save submissions to the database instead of just showing a message. Add a screen listing received submissions for the owner' },
+  { icon: 'Bell', label: 'New lead alert', power: true, prompt: 'Send an email notification to the owner on every new submission and show the client a confirmation with a request number' },
   { icon: 'Image', label: 'Gallery', prompt: 'Add a beautiful responsive image gallery grid with hover effects' },
   { icon: 'CreditCard', label: 'Pricing', prompt: 'Add a pricing section: 3 price cards, highlight the middle one as "Popular", with buttons' },
   { icon: 'Users', label: 'Team', prompt: 'Add an "Our team" section with member cards (photo, name, role)' },
@@ -275,7 +300,11 @@ export default function Builder() {
   const [quotaExceeded, setQuotaExceeded] = useState(false);
   // Выбранный стиль-пресет для новых проектов ('' = авто, ИИ подбирает сам под нишу)
   const [siteStyle, setSiteStyle] = useState<'' | 'minimal' | 'premium' | 'bright' | 'dark'>('');
+  // Класс продукта (лендинг/магазин/портал/панель). Влияет не на эстетику, а на состав проекта:
+  // включает многоэкранность, корзину, аккаунты и таблицы данных на стороне генерации.
+  const [productType, setProductType] = useState<ProductType | ''>('');
   const [showStyleMenu, setShowStyleMenu] = useState(false);
+  const [showProductMenu, setShowProductMenu] = useState(false);
   const [dismissedStyleHint, setDismissedStyleHint] = useState(false);
   // Выбор AI-модели редактора: 'sonnet' (Claude Sonnet 5, по умолчанию) или 'opus' (Claude Opus 4.8).
   // Сохраняем в localStorage, чтобы выбор запоминался между сессиями.
@@ -360,11 +389,9 @@ export default function Builder() {
           .map(normalizeRestored);
         if (validHistory.length > 0) {
           setMessages(validHistory);
-        } else {
-          // Первый вход в проект (истории ещё нет) — приветствуем пользователя в диалоге.
-          // Проверяем и текущий localStorage-стейт, чтобы не задублировать приветствие.
-          setMessages(prev => prev.length > 0 ? prev : [{ role: 'assistant', content: WELCOME_MESSAGE(lang) }]);
         }
+        // История пуста — сообщение-заглушку НЕ подставляем: пустой чат показывает стартовый
+        // экран с выбором типа продукта и готовыми примерами, а он полезнее приветствия.
         // Разрешаем автосохранение истории только после первичной загрузки —
         // иначе пустой стартовый стейт перезапишет сохранённую историю в БД.
         setChatLoaded(true);
@@ -493,7 +520,9 @@ export default function Builder() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const sendMessage = async (text?: string) => {
+  /** @param forcedType класс продукта, выбранный кликом по готовому примеру. Передаётся явно,
+   *  потому что setState асинхронный — на момент отправки состояние ещё не обновилось. */
+  const sendMessage = async (text?: string, forcedType?: ProductType) => {
     const rawContent = (text || input).trim();
     if (!rawContent.trim() && !attachedImage) return;
     if (loading) return;
@@ -553,6 +582,9 @@ export default function Builder() {
         model: aiModel,
         // Стиль-пресет применяется только к новым проектам (при правке html уже есть)
         style: !html ? siteStyle : undefined,
+        // Класс продукта — тоже только для новой сборки: он задаёт состав проекта (экраны,
+        // корзина, аккаунты), а при правке состав уже определён существующим кодом.
+        product_type: !html ? (forcedType || productType || undefined) : undefined,
         // Передаём текущий HTML проекта — модель правит именно его, а не пытается
         // восстановить состояние проекта по истории текстовых команд
         current_html: html || undefined,
@@ -1390,24 +1422,28 @@ export default function Builder() {
   return (
     <div className={`flex flex-col h-screen bg-background overflow-hidden ${builderTheme === 'dark' ? 'dark' : ''}`}>
 
-      {/* TOP BAR */}
-      <header className="flex items-center justify-between gap-2 px-3 sm:px-4 h-14 border-b border-border shrink-0 bg-card">
+      {/* TOP BAR — стекло с градиентной волосяной линией, как навигация лендинга */}
+      <header className="relative flex items-center justify-between gap-2 px-3 sm:px-4 h-14 border-b border-border shrink-0 bg-card/85 backdrop-blur-xl z-20">
+        <span
+          aria-hidden
+          className="pointer-events-none absolute inset-x-0 -bottom-px h-px bg-gradient-to-r from-transparent via-primary/45 to-transparent"
+        />
         <div className="flex items-center gap-2 sm:gap-3 min-w-0">
           <button
             onClick={() => setSidebarOpen(v => !v)}
-            className="grid h-8 w-8 place-items-center rounded-lg bg-secondary border border-border text-muted-foreground hover:text-foreground hover:bg-secondary/70 transition-colors shrink-0"
+            className="grid h-8 w-8 place-items-center rounded-xl bg-secondary border border-border text-muted-foreground hover:text-foreground hover:bg-secondary/70 transition-colors shrink-0"
             title={sidebarOpen ? (lang === 'ru' ? 'Показать проект' : 'Show site') : (lang === 'ru' ? 'Показать чат' : 'Show chat')}
           >
             <Icon name={sidebarOpen ? 'PanelLeftClose' : 'PanelLeft'} fallback="PanelLeft" size={15} />
           </button>
-          <Link to="/dashboard" className="flex items-center gap-2 font-extrabold text-base">
-            <span className="grid h-7 w-7 place-items-center rounded-lg bg-primary text-primary-foreground shrink-0">
+          <Link to="/dashboard" className="flex items-center gap-2 font-display font-extrabold text-base">
+            <span className="grid h-7 w-7 place-items-center rounded-xl bg-gradient-to-br from-primary to-[hsl(258,76%,64%)] text-white shrink-0 shadow-md shadow-primary/25">
               <RoboMark size={14} className="text-white [&_path]:fill-current [&_rect]:fill-current" />
             </span>
-            <span className="text-foreground hidden sm:block tracking-tight">Roboweb</span>
+            <span className="text-foreground hidden sm:block">Roboweb</span>
           </Link>
           {projectId && (
-            <span className="hidden sm:flex items-center gap-1.5 text-xs text-muted-foreground bg-secondary rounded-lg px-2.5 py-1.5 border border-border">
+            <span className="hidden sm:flex items-center gap-1.5 text-xs text-muted-foreground bg-secondary rounded-xl px-2.5 py-1.5 border border-border">
               <Icon name="Layers" size={11} />
               #{projectId}
             </span>
@@ -1416,7 +1452,7 @@ export default function Builder() {
             <Link
               to="/dashboard?tab=plan"
               title={lang === 'ru' ? `Осталось ${remaining} запросов. Нажмите, чтобы пополнить энергию` : `${remaining} requests left. Click to top up energy`}
-              className={`hidden sm:flex items-center gap-1 text-xs font-semibold rounded-lg px-2 py-1 shrink-0 whitespace-nowrap transition-colors ${remaining <= 0 ? 'bg-destructive/10 text-destructive' : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 hover:bg-amber-500/20'}`}
+              className={`hidden sm:flex items-center gap-1 text-xs font-semibold rounded-xl px-2 py-1 shrink-0 whitespace-nowrap transition-colors ${remaining <= 0 ? 'bg-destructive/10 text-destructive' : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 hover:bg-amber-500/20'}`}
             >
               <Icon name="Zap" size={11} className="shrink-0" />
               {remaining}
@@ -1426,7 +1462,7 @@ export default function Builder() {
 
         <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
           {/* Device switcher */}
-          <div className="hidden lg:flex items-center gap-0.5 bg-secondary rounded-lg p-1 border border-border">
+          <div className="hidden lg:flex items-center gap-0.5 bg-secondary rounded-xl p-1 border border-border">
             {([
               ['desktop', 'Monitor', lang === 'ru' ? 'Компьютер' : 'Desktop'],
               ['tablet', 'Tablet', lang === 'ru' ? 'Планшет' : 'Tablet'],
@@ -1441,7 +1477,7 @@ export default function Builder() {
           </div>
 
           {/* Preview / Code / Core tabs */}
-          <div className="flex items-center gap-0.5 bg-secondary rounded-lg p-1 border border-border shrink-0">
+          <div className="flex items-center gap-0.5 bg-secondary rounded-xl p-1 border border-border shrink-0">
             {([['preview', 'Eye', tr('builderPreview', lang)], ['code', 'Code', tr('builderCode', lang)], ['core', 'Database', lang === 'ru' ? 'Ядро' : 'Core']] as const).map(([tab, icon, label]) => (
               <button key={tab} onClick={() => { setRightTab(tab); if (tab === 'code') setCodeEditorValue(html); }}
                 title={label}
@@ -1459,7 +1495,7 @@ export default function Builder() {
             <div className="relative">
               <button
                 onClick={() => setShowVersions(v => !v)}
-                className="flex items-center gap-1.5 h-8 px-2.5 rounded-lg text-xs font-medium border border-border bg-secondary hover:bg-secondary/70 hover:text-foreground transition-colors text-muted-foreground"
+                className="flex items-center gap-1.5 h-8 px-2.5 rounded-xl text-xs font-medium border border-border bg-secondary hover:bg-secondary/70 hover:text-foreground transition-colors text-muted-foreground"
                 title={lang === 'ru' ? 'История версий' : 'Version history'}
               >
                 <Icon name="History" size={13} />
@@ -1493,7 +1529,7 @@ export default function Builder() {
           {/* Режим редактирования текста прямо на превью */}
           {html && rightTab === 'preview' && (
             <button onClick={toggleEditMode}
-              className={`hidden sm:grid h-8 w-8 shrink-0 place-items-center rounded-lg border transition-colors ${
+              className={`hidden sm:grid h-8 w-8 shrink-0 place-items-center rounded-xl border transition-colors ${
                 editMode
                   ? 'bg-primary text-primary-foreground border-primary'
                   : 'border-border bg-secondary hover:bg-secondary/70 hover:text-foreground text-muted-foreground'
@@ -1505,7 +1541,7 @@ export default function Builder() {
 
           {/* Тема интерфейса редактора */}
           <button onClick={toggleBuilderTheme}
-            className="hidden sm:grid h-8 w-8 shrink-0 place-items-center rounded-lg border border-border bg-secondary hover:bg-secondary/70 hover:text-foreground transition-colors text-muted-foreground"
+            className="hidden sm:grid h-8 w-8 shrink-0 place-items-center rounded-xl border border-border bg-secondary hover:bg-secondary/70 hover:text-foreground transition-colors text-muted-foreground"
             title={lang === 'ru' ? 'Тема интерфейса' : 'Interface theme'}>
             <Icon name={builderTheme === 'dark' ? 'Sun' : 'Moon'} size={13} />
           </button>
@@ -1513,7 +1549,7 @@ export default function Builder() {
           {/* Действия — обновить/открыть/скачать/в хранилище/домен в одном меню «···» (разгружаем панель) */}
           <div className="relative shrink-0">
             <button onClick={() => setShowActionsMenu(v => !v)}
-              className={`grid h-8 w-8 place-items-center rounded-lg border transition-colors ${showActionsMenu ? 'border-primary/50 bg-primary/10 text-primary' : 'border-border bg-secondary hover:bg-secondary/70 hover:text-foreground text-muted-foreground'}`}
+              className={`grid h-8 w-8 place-items-center rounded-xl border transition-colors ${showActionsMenu ? 'border-primary/50 bg-primary/10 text-primary' : 'border-border bg-secondary hover:bg-secondary/70 hover:text-foreground text-muted-foreground'}`}
               title={lang === 'ru' ? 'Ещё действия' : 'More actions'}>
               <Icon name="MoreHorizontal" fallback="MoreVertical" size={16} />
             </button>
@@ -1541,7 +1577,7 @@ export default function Builder() {
             )}
           </div>
 
-          <Button size="sm" disabled={!html || publishing || !projectId} onClick={publishedSlug ? () => setShowPublishModal(true) : handlePublish} className="h-8 rounded-lg text-xs px-3 gap-1.5 shrink-0 shadow-md shadow-primary/25 hover:shadow-primary/40 transition-shadow">
+          <Button size="sm" disabled={!html || publishing || !projectId} onClick={publishedSlug ? () => setShowPublishModal(true) : handlePublish} className="h-8 rounded-xl text-xs px-3 gap-1.5 shrink-0 font-semibold glow-hover shadow-md shadow-primary/30 hover:shadow-lg hover:shadow-primary/45 transition-shadow">
             <Icon name={publishing ? 'Loader' : publishedSlug ? 'CheckCircle' : 'Globe'} size={13} className={publishing ? 'animate-spin' : ''} />
             <span className="hidden md:inline">
               {publishing ? (lang === 'ru' ? 'Публикуем…' : 'Publishing…') : publishedSlug ? (lang === 'ru' ? 'Опубликовано' : 'Published') : tr('builderPublish', lang)}
@@ -1552,7 +1588,7 @@ export default function Builder() {
             <LangSwitcher lang={lang} />
           </div>
 
-          <div className="hidden sm:grid h-8 w-8 place-items-center rounded-lg bg-primary text-primary-foreground text-xs font-bold shrink-0">
+          <div className="hidden sm:grid h-8 w-8 place-items-center rounded-xl bg-gradient-to-br from-primary to-[hsl(258,76%,64%)] text-white font-display text-xs font-bold shrink-0">
             {initials}
           </div>
         </div>
@@ -1571,14 +1607,20 @@ export default function Builder() {
             style={{ '--chat-w': `${chatWidth}px` } as CSSProperties}
           >
 
-            {/* Chat header */}
-            <div className="flex items-center gap-2.5 px-4 py-3 border-b border-border shrink-0 bg-gradient-to-b from-secondary/40 to-background">
-              <div className="relative grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-primary to-[hsl(258,90%,62%)] text-primary-foreground shrink-0 shadow-lg shadow-primary/25">
+            {/* Chat header — амбиентное свечение и подпись как на лендинге */}
+            <div className="relative flex items-center gap-2.5 px-4 py-3 border-b border-border shrink-0 bg-gradient-to-b from-primary/[0.07] to-background overflow-hidden">
+              <span
+                aria-hidden
+                className="pointer-events-none absolute -top-12 left-6 h-24 w-24 rounded-full bg-primary/25 blur-3xl breathe"
+              />
+              <div className="relative grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-primary to-[hsl(258,76%,64%)] text-primary-foreground shrink-0 shadow-lg shadow-primary/30">
                 <RoboMark size={17} className="text-white [&_path]:fill-current [&_rect]:fill-current" />
-                <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-500 border-2 border-background" />
+                <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-500 border-2 border-background at-dot" />
               </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-sm font-bold text-foreground tracking-tight">Roboweb AI</div>
+              <div className="relative flex-1 min-w-0">
+                <div className="font-display text-sm font-bold text-foreground">
+                  {lang === 'ru' ? 'Команда разработки' : 'Your dev team'}
+                </div>
                 <div className="flex items-center gap-2 mt-0.5">
                   <span className="text-[11px] text-muted-foreground font-medium">
                     {loading
@@ -1626,10 +1668,21 @@ export default function Builder() {
                     </div>
                   )}
 
-                  {/* Приветственное сообщение — с эффектом печатающей машинки */}
-                  <div className="text-[14px] leading-[1.6] text-foreground">
-                    <Typewriter text={WELCOME_MESSAGE(lang)} />
-                  </div>
+                  {html ? (
+                    // Проект уже есть, а переписки нет (открыт заново после выхода) — предлагать
+                    // шаблоны здесь неуместно, поэтому короткое приглашение к доработке.
+                    <div className="text-[14px] leading-[1.6] text-foreground">
+                      <Typewriter text={WELCOME_BACK_MESSAGE(lang)} />
+                    </div>
+                  ) : (
+                    <BuilderStartScreen
+                      lang={lang}
+                      productType={productType}
+                      onProductType={setProductType}
+                      onPick={(prompt, type) => { setProductType(type); sendMessage(prompt, type); }}
+                      disabled={loading}
+                    />
+                  )}
                 </div>
               ) : (
                 messages.map((m, i) => {
@@ -1768,11 +1821,26 @@ export default function Builder() {
             {/* Section library panel — добавление готовых секций в один клик */}
             {showSectionLibrary && html && (
               <div className="border-t border-border bg-secondary/50 p-3 max-h-[45vh] overflow-y-auto">
-                <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold mb-2">
+                {/* Возможности идут первыми: именно они превращают страницу в рабочий продукт */}
+                <p className="text-[10px] text-primary uppercase tracking-widest font-semibold mb-2 flex items-center gap-1.5">
+                  <Icon name="Zap" size={11} />
+                  {lang === 'ru' ? 'Добавить возможность' : 'Add capability'}
+                </p>
+                <div className="grid grid-cols-2 gap-1.5">
+                  {SECTION_LIBRARY.filter(e => e.power).map(e => (
+                    <button key={e.label} onClick={() => { sendMessage(e.prompt); setShowSectionLibrary(false); }}
+                      className="flex items-center gap-1.5 px-2 sm:px-2.5 py-2 rounded-xl bg-primary/[0.07] border border-primary/25 text-[11px] sm:text-xs font-medium text-foreground hover:bg-primary/15 hover:border-primary/50 transition-all text-left">
+                      <Icon name={e.icon} fallback="Square" size={12} className="text-primary shrink-0" />
+                      {e.label}
+                    </button>
+                  ))}
+                </div>
+
+                <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold mb-2 mt-4">
                   {lang === 'ru' ? 'Добавить секцию' : 'Add section'}
                 </p>
                 <div className="grid grid-cols-2 gap-1.5">
-                  {SECTION_LIBRARY.map(e => (
+                  {SECTION_LIBRARY.filter(e => !e.power).map(e => (
                     <button key={e.label} onClick={() => { sendMessage(e.prompt); setShowSectionLibrary(false); }}
                       className="flex items-center gap-1.5 px-2 sm:px-2.5 py-2 rounded-xl bg-secondary border border-border text-[11px] sm:text-xs text-muted-foreground hover:text-primary hover:border-primary transition-all text-left">
                       <Icon name={e.icon} fallback="Square" size={12} className="text-primary shrink-0" />
@@ -1883,7 +1951,7 @@ export default function Builder() {
                   {html && (
                     <button onClick={() => { setShowSectionLibrary(v => !v); setShowQuickEdits(false); }}
                       className={`grid h-7 w-7 place-items-center rounded-lg transition-colors shrink-0 ${showSectionLibrary ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-foreground hover:bg-secondary'}`}
-                      title={lang === 'ru' ? 'Добавить секцию' : 'Add section'}>
+                      title={lang === 'ru' ? 'Добавить возможность или секцию' : 'Add a capability or section'}>
                       <Icon name="LayoutGrid" fallback="Plus" size={14} />
                     </button>
                   )}
@@ -1937,6 +2005,57 @@ export default function Builder() {
                       </div>
                     )}
                   </div>
+
+                  {/* Тип проекта — только для новой сборки. Меняет не оформление, а состав:
+                      экраны, корзину, аккаунты и таблицы данных. */}
+                  {!html && (
+                    <div className="relative shrink-0">
+                      <button onClick={() => setShowProductMenu(v => !v)}
+                        className={`flex items-center gap-1 h-7 px-2 rounded-lg transition-colors text-[11px] font-semibold ${productType ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-foreground hover:bg-secondary'}`}
+                        title={lang === 'ru' ? 'Тип проекта' : 'Project type'}>
+                        <Icon name={PRODUCT_TYPES.find(p => p.id === productType)?.icon || 'Layers'} fallback="Layers" size={13} />
+                        <span className="hidden sm:inline">
+                          {productType
+                            ? (lang === 'ru' ? PRODUCT_TYPES.find(p => p.id === productType)!.label.ru : PRODUCT_TYPES.find(p => p.id === productType)!.label.en)
+                            : (lang === 'ru' ? 'Тип' : 'Type')}
+                        </span>
+                      </button>
+                      {showProductMenu && (
+                        <div className="absolute bottom-10 left-0 z-50 w-64 max-w-[calc(100vw-2rem)] bg-secondary border border-border rounded-2xl shadow-2xl p-1.5">
+                          <button
+                            onClick={() => { setProductType(''); setShowProductMenu(false); }}
+                            className="w-full flex items-start gap-2.5 px-2.5 py-2 rounded-xl hover:bg-secondary/70 transition-colors text-left">
+                            <div className={`grid h-6 w-6 place-items-center rounded-lg shrink-0 mt-0.5 ${!productType ? 'bg-primary text-primary-foreground' : 'bg-background text-muted-foreground'}`}>
+                              <Icon name={!productType ? 'Check' : 'Wand2'} fallback="Wand2" size={12} />
+                            </div>
+                            <div>
+                              <div className="text-xs font-medium text-foreground">{lang === 'ru' ? 'Авто (по описанию)' : 'Auto (from your text)'}</div>
+                              <div className="text-[10px] text-muted-foreground">{lang === 'ru' ? 'ИИ поймёт тип сам' : 'AI figures out the type'}</div>
+                            </div>
+                          </button>
+                          {PRODUCT_TYPES.map(p => (
+                            <button key={p.id}
+                              onClick={() => { setProductType(p.id); setShowProductMenu(false); }}
+                              className="w-full flex items-start gap-2.5 px-2.5 py-2 rounded-xl hover:bg-secondary/70 transition-colors text-left">
+                              <div className={`grid h-6 w-6 place-items-center rounded-lg shrink-0 mt-0.5 ${productType === p.id ? 'bg-primary text-primary-foreground' : 'bg-background text-muted-foreground'}`}>
+                                <Icon name={productType === p.id ? 'Check' : p.icon} fallback="Square" size={12} />
+                              </div>
+                              <div>
+                                <div className="text-xs font-medium text-foreground">{lang === 'ru' ? p.label.ru : p.label.en}</div>
+                                <div className="text-[10px] text-muted-foreground">{lang === 'ru' ? p.hint.ru : p.hint.en}</div>
+                              </div>
+                            </button>
+                          ))}
+                          {/* Честно про расход: выбранный тип — это расширенная сборка */}
+                          <p className="px-2.5 pt-1.5 pb-1 text-[10px] text-muted-foreground border-t border-border mt-1">
+                            {lang === 'ru'
+                              ? 'Выбранный тип — расширенная сборка: 2 единицы энергии.'
+                              : 'A chosen type means an extended build: 2 energy units.'}
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  )}
 
                   {/* Стиль проекта — только для создания нового (при правке html уже есть) */}
                   {!html && (
@@ -2039,6 +2158,7 @@ export default function Builder() {
             {/* Overlay закрывает расширения */}
             {showExtensions && <div className="fixed inset-0 z-40" onClick={() => setShowExtensions(false)} />}
             {showStyleMenu && <div className="fixed inset-0 z-40" onClick={() => setShowStyleMenu(false)} />}
+            {showProductMenu && <div className="fixed inset-0 z-40" onClick={() => setShowProductMenu(false)} />}
             {showModelMenu && <div className="fixed inset-0 z-40" onClick={() => setShowModelMenu(false)} />}
           </div>
         )}
@@ -2309,40 +2429,36 @@ export default function Builder() {
                     )}
                   </div>
                 </>
+              ) : !loading ? (
+                // Проекта ещё нет — самая большая область экрана показывает витрину работ из
+                // портфолио вместо пустоты: клиент сразу видит класс продуктов, которые здесь
+                // собираются, и запускает любой одним кликом.
+                <BuilderShowcase
+                  lang={lang}
+                  disabled={loading}
+                  onPick={(prompt, type) => { setProductType(type); sendMessage(prompt, type); }}
+                />
               ) : (
-                <div className="flex-1 flex flex-col items-center justify-center text-center px-8">
-                  {loading ? (
-                    // Состояние «строится» во время генерации нового проекта — без мигания превью.
-                    <>
-                      <div className="h-20 w-20 rounded-3xl bg-card border border-border grid place-items-center mx-auto mb-6 shadow-sm">
-                        <Icon name="Loader" size={30} className="text-primary animate-spin" />
-                      </div>
-                      <h3 className="font-bold text-foreground text-lg mb-2">{lang === 'ru' ? 'Собираю ваш проект…' : 'Building your site…'}</h3>
-                      <p className="text-muted-foreground text-sm max-w-xs leading-relaxed">{lang === 'ru' ? 'Готовый проект появится здесь через несколько секунд — ход сборки виден в чате слева.' : 'Your finished site appears here shortly — follow the build in the chat on the left.'}</p>
-                      <div className="w-full max-w-sm mt-8 space-y-3">
-                        <div className="h-8 w-2/3 mx-auto rounded-lg bg-secondary animate-pulse" />
-                        <div className="h-24 rounded-2xl bg-secondary animate-pulse" />
-                        <div className="grid grid-cols-3 gap-3">
-                          <div className="h-16 rounded-xl bg-secondary animate-pulse" />
-                          <div className="h-16 rounded-xl bg-secondary animate-pulse" />
-                          <div className="h-16 rounded-xl bg-secondary animate-pulse" />
-                        </div>
-                      </div>
-                    </>
-                  ) : (
-                    <>
-                      <div className="relative mb-6">
-                        <div className="h-20 w-20 rounded-3xl bg-card border border-border grid place-items-center mx-auto">
-                          <Icon name="Globe" size={32} className="text-muted-foreground/50" />
-                        </div>
-                        <div className="absolute -top-1 -right-1 h-6 w-6 rounded-full bg-primary/10 border border-primary/20 grid place-items-center">
-                          <Icon name="Sparkles" size={11} className="text-primary" />
-                        </div>
-                      </div>
-                      <h3 className="font-bold text-foreground text-lg mb-2">{tr('builderPreviewEmpty', lang)}</h3>
-                      <p className="text-muted-foreground text-sm max-w-xs leading-relaxed">{tr('builderPreviewEmptyDesc', lang)}</p>
-                    </>
-                  )}
+                // Состояние «строится» во время генерации нового проекта — без мигания превью.
+                <div className="relative overflow-hidden flex-1 flex flex-col items-center justify-center text-center px-8">
+                  <span
+                    aria-hidden
+                    className="pointer-events-none absolute h-64 w-64 rounded-full bg-primary/15 blur-3xl breathe"
+                  />
+                  <div className="relative h-20 w-20 rounded-3xl bg-gradient-to-br from-primary/15 to-[hsl(258,76%,64%)]/15 border border-primary/25 grid place-items-center mx-auto mb-6 shadow-lg shadow-primary/10">
+                    <Icon name="Loader" size={30} className="text-primary animate-spin" />
+                  </div>
+                  <h3 className="relative font-display font-bold text-foreground text-lg mb-2">{lang === 'ru' ? 'Собираю ваш проект…' : 'Building your site…'}</h3>
+                  <p className="relative text-muted-foreground text-sm max-w-xs leading-relaxed">{lang === 'ru' ? 'Готовый проект появится здесь через несколько секунд — ход сборки виден в чате слева.' : 'Your finished site appears here shortly — follow the build in the chat on the left.'}</p>
+                  <div className="relative w-full max-w-sm mt-8 space-y-3">
+                    <div className="h-8 w-2/3 mx-auto rounded-lg bg-secondary animate-pulse" />
+                    <div className="h-24 rounded-2xl bg-secondary animate-pulse" />
+                    <div className="grid grid-cols-3 gap-3">
+                      <div className="h-16 rounded-xl bg-secondary animate-pulse" />
+                      <div className="h-16 rounded-xl bg-secondary animate-pulse" />
+                      <div className="h-16 rounded-xl bg-secondary animate-pulse" />
+                    </div>
+                  </div>
                 </div>
               )}
             </div>
