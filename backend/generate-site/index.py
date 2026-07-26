@@ -374,6 +374,24 @@ def get_user_id(session_id: str, schema: str):
     finally:
         conn.close()
 
+def is_project_owner(project_id, user_id: int, schema: str) -> bool:
+    """Проверяет, что проект принадлежит пользователю. Сохранение результата генерации идёт
+    по одному лишь id проекта, поэтому владельца обязаны проверить до начала работы."""
+    if not project_id or not user_id:
+        return False
+    conn = psycopg2.connect(os.environ['DATABASE_URL'])
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                f"SELECT 1 FROM {schema}.projects WHERE id = %s AND user_id = %s",
+                (int(project_id), user_id)
+            )
+            return cur.fetchone() is not None
+    except (ValueError, TypeError):
+        return False
+    finally:
+        conn.close()
+
 # PLAN_LIMITS импортирован из _shared.plans (единый источник для generate-site/auth/webhook).
 
 # Матрица списания единиц по (модель, размер задачи). Откалибрована так, чтобы реальная
@@ -1484,6 +1502,19 @@ def _handler_impl(event: dict, context) -> dict:
 
     if not messages:
         return err('Нет сообщений')
+
+    # ВАЖНО (изоляция данных): project_id приходит из тела запроса, а сохранение результата идёт
+    # по `WHERE id = %s` без владельца (save_html / apply_project_schema / apply_project_functions).
+    # Без этой проверки любой авторизованный пользователь мог по чужому id перезаписать HTML чужого
+    # сайта, подменить его серверные функции (код исполняется через public-fn) и снять owner_scoped
+    # с личных таблиц, открыв чужие данные наружу. Проверяем владельца ДО списания энергии.
+    if project_id:
+        try:
+            project_id = int(project_id)
+        except (TypeError, ValueError):
+            return err('Некорректный project_id')
+        if not is_project_owner(project_id, user_id, schema):
+            return err('Проект не найден', 404)
 
     # Стоимость запроса ДО списания:
     #  - обычный: 1 единица

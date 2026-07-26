@@ -167,10 +167,31 @@ def handler(event: dict, context) -> dict:
         conn = get_conn()
         try:
             with conn.cursor() as cur:
-                cur.execute(
-                    f"UPDATE {schema}.site_leads SET status = %s WHERE id = %s",
-                    (new_status, lead_id)
-                )
+                if is_admin:
+                    cur.execute(
+                        f"UPDATE {schema}.site_leads SET status = %s WHERE id = %s",
+                        (new_status, lead_id)
+                    )
+                else:
+                    # ВАЖНО: раньше проверялась только НЕПУСТОТА заголовка X-Session-Id — сессия не
+                    # резолвилась и владелец не проверялся, поэтому кто угодно мог перевести чужую
+                    # заявку в «обработана»/«отклонена» и спрятать её от владельца.
+                    cur.execute(
+                        f"SELECT user_id FROM {schema}.sessions WHERE id = %s AND expires_at > NOW()",
+                        (session_id,)
+                    )
+                    row = cur.fetchone()
+                    if not row:
+                        return err('Сессия истекла', 401)
+                    user_id = row[0]
+                    cur.execute(
+                        f"""UPDATE {schema}.site_leads sl SET status = %s
+                            FROM {schema}.projects p
+                            WHERE sl.id = %s AND p.id = sl.project_id AND p.user_id = %s""",
+                        (new_status, lead_id, user_id)
+                    )
+                    if cur.rowcount == 0:
+                        return err('Заявка не найдена', 404)
             conn.commit()
         finally:
             conn.close()

@@ -94,6 +94,28 @@ export default function Leads() {
 
   const filtered = filter === 'all' ? leads : leads.filter(l => l.status === filter);
 
+  /** Выгрузка видимых заявок в CSV — чтобы работать с ними в Excel или загрузить в свою CRM.
+   *  BOM в начале нужен, чтобы Excel корректно открыл кириллицу. */
+  const exportCsv = () => {
+    const STATUS_RU: Record<string, string> = { new: 'новая', processed: 'обработана', rejected: 'отклонена' };
+    const headers = isRu
+      ? ['Дата', 'Имя', 'Телефон', 'E-mail', 'Сообщение', 'Проект', 'Статус']
+      : ['Date', 'Name', 'Phone', 'Email', 'Message', 'Project', 'Status'];
+    const esc = (v: unknown) => `"${String(v ?? '').replace(/"/g, '""')}"`;
+    const rows = filtered.map(l => [
+      new Date(l.date).toLocaleString(isRu ? 'ru-RU' : 'en-US'),
+      l.name, l.phone, l.email, l.message, l.site,
+      isRu ? (STATUS_RU[l.status] ?? l.status) : l.status,
+    ].map(esc).join(';'));
+    const csv = '﻿' + [headers.map(esc).join(';'), ...rows].join('\r\n');
+    const url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `roboweb-leads-${new Date().toISOString().slice(0, 10)}.csv`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   const filterTabs = [
     { id: 'all', label: isRu ? 'Все' : 'All', count: totalCount },
     { id: 'new', label: isRu ? 'Новые' : 'New', count: counts['new'] || 0 },
@@ -124,11 +146,19 @@ export default function Leads() {
               </div>
             )}
           </div>
-          <button onClick={fetchLeads} disabled={loading}
-            className="flex items-center gap-1.5 h-9 px-3 rounded-xl border border-border bg-secondary text-sm text-muted-foreground hover:text-foreground hover:bg-background transition-colors">
-            <Icon name={loading ? 'Loader' : 'RefreshCw'} size={14} className={loading ? 'animate-spin' : ''} />
-            {isRu ? 'Обновить' : 'Refresh'}
-          </button>
+          <div className="flex items-center gap-2">
+            <button onClick={exportCsv} disabled={filtered.length === 0}
+              title={isRu ? 'Выгрузить в CSV (Excel)' : 'Export to CSV (Excel)'}
+              className="flex items-center gap-1.5 h-9 px-3 rounded-xl border border-border bg-secondary text-sm text-muted-foreground hover:text-foreground hover:bg-background transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+              <Icon name="Download" size={14} />
+              {isRu ? 'Выгрузить' : 'Export'}
+            </button>
+            <button onClick={fetchLeads} disabled={loading}
+              className="flex items-center gap-1.5 h-9 px-3 rounded-xl border border-border bg-secondary text-sm text-muted-foreground hover:text-foreground hover:bg-background transition-colors">
+              <Icon name={loading ? 'Loader' : 'RefreshCw'} size={14} className={loading ? 'animate-spin' : ''} />
+              {isRu ? 'Обновить' : 'Refresh'}
+            </button>
+          </div>
         </div>
 
         {/* Stats */}

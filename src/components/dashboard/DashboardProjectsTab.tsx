@@ -9,6 +9,7 @@ import {
 import { tr, type Lang } from '@/lib/i18n';
 import { type Project, getSession } from '@/lib/auth';
 import { apiUrl } from '@/lib/apiConfig';
+import { ProjectPassportDialog } from './ProjectPassportDialog';
 
 type ProjectStat = { id: number; views: number; visitors: number; leads: number; new_leads: number };
 
@@ -44,6 +45,8 @@ export default function DashboardProjectsTab({
 
   // Статистика по каждому проекту за 30 дней (одним запросом — см. by_project в backend/analytics)
   const [stats, setStats] = useState<Record<number, ProjectStat>>({});
+  // Открытый «паспорт проекта»
+  const [passportId, setPassportId] = useState<number | null>(null);
   useEffect(() => {
     const session = getSession();
     if (!session) return;
@@ -260,6 +263,9 @@ export default function DashboardProjectsTab({
                               <Link to={`/leads?site=${encodeURIComponent(p.url || '')}`} className="text-primary font-semibold hover:underline">
                                 {lang === 'ru' ? 'Заявки' : 'Leads'}
                               </Link>
+                              <button onClick={() => setPassportId(p.id)} className="text-primary font-semibold hover:underline">
+                                {lang === 'ru' ? 'Паспорт' : 'Passport'}
+                              </button>
                             </div>
                           </>
                         )}
@@ -327,6 +333,15 @@ export default function DashboardProjectsTab({
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Паспорт проекта — сводный отчёт по одному проекту */}
+      <ProjectPassportDialog
+        lang={lang}
+        open={passportId !== null}
+        onOpenChange={(v) => { if (!v) setPassportId(null); }}
+        project={projects.find(p => p.id === passportId) ?? null}
+        stat={passportId !== null ? stats[passportId] : undefined}
+      />
     </div>
   );
 }

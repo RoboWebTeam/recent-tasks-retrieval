@@ -1,8 +1,10 @@
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { LogoMark } from '@/components/Logo';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
-import { getStoredUser, clearSession, getRemainingRequests, LOW_BALANCE_THRESHOLD, type User } from '@/lib/auth';
+import { getStoredUser, getSession, clearSession, getRemainingRequests, LOW_BALANCE_THRESHOLD, type User } from '@/lib/auth';
+import { apiUrl } from '@/lib/apiConfig';
 import { getLang, tr, type Lang } from '@/lib/i18n';
 import LangSwitcher from '@/components/LangSwitcher';
 import ThemeToggle from '@/components/ThemeToggle';
@@ -20,12 +22,31 @@ type NavId = 'overview' | 'projects' | 'plan' | 'profile' | 'analytics' | 'leads
 
 interface DashboardHeaderProps {
   active: NavId;
+  /** Если не передан — шапка сама подтянет число новых заявок */
   leadsCount?: number;
 }
 
-export default function DashboardHeader({ active, leadsCount = 0 }: DashboardHeaderProps) {
+export default function DashboardHeader({ active, leadsCount }: DashboardHeaderProps) {
   const lang: Lang = getLang();
   const user = getStoredUser();
+  // Счётчик новых заявок виден на ВСЕХ страницах кабинета, а не только на «Заявках»:
+  // если родитель не передал значение — подтягиваем сами.
+  const [selfLeads, setSelfLeads] = useState(0);
+  useEffect(() => {
+    if (leadsCount !== undefined) return;
+    const session = getSession();
+    if (!session) return;
+    fetch(`${apiUrl('site-leads')}?status=new`, { headers: { 'x-session-id': session } })
+      .then(r => r.json())
+      .then(raw => {
+        const d = (raw && raw.body !== undefined)
+          ? (typeof raw.body === 'string' ? JSON.parse(raw.body) : raw.body)
+          : raw;
+        setSelfLeads(Array.isArray(d?.leads) ? d.leads.length : 0);
+      })
+      .catch(() => {/* без бейджа */});
+  }, [leadsCount]);
+  const newLeads = leadsCount ?? selfLeads;
   const handleLogout = () => { clearSession(); window.location.href = '/'; };
   const remaining = getRemainingRequests(user);
   const lowBalance = remaining !== null && remaining <= LOW_BALANCE_THRESHOLD;
@@ -38,7 +59,7 @@ export default function DashboardHeader({ active, leadsCount = 0 }: DashboardHea
   ];
   const extraNav = [
     ['analytics', lang === 'ru' ? 'Аналитика' : 'Analytics', 'BarChart2', '/analytics', 0] as const,
-    ['leads', lang === 'ru' ? 'Заявки' : 'Leads', 'Inbox', '/leads', leadsCount] as const,
+    ['leads', lang === 'ru' ? 'Заявки' : 'Leads', 'Inbox', '/leads', newLeads] as const,
     ['files', lang === 'ru' ? 'Мои файлы' : 'My files', 'FolderOpen', '/files', 0] as const,
     ['domain', lang === 'ru' ? 'Домен' : 'Domain', 'Link', '/settings/domain', 0] as const,
   ];
