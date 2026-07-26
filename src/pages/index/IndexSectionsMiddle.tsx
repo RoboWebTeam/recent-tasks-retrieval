@@ -197,7 +197,7 @@ function PortfolioSection({ lang, portfolio }: { lang: Lang; portfolio: DemoItem
 
         <Reveal>
           <div className="mt-10 text-center">
-            <a href="/register" className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground font-semibold px-8 py-3 hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20 text-sm sm:text-base">
+            <a href="/register" className="inline-flex items-center gap-2 glow-hover rounded-full bg-primary text-primary-foreground font-semibold px-8 py-3 hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20 text-sm sm:text-base">
               <Icon name="Sparkles" size={16} />
               {lang === 'ru' ? 'Создать свой проект бесплатно' : 'Create your site for free'}
               <Icon name="ArrowRight" size={16} />

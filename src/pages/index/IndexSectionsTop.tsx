@@ -92,7 +92,7 @@ export function IndexSectionsTop({ lang }: Props) {
           </div>
           <Reveal>
             <div className="mt-10 text-center">
-              <a href="/register" className="inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground font-semibold px-8 py-3 hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20 text-sm sm:text-base">
+              <a href="/register" className="inline-flex items-center gap-2 glow-hover rounded-full bg-primary text-primary-foreground font-semibold px-8 py-3 hover:bg-primary/90 transition-colors shadow-lg shadow-primary/20 text-sm sm:text-base">
                 <Icon name="Sparkles" size={16} />
                 {lang === 'ru' ? 'Собрать проект бесплатно' : 'Build your project free'}
                 <Icon name="ArrowRight" size={16} />
@@ -147,6 +147,25 @@ export function IndexSectionsTop({ lang }: Props) {
               </Reveal>
             ))}
           </div>
+
+          {/* Живая лента технологий — непрерывное движение */}
+          <Reveal>
+            <div className="rw-marquee-mask mt-10 overflow-hidden">
+              <div className="rw-marquee gap-3">
+                {[...Array(2)].map((_, dup) => (
+                  <div key={dup} className="flex gap-3 pr-3" aria-hidden={dup === 1}>
+                    {['React', 'Next.js', 'TypeScript', 'Tailwind CSS', 'Node.js', 'Python', 'PostgreSQL', 'Prisma ORM', 'REST API', 'Vue', 'SQL', 'Webhooks', 'GitHub', 'GitFlic', 'SSL', 'SEO'].map(t => (
+                      <span key={t} className="inline-flex shrink-0 items-center gap-2 rounded-xl border border-border bg-card px-4 py-2 text-sm font-semibold text-foreground/85">
+                        <span className="h-1.5 w-1.5 rounded-full bg-primary pulse-soft" />
+                        {t}
+                      </span>
+                    ))}
+                  </div>
+                ))}
+              </div>
+            </div>
+          </Reveal>
+
           <Reveal>
             <p className="mt-8 text-center text-sm text-muted-foreground">
               {lang === 'ru'

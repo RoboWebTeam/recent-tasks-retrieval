@@ -18,6 +18,7 @@ const Index = () => {
   const [typedText, setTypedText] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
   const [showSticky, setShowSticky] = useState(false);
+  const [scrollPct, setScrollPct] = useState(0);
 
   const CHAT_STEPS = getCHAT_STEPS(lang);
   const typedWords = L.hero.words[lang] as unknown as string[];
@@ -73,9 +74,14 @@ const Index = () => {
     return () => clearTimeout(t);
   }, [typedText, isDeleting, wordIdx, typedWords]);
 
-  // Липкий нижний CTA для мобилы — показываем после ухода героя за экран
+  // Липкий нижний CTA для мобилы + полоса прогресса чтения страницы
   useEffect(() => {
-    const onScroll = () => setShowSticky(window.scrollY > 620);
+    const onScroll = () => {
+      setShowSticky(window.scrollY > 620);
+      const el = document.documentElement;
+      const max = el.scrollHeight - el.clientHeight;
+      setScrollPct(max > 0 ? Math.min(100, (el.scrollTop / max) * 100) : 0);
+    };
     window.addEventListener('scroll', onScroll, { passive: true });
     onScroll();
     return () => window.removeEventListener('scroll', onScroll);
@@ -110,6 +116,8 @@ const Index = () => {
       >
         {lang === 'ru' ? 'К содержимому' : 'Skip to content'}
       </a>
+      {/* Полоса прогресса чтения */}
+      <div className="rw-progress" style={{ width: `${scrollPct}%` }} aria-hidden="true" />
       <IndexNav
         lang={lang}
         menuOpen={menuOpen}

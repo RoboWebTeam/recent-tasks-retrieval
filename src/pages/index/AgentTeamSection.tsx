@@ -67,7 +67,7 @@ export function AgentTeamSection({ lang }: { lang: Lang }) {
                   </div>
                 ))}
               </div>
-              <a href="/register" className="mt-7 inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground font-semibold px-7 py-3 hover:bg-primary/90 transition-all hover:scale-105 shadow-lg shadow-primary/25 text-sm sm:text-base">
+              <a href="/register" className="mt-7 inline-flex items-center gap-2 glow-hover rounded-full bg-primary text-primary-foreground font-semibold px-7 py-3 hover:bg-primary/90 transition-all hover:scale-105 shadow-lg shadow-primary/25 text-sm sm:text-base">
                 <Icon name="Sparkles" size={16} />
                 {ru ? 'Запустить свою ИИ-команду' : 'Launch your AI team'}
                 <Icon name="ArrowRight" size={16} />

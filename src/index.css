@@ -579,6 +579,45 @@ section[id] {
   .at-track::after{ width:80%; transform:none }
 }
 
+/* ── Живость лендинга: движение по всей странице ─────────────────────────── */
+/* «дыхание» амбиентных свечений */
+.breathe{ animation: breathe 7s ease-in-out infinite; }
+@keyframes breathe{ 0%,100%{ transform:scale(1); opacity:.55 } 50%{ transform:scale(1.14); opacity:.9 } }
+/* бесконечная лента (стек технологий) */
+.rw-marquee{ display:flex; width:max-content; animation: rw-marquee 34s linear infinite; }
+.rw-marquee:hover{ animation-play-state:paused; }
+@keyframes rw-marquee{ from{ transform:translateX(0) } to{ transform:translateX(-50%) } }
+.rw-marquee-mask{ -webkit-mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent);
+  mask-image:linear-gradient(90deg,transparent,#000 8%,#000 92%,transparent); }
+/* мягкий подъём карточки на ховере (единый язык) */
+.lift{ transition: transform .3s cubic-bezier(.22,1,.36,1), box-shadow .3s ease, border-color .3s ease; }
+.lift:hover{ transform: translateY(-6px); }
+/* свечение кнопки при наведении */
+.glow-hover{ position:relative; overflow:hidden; }
+.glow-hover::after{ content:""; position:absolute; top:0; left:-60%; width:45%; height:100%;
+  background:linear-gradient(90deg,transparent,hsl(0 0% 100% / .22),transparent); transform:skewX(-18deg); opacity:0; }
+.glow-hover:hover::after{ opacity:1; animation: glow-sweep .85s ease; }
+@keyframes glow-sweep{ from{ left:-60% } to{ left:120% } }
+/* прорисовка соединительной линии шагов */
+.step-line{ position:relative; }
+.step-line::after{ content:""; position:absolute; left:0; right:0; top:50%; height:2px; transform-origin:left;
+  background:linear-gradient(90deg, hsl(var(--primary) / .5), hsl(258 76% 64% / .5), transparent);
+  animation: step-line 1.6s ease-out both; }
+@keyframes step-line{ from{ transform:scaleX(0) } to{ transform:scaleX(1) } }
+/* полоса прогресса чтения страницы */
+.rw-progress{ position:fixed; top:0; left:0; height:3px; z-index:60; pointer-events:none;
+  background:linear-gradient(90deg, hsl(var(--primary)), hsl(258 76% 64%)); box-shadow:0 0 14px hsl(var(--primary) / .6);
+  transition: width .12s linear; }
+/* мерцание точки «в работе» */
+.pulse-soft{ animation: pulse-soft 2.4s ease-in-out infinite; }
+@keyframes pulse-soft{ 0%,100%{ opacity:.45 } 50%{ opacity:1 } }
+@media (prefers-reduced-motion: reduce){
+  .breathe,.rw-marquee,.pulse-soft{ animation:none }
+  .step-line::after{ animation:none; transform:none }
+  .lift:hover{ transform:none }
+  .glow-hover:hover::after{ animation:none; opacity:0 }
+}
+
 /* ── Живость всей страницы ──────────────────────────────────────────────── */
 /* Карточки: мягкий подъём + «свет сверху» на ховере */
 .lift{ transition: transform .35s cubic-bezier(.22,1,.36,1), box-shadow .35s ease, border-color .35s ease; }

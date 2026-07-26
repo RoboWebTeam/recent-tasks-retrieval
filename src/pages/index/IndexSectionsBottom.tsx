@@ -171,7 +171,7 @@ export function IndexSectionsBottom({ lang }: Props) {
         <div className="container px-4 sm:px-6">
           <Reveal>
             <div className="relative overflow-hidden rounded-2xl md:rounded-[2.5rem] border border-primary/20 bg-gradient-to-b from-card to-background p-8 sm:p-10 md:p-16 text-center">
-              <div className="absolute -top-16 -left-16 h-64 w-64 rounded-full bg-primary/20 blur-3xl" />
+              <div className="absolute -top-16 -left-16 h-64 w-64 rounded-full bg-primary/20 blur-3xl breathe" />
               <div className="absolute -bottom-16 -right-16 h-64 w-64 rounded-full bg-primary/10 blur-3xl breathe" />
               <div className="relative">
                 <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 border border-primary/20 text-primary px-4 py-1.5 text-sm font-medium mb-5">
