@@ -12,6 +12,7 @@ import { type Lang } from '@/lib/i18n';
 import { getSession, getStoredUser, clearSession } from '@/lib/auth';
 import { L, getNAV } from './indexData';
 import { MissionControlHero } from './MissionControlHero';
+import { LogoMark } from '@/components/Logo';
 
 interface IndexNavProps {
   lang: Lang;
@@ -33,10 +34,7 @@ export function IndexNav({ lang, menuOpen, setMenuOpen, onLangSwitch }: IndexNav
     <header className="fixed top-0 inset-x-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50">
       <nav className="container flex items-center justify-between py-3 md:py-4">
         <a href="/" className="flex items-center gap-2 font-display font-extrabold text-lg md:text-xl">
-          <span className="relative grid h-8 w-8 md:h-9 md:w-9 place-items-center rounded-xl bg-primary text-primary-foreground shrink-0">
-            <Icon name="Bot" size={18} />
-            <span className="absolute inset-0 rounded-xl animate-pulse-ring bg-primary/40" />
-          </span>
+          <LogoMark size={36} pulse />
           Roboweb
         </a>
         <div className="hidden md:flex items-center gap-6 lg:gap-7 text-sm font-medium text-muted-foreground">

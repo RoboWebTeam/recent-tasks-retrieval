@@ -1,4 +1,5 @@
 import { type ReactNode } from 'react';
+import { LogoMark } from '@/components/Logo';
 import { Link } from 'react-router-dom';
 import Icon from '@/components/ui/icon';
 import { Button } from '@/components/ui/button';
@@ -20,9 +21,7 @@ export default function LegalPageLayout({ title, updatedAt, children }: LegalPag
       <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
         <div className="container flex h-14 sm:h-16 items-center justify-between">
           <Link to="/" className="flex items-center gap-2 font-display font-bold text-lg sm:text-xl text-primary">
-            <span className="grid h-8 w-8 sm:h-9 sm:w-9 place-items-center rounded-xl bg-primary text-primary-foreground shrink-0">
-              <Icon name="Bot" size={18} />
-            </span>
+            <LogoMark size={32} />
             Roboweb
           </Link>
           <Button size="sm" className="rounded-full font-semibold" asChild>

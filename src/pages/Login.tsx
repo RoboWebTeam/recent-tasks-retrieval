@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { LogoMark } from '@/components/Logo';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -49,9 +50,7 @@ const Login = () => {
         <div className="absolute -bottom-20 -right-20 h-80 w-80 rounded-full bg-accent/20 blur-3xl" />
         <div className="relative flex items-center justify-between">
           <Link to="/" className="flex items-center gap-2 font-display font-extrabold text-xl">
-            <span className="grid h-9 w-9 place-items-center rounded-xl bg-primary text-primary-foreground">
-              <Icon name="Bot" size={20} />
-            </span>
+            <LogoMark size={36} />
             Roboweb
           </Link>
           <LangSwitcher lang={lang} dark />
@@ -79,9 +78,7 @@ const Login = () => {
           <div className="mb-8">
             <div className="lg:hidden flex items-center justify-between mb-8">
               <Link to="/" className="flex items-center gap-2 font-display font-extrabold text-xl">
-                <span className="grid h-8 w-8 place-items-center rounded-xl bg-primary text-primary-foreground">
-                  <Icon name="Bot" size={18} />
-                </span>
+                <LogoMark size={32} />
                 Roboweb
               </Link>
               <div className="flex items-center gap-2"><ThemeToggle /><LangSwitcher lang={lang} /></div>

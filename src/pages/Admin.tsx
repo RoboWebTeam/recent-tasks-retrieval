@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { LogoMark } from '@/components/Logo';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
@@ -274,9 +275,7 @@ const Admin = () => {
       <header className="border-b border-border bg-card sticky top-0 z-10">
         <div className="container flex items-center justify-between py-4">
           <div className="flex items-center gap-3">
-            <span className="grid h-9 w-9 place-items-center rounded-xl bg-primary text-primary-foreground">
-              <Icon name="Bot" size={18} />
-            </span>
+            <LogoMark size={36} />
             <div>
               <div className="font-display font-bold text-lg leading-tight">Roboweb Admin</div>
               <div className="text-xs text-muted-foreground">Панель управления</div>

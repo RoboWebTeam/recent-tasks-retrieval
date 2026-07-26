@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { LogoMark } from '@/components/Logo';
 import { Link, useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
@@ -108,9 +109,7 @@ export default function Pricing() {
       <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
         <div className="container flex h-14 sm:h-16 items-center justify-between">
           <Link to="/" className="flex items-center gap-2 font-display font-bold text-lg sm:text-xl text-primary">
-            <span className="grid h-8 w-8 sm:h-9 sm:w-9 place-items-center rounded-xl bg-primary text-primary-foreground shrink-0">
-              <Icon name="Bot" size={18} />
-            </span>
+            <LogoMark size={32} />
             Roboweb
           </Link>
           <div className="flex items-center gap-2 sm:gap-3">

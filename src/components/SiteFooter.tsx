@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { LogoMark } from '@/components/Logo';
 import Icon from '@/components/ui/icon';
 import { type Lang } from '@/lib/i18n';
 import { L, getNAV } from '@/pages/index/indexData';
@@ -13,9 +14,7 @@ export function SiteFooter({ lang }: Props) {
       <div className="container py-10 md:py-14 grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-10">
         <div className="col-span-2 md:col-span-1">
           <Link to="/" className="flex items-center gap-2 font-display font-extrabold text-lg md:text-xl">
-            <span className="grid h-8 w-8 md:h-9 md:w-9 place-items-center rounded-xl bg-primary text-primary-foreground shrink-0">
-              <Icon name="Bot" size={18} />
-            </span>
+            <LogoMark size={32} />
             Roboweb
           </Link>
           <p className="mt-3 text-sm text-muted-foreground">{L.footer.desc[lang]}</p>

@@ -1,4 +1,5 @@
 import { useRef, useEffect } from 'react';
+import { RoboMark } from '@/components/Logo';
 import Icon from '@/components/ui/icon';
 
 interface ScriptStep {
@@ -30,7 +31,7 @@ export function DemoChatPanel({ lang, running, progress, progressLabel, visibleS
       {/* Chat header */}
       <div className="flex items-center gap-2.5 px-4 py-3 border-b border-slate-100 shrink-0 bg-gradient-to-r from-primary/5 to-blue-50">
         <div className="relative grid h-9 w-9 place-items-center rounded-xl bg-primary text-white shrink-0 shadow-sm">
-          <Icon name="Bot" size={17} />
+          <RoboMark size={17} className="text-white [&_path]:fill-current [&_rect]:fill-current" />
           <span className="absolute -top-0.5 -right-0.5 h-3 w-3 rounded-full bg-emerald-400 border-2 border-white" />
         </div>
         <div>
@@ -52,7 +53,7 @@ export function DemoChatPanel({ lang, running, progress, progressLabel, visibleS
         {/* Welcome */}
         <div className="flex gap-2 justify-start animate-fade-in">
           <div className="grid h-6 w-6 place-items-center rounded-full bg-primary text-white shrink-0 mt-0.5 text-xs">
-            <Icon name="Bot" size={12} />
+            <RoboMark size={12} className="text-white [&_path]:fill-current [&_rect]:fill-current" />
           </div>
           <div className="max-w-[85%] rounded-2xl rounded-bl-sm bg-white border border-slate-100 shadow-sm px-3.5 py-2.5 text-xs text-slate-700 leading-relaxed">
             {lang === 'ru' ? 'Опишите ваш проект — соберу рабочий проект с бэкендом и кодом на Next.js + Prisma.' : 'Describe your project — I\'ll build a working site with a backend and Next.js + Prisma code.'}
@@ -63,7 +64,7 @@ export function DemoChatPanel({ lang, running, progress, progressLabel, visibleS
           <div key={i} className={`flex gap-2 ${step.type === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in`}>
             {step.type !== 'user' && (
               <div className="grid h-6 w-6 place-items-center rounded-full bg-primary text-white shrink-0 mt-0.5">
-                <Icon name="Bot" size={12} />
+                <RoboMark size={12} className="text-white [&_path]:fill-current [&_rect]:fill-current" />
               </div>
             )}
             <div className={`max-w-[85%] rounded-2xl text-xs leading-relaxed whitespace-pre-line px-3.5 py-2.5 ${
@@ -86,7 +87,7 @@ export function DemoChatPanel({ lang, running, progress, progressLabel, visibleS
         {running && (
           <div className="flex gap-2 justify-start">
             <div className="grid h-6 w-6 place-items-center rounded-full bg-primary text-white shrink-0 mt-0.5">
-              <Icon name="Bot" size={12} />
+              <RoboMark size={12} className="text-white [&_path]:fill-current [&_rect]:fill-current" />
             </div>
             <div className="bg-white border border-slate-100 shadow-sm rounded-2xl rounded-bl-sm px-3.5 py-2.5 flex items-center gap-1">
               {[0, 1, 2].map(i => (

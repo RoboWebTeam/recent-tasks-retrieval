@@ -1,4 +1,5 @@
 import { type Lang } from '@/lib/i18n';
+import { RoboMark } from '@/components/Logo';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { L, getFEATURES, getCOMPARE, getTRUST, getSTEPS } from './indexData';
@@ -217,7 +218,7 @@ export function IndexSectionsTop({ lang }: Props) {
                     <th className="text-left p-4 md:p-5 font-display font-bold text-base">{lang === 'ru' ? 'Критерий' : 'Criteria'}</th>
                     <th className="p-4 md:p-5 font-display font-bold text-base">
                       <span className="inline-flex items-center gap-1.5 text-primary">
-                        <Icon name="Bot" size={15} /> Roboweb
+                        <RoboMark size={16} /> Roboweb
                       </span>
                     </th>
                     <th className="p-4 md:p-5 font-display font-bold text-base text-muted-foreground">{lang === 'ru' ? 'Агентство' : 'Agency'}</th>

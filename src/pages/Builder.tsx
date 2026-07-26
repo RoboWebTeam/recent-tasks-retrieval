@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, type CSSProperties } from 'react';
+import { RoboMark } from '@/components/Logo';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
@@ -1401,7 +1402,7 @@ export default function Builder() {
           </button>
           <Link to="/dashboard" className="flex items-center gap-2 font-extrabold text-base">
             <span className="grid h-7 w-7 place-items-center rounded-lg bg-primary text-primary-foreground shrink-0">
-              <Icon name="Bot" size={14} />
+              <RoboMark size={14} className="text-white [&_path]:fill-current [&_rect]:fill-current" />
             </span>
             <span className="text-foreground hidden sm:block tracking-tight">Roboweb</span>
           </Link>
@@ -1573,7 +1574,7 @@ export default function Builder() {
             {/* Chat header */}
             <div className="flex items-center gap-2.5 px-4 py-3 border-b border-border shrink-0 bg-gradient-to-b from-secondary/40 to-background">
               <div className="relative grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-primary to-[hsl(258,90%,62%)] text-primary-foreground shrink-0 shadow-lg shadow-primary/25">
-                <Icon name="Bot" size={17} />
+                <RoboMark size={17} className="text-white [&_path]:fill-current [&_rect]:fill-current" />
                 <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-500 border-2 border-background" />
               </div>
               <div className="flex-1 min-w-0">
