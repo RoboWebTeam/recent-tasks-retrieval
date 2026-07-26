@@ -9,6 +9,7 @@ import { getLang, tr } from '@/lib/i18n';
 import LangSwitcher from '@/components/LangSwitcher';
 import ThemeToggle from '@/components/ThemeToggle';
 import { trackGoal, GOALS } from '@/lib/analytics';
+import { AuthSidePanel } from '@/components/AuthSidePanel';
 
 const Login = () => {
   const lang = getLang();
@@ -44,33 +45,8 @@ const Login = () => {
 
   return (
     <div className="min-h-screen bg-background flex">
-      {/* Left panel */}
-      <div className="hidden lg:flex flex-col justify-between w-1/2 bg-card border border-border p-12 relative overflow-hidden">
-        <div className="absolute -top-20 -left-20 h-80 w-80 rounded-full bg-primary/30 blur-3xl" />
-        <div className="absolute -bottom-20 -right-20 h-80 w-80 rounded-full bg-accent/20 blur-3xl" />
-        <div className="relative flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2 font-display font-extrabold text-xl">
-            <LogoMark size={36} />
-            Roboweb
-          </Link>
-          <LangSwitcher lang={lang} dark />
-        </div>
-        <div className="relative space-y-6">
-          <h2 className="font-display font-bold text-4xl leading-tight whitespace-pre-line">
-            {tr('loginHeroTitle', lang)}
-          </h2>
-          <p className="text-muted-foreground text-lg">{tr('loginHeroDesc', lang)}</p>
-          <div className="space-y-3">
-            {features.map(f => (
-              <div key={f} className="flex items-center gap-2 text-sm text-muted-foreground">
-                <Icon name="CheckCircle" size={16} className="text-accent shrink-0" />
-                {f}
-              </div>
-            ))}
-          </div>
-        </div>
-        <p className="relative text-xs text-muted-foreground">© 2026 Roboweb</p>
-      </div>
+      {/* Left panel — живой B2B-блок: конвейер агентов, доверие, реквизиты */}
+      <AuthSidePanel lang={lang} mode="login" />
 
       {/* Right panel */}
       <div className="flex-1 flex items-center justify-center px-4 py-12">
@@ -87,6 +63,17 @@ const Login = () => {
               {lang === 'ru' ? 'Войти в аккаунт' : 'Sign in to account'}
             </h1>
             <p className="text-muted-foreground mt-2">{tr('enterAccount', lang)}</p>
+            {/* Мобильная версия: коротко о ценности (панель слева скрыта) */}
+            <div className="lg:hidden mt-4 flex flex-wrap gap-2">
+              {(lang === 'ru'
+                ? ['Код в GitHub / GitFlic', 'Данные в вашей PostgreSQL', 'Работает 24/7']
+                : ['Code in GitHub / GitFlic', 'Data in your PostgreSQL', 'Works 24/7']
+              ).map(c => (
+                <span key={c} className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
+                  <Icon name="Check" size={12} className="text-primary" />{c}
+                </span>
+              ))}
+            </div>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -130,11 +117,15 @@ const Login = () => {
               </div>
             )}
 
-            <Button type="submit" className="w-full h-11 rounded-xl font-semibold" disabled={loading}>
+            <Button type="submit" className="w-full h-11 rounded-xl font-semibold glow-hover" disabled={loading}>
               {loading
                 ? <><Icon name="Loader" size={16} className="mr-2 animate-spin" />{tr('signingIn', lang)}</>
                 : tr('signIn', lang)}
             </Button>
+            <p className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
+              <Icon name="ShieldCheck" size={13} className="text-primary shrink-0" />
+              {lang === 'ru' ? 'Защищённое соединение · ваши данные и код остаются вашими' : 'Secure connection · your data and code stay yours'}
+            </p>
           </form>
 
           {/* Social auth */}

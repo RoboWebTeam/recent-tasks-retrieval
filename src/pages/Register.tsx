@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { AuthSidePanel } from '@/components/AuthSidePanel';
 import { LogoMark } from '@/components/Logo';
 import { Link, useSearchParams } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -72,36 +73,8 @@ const Register = () => {
 
   return (
     <div className="min-h-screen bg-background flex">
-      {/* Left panel */}
-      <div className="hidden lg:flex flex-col justify-between w-1/2 bg-card border border-border p-12 relative overflow-hidden">
-        <div className="absolute -top-20 -left-20 h-80 w-80 rounded-full bg-primary/30 blur-3xl" />
-        <div className="absolute -bottom-20 -right-20 h-80 w-80 rounded-full bg-accent/20 blur-3xl" />
-        <div className="relative flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2 font-display font-extrabold text-xl">
-            <LogoMark size={36} />
-            Roboweb
-          </Link>
-          <LangSwitcher lang={lang} dark />
-        </div>
-        <div className="relative space-y-6">
-          <div className="inline-flex items-center gap-2 rounded-full bg-white/10 border border-white/15 px-4 py-1.5 text-sm font-medium">
-            <Icon name="Gift" size={14} className="text-accent" /> {tr('firstFree', lang)}
-          </div>
-          <h2 className="font-display font-bold text-4xl leading-tight whitespace-pre-line">
-            {tr('registerHeroTitle', lang)}
-          </h2>
-          <p className="text-muted-foreground text-lg">{tr('registerHeroDesc', lang)}</p>
-          <div className="grid grid-cols-2 gap-3">
-            {features.map(f => (
-              <div key={f.label} className="flex items-center gap-2 text-sm text-muted-foreground bg-white/5 rounded-xl px-3 py-2.5">
-                <Icon name={f.icon} size={15} className="text-accent shrink-0" />
-                {f.label}
-              </div>
-            ))}
-          </div>
-        </div>
-        <p className="relative text-xs text-muted-foreground">© 2026 Roboweb</p>
-      </div>
+      {/* Left panel — живой B2B-блок: конвейер агентов, доверие, реквизиты */}
+      <AuthSidePanel lang={lang} mode="register" />
 
       {/* Right panel */}
       <div className="flex-1 flex items-center justify-center px-4 py-12">
@@ -116,6 +89,17 @@ const Register = () => {
             </div>
             <h1 className="font-display font-bold text-2xl sm:text-3xl">{tr('createAccount', lang)}</h1>
             <p className="text-muted-foreground mt-2">{tr('freeNoCard', lang)}</p>
+            {/* Мобильная версия: коротко о ценности (панель слева скрыта) */}
+            <div className="lg:hidden mt-4 flex flex-wrap gap-2">
+              {(lang === 'ru'
+                ? ['Команда агентов 24/7', 'Код в GitHub / GitFlic', 'Первый проект бесплатно']
+                : ['Agent team 24/7', 'Code in GitHub / GitFlic', 'First project free']
+              ).map(c => (
+                <span key={c} className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
+                  <Icon name="Check" size={12} className="text-primary" />{c}
+                </span>
+              ))}
+            </div>
           </div>
 
           <form onSubmit={handleSubmit} className="space-y-4">
@@ -203,11 +187,15 @@ const Register = () => {
               </span>
             </label>
 
-            <Button type="submit" className="w-full h-11 rounded-xl font-semibold shadow-lg shadow-primary/20" disabled={loading || !agreed}>
+            <Button type="submit" className="w-full h-11 rounded-xl font-semibold shadow-lg shadow-primary/20 glow-hover" disabled={loading || !agreed}>
               {loading
                 ? <><Icon name="Loader" size={16} className="mr-2 animate-spin" />{tr('creatingAccount', lang)}</>
                 : <><Icon name="Sparkles" size={15} className="mr-1.5" />{tr('createAccount', lang)}</>}
             </Button>
+            <p className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
+              <Icon name="Check" size={13} className="text-primary shrink-0" />
+              {lang === 'ru' ? 'Первый проект бесплатно · карта не нужна · код остаётся у вас' : 'First project free · no card · the code stays yours'}
+            </p>
           </form>
 
           {/* Social auth */}
