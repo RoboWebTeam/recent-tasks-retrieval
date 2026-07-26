@@ -96,14 +96,20 @@ def handler(event: dict, context) -> dict:
                 conditions = []
                 params = []
 
-                if is_admin and not site_url:
-                    pass  # без фильтра — все заявки
-                elif site_url:
-                    conditions.append("sl.site_url = %s")
-                    params.append(site_url)
+                if is_admin:
+                    # админ видит всё; при указании сайта — только его заявки
+                    if site_url:
+                        conditions.append("sl.site_url = %s")
+                        params.append(site_url)
                 else:
+                    # ВАЖНО: обычный пользователь всегда ограничен своими проектами.
+                    # Раньше фильтр по site_url применялся БЕЗ проверки владельца — по чужому
+                    # URL можно было прочитать контакты чужих клиентов.
                     conditions.append("p.user_id = %s")
                     params.append(user_id)
+                    if site_url:
+                        conditions.append("sl.site_url = %s")
+                        params.append(site_url)
 
                 if status_filter:
                     conditions.append("sl.status = %s")

@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -7,7 +7,10 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,
 } from '@/components/ui/dialog';
 import { tr, type Lang } from '@/lib/i18n';
-import { type Project } from '@/lib/auth';
+import { type Project, getSession } from '@/lib/auth';
+import { apiUrl } from '@/lib/apiConfig';
+
+type ProjectStat = { id: number; views: number; visitors: number; leads: number; new_leads: number };
 
 interface StatusConfigItem {
   label: string;
@@ -38,6 +41,24 @@ export default function DashboardProjectsTab({
 }: DashboardProjectsTabProps) {
   // id проекта, для которого открыт диалог подтверждения удаления
   const [deleteId, setDeleteId] = useState<number | null>(null);
+
+  // Статистика по каждому проекту за 30 дней (одним запросом — см. by_project в backend/analytics)
+  const [stats, setStats] = useState<Record<number, ProjectStat>>({});
+  useEffect(() => {
+    const session = getSession();
+    if (!session) return;
+    fetch(`${apiUrl('analytics')}?days=30`, { headers: { 'x-session-id': session } })
+      .then(r => r.json())
+      .then(raw => {
+        const d = (raw && raw.body !== undefined)
+          ? (typeof raw.body === 'string' ? JSON.parse(raw.body) : raw.body)
+          : raw;
+        const map: Record<number, ProjectStat> = {};
+        for (const row of (d?.by_project ?? []) as ProjectStat[]) map[row.id] = row;
+        setStats(map);
+      })
+      .catch(() => {/* карточки просто без статистики */});
+  }, []);
   const projectToDelete = projects.find(p => p.id === deleteId);
 
   // Яркая цветовая тема карточки по статусу проекта: свой градиент шапки,
@@ -201,6 +222,50 @@ export default function DashboardProjectsTab({
                       {lang === 'ru' ? 'Открыть проект' : 'Open site'}
                     </a>
                   )}
+
+                  {/* Мини-дашборд проекта: что он приносит бизнесу за 30 дней */}
+                  {(() => {
+                    const st = stats[p.id];
+                    if (!st) return null;
+                    const empty = st.views === 0 && st.leads === 0;
+                    return (
+                      <div className="mb-3 rounded-xl border border-border bg-background/50 p-2.5">
+                        {empty ? (
+                          <p className="text-[11px] text-muted-foreground">
+                            {lang === 'ru' ? 'Пока нет посещений — опубликуйте проект' : 'No visits yet — publish the project'}
+                          </p>
+                        ) : (
+                          <>
+                            <div className="flex items-center gap-3 text-xs">
+                              <span className="inline-flex items-center gap-1 font-semibold">
+                                <Icon name="Inbox" size={12} className="text-primary" />{st.leads}
+                                <span className="text-muted-foreground font-normal">{lang === 'ru' ? 'заявок' : 'leads'}</span>
+                              </span>
+                              <span className="inline-flex items-center gap-1 text-muted-foreground">
+                                <Icon name="Users" size={12} />{st.visitors}
+                              </span>
+                              <span className="inline-flex items-center gap-1 text-muted-foreground">
+                                <Icon name="Eye" size={12} />{st.views}
+                              </span>
+                              {st.new_leads > 0 && (
+                                <span className="ml-auto rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold px-2 py-0.5">
+                                  +{st.new_leads} {lang === 'ru' ? 'новых' : 'new'}
+                                </span>
+                              )}
+                            </div>
+                            <div className="mt-2 flex gap-3 text-[11px]">
+                              <Link to={`/analytics?site=${encodeURIComponent(p.url || '')}`} className="text-primary font-semibold hover:underline">
+                                {lang === 'ru' ? 'Аналитика' : 'Analytics'}
+                              </Link>
+                              <Link to={`/leads?site=${encodeURIComponent(p.url || '')}`} className="text-primary font-semibold hover:underline">
+                                {lang === 'ru' ? 'Заявки' : 'Leads'}
+                              </Link>
+                            </div>
+                          </>
+                        )}
+                      </div>
+                    );
+                  })()}
 
                   <div className="flex items-center justify-between mt-auto pt-3 border-t border-border">
                     <span className="text-xs text-muted-foreground inline-flex items-center gap-1">

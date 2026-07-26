@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { useSearchParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { getLang, tr } from '@/lib/i18n';
@@ -32,6 +33,9 @@ export default function Analytics() {
   const isRu = lang === 'ru';
   const session = getSession();
 
+  const [searchParams] = useSearchParams();
+  // Фильтр по конкретному проекту: /analytics?site=<url проекта>
+  const siteFilter = searchParams.get('site') || '';
   const [period, setPeriod] = useState<7 | 30 | 90>(7);
   const [data, setData] = useState<AnalyticsData | null>(null);
   const [leadsCount, setLeadsCount] = useState(0);
@@ -44,10 +48,10 @@ export default function Analytics() {
     setError('');
 
     Promise.all([
-      fetch(`${ANALYTICS_URL}?days=${period}`, {
+      fetch(`${ANALYTICS_URL}?days=${period}${siteFilter ? `&site_url=${encodeURIComponent(siteFilter)}` : ''}`, {
         headers: { 'x-session-id': session },
       }).then(r => r.json()),
-      fetch(SITE_LEADS_URL, {
+      fetch(`${SITE_LEADS_URL}${siteFilter ? `?site_url=${encodeURIComponent(siteFilter)}` : ''}`, {
         headers: { 'x-session-id': session },
       }).then(r => r.json()),
     ])
@@ -68,7 +72,7 @@ export default function Analytics() {
       })
       .catch(() => setError(tr('errorLoad', lang)))
       .finally(() => setLoading(false));
-  }, [session, period]);
+  }, [session, period, siteFilter]);
 
   const maxViews = data?.chart.length ? Math.max(...data.chart.map(d => d.views), 1) : 1;
 
@@ -98,8 +102,19 @@ export default function Analytics() {
           <div>
             <h1 className="font-display font-bold text-2xl sm:text-3xl">{isRu ? 'Аналитика' : 'Analytics'}</h1>
             <p className="text-sm text-muted-foreground mt-0.5">
-              {isRu ? 'Реальная статистика посещений ваших проектов' : 'Real traffic statistics for your sites'}
+              {siteFilter
+                ? (isRu ? 'Статистика одного проекта' : 'Statistics for a single project')
+                : (isRu ? 'Реальная статистика посещений ваших проектов' : 'Real traffic statistics for your sites')}
             </p>
+            {siteFilter && (
+              <div className="mt-2 inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3 py-1 text-xs font-semibold text-primary">
+                <Icon name="Filter" size={12} />
+                <span className="max-w-[240px] truncate">{siteFilter}</span>
+                <Link to="/analytics" className="text-primary/70 hover:text-primary" title={isRu ? 'Показать все проекты' : 'Show all projects'}>
+                  <Icon name="X" size={13} />
+                </Link>
+              </div>
+            )}
           </div>
           <div className="flex items-center gap-1.5 bg-secondary border border-border rounded-xl p-1">
             {periods.map(p => (

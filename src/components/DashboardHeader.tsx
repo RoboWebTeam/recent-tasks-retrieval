@@ -16,7 +16,7 @@ function Avatar({ user }: { user: User }) {
   );
 }
 
-type NavId = 'projects' | 'plan' | 'profile' | 'analytics' | 'leads' | 'files' | 'domain';
+type NavId = 'overview' | 'projects' | 'plan' | 'profile' | 'analytics' | 'leads' | 'files' | 'domain';
 
 interface DashboardHeaderProps {
   active: NavId;
@@ -31,7 +31,8 @@ export default function DashboardHeader({ active, leadsCount = 0 }: DashboardHea
   const lowBalance = remaining !== null && remaining <= LOW_BALANCE_THRESHOLD;
 
   const mainNav = [
-    ['projects', tr('myProjects', lang), 'Layers', '/dashboard'] as const,
+    ['overview', lang === 'ru' ? 'Обзор' : 'Overview', 'LayoutDashboard', '/dashboard'] as const,
+    ['projects', tr('myProjects', lang), 'Layers', '/dashboard?tab=projects'] as const,
     ['plan', tr('plan', lang), 'CreditCard', '/dashboard?tab=plan'] as const,
     ['profile', tr('profile', lang), 'User', '/dashboard?tab=profile'] as const,
   ];

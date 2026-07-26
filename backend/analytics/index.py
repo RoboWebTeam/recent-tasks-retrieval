@@ -106,15 +106,20 @@ def handler(event: dict, context) -> dict:
         try:
             with conn.cursor() as cur:
                 # Фильтр по сайту или пользователю (без дней — days вставляем через f-string)
-                if is_admin and not site_url:
-                    site_filter = ""
-                    site_params: tuple = ()
-                elif site_url:
-                    site_filter = "AND pv.site_url = %s"
-                    site_params = (site_url,)
+                if is_admin:
+                    # админ видит всё; при указании сайта — только его статистику
+                    site_filter = "AND pv.site_url = %s" if site_url else ""
+                    site_params: tuple = (site_url,) if site_url else ()
                 else:
-                    site_filter = "AND p.user_id = %s"
-                    site_params = (user_id,)
+                    # ВАЖНО: обычный пользователь всегда ограничен своими проектами.
+                    # Раньше фильтр по site_url применялся БЕЗ проверки владельца — по чужому
+                    # URL можно было посмотреть чужую статистику.
+                    if site_url:
+                        site_filter = "AND p.user_id = %s AND pv.site_url = %s"
+                        site_params = (user_id, site_url)
+                    else:
+                        site_filter = "AND p.user_id = %s"
+                        site_params = (user_id,)
 
                 # Общая статистика за период
                 cur.execute(f"""
@@ -179,6 +184,43 @@ def handler(event: dict, context) -> dict:
                 """, site_params)
                 top_pages = [{'path': r[0], 'views': r[1]} for r in cur.fetchall()]
 
+                # Разбивка по проектам пользователя — для сводки в кабинете.
+                # Считаем одним запросом, чтобы кабинет не дёргал API по каждому проекту.
+                by_project = []
+                if user_id and not site_url:
+                    cur.execute(f"""
+                        SELECT p.id, p.name, p.url, p.status, p.slug,
+                               COUNT(pv.id) AS views,
+                               COUNT(DISTINCT date_trunc('hour', pv.created_at)::text || pv.site_url) AS visitors
+                        FROM {schema}.projects p
+                        LEFT JOIN {schema}.page_views pv
+                          ON pv.project_id = p.id
+                         AND pv.created_at > NOW() - INTERVAL '{days} days'
+                        WHERE p.user_id = %s
+                        GROUP BY p.id, p.name, p.url, p.status, p.slug
+                        ORDER BY views DESC, p.id DESC
+                    """, (user_id,))
+                    rows = cur.fetchall()
+                    # Заявки по каждому проекту за тот же период (всего и новых)
+                    cur.execute(f"""
+                        SELECT sl.project_id,
+                               COUNT(*) AS leads,
+                               COUNT(*) FILTER (WHERE sl.status = 'new') AS new_leads
+                        FROM {schema}.site_leads sl
+                        JOIN {schema}.projects p ON p.id = sl.project_id
+                        WHERE p.user_id = %s
+                          AND sl.created_at > NOW() - INTERVAL '{days} days'
+                        GROUP BY sl.project_id
+                    """, (user_id,))
+                    leads_by_pid = {r[0]: {'leads': r[1], 'new_leads': r[2]} for r in cur.fetchall()}
+                    for r in rows:
+                        lb = leads_by_pid.get(r[0], {'leads': 0, 'new_leads': 0})
+                        by_project.append({
+                            'id': r[0], 'name': r[1], 'url': r[2], 'status': r[3], 'slug': r[4],
+                            'views': r[5], 'visitors': r[6],
+                            'leads': lb['leads'], 'new_leads': lb['new_leads'],
+                        })
+
                 # Топ сайтов (только для админа без фильтра)
                 top_sites = []
                 if is_admin and not site_url:
@@ -217,6 +259,24 @@ def handler(event: dict, context) -> dict:
 
                 views_change = round((total_views - prev_views) / max(prev_views, 1) * 100) if prev_views else 0
 
+                # Заявки за период — сводно (для конверсии и карточек «Обзора»)
+                total_leads = 0
+                total_new_leads = 0
+                if user_id:
+                    lead_filter = "AND sl.site_url = %s" if site_url else ""
+                    lead_params = (user_id, site_url) if site_url else (user_id,)
+                    cur.execute(f"""
+                        SELECT COUNT(*), COUNT(*) FILTER (WHERE sl.status = 'new')
+                        FROM {schema}.site_leads sl
+                        JOIN {schema}.projects p ON p.id = sl.project_id
+                        WHERE p.user_id = %s
+                          AND sl.created_at > NOW() - INTERVAL '{days} days'
+                        {lead_filter}
+                    """, lead_params)
+                    lr = cur.fetchone()
+                    total_leads = lr[0] if lr else 0
+                    total_new_leads = lr[1] if lr else 0
+
         finally:
             conn.close()
 
@@ -229,6 +289,9 @@ def handler(event: dict, context) -> dict:
             'top_pages': top_pages,
             'top_sites': top_sites,
             'sources': sources,
+            'by_project': by_project,
+            'total_leads': total_leads,
+            'total_new_leads': total_new_leads,
         })
 
     return err('Not found', 404)

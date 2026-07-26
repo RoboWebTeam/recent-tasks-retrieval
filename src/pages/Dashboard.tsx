@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { DashboardOverviewTab } from '@/components/dashboard/DashboardOverviewTab';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import Icon from '@/components/ui/icon';
 import {
@@ -44,8 +45,10 @@ const Dashboard = () => {
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
   const tabParam = searchParams.get('tab');
-  const tab: 'projects' | 'profile' | 'plan' = tabParam === 'profile' || tabParam === 'plan' ? tabParam : 'projects';
-  const setTab = (t: 'projects' | 'profile' | 'plan') => setSearchParams(t === 'projects' ? {} : { tab: t });
+  const tab: 'overview' | 'projects' | 'profile' | 'plan' =
+    tabParam === 'profile' || tabParam === 'plan' || tabParam === 'projects' ? tabParam : 'overview';
+  const setTab = (t: 'overview' | 'projects' | 'profile' | 'plan') =>
+    setSearchParams(t === 'overview' ? {} : { tab: t });
   const [newTitle, setNewTitle] = useState('');
   const [newDesc, setNewDesc] = useState('');
   const [creating, setCreating] = useState(false);
@@ -272,6 +275,9 @@ const Dashboard = () => {
       <DashboardHeader active={tab} />
 
       <div className="container py-5 sm:py-6 md:py-8 max-w-5xl flex-1">
+
+        {/* OVERVIEW TAB — сводка бизнеса по всем проектам */}
+        {tab === 'overview' && <DashboardOverviewTab lang={lang} />}
 
         {/* PROJECTS TAB */}
         {tab === 'projects' && (
