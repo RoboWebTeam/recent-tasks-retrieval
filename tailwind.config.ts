@@ -31,7 +31,7 @@ export default {
 		},
 		extend: {
 			fontFamily: {
-				display: ['Space Grotesk', 'Inter', 'system-ui', 'sans-serif'],
+				display: ['Unbounded', 'Inter', 'system-ui', 'sans-serif'],
 				sans: ['Inter', 'system-ui', 'sans-serif'],
 			},
 			colors: {

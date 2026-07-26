@@ -198,7 +198,7 @@ export function IndexHero({ lang, typedText, chatStep, isTyping, progress, chatS
           <div className="mt-7 flex flex-col sm:flex-row flex-wrap gap-3 justify-center lg:justify-start">
             <div className="relative w-full sm:w-auto">
               <span className="cta-glow rounded-full" />
-              <Button size="lg" className="rounded-full text-base font-semibold px-8 shadow-xl shadow-primary/25 w-full sm:w-auto group" asChild>
+              <Button size="lg" className="shine rounded-full text-base font-semibold px-8 shadow-xl shadow-primary/25 w-full sm:w-auto group" asChild>
                 <Link to={heroCtaHref}>
                   {L.hero.cta[lang]}
                   <Icon name="ArrowRight" size={18} className="ml-1 transition-transform group-hover:translate-x-1" />

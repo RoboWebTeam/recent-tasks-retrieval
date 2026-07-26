@@ -117,7 +117,7 @@ function PortfolioSection({ lang, portfolio }: { lang: Lang; portfolio: DemoItem
             return (
             <div
               key={p.title}
-              className="group relative flex flex-col rounded-2xl border border-border bg-card p-2.5 transition-all duration-300 hover:-translate-y-1.5 hover:border-transparent hover:shadow-2xl"
+              className="group relative flex flex-col rounded-2xl border border-border bg-card p-2.5 transition-all duration-300 lift hover:border-transparent hover:shadow-2xl"
               style={isNew ? { animation: `cardIn 0.4s ease both`, animationDelay: delay } : undefined}
             >
               {/* Цветное свечение под карточкой на ховере — уникальный градиент элемента */}
@@ -240,7 +240,7 @@ function StylesSection({ lang }: { lang: Lang }) {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
           {STYLES.map((s, i) => (
             <Reveal key={s.key} delay={i * 70}>
-              <div className="group rounded-3xl border border-border bg-card p-3 transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/10">
+              <div className="group rounded-3xl border border-border bg-card p-3 transition-all duration-300 lift hover:border-primary/30 hover:shadow-xl hover:shadow-primary/10">
                 <div className="rounded-2xl overflow-hidden border border-border" style={{ background: s.bg }}>
                   {/* браузер-бар */}
                   <div className="flex items-center gap-1.5 px-3 py-2" style={{ background: s.dark ? 'rgba(255,255,255,.04)' : 'rgba(0,0,0,.03)', borderBottom: `1px solid ${line(s)}` }}>
@@ -337,7 +337,7 @@ export function IndexSectionsMiddle({ lang }: Props) {
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {PILLARS.map((p, i) => (
               <Reveal key={p.title} delay={i * 60}>
-                <div className="group h-full rounded-3xl bg-card border border-border p-5 md:p-6 flex flex-col gap-3 hover:-translate-y-1 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300">
+                <div className="group h-full rounded-3xl bg-card border border-border p-5 md:p-6 flex flex-col gap-3 lift hover:border-primary/30 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300">
                   <span className="grid h-11 w-11 place-items-center rounded-2xl bg-primary/10 text-primary transition-all duration-300 group-hover:bg-primary group-hover:text-primary-foreground group-hover:scale-110">
                     <Icon name={p.icon} size={20} />
                   </span>

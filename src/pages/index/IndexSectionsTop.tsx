@@ -23,72 +23,6 @@ export function IndexSectionsTop({ lang }: Props) {
 
   return (
     <>
-      {/* B2B-ПРИЗЫВ: профессиональный инструмент уровня команды разработки */}
-      <section className="py-16 md:py-24 border-y border-border bg-secondary/60">
-        <div className="container">
-          <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
-            <Reveal>
-              <div>
-                <span className="text-xs sm:text-sm font-semibold uppercase tracking-widest text-primary">
-                  {lang === 'ru' ? 'Инструмент для бизнеса и профессионалов' : 'A tool for business & professionals'}
-                </span>
-                <h2 className="mt-3 font-display font-bold text-3xl sm:text-4xl md:text-5xl tracking-tight leading-[1.08]">
-                  {lang === 'ru'
-                    ? <>Как отдел разработки — <span className="text-gradient">без найма</span> и месяцев ожидания</>
-                    : <>Like a dev team — <span className="text-gradient">without hiring</span> or months of waiting</>}
-                </h2>
-                <p className="mt-5 text-muted-foreground text-base sm:text-lg leading-relaxed">
-                  {lang === 'ru'
-                    ? 'RoboWeb берёт на себя рутину фуллстека: бэкенд, базу данных, интеграции и код. Студии и фрилансеры сдают проекты быстрее и берут больше клиентов; бизнес запускает продукт, не собирая команду разработки.'
-                    : 'RoboWeb handles the full-stack grunt work: backend, database, integrations and code. Studios and freelancers ship faster and take on more clients; businesses launch a product without assembling a dev team.'}
-                </p>
-                <div className="mt-7 flex flex-col sm:flex-row gap-3">
-                  <a href="/register" className="w-full sm:w-auto">
-                    <Button size="lg" className="rounded-full font-semibold px-7 h-12 w-full">
-                      {lang === 'ru' ? 'Собрать проект бесплатно' : 'Build your project free'}
-                      <Icon name="ArrowRight" size={17} className="ml-1" />
-                    </Button>
-                  </a>
-                  <a href="https://t.me/roboweb" target="_blank" rel="noopener noreferrer" className="w-full sm:w-auto">
-                    <Button size="lg" variant="outline" className="rounded-full font-semibold px-7 h-12 w-full">
-                      <Icon name="Send" size={16} className="mr-1.5" />
-                      {lang === 'ru' ? 'Обсудить проект' : 'Discuss a project'}
-                    </Button>
-                  </a>
-                </div>
-                <p className="mt-4 flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground">
-                  <Icon name="Check" size={15} className="text-primary shrink-0" />
-                  {lang === 'ru' ? 'Первый проект бесплатно · без карты · код в вашем GitHub' : 'First project free · no card · code in your GitHub'}
-                </p>
-              </div>
-            </Reveal>
-            <Reveal delay={100}>
-              <div className="grid gap-3">
-                {(lang === 'ru' ? [
-                  { icon: 'Gauge', title: 'Скорость команды', text: 'Недели ручной работы → часы. Рутину фуллстека делает ИИ — вы занимаетесь продуктом и клиентами.' },
-                  { icon: 'Wallet', title: 'Экономика студии', text: 'Фикс-цена вместо почасовки и без штата разработчиков — берите больше проектов той же командой.' },
-                  { icon: 'Code2', title: 'Профессиональный результат', text: 'Настоящий код Next.js + Prisma, который ваш разработчик продолжит вести. Фундамент, а не игрушка.' },
-                ] : [
-                  { icon: 'Gauge', title: 'Team-level speed', text: 'Weeks of manual work → hours. The AI does the full-stack grunt work — you focus on product and clients.' },
-                  { icon: 'Wallet', title: 'Studio economics', text: 'A fixed price instead of hourly, with no dev headcount — take on more projects with the same team.' },
-                  { icon: 'Code2', title: 'A professional result', text: 'Real Next.js + Prisma code your developer can keep maintaining. A foundation, not a toy.' },
-                ]).map((c) => (
-                  <div key={c.title} className="flex items-start gap-4 rounded-2xl border border-border bg-card p-5">
-                    <span className="grid h-11 w-11 place-items-center rounded-xl bg-primary/10 text-primary shrink-0">
-                      <Icon name={c.icon} size={20} />
-                    </span>
-                    <div>
-                      <h3 className="font-display font-bold text-base sm:text-lg">{c.title}</h3>
-                      <p className="mt-1 text-muted-foreground text-sm md:text-base leading-relaxed">{c.text}</p>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </Reveal>
-          </div>
-        </div>
-      </section>
-
       {/* 3 ДВЕРИ — под 3 аудитории (позиционирование: ИИ-разработчик, не конструктор) */}
       <section id="doors" className="py-20 md:py-32">
         <div className="container">
@@ -106,7 +40,7 @@ export function IndexSectionsTop({ lang }: Props) {
           <div className="mt-10 md:mt-14 grid md:grid-cols-3 gap-4 md:gap-6">
             {DOORS.map((d, i) => (
               <Reveal key={d.tag} delay={i * 80}>
-                <div className={`group relative h-full rounded-3xl border p-6 md:p-8 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl ${d.hot ? 'border-primary/40 bg-primary/[0.04] hover:shadow-primary/15' : 'border-border bg-card hover:border-primary/30 hover:shadow-primary/10'}`}>
+                <div className={`group relative h-full rounded-3xl border p-6 md:p-8 transition-all duration-300 lift hover:shadow-xl ${d.hot ? 'border-primary/40 bg-primary/[0.04] hover:shadow-primary/15' : 'border-border bg-card hover:border-primary/30 hover:shadow-primary/10'}`}>
                   {d.hot && (
                     <span className="absolute top-5 right-5 text-[11px] font-bold uppercase tracking-wide text-primary bg-primary/10 rounded-full px-2.5 py-1">
                       {lang === 'ru' ? 'рекомендуем' : 'top pick'}
@@ -146,7 +80,7 @@ export function IndexSectionsTop({ lang }: Props) {
           <div className="mt-10 md:mt-14 grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
             {FEATURES.map((f, i) => (
               <Reveal key={f.title} delay={i * 70}>
-                <div className="group h-full rounded-3xl border border-border bg-card p-5 md:p-7 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl hover:shadow-primary/10 hover:border-primary/30 cursor-default">
+                <div className="group h-full rounded-3xl border border-border bg-card p-5 md:p-7 transition-all duration-300 lift hover:shadow-xl hover:shadow-primary/10 hover:border-primary/30 cursor-default">
                   <span className="grid h-10 w-10 md:h-12 md:w-12 place-items-center rounded-2xl bg-primary/10 text-primary transition-all duration-300 group-hover:bg-primary group-hover:text-primary-foreground group-hover:scale-110">
                     <Icon name={f.icon} size={20} />
                   </span>
@@ -197,7 +131,7 @@ export function IndexSectionsTop({ lang }: Props) {
               { icon: 'Blocks',   title: 'Integrations & launch', items: ['Payments', 'E-mail', 'Telegram', 'Domain + SSL', 'GitHub / GitFlic', 'SEO'] },
             ]).map((col, i) => (
               <Reveal key={col.title} delay={i * 70}>
-                <div className="group h-full rounded-3xl border border-border bg-card p-5 md:p-6 transition-all duration-300 hover:-translate-y-1 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/10">
+                <div className="group h-full rounded-3xl border border-border bg-card p-5 md:p-6 transition-all duration-300 lift hover:border-primary/30 hover:shadow-xl hover:shadow-primary/10">
                   <span className="grid h-11 w-11 place-items-center rounded-2xl bg-primary/10 text-primary transition-all duration-300 group-hover:bg-primary group-hover:text-primary-foreground group-hover:scale-110">
                     <Icon name={col.icon} size={20} />
                   </span>
@@ -307,7 +241,7 @@ export function IndexSectionsTop({ lang }: Props) {
 
       {/* PROCESS */}
       <section id="process" className="py-16 md:py-24 relative overflow-hidden">
-        <div className="absolute -top-20 left-1/2 -translate-x-1/2 h-80 w-[40rem] rounded-full bg-primary/10 blur-3xl" />
+        <div className="absolute -top-20 left-1/2 -translate-x-1/2 h-80 w-[40rem] rounded-full bg-primary/10 blur-3xl breathe" />
         <div className="container relative">
           <Reveal>
             <div className="text-center max-w-2xl mx-auto px-2">
@@ -320,7 +254,7 @@ export function IndexSectionsTop({ lang }: Props) {
           <div className="mt-10 md:mt-14 grid sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
             {STEPS.map((s, i) => (
               <Reveal key={s.n} delay={i * 120}>
-                <div className="relative rounded-3xl border border-border bg-card p-5 md:p-7 h-full group hover:-translate-y-1 hover:border-primary/30 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300">
+                <div className="relative rounded-3xl border border-border bg-card p-5 md:p-7 h-full group lift hover:border-primary/30 hover:shadow-xl hover:shadow-primary/10 transition-all duration-300">
                   <div className="font-display font-bold text-4xl md:text-5xl text-primary/80 group-hover:text-primary transition-colors">{s.n}</div>
                   <h3 className="mt-3 md:mt-4 font-display font-bold text-lg md:text-xl">{s.title}</h3>
                   <p className="mt-2 text-muted-foreground text-sm md:text-base">{s.text}</p>

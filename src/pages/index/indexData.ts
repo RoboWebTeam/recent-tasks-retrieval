@@ -13,8 +13,8 @@ export const L = {
   },
   hero: {
     badge:  { ru: 'ИИ-разработчик, а не конструктор шаблонов', en: 'AI developer, not a website builder' },
-    words:  { ru: ['Ваша ИИ-команда разработки','Проект, который работает','Приложение из одного промпта','Код Next.js — в ваш GitHub','Фуллстек за минуты, не недели'], en: ['Your AI dev team','A site that actually works','An app from one prompt','Next.js code in your GitHub','Fullstack in minutes, not weeks'] },
-    desc:   { ru: 'Опишите идею по-русски — и получите настоящий фуллстек: формы пишут в базу, живой каталог, корзина, оформление заказа и личные кабинеты. Когда нужно — заберите код на Next.js + Prisma прямо в свой GitHub. Для бизнеса, фрилансеров и разработчиков.', en: 'Describe your idea in plain words — and get a real full-stack: forms that save to a database, a live catalog, cart, checkout and user accounts. When you need it, export the whole thing as Next.js + Prisma code straight to your GitHub. For businesses, freelancers and developers.' },
+    words:  { ru: ['Ваша ИИ-команда разработки','Команда, которая не спит','Агенты работают параллельно','Фуллстек за минуты, не недели','Код Next.js — в ваш GitHub'], en: ['Your AI dev team','A team that never sleeps','Agents working in parallel','Fullstack in minutes, not weeks','Next.js code in your GitHub'] },
+    desc:   { ru: 'Опишите идею по-русски — и ваша команда ИИ-агентов соберёт настоящий фуллстек: база, формы, корзина, кабинеты. Работает 24/7 и параллельно, как конвейер, а код заберёте в GitHub или GitFlic. Не спит, не устаёт, не срывает сроки.', en: 'Describe your idea in plain words — and your team of AI agents assembles a real full-stack: database, forms, cart, accounts. It works 24/7 and in parallel, like a conveyor, and you take the code to GitHub or GitFlic. It never sleeps, never tires, never misses a deadline.' },
     cta:    { ru: 'Собрать проект бесплатно', en: 'Build your project free' },
     demo:   { ru: 'Смотреть демо', en: 'Watch demo' },
   },

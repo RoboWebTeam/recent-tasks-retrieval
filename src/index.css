@@ -453,8 +453,8 @@ section[id] {
   .glow-frame::before, .glow-frame::after, .counter-pop { animation: none !important; }
 }
 
-/* Премиум-типографика: лёгкий отрицательный трекинг у display-заголовков (Space Grotesk) */
-.font-display{letter-spacing:-0.01em}
+/* Премиум-типографика: Unbounded — широкий display; чуть сжимаем трекинг у заголовков */
+.font-display{letter-spacing:-0.02em}
 
 /* Премиум-глубина карточек. В светлой теме — мягкая аккуратная тень; в тёмной — верхний
    внутренний хайлайт + более глубокая тень (эффект «освещён сверху», как у Linear/Vercel). */
@@ -548,4 +548,61 @@ section[id] {
 @media (prefers-reduced-motion: reduce){
   .mc-in,.mc-float,.mc-float2,.mc-bar{ animation:none; opacity:1; transform:none }
   .mc-shine::after,.mc-ok,.mc-live{ animation:none }
+}
+
+/* ── Команда ИИ-агентов 24/7 (конвейер) ──────────────────────────────────── */
+/* Карточки агентов видимы всегда; анимация — только «влёт» (без залипания в opacity:0,
+   если секция появилась в кадре после того, как анимация отыграла). */
+.at-in{ animation: at-in .6s cubic-bezier(.22,1,.36,1) both; }
+@keyframes at-in{ 0%{opacity:0; transform:translateY(14px)} 100%{opacity:1; transform:none} }
+/* индетерминантный «рабочий» прогресс — агент всегда что-то делает */
+.at-track{ position:relative; height:5px; border-radius:3px; background:hsl(var(--primary) / .12); overflow:hidden; }
+.at-track::after{ content:""; position:absolute; top:0; left:0; height:100%; width:42%; border-radius:3px;
+  background:linear-gradient(90deg, transparent, hsl(var(--primary)), hsl(258 76% 64%), transparent);
+  animation: at-load 1.7s ease-in-out infinite; }
+@keyframes at-load{ 0%{transform:translateX(-120%)} 100%{transform:translateX(320%)} }
+/* пульс статуса «работает» */
+.at-dot{ animation: at-dot 1.5s ease-in-out infinite; }
+@keyframes at-dot{ 0%,100%{box-shadow:0 0 0 0 hsl(150 70% 45% / .55); opacity:1} 55%{box-shadow:0 0 0 6px hsl(150 70% 45% / 0); opacity:.55} }
+/* мягкое свечение карточки агента */
+.at-glow{ animation: at-glow 3.2s ease-in-out infinite; }
+@keyframes at-glow{ 0%,100%{border-color:hsl(var(--primary) / .16)} 50%{border-color:hsl(var(--primary) / .5)} }
+/* искра, бегущая по конвейеру */
+.at-spark{ animation: at-spark 2.4s linear infinite; }
+@keyframes at-spark{ 0%{offset-distance:0%; opacity:0} 8%{opacity:1} 92%{opacity:1} 100%{offset-distance:100%; opacity:0} }
+/* «дышащий» бейдж 24/7 */
+.at-beat{ animation: at-beat 2.2s ease-in-out infinite; }
+@keyframes at-beat{ 0%,100%{transform:scale(1)} 50%{transform:scale(1.06)} }
+@media (prefers-reduced-motion: reduce){
+  .at-in{ animation:none; opacity:1; transform:none }
+  .at-track::after,.at-dot,.at-glow,.at-spark,.at-beat{ animation:none }
+  .at-track::after{ width:80%; transform:none }
+}
+
+/* ── Живость всей страницы ──────────────────────────────────────────────── */
+/* Карточки: мягкий подъём + «свет сверху» на ховере */
+.lift{ transition: transform .35s cubic-bezier(.22,1,.36,1), box-shadow .35s ease, border-color .35s ease; }
+.lift:hover{ transform: translateY(-6px); }
+/* Иконка внутри карточки оживает вместе с ней */
+.lift .ico{ transition: transform .35s cubic-bezier(.22,1,.36,1), background-color .35s ease, color .35s ease; }
+.lift:hover .ico{ transform: translateY(-2px) scale(1.08) rotate(-3deg); }
+/* Бесконечное мягкое парение (для акцентных элементов) */
+.floaty{ animation: floaty 6s ease-in-out infinite; }
+.floaty-slow{ animation: floaty 9s ease-in-out infinite; }
+@keyframes floaty{ 0%,100%{transform:translateY(0)} 50%{transform:translateY(-7px)} }
+/* Бегущий блик по кнопке-CTA */
+.shine{ position:relative; overflow:hidden; }
+.shine::after{ content:""; position:absolute; top:-60%; left:-40%; width:34%; height:220%;
+  background:linear-gradient(90deg,transparent,hsl(0 0% 100% / .22),transparent); transform:rotate(14deg);
+  animation: shine-run 4.5s ease-in-out 1.2s infinite; pointer-events:none; }
+@keyframes shine-run{ 0%{left:-40%} 45%,100%{left:130%} }
+/* Плавное «дыхание» фоновых пятен */
+.breathe{ animation: breathe 8s ease-in-out infinite; }
+@keyframes breathe{ 0%,100%{opacity:.55; transform:scale(1)} 50%{opacity:.85; transform:scale(1.08)} }
+/* Подчёркивание-заливка у ссылок-стрелок */
+.arrow-go .arw{ transition: transform .3s cubic-bezier(.22,1,.36,1); }
+.arrow-go:hover .arw{ transform: translateX(5px); }
+@media (prefers-reduced-motion: reduce){
+  .lift,.lift:hover,.lift .ico,.lift:hover .ico{ transition:none; transform:none }
+  .floaty,.floaty-slow,.breathe,.shine::after{ animation:none }
 }

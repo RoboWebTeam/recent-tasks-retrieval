@@ -35,7 +35,7 @@ export function IndexSectionsBottom({ lang }: Props) {
     <>
       {/* PRICING */}
       <section id="pricing" className="relative overflow-hidden py-20 md:py-32 border-y border-border bg-secondary/60">
-        <div className="absolute -top-24 left-1/2 -translate-x-1/2 h-80 w-[42rem] rounded-full bg-primary/10 blur-3xl pointer-events-none" />
+        <div className="absolute -top-24 left-1/2 -translate-x-1/2 h-80 w-[42rem] rounded-full bg-primary/10 blur-3xl breathe pointer-events-none" />
         <div className="container relative">
           <Reveal>
             <div className="text-center max-w-2xl mx-auto px-2">
@@ -51,7 +51,7 @@ export function IndexSectionsBottom({ lang }: Props) {
           <div className="mt-10 md:mt-14 grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 max-w-5xl mx-auto">
             {PLANS.map((p, i) => (
               <Reveal key={`${p.name}-${p.tag}`} delay={i * 100}>
-                <div className={`relative h-full rounded-3xl border p-6 md:p-8 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl flex flex-col ${
+                <div className={`relative h-full rounded-3xl border p-6 md:p-8 transition-all duration-300 lift hover:shadow-xl flex flex-col ${
                   p.hot ? 'border-primary bg-card shadow-2xl shadow-primary/15' : 'border-border bg-card'
                 }`}>
                   {p.badge && (
@@ -86,7 +86,7 @@ export function IndexSectionsBottom({ lang }: Props) {
               </Reveal>
             ))}
             <Reveal delay={PLANS.length * 100}>
-              <div className="relative h-full rounded-3xl border border-border bg-card p-6 md:p-8 transition-all duration-300 hover:-translate-y-1 hover:shadow-xl flex flex-col">
+              <div className="relative h-full rounded-3xl border border-border bg-card p-6 md:p-8 transition-all duration-300 lift hover:shadow-xl flex flex-col">
                 <div>
                   <h3 className="font-display font-bold text-xl md:text-2xl">{lang === 'ru' ? 'Профи' : 'Pro'}</h3>
                   <div className="mt-2 flex items-end gap-1 flex-wrap">
@@ -172,7 +172,7 @@ export function IndexSectionsBottom({ lang }: Props) {
           <Reveal>
             <div className="relative overflow-hidden rounded-2xl md:rounded-[2.5rem] border border-primary/20 bg-gradient-to-b from-card to-background p-8 sm:p-10 md:p-16 text-center">
               <div className="absolute -top-16 -left-16 h-64 w-64 rounded-full bg-primary/20 blur-3xl" />
-              <div className="absolute -bottom-16 -right-16 h-64 w-64 rounded-full bg-primary/10 blur-3xl" />
+              <div className="absolute -bottom-16 -right-16 h-64 w-64 rounded-full bg-primary/10 blur-3xl breathe" />
               <div className="relative">
                 <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 border border-primary/20 text-primary px-4 py-1.5 text-sm font-medium mb-5">
                   <Icon name="Gift" size={15} /> {L.cta3.badge[lang]}
@@ -271,7 +271,7 @@ export function IndexSectionsBottom({ lang }: Props) {
               <Reveal key={article.slug} delay={i * 70}>
                 <Link
                   to={`/blog/${article.slug}`}
-                  className="group flex flex-col h-full rounded-2xl md:rounded-3xl border border-border bg-card overflow-hidden hover:shadow-2xl hover:-translate-y-1 transition-all duration-300"
+                  className="group flex flex-col h-full rounded-2xl md:rounded-3xl border border-border bg-card overflow-hidden hover:shadow-2xl lift transition-all duration-300"
                 >
                   <div className="relative h-40 overflow-hidden bg-muted">
                     <img src={article.cover} alt={article.title[lang]} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
