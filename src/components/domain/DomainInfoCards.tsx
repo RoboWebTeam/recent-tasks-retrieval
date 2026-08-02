@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import Icon from '@/components/ui/icon';
 
-export const SERVER_IP = '185.230.209.10';
+export const SERVER_IP = '82.23.163.117';
 export const CNAME_VALUE = 'cname.roboweb.dev';
 
 // Официальные разделы поддержки (главные страницы — реже меняют адрес, чем ссылки на конкретные статьи)

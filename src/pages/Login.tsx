@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect} from 'react';
 import { LogoMark } from '@/components/Logo';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -10,8 +10,20 @@ import LangSwitcher from '@/components/LangSwitcher';
 import ThemeToggle from '@/components/ThemeToggle';
 import { trackGoal, GOALS } from '@/lib/analytics';
 import { AuthSidePanel } from '@/components/AuthSidePanel';
+import { setSeo } from '@/lib/seo';
 
 const Login = () => {
+  // Своя пара «заголовок + описание»: раньше страница отдавала мета-теги главной.
+  useEffect(() => {
+    const ru = getLang() === 'ru';
+    setSeo({
+      title: ru ? 'Вход в личный кабинет' : 'Sign in to your account',
+      description: ru ? 'Войдите в кабинет Roboweb, чтобы продолжить работу над проектами, опубликовать сайт, подключить свой домен и выгрузить код.' : 'Sign in to Roboweb to keep building your projects, publish a site, connect a domain and export your code.',
+      url: '/login',
+      noindex: true,
+    });
+  }, []);
+
   const lang = getLang();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');

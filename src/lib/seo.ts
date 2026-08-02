@@ -9,14 +9,21 @@ interface SeoMeta {
   type?: 'website' | 'article';
   publishedTime?: string;
   keywords?: string;
+  /** Страница не для поиска (вход, статусы заказа, копия проекта на чужом домене). */
+  noindex?: boolean;
 }
 
-export function setSeo({ title, description, image, url, type = 'website', publishedTime, keywords }: SeoMeta) {
+export function setSeo({ title, description, image, url, type = 'website', publishedTime, keywords, noindex }: SeoMeta) {
   const fullTitle = title.includes('Roboweb') ? title : `${title} | Roboweb`;
   const img = image || DEFAULT_IMAGE;
-  const canonical = url ? `${BASE_URL}${url}` : BASE_URL;
+  // Самоссылочный канонический адрес по умолчанию. Раньше страницы без явного url объявляли
+  // канонической версией главную — то есть сами просили поисковик себя не индексировать.
+  const canonical = url ? `${BASE_URL}${url}` : `${BASE_URL}${window.location.pathname}`;
 
   document.title = fullTitle;
+  // Флаг индексации выставляем на КАЖДОЙ странице. Иначе noindex, поставленный на одной
+  // странице, оставался висеть при переходе внутри приложения и уводил из поиска следующую.
+  setMeta('robots', noindex ? 'noindex, follow' : 'index, follow');
   setMeta('description', description);
   setMeta('keywords', keywords || '');
   setLink('canonical', canonical);
@@ -55,7 +62,28 @@ function setTwitter(name: string, content: string) {
 }
 
 export function setNoIndex() {
-  setMeta('robots', 'noindex, nofollow');
+  // follow, а не nofollow: страницу в поиск не пускаем, но ссылочный вес по внутренним ссылкам
+  // ходить должен — иначе разделы, доступные только отсюда, выпадают из обхода.
+  setMeta('robots', 'noindex, follow');
+}
+
+/** Связывает русскую и английскую версии страницы для поисковика. Без этого две языковые
+ *  версии конкурируют между собой как дубли. */
+export function setHreflang(path: string) {
+  document.querySelectorAll('link[rel="alternate"][hreflang]').forEach(el => el.remove());
+  const clean = path.replace(/^\/en(?=\/|$)/, '') || '/';
+  const pairs: [string, string][] = [
+    ['ru', `${BASE_URL}${clean}`],
+    ['en', `${BASE_URL}/en${clean === '/' ? '/' : clean}`],
+    ['x-default', `${BASE_URL}${clean}`],
+  ];
+  for (const [lang, href] of pairs) {
+    const el = document.createElement('link');
+    el.rel = 'alternate';
+    el.hreflang = lang;
+    el.href = href;
+    document.head.appendChild(el);
+  }
 }
 
 function setLink(rel: string, href: string) {

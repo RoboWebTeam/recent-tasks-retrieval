@@ -3,13 +3,28 @@ Allow: /
 Disallow: /admin
 Disallow: /dashboard
 Disallow: /builder
+Disallow: /leads
+Disallow: /files
+Disallow: /analytics
+Disallow: /settings
+Disallow: /order-status
 Disallow: /auth/
+
+# Проекты клиентов (/site/) обход НАМЕРЕННО не запрещён. Запрет в robots.txt не убирает
+# страницу из индекса, а лишь запрещает её читать — тогда робот не увидит заголовок
+# X-Robots-Tag: noindex, и уже проиндексированное останется в выдаче. Сначала отдаём noindex
+# при разрешённом обходе, и только когда выдача очистится, при необходимости закрываем обход.
 
 User-agent: Googlebot
 Allow: /
 Disallow: /admin
 Disallow: /dashboard
 Disallow: /builder
+Disallow: /leads
+Disallow: /files
+Disallow: /analytics
+Disallow: /settings
+Disallow: /order-status
 Disallow: /auth/
 
 User-agent: Bingbot
@@ -20,8 +35,14 @@ Allow: /
 Disallow: /admin
 Disallow: /dashboard
 Disallow: /builder
+Disallow: /leads
+Disallow: /files
+Disallow: /analytics
+Disallow: /settings
+Disallow: /order-status
 Disallow: /auth/
-Clean-param: utm_source&utm_medium&utm_campaign&utm_content&utm_term /
+Clean-param: utm_source&utm_medium&utm_campaign&utm_content&utm_term&yclid&_openstat /
+Clean-param: gclid&fbclid /
 
 User-agent: Twitterbot
 Allow: /

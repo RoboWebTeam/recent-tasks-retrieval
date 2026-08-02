@@ -1,4 +1,4 @@
-import { Suspense, lazy } from "react";
+import { Suspense, lazy, useEffect, useRef} from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -6,6 +6,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
 import { getSession } from "@/lib/auth";
 import ScrollToTop from "@/components/ScrollToTop";
+import { trackPageview } from "@/lib/analytics";
 import SupportChatWidget from "@/components/SupportChatWidget";
 import ErrorBoundary from "@/components/ErrorBoundary";
 import Icon from "@/components/ui/icon";
@@ -57,6 +58,26 @@ function GlobalSupportChat() {
   return <SupportChatWidget />;
 }
 
+// Просмотр страницы при переходе внутри приложения. Одностраничное приложение не перезагружает
+// документ, поэтому Метрика по умолчанию засчитывает только самый первый вход — и глубина
+// просмотра у всего сайта остаётся равной единице. Хит отправляем с задержкой в кадр, чтобы
+// страница успела выставить свой заголовок.
+function MetrikaPageview() {
+  const location = useLocation();
+  const prevUrl = useRef<string>(typeof document !== 'undefined' ? document.referrer : '');
+  const first = useRef(true);
+  useEffect(() => {
+    if (first.current) { first.current = false; prevUrl.current = window.location.href; return; }
+    if (location.pathname.startsWith('/site/')) return;   // чужие проекты не считаем своей аудиторией
+    const id = requestAnimationFrame(() => {
+      trackPageview(window.location.href, document.title, prevUrl.current);
+      prevUrl.current = window.location.href;
+    });
+    return () => cancelAnimationFrame(id);
+  }, [location.pathname, location.search]);
+  return null;
+}
+
 const App = () => (
   <ErrorBoundary>
   <QueryClientProvider client={queryClient}>
@@ -65,6 +86,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <ScrollToTop />
+        <MetrikaPageview />
         <GlobalSupportChat />
         <Suspense fallback={<PageLoader />}>
           <Routes>

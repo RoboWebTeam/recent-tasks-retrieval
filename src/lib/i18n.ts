@@ -3,8 +3,10 @@ export type Lang = 'ru' | 'en';
 export function getLang(): Lang {
   const saved = localStorage.getItem('lang') as Lang | null;
   if (saved === 'ru' || saved === 'en') return saved;
-  const browser = navigator.language.toLowerCase();
-  return browser.startsWith('ru') ? 'ru' : 'en';
+  // Сайт русскоязычный, и мета-теги в index.html русские. Раньше язык брался из настроек
+  // браузера, поэтому робот Google (он приходит с en-US) индексировал английский текст под
+  // русскими мета-тегами — для поисковика это несоответствие содержимого и описания.
+  return 'ru';
 }
 
 export function setLang(lang: Lang) {

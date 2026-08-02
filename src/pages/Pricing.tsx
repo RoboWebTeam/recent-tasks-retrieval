@@ -9,6 +9,7 @@ import { PLAN_PRICING_URL, FALLBACK_PRO_PLANS, PRO_PLAN_DETAILS, type ProPlanOpt
 import { SiteFooter } from '@/components/SiteFooter';
 import { trackGoal, GOALS } from '@/lib/analytics';
 import { apiUrl } from '@/lib/apiConfig';
+import { setSeo, setHreflang } from '@/lib/seo';
 
 const YOOKASSA_URL = apiUrl('yookassa');
 
@@ -41,6 +42,20 @@ const getLangData = (isRu: boolean) => ({
 
 export default function Pricing() {
   const lang = getLang();
+  // Самая коммерческая страница сайта. До этого у неё не было ни своего заголовка,
+  // ни описания, ни канонического адреса — она канонизировалась на главную.
+  useEffect(() => {
+    setSeo(lang === 'ru' ? {
+      title: 'Стоимость разработки сайта — тарифы Roboweb от 0 ₽',
+      description: 'Сколько стоит создание сайта с базой данных, каталогом и личными кабинетами: тарифы от 0 до 19 990 ₽ в месяц. Сравнение с ценами агентства и фрилансера, возврат 7 дней.',
+      url: '/pricing',
+    } : {
+      title: 'Pricing — Roboweb plans from $0',
+      description: 'What a site with a database, catalog and user accounts costs: plans from free to 19,990 ₽ per month. Compared with agency and freelancer rates, 7-day refund.',
+      url: '/pricing',
+    });
+    setHreflang('/pricing');
+  }, [lang]);
   const isRu = lang === 'ru';
   const data = getLangData(isRu);
   const navigate = useNavigate();
@@ -128,12 +143,12 @@ export default function Pricing() {
         <div className="absolute -top-24 -left-24 h-72 w-72 sm:h-96 sm:w-96 rounded-full bg-primary/10 blur-3xl" />
         <div className="absolute -top-10 right-0 h-56 w-56 sm:h-80 sm:w-80 rounded-full bg-violet-500/10 blur-3xl" />
         <div className="container relative py-10 sm:py-16 md:py-20 text-center">
-          <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-primary mb-3">
-            <Icon name="Sparkles" size={13} /> {data.title}
-          </span>
-          <h1 className="font-display font-bold text-3xl sm:text-5xl tracking-tight mb-4 max-w-2xl mx-auto leading-[1.1]">
-            {data.subtitle}
+          <h1 className="font-display font-bold text-3xl sm:text-5xl tracking-tight mb-4 max-w-3xl mx-auto leading-[1.1]">
+            {isRu ? 'Стоимость разработки сайта: тарифы Roboweb' : 'Roboweb pricing'}
           </h1>
+          <p className="text-foreground/90 text-lg sm:text-xl max-w-2xl mx-auto mb-3 font-medium">
+            {data.subtitle}
+          </p>
           <p className="text-muted-foreground text-base sm:text-lg max-w-lg mx-auto">
             {data.desc}
           </p>
@@ -224,8 +239,8 @@ export default function Pricing() {
 
             <div className="space-y-2.5 flex-1">
               {(isRu
-                ? ['Подключение домена', 'Бесплатные расширения', 'Облачный хостинг', 'До 3 проектов', 'База данных 128 МБ', 'Хранилище 512 МБ', '5 функций', '8 ч вычислений']
-                : ['Custom domain', 'Free extensions', 'Cloud hosting', 'Up to 3 projects', '128 MB database', '512 MB storage', '5 functions', '8h compute']
+                ? ['Свой домен, без бейджа', 'Фуллстек-бэкенд: заявки, каталог, корзина, кабинеты', 'Экспорт кода Next.js + Prisma в GitHub или GitFlic', 'Публикация в GitHub Pages', 'Серверные функции и оформление заказа', 'Приоритетная сборка']
+                : ['Custom domain, no badge', 'Fullstack backend: leads, catalog, cart, accounts', 'Export Next.js + Prisma code to GitHub or GitFlic', 'Publish to GitHub Pages', 'Server functions & checkout', 'Priority build']
               ).map(f => (
                 <div key={f} className="flex items-start gap-2.5 text-sm">
                   <Icon name="CheckCircle" size={15} className="shrink-0 mt-0.5 text-primary" />

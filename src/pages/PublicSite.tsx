@@ -70,11 +70,23 @@ export default function PublicSite() {
   }
 
   return (
+    // БЕЗ allow-same-origin. Раньше он стоял вместе с allow-scripts, а содержимое подаётся через
+    // srcDoc — то есть код чужого проекта исполнялся В ORIGIN roboweb.dev и читал тот же
+    // localStorage, где лежит session_id вошедшего пользователя. Любой опубликованный проект мог
+    // забрать сессию у каждого, кто его открыл, обратиться к /api от его имени и переписать
+    // страницу-родителя. Сочетание allow-scripts + allow-same-origin спецификация прямо называет
+    // небезопасным: фрейм может снять песочницу сам с себя.
+    //
+    // Цена: у проекта в этом предпросмотре корзина и вход перестают переживать перезагрузку
+    // страницы (в изолированном origin localStorage недоступен, вызовы уже обёрнуты в try/catch,
+    // поэтому ничего не падает). Запросы к /api продолжают работать: там CORS разрешён.
+    // Полное решение — раздавать проекты клиентов с отдельного домена, тогда вернутся и хранилище,
+    // и изоляция одновременно.
     <iframe
       title={title || 'site'}
       srcDoc={html}
       className="w-full h-screen border-0"
-      sandbox="allow-scripts allow-forms allow-popups allow-same-origin"
+      sandbox="allow-scripts allow-forms allow-popups"
     />
   );
 }

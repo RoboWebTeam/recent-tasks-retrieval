@@ -27,7 +27,6 @@
     <meta name="revisit-after" content="7 days"/>
     <meta name="zen-verification" content="H37UoVQgAV6OiBFa3ocnWj362y8S6JI63nuoQX8JJtxYO5LP3Avb0o7gKEuUKW0q"/>
     <meta name="yandex-verification" content="7a75713a2ceef48d" />
-    <link rel="canonical" href="https://roboweb.dev/"/>
 
     <!-- Open Graph -->
     <meta property="og:site_name" content="Roboweb"/>
@@ -89,12 +88,7 @@
       "name": "Roboweb",
       "url": "https://roboweb.dev",
       "description": "Создавайте рабочие фуллстек-сайты из промпта — с формами в базу, каталогом, корзиной и экспортом кода в GitHub",
-      "inLanguage": "ru",
-      "potentialAction": {
-        "@type": "SearchAction",
-        "target": "https://roboweb.dev/blog?q={search_term_string}",
-        "query-input": "required name=search_term_string"
-      }
+      "inLanguage": "ru"
     }
     </script>
 
@@ -113,13 +107,7 @@
         "description": "Бесплатный старт"
       },
       "description": "ИИ-разработчик фуллстек-сайтов. Опишите идею — получите рабочий сайт с бэкендом и заберите код Next.js в свой GitHub.",
-      "url": "https://roboweb.dev",
-      "aggregateRating": {
-        "@type": "AggregateRating",
-        "ratingValue": "4.9",
-        "reviewCount": "1200",
-        "bestRating": "5"
-      }
+      "url": "https://roboweb.dev"
     }
     </script>
 
@@ -127,6 +115,16 @@
 
 <body>
 <div id="root"></div>
+<script>
+    // Просим робота Яндекса дождаться, пока приложение отрисует содержимое, а не снимать
+    // пустой каркас. Работает как страховка поверх пререндера.
+    window.YandexRotorSettings = {
+        WaiterEnabled: true,
+        IsLoaded: function () { return !!document.querySelector('#root h1'); },
+        IsError: function () { return false; },
+        FailOnTimeout: false
+    };
+</script>
 <script type="module" src="/src/main.tsx"></script>
 
 <!-- Yandex.Metrika counter -->
@@ -145,14 +143,18 @@
     })
     (window, document, "script", "https://mc.yandex.ru/metrika/tag.js", "ym");
 
-    ym(101026698, "init", {
-        trustedDomains: ["roboweb.dev"],
-        clickmap: true,
-        trackLinks: true,
-        accurateTrackBounce: true,
-        webvisor: true,
-        trackHash: true
-    });
+    // Счётчик НЕ грузим на страницах опубликованных проектов клиентов (/site/): иначе поведение
+    // их посетителей смешивается с поведением аудитории Roboweb и портит поведенческие факторы,
+    // по которым Яндекс оценивает сам сайт.
+    if (!location.pathname.startsWith("/site/")) {
+        ym(101026698, "init", {
+            trustedDomains: ["roboweb.dev"],
+            clickmap: true,
+            trackLinks: true,
+            accurateTrackBounce: true,
+            webvisor: true
+        });
+    }
 </script>
 <noscript>
     <div><img src="https://mc.yandex.ru/watch/101026698" style="position:absolute; left:-9999px;" alt=""/></div>

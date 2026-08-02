@@ -6,9 +6,24 @@ import DemoModal from '@/components/DemoModal';
 import { IndexNav, IndexHero } from './index/IndexHero';
 import { IndexSections } from './index/IndexSections';
 import { getCHAT_STEPS, L } from './index/indexData';
+import { setSeo, setHreflang } from '@/lib/seo';
 
 const Index = () => {
   const [lang, setLangState] = useState<Lang>(getLang());
+  // Главная раньше жила на статичных мета-тегах из index.html и на каноническом адресе,
+  // который был жёстко прибит к «/» для ВСЕХ страниц сайта.
+  useEffect(() => {
+    setSeo(lang === 'ru' ? {
+      title: 'Создать сайт с ИИ за минуты — фуллстек и код в GitHub',
+      description: 'ИИ соберёт рабочий сайт по описанию на русском: база данных, формы, каталог, корзина, личные кабинеты. Код Next.js — в ваш GitHub. Бесплатный старт, карта не нужна.',
+      url: '/',
+    } : {
+      title: 'Build a fullstack site with AI in minutes — code in GitHub',
+      description: 'Describe your idea and get a working site with a database, forms, catalog, cart and user accounts. Export Next.js code to your own GitHub. Free to start, no card needed.',
+      url: '/',
+    });
+    setHreflang('/');
+  }, [lang]);
   const [demoOpen, setDemoOpen] = useState(false);
   const [chatStep, setChatStep] = useState(0);
   const [isTyping, setIsTyping] = useState(false);

@@ -16,6 +16,17 @@ export function trackGoal(target: string, params?: Record<string, unknown>) {
   }
 }
 
+/** Отправляет просмотр страницы при переходе внутри приложения. Без этого Метрика считает
+ *  только первую загрузку: глубина просмотра всегда 1, время на сайте занижено, отказы
+ *  завышены — а это поведенческие сигналы, по которым Яндекс оценивает сайт. */
+export function trackPageview(url: string, title?: string, referer?: string) {
+  try {
+    window.ym?.(YM_COUNTER_ID, 'hit', url, { title, referer });
+  } catch {
+    /* аналитика не должна ломать основной функционал */
+  }
+}
+
 export const GOALS = {
   REGISTRATION_SUCCESS: 'registration_success',
   LOGIN_SUCCESS: 'login_success',

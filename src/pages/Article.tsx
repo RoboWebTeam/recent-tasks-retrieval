@@ -39,7 +39,7 @@ export default function Article() {
       publishedTime: article.date[lang],
       keywords: `${article.category[lang]}, AI websites, Roboweb, ${article.title[lang].toLowerCase()}`,
     });
-    setArticleJsonLd({ title: article.title[lang][lang], description: article.description[lang][lang], date: article.date[lang][lang], cover: article.cover, slug: article.slug });
+    setArticleJsonLd({ title: article.title[lang], description: article.description[lang], date: article.date[lang], cover: article.cover, slug: article.slug });
   }, [slug, article]);
 
   if (!article) return null;

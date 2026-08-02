@@ -2,7 +2,7 @@ import json
 import urllib.request
 import urllib.parse
 
-SERVER_IP = '185.230.209.10'
+SERVER_IP = '82.23.163.117'
 CNAME_VALUE = 'cname.roboweb.dev'
 
 def cors():

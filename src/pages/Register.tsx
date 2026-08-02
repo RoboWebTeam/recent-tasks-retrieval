@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect} from 'react';
 import { AuthSidePanel } from '@/components/AuthSidePanel';
 import { LogoMark } from '@/components/Logo';
 import { Link, useSearchParams } from 'react-router-dom';
@@ -10,8 +10,19 @@ import { getLang, tr } from '@/lib/i18n';
 import LangSwitcher from '@/components/LangSwitcher';
 import ThemeToggle from '@/components/ThemeToggle';
 import { trackGoal, GOALS } from '@/lib/analytics';
+import { setSeo } from '@/lib/seo';
 
 const Register = () => {
+  // Своя пара «заголовок + описание»: раньше страница отдавала мета-теги главной.
+  useEffect(() => {
+    const ru = getLang() === 'ru';
+    setSeo({
+      title: ru ? 'Регистрация — соберите сайт с ИИ бесплатно' : 'Sign up — build a site with AI for free',
+      description: ru ? 'Зарегистрируйтесь и соберите первый фуллстек-сайт бесплатно: 10 генераций, до 3 проектов, хостинг и SSL в подарок. Банковская карта не нужна.' : 'Create an account and build your first fullstack site free: 10 generations, up to 3 projects, hosting and SSL included. No card required.',
+      url: '/register',
+    });
+  }, []);
+
   const lang = getLang();
   const [searchParams] = useSearchParams();
   // Контекст из лендинга: e-mail из форм, промпт из портфолио, намерение тарифа.

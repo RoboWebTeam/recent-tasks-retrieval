@@ -38,7 +38,7 @@ export const BLOG_PREVIEW: ArticlePreview[] = [
     }
   },
   {
-    "slug": "kak-sozdать-sajt-za-5-minut",
+    "slug": "kak-sozdat-sajt-za-5-minut",
     "cover": "https://s3-nl.hostkey.com/robo/demo/08ca2384-7d8f-4aec-826e-e0d57ef5fc9e.jpg",
     "category": {
       "ru": "Запуск продукта",
