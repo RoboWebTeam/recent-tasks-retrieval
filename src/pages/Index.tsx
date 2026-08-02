@@ -6,7 +6,7 @@ import DemoModal from '@/components/DemoModal';
 import { IndexNav, IndexHero } from './index/IndexHero';
 import { IndexSections } from './index/IndexSections';
 import { getCHAT_STEPS, L } from './index/indexData';
-import { setSeo, setHreflang } from '@/lib/seo';
+import { setSeo } from '@/lib/seo';
 
 const Index = () => {
   const [lang, setLangState] = useState<Lang>(getLang());
@@ -22,7 +22,6 @@ const Index = () => {
       description: 'Describe your idea and get a working site with a database, forms, catalog, cart and user accounts. Export Next.js code to your own GitHub. Free to start, no card needed.',
       url: '/',
     });
-    setHreflang('/');
   }, [lang]);
   const [demoOpen, setDemoOpen] = useState(false);
   const [chatStep, setChatStep] = useState(0);

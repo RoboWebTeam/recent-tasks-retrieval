@@ -26,7 +26,13 @@ export function setSeo({ title, description, image, url, type = 'website', publi
   setMeta('robots', noindex ? 'noindex, follow' : 'index, follow');
   setMeta('description', description);
   setMeta('keywords', keywords || '');
-  setLink('canonical', canonical);
+  // Страница «не найдено» не должна объявлять канонический адрес: её собственного адреса не
+  // существует, а указывать чужой — значит склеивать с ним ошибку.
+  if (noindex && !url) {
+    document.querySelector('link[rel="canonical"]')?.remove();
+  } else {
+    setLink('canonical', canonical);
+  }
 
   setOg('title', fullTitle);
   setOg('description', description);
@@ -67,24 +73,6 @@ export function setNoIndex() {
   setMeta('robots', 'noindex, follow');
 }
 
-/** Связывает русскую и английскую версии страницы для поисковика. Без этого две языковые
- *  версии конкурируют между собой как дубли. */
-export function setHreflang(path: string) {
-  document.querySelectorAll('link[rel="alternate"][hreflang]').forEach(el => el.remove());
-  const clean = path.replace(/^\/en(?=\/|$)/, '') || '/';
-  const pairs: [string, string][] = [
-    ['ru', `${BASE_URL}${clean}`],
-    ['en', `${BASE_URL}/en${clean === '/' ? '/' : clean}`],
-    ['x-default', `${BASE_URL}${clean}`],
-  ];
-  for (const [lang, href] of pairs) {
-    const el = document.createElement('link');
-    el.rel = 'alternate';
-    el.hreflang = lang;
-    el.href = href;
-    document.head.appendChild(el);
-  }
-}
 
 function setLink(rel: string, href: string) {
   let el = document.querySelector<HTMLLinkElement>(`link[rel="${rel}"]`);

@@ -181,10 +181,16 @@ export function IndexHero({ lang, typedText, chatStep, isTyping, progress, chatS
             <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
             {L.hero.badge[lang]}
           </span>
-          <h1
-            aria-label={L.hero.badge[lang]}
-            className="mt-5 font-display font-bold leading-[1.02] text-4xl sm:text-6xl md:text-7xl xl:text-7xl 2xl:text-8xl tracking-tight break-words hyphens-auto"
-          >
+          {/* Главный заголовок страницы. Раньше внутри H1 был ТОЛЬКО текст печатающей анимации —
+              то есть поисковику и экранному диктору доставалось наполовину набранное слово с
+              курсором, а после пререндера такой обрывок ещё и застывал бы в статике. Теперь в
+              заголовке есть постоянная формулировка, а анимация осталась украшением поверх неё. */}
+          <h1 className="mt-5 font-display font-bold leading-[1.02] text-4xl sm:text-6xl md:text-7xl xl:text-7xl 2xl:text-8xl tracking-tight break-words hyphens-auto">
+            <span className="sr-only">
+              {lang === 'ru'
+                ? 'Ваша ИИ-команда разработки: фуллстек-проект за минуты, код — в ваш GitHub'
+                : 'Your AI dev team: a fullstack project in minutes, code in your GitHub'}
+            </span>
             <span aria-hidden="true" className="text-gradient-animated inline-block min-h-[1.1em] drop-shadow-[0_4px_30px_hsl(243_82%_66%_/_0.28)]">
               {typedText}
               <span className="typed-cursor">|</span>

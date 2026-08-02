@@ -9,7 +9,7 @@ import { PLAN_PRICING_URL, FALLBACK_PRO_PLANS, PRO_PLAN_DETAILS, type ProPlanOpt
 import { SiteFooter } from '@/components/SiteFooter';
 import { trackGoal, GOALS } from '@/lib/analytics';
 import { apiUrl } from '@/lib/apiConfig';
-import { setSeo, setHreflang } from '@/lib/seo';
+import { setSeo } from '@/lib/seo';
 
 const YOOKASSA_URL = apiUrl('yookassa');
 
@@ -54,7 +54,6 @@ export default function Pricing() {
       description: 'What a site with a database, catalog and user accounts costs: plans from free to 19,990 ₽ per month. Compared with agency and freelancer rates, 7-day refund.',
       url: '/pricing',
     });
-    setHreflang('/pricing');
   }, [lang]);
   const isRu = lang === 'ru';
   const data = getLangData(isRu);
