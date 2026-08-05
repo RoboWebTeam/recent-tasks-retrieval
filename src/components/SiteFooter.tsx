@@ -85,6 +85,26 @@ export function SiteFooter({ lang }: Props) {
           </Link>
         </div>
         <p>© 2026 Roboweb. {L.footer.copy[lang]}</p>
+        {/* Подпись студии-разработчика — такая же на всех продуктах Roboweb. */}
+        <div className="flex justify-center pt-1">
+          <a
+            className="rw-sign"
+            href="https://roboweb.team/?utm_source=roboweb.dev&utm_medium=footer&utm_campaign=signature"
+            target="_blank"
+            rel="noopener noreferrer"
+            title={lang === 'ru' ? 'Разработано веб-студией Roboweb' : 'Built by the Roboweb studio'}
+          >
+            <svg viewBox="0 0 64 64" aria-hidden="true">
+              <rect width="64" height="64" rx="15" fill="#FF5A32" />
+              <rect x="15" y="29.5" width="34" height="5" rx="2.5" fill="#1A0A05" />
+              <rect x="29.5" y="15" width="5" height="34" rx="2.5" fill="#1A0A05" />
+            </svg>
+            <span>
+              <i>{lang === 'ru' ? 'Разработано в' : 'Built by'}</i>
+              <b>Roboweb.team</b>
+            </span>
+          </a>
+        </div>
         <p className="text-[11px] sm:text-xs text-muted-foreground/70">
           ИП Аракелов Станислав Владиславович · ОГРНИП 324508100357892 · ИНН 501210007760
           {' · '}
