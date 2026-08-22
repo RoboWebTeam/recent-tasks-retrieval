@@ -31,8 +31,10 @@ export default {
 		},
 		extend: {
 			fontFamily: {
-				display: ['Unbounded', 'Inter', 'system-ui', 'sans-serif'],
-				sans: ['Inter', 'system-ui', 'sans-serif'],
+				// Переменная стоит первой, чтобы дизайн-профиль мог подменить
+				// шрифт. Пока профиль не выбран, она пуста и берётся Unbounded/Inter.
+				display: ['var(--font-display)', 'Unbounded', 'Inter', 'system-ui', 'sans-serif'],
+				sans: ['var(--font-sans)', 'Inter', 'system-ui', 'sans-serif'],
 			},
 			colors: {
 				border: 'hsl(var(--border))',

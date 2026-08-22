@@ -1,0 +1,34 @@
+/* ── Адаптер: Tailwind 3 + shadcn ──────────────────────────
+   В Tailwind 3 радиусы обычно уже завязаны на --radius через
+   tailwind.config, а шрифт — нет: fontFamily задан списком
+   литералов. Чтобы профиль мог его менять, в конфиге нужно
+   поставить переменную первой:
+
+     fontFamily: {
+       sans:    ['var(--font-sans)', 'Inter', 'system-ui', 'sans-serif'],
+       display: ['var(--font-display)', 'Unbounded', 'sans-serif'],
+     }
+
+   ⚠️ Переменная ОБЯЗАНА иметь значение по умолчанию (ниже). Пустая
+   var() в списке шрифтов делает всю декларацию невалидной —
+   `font-family: var(--font-sans), Inter` при пустой переменной даёт
+   не Inter, а откат к Times. На этом уже попадались.
+
+   Подключается ПОСЛЕ index.css проекта. */
+:root {
+  /* Значения по умолчанию = прежний вид проекта. Заполнить своими. */
+  --font-sans: Inter, system-ui, sans-serif;
+  --font-display: Unbounded, Inter, system-ui, sans-serif;
+}
+
+:root:root[data-profile] {
+  --radius: var(--pf-radius);
+  --font-sans: var(--pf-font);
+  --font-display: var(--pf-font-head);
+}
+
+/* Роли, которые утилитами не выражаются. Классы ставятся в
+   разметке точечно: на числах, заголовках, подписях. */
+.pf-head { font-family: var(--pf-font-head); font-weight: var(--pf-head-weight); }
+.pf-num { font-family: var(--pf-font-num); font-variant-numeric: tabular-nums; }
+.pf-label { letter-spacing: var(--pf-label-track); text-transform: var(--pf-label-caps); }

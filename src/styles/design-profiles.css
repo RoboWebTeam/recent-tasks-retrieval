@@ -1,0 +1,299 @@
+/* ============================================================
+   ЯДРО ДИЗАЙН-ПРОФИЛЕЙ · Roboweb
+   ------------------------------------------------------------
+   Один файл на все продукты студии. Профиль ставится атрибутом
+   на <html>:  data-profile="pult".
+
+   Профиль — это ПЯТЬ ОСЕЙ, а не палитра:
+     плотность · геометрия · подъём · типографика · движение
+
+   Палитру профиль намеренно не трогает — за неё отвечает тема
+   проекта (светлая/тёмная). Обе темы обязаны работать в любом
+   профиле. Опциональные палитры профилей — в palettes.css,
+   они включаются отдельно и только там, где это осмысленно.
+
+   Ядро объявляет свои переменные --pf-*. Чтобы они что-то
+   значили в конкретном проекте, подключается адаптер из
+   adapters/ — он связывает --pf-* с токенами проекта.
+   ============================================================ */
+
+:root {
+  /* ── плотность ── */
+  --pf-cell-py: 13px;      /* вертикальный отступ ячейки реестра */
+  --pf-cell-px: 16px;      /* горизонтальный отступ ячейки */
+  --pf-thead-py: 12px;     /* отступ шапки таблицы */
+  --pf-control-h: 38px;    /* высота полей и кнопок */
+  --pf-gap: 14px;          /* шаг между блоками */
+  --pf-page-pad: 22px;     /* поля страницы */
+
+  /* ── геометрия ── */
+  --pf-radius-sm: 6px;
+  --pf-radius: 9px;
+  --pf-radius-lg: 12px;
+  --pf-radius-xl: 16px;
+  --pf-pill: 999px;        /* радиус пилюль и чипов */
+  --pf-border: 1px;
+
+  /* ── подъём ── */
+  --pf-shadow-sm: 0 1px 2px rgb(0 0 0 / 6%), 0 2px 8px -4px rgb(0 0 0 / 10%);
+  --pf-shadow: 0 2px 6px -2px rgb(0 0 0 / 8%), 0 8px 22px -8px rgb(0 0 0 / 14%);
+  --pf-shadow-lg: 0 8px 20px -8px rgb(0 0 0 / 16%), 0 22px 48px -18px rgb(0 0 0 / 28%);
+
+  /* ── типографика ── */
+  --pf-font: "Golos Text", system-ui, -apple-system, "Segoe UI", sans-serif;
+  --pf-font-head: var(--pf-font);
+  --pf-font-num: var(--pf-font);
+  --pf-head-weight: 700;
+  --pf-label-track: 0.05em;
+  --pf-label-caps: uppercase;
+
+  /* ── движение ── */
+  --pf-dur: 0.18s;
+  --pf-dur-lg: 0.3s;
+  --pf-ease: cubic-bezier(0.4, 0, 0.2, 1);
+  --pf-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --pf-ease-spring: cubic-bezier(0.34, 1.4, 0.5, 1);
+}
+
+/* ═══ 01 · ПУЛЬТ ═══════════════════════════════════════════
+   Промышленный пульт. Оператор сидит в системе весь день и
+   считает строки. Ориентир — Carbon (IBM): острые грани, нет
+   теней, акцент помечает, а не заливает. */
+:root:root[data-profile="pult"] {
+  --pf-cell-py: 6px;
+  --pf-cell-px: 12px;
+  --pf-thead-py: 7px;
+  --pf-control-h: 30px;
+  --pf-gap: 8px;
+  --pf-page-pad: 16px;
+
+  --pf-radius-sm: 0px;
+  --pf-radius: 0px;
+  --pf-radius-lg: 0px;
+  --pf-radius-xl: 0px;
+  --pf-pill: 0px;
+
+  --pf-shadow-sm: none;
+  --pf-shadow: none;
+  --pf-shadow-lg: 0 0 0 1px currentColor;
+
+  --pf-font: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+  --pf-font-head: "IBM Plex Sans", system-ui, sans-serif;
+  --pf-font-num: "IBM Plex Mono", ui-monospace, "SF Mono", Menlo, monospace;
+  --pf-head-weight: 600;
+  --pf-label-track: 0.02em;
+
+  --pf-dur: 0.1s;
+  --pf-dur-lg: 0.16s;
+  --pf-ease-spring: var(--pf-ease);
+}
+
+/* ═══ 02 · ШТАБ ════════════════════════════════════════════
+   Тёмный терминал дежурной смены. Экран открыт сутками, важно
+   поймать движение боковым зрением. Предельная плотность,
+   моноширинное всё, статус — точка. */
+:root:root[data-profile="shtab"] {
+  --pf-cell-py: 4px;
+  --pf-cell-px: 10px;
+  --pf-thead-py: 5px;
+  --pf-control-h: 28px;
+  --pf-gap: 6px;
+  --pf-page-pad: 14px;
+
+  --pf-radius-sm: 0px;
+  --pf-radius: 0px;
+  --pf-radius-lg: 0px;
+  --pf-radius-xl: 0px;
+  --pf-pill: 0px;
+
+  --pf-shadow-sm: none;
+  --pf-shadow: none;
+  --pf-shadow-lg: none;
+
+  --pf-font: "IBM Plex Mono", ui-monospace, Menlo, monospace;
+  --pf-font-head: "IBM Plex Mono", ui-monospace, monospace;
+  --pf-font-num: "IBM Plex Mono", ui-monospace, monospace;
+  --pf-head-weight: 500;
+  --pf-label-track: 0.06em;
+
+  --pf-dur: 0.08s;
+  --pf-dur-lg: 0.12s;
+  --pf-ease-spring: var(--pf-ease);
+}
+
+/* ═══ 03 · КАРТОТЕКА ═══════════════════════════════════════
+   Швейцарская школа. Ни одной вертикальной линии, ни рамок,
+   ни теней — работают горизонтальные правила и воздух.
+   Для документных разделов и того, что показывают заказчику. */
+:root:root[data-profile="kartoteka"] {
+  --pf-cell-py: 18px;
+  --pf-cell-px: 4px;
+  --pf-thead-py: 8px;
+  --pf-control-h: 40px;
+  --pf-gap: 26px;
+  --pf-page-pad: 34px;
+
+  --pf-radius-sm: 0px;
+  --pf-radius: 0px;
+  --pf-radius-lg: 0px;
+  --pf-radius-xl: 0px;
+  --pf-pill: 0px;
+
+  --pf-shadow-sm: none;
+  --pf-shadow: none;
+  --pf-shadow-lg: none;
+
+  --pf-font: "Commissioner", system-ui, -apple-system, sans-serif;
+  --pf-font-head: "Commissioner", system-ui, sans-serif;
+  --pf-font-num: "Commissioner", system-ui, sans-serif;
+  --pf-head-weight: 600;
+  --pf-label-track: 0.14em;
+
+  --pf-dur: 0.2s;
+  --pf-dur-lg: 0.34s;
+}
+
+/* ═══ 04 · КАБИНЕТ ═════════════════════════════════════════
+   То, что у нас сложилось само. Оставлен в колоде как точка
+   отсчёта — значения совпадают с :root по умолчанию. */
+:root:root[data-profile="kabinet"] {
+  --pf-cell-py: 13px;
+  --pf-cell-px: 16px;
+  --pf-thead-py: 12px;
+  --pf-control-h: 38px;
+  --pf-radius: 9px;
+  --pf-pill: 999px;
+  --pf-font: "Golos Text", system-ui, sans-serif;
+  --pf-head-weight: 700;
+}
+
+/* ═══ 05 · МЯГКИЙ СВЕТ ═════════════════════════════════════
+   Клиент заходит на пять минут в неделю и ничего изучать не
+   будет. Воздух, крупный радиус, мягкие тени; строки
+   становятся карточками. */
+:root:root[data-profile="myagkiy"] {
+  --pf-cell-py: 20px;
+  --pf-cell-px: 18px;
+  --pf-thead-py: 14px;
+  --pf-control-h: 44px;
+  --pf-gap: 12px;
+  --pf-page-pad: 26px;
+
+  --pf-radius-sm: 12px;
+  --pf-radius: 18px;
+  --pf-radius-lg: 22px;
+  --pf-radius-xl: 28px;
+  --pf-pill: 999px;
+
+  --pf-shadow-sm: 0 2px 4px rgb(0 0 0 / 4%);
+  --pf-shadow: 0 2px 4px rgb(0 0 0 / 4%), 0 12px 28px -14px rgb(0 0 0 / 18%);
+  --pf-shadow-lg: 0 20px 46px -20px rgb(0 0 0 / 32%);
+
+  --pf-font: "Onest", system-ui, -apple-system, sans-serif;
+  --pf-font-head: "Onest", system-ui, sans-serif;
+  --pf-font-num: "Onest", system-ui, sans-serif;
+  --pf-head-weight: 700;
+  --pf-label-track: 0.01em;
+  --pf-label-caps: none;
+
+  --pf-dur: 0.22s;
+  --pf-dur-lg: 0.4s;
+  --pf-ease-spring: cubic-bezier(0.34, 1.56, 0.64, 1);
+}
+
+/* ═══ 06 · БУМАГА ══════════════════════════════════════════
+   Не интерфейс, а документ: сметы, акты, согласование по
+   ссылке. Сериф в заголовках и числах, цвет только в слове. */
+:root:root[data-profile="bumaga"] {
+  --pf-cell-py: 11px;
+  --pf-cell-px: 14px;
+  --pf-thead-py: 9px;
+  --pf-control-h: 36px;
+  --pf-gap: 18px;
+  --pf-page-pad: 30px;
+
+  --pf-radius-sm: 2px;
+  --pf-radius: 2px;
+  --pf-radius-lg: 3px;
+  --pf-radius-xl: 3px;
+  --pf-pill: 2px;
+
+  --pf-shadow-sm: none;
+  --pf-shadow: none;
+  --pf-shadow-lg: none;
+
+  --pf-font: "Onest", system-ui, -apple-system, sans-serif;
+  --pf-font-head: "Spectral", Georgia, "Times New Roman", serif;
+  --pf-font-num: "Spectral", Georgia, serif;
+  --pf-head-weight: 600;
+  --pf-label-track: 0.1em;
+
+  --pf-dur: 0.16s;
+}
+
+/* ═══ 07 · ТАБЛО ═══════════════════════════════════════════
+   Смотрят на итог, а не работают со списком. Крупные числа,
+   плиточная раскладка, геометрический шрифт на цифрах. */
+:root:root[data-profile="tablo"] {
+  --pf-cell-py: 18px;
+  --pf-cell-px: 16px;
+  --pf-thead-py: 11px;
+  --pf-control-h: 40px;
+  --pf-gap: 12px;
+  --pf-page-pad: 24px;
+
+  --pf-radius-sm: 8px;
+  --pf-radius: 12px;
+  --pf-radius-lg: 16px;
+  --pf-radius-xl: 20px;
+  --pf-pill: 6px;
+
+  --pf-shadow-sm: 0 1px 0 rgb(255 255 255 / 4%);
+  --pf-shadow: 0 1px 0 rgb(255 255 255 / 4%), 0 10px 24px -16px rgb(0 0 0 / 90%);
+  --pf-shadow-lg: 0 12px 30px -18px rgb(0 0 0 / 80%);
+
+  --pf-font: "Onest", system-ui, -apple-system, sans-serif;
+  --pf-font-head: "Unbounded", system-ui, sans-serif;
+  --pf-font-num: "Unbounded", system-ui, sans-serif;
+  --pf-head-weight: 600;
+  --pf-label-track: 0.08em;
+
+  --pf-dur: 0.2s;
+  --pf-dur-lg: 0.36s;
+}
+
+/* ═══ 08 · НОЧНОЙ ЦЕХ ══════════════════════════════════════
+   Телефон в руке, перчатка, солнце или темнота. Узкий гротеск
+   в заголовках, сигнальный жёлтый как на спецтехнике, статус
+   читается цветной засечкой слева. */
+:root:root[data-profile="tseh"] {
+  --pf-cell-py: 10px;
+  --pf-cell-px: 13px;
+  --pf-thead-py: 8px;
+  --pf-control-h: 44px;   /* палец в перчатке — цели крупнее, чем на пульте */
+  --pf-gap: 10px;
+  --pf-page-pad: 20px;
+
+  --pf-radius-sm: 2px;
+  --pf-radius: 3px;
+  --pf-radius-lg: 4px;
+  --pf-radius-xl: 6px;
+  --pf-pill: 2px;
+
+  --pf-shadow-sm: none;
+  --pf-shadow: none;
+  --pf-shadow-lg: none;
+
+  --pf-font: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+  --pf-font-head: "Oswald", system-ui, sans-serif;
+  --pf-font-num: "IBM Plex Mono", ui-monospace, monospace;
+  --pf-head-weight: 500;
+  --pf-label-track: 0.1em;
+
+  --pf-dur: 0.12s;
+  --pf-dur-lg: 0.2s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --pf-dur: 0.01s; --pf-dur-lg: 0.01s; }
+}
