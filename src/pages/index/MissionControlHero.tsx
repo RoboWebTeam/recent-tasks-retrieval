@@ -210,7 +210,7 @@ export function MissionControlHero({ lang }: { lang: Lang }) {
       </div>
 
       {/* Подпись под визуалом */}
-      <p className="mt-3 text-center text-xs text-muted-foreground inline-flex w-full items-center justify-center gap-1.5">
+      <p className="mt-3 text-center text-xs text-muted-foreground inline-flex w-full items-center justify-center gap-2">
         <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: blue }} />
         {ru ? 'Рабочий продукт с бэкендом — собирается на глазах, код остаётся у вас' : 'A working product with a backend — assembled live, the code stays yours'}
       </p>

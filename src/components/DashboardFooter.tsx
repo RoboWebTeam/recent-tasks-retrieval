@@ -10,10 +10,10 @@ export function DashboardFooter({ lang }: Props) {
       <div className="container py-6 flex flex-col sm:flex-row items-center justify-between gap-3 text-xs text-muted-foreground">
         <div className="flex items-center gap-x-4 gap-y-1.5 flex-wrap justify-center">
           <span>© 2026 Roboweb</span>
-          <a href="mailto:roboweb.site@yandex.ru" className="flex items-center gap-1.5 hover:text-foreground transition-colors">
+          <a href="mailto:roboweb.site@yandex.ru" className="flex items-center gap-2 hover:text-foreground transition-colors">
             <Icon name="Mail" size={13} /> roboweb.site@yandex.ru
           </a>
-          <a href="https://t.me/roboweb" target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 hover:text-foreground transition-colors">
+          <a href="https://t.me/roboweb" target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 hover:text-foreground transition-colors">
             <Icon name="Send" size={13} /> Telegram
           </a>
         </div>

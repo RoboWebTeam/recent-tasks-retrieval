@@ -252,7 +252,7 @@ const Admin = () => {
           <form onSubmit={handleLogin} className="space-y-3">
             <Input type="password" placeholder="Пароль администратора" value={key}
               onChange={e => setKey(e.target.value)} className="h-12 rounded-xl px-4" autoFocus />
-            {error && <p className="text-sm text-destructive flex items-center gap-1.5"><Icon name="AlertCircle" size={14} /> {error}</p>}
+            {error && <p className="text-sm text-destructive flex items-center gap-2"><Icon name="AlertCircle" size={14} /> {error}</p>}
             <Button type="submit" className="w-full h-12 rounded-xl font-semibold" disabled={loading}>
               {loading ? <><Icon name="Loader" size={16} className="mr-2 animate-spin" />Вход…</> : 'Войти'}
             </Button>
@@ -272,7 +272,7 @@ const Admin = () => {
   return (
     <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="border-b border-border bg-card sticky top-0 z-10">
+      <header className="border-b border-border bg-card sticky top-0 z-sticky">
         <div className="container flex items-center justify-between py-4">
           <div className="flex items-center gap-3">
             <LogoMark size={36} />
@@ -299,8 +299,8 @@ const Admin = () => {
           {[
             { icon: 'Eye',    label: 'Просмотров',     value: analyticsData ? analyticsData.total_views.toLocaleString() : '…', color: 'text-primary' },
             { icon: 'Users',  label: 'Пользователей',  value: users?.length ?? 0,                                               color: 'text-violet-500' },
-            { icon: 'Inbox',  label: 'Заявок с проектов',value: Object.values(siteLeadCounts).reduce((s, v) => s + v, 0),        color: 'text-emerald-500' },
-            { icon: 'Layers', label: 'Проектов',       value: users?.reduce((s, u) => s + u.projects_count, 0) ?? 0,           color: 'text-amber-500' },
+            { icon: 'Inbox',  label: 'Заявок с проектов',value: Object.values(siteLeadCounts).reduce((s, v) => s + v, 0),        color: 'text-success' },
+            { icon: 'Layers', label: 'Проектов',       value: users?.reduce((s, u) => s + u.projects_count, 0) ?? 0,           color: 'text-warning' },
           ].map(s => (
             <div key={s.label} className="rounded-2xl border border-border bg-card p-4 md:p-5">
               <div className={`flex items-center gap-2 mb-1 ${s.color}`}>
@@ -330,7 +330,7 @@ const Admin = () => {
               <Icon name={icon} size={15} />
               {label}
               {count !== null && count > 0 && (
-                <span className={`rounded-full px-1.5 py-0.5 text-xs font-bold ${tab === id ? 'bg-white/20' : 'bg-secondary'}`}>{count}</span>
+                <span className={`rounded-full px-2 py-0.5 text-xs font-bold ${tab === id ? 'bg-white/20' : 'bg-secondary'}`}>{count}</span>
               )}
             </button>
           ))}

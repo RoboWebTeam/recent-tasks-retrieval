@@ -61,7 +61,7 @@ export default class ErrorBoundary extends Component<Props, State> {
             {isRu ? 'Перезагрузить' : 'Reload'}
           </button>
           {this.state.errorMessage && (
-            <pre className="max-w-lg text-left text-[11px] text-muted-foreground/70 bg-secondary rounded-lg p-3 overflow-auto whitespace-pre-wrap break-words">
+            <pre className="max-w-lg text-left text-2xs text-muted-foreground/70 bg-secondary rounded-lg p-3 overflow-auto whitespace-pre-wrap break-words">
               {this.state.errorMessage}
             </pre>
           )}

@@ -23,7 +23,7 @@ export function AdminSupportChatSidebar({
       <div className="px-4 py-3 border-b border-border bg-card space-y-2">
         <div className="flex items-center justify-between">
           <p className="text-sm font-semibold">Диалоги</p>
-          <div className="flex items-center gap-1.5">
+          <div className="flex items-center gap-2">
             {unreadTotal > 0 && (
               <span className="rounded-full bg-primary text-primary-foreground text-xs font-bold px-2 py-0.5">{unreadTotal}</span>
             )}
@@ -43,7 +43,7 @@ export function AdminSupportChatSidebar({
         </div>
         <button
           onClick={() => setUnreadOnly(v => !v)}
-          className={`flex items-center gap-1.5 text-xs font-medium px-2.5 py-1 rounded-full border transition-colors ${
+          className={`flex items-center gap-2 text-xs font-medium px-3 py-1 rounded-full border transition-colors ${
             unreadOnly ? 'bg-primary text-primary-foreground border-primary' : 'border-border text-muted-foreground hover:text-foreground'
           }`}
         >
@@ -61,7 +61,7 @@ export function AdminSupportChatSidebar({
             <button
               key={c.id}
               onClick={() => onOpenConversation(c.id)}
-              className={`w-full flex items-start gap-2.5 px-4 py-3 text-left border-b border-border transition-colors ${
+              className={`w-full flex items-start gap-3 px-4 py-3 text-left border-b border-border transition-colors ${
                 activeId === c.id ? 'bg-card' : 'hover:bg-card/50'
               }`}
             >
@@ -78,11 +78,11 @@ export function AdminSupportChatSidebar({
                   {c.status === 'closed' && <Icon name="CheckCircle" size={12} className="text-muted-foreground shrink-0" />}
                 </div>
                 <p className="text-xs text-muted-foreground truncate">{c.email || c.visitor_id.slice(0, 12)}</p>
-                <p className="text-[10px] text-muted-foreground mt-0.5">
+                <p className="text-2xs text-muted-foreground mt-0.5">
                   {new Date(c.last_message_at).toLocaleString('ru-RU', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
                 </p>
               </div>
-              {c.unread_by_admin && <span className="h-2 w-2 rounded-full bg-primary shrink-0 mt-1.5" />}
+              {c.unread_by_admin && <span className="h-2 w-2 rounded-full bg-primary shrink-0 mt-2" />}
             </button>
           ))
         )}

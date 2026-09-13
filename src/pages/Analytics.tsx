@@ -26,7 +26,7 @@ const DEVICE_ICONS: Record<string, string> = {
   tablet: 'Tablet',
 };
 
-const SOURCE_COLORS = ['bg-primary', 'bg-violet-500', 'bg-emerald-500', 'bg-amber-500', 'bg-rose-500'];
+const SOURCE_COLORS = ['bg-primary', 'bg-violet-500', 'bg-success', 'bg-warning', 'bg-destructive'];
 
 export default function Analytics() {
   const lang = getLang();
@@ -83,8 +83,8 @@ export default function Analytics() {
   const stats = data ? [
     { label: isRu ? 'Просмотры' : 'Views', value: data.total_views.toLocaleString(), change: data.views_change, icon: 'Eye', color: 'text-primary bg-primary/10' },
     { label: isRu ? 'Посетители' : 'Visitors', value: data.total_visitors.toLocaleString(), change: null, icon: 'Users', color: 'text-violet-700 dark:text-violet-300 bg-violet-500/15' },
-    { label: isRu ? 'Заявки' : 'Leads', value: leadsCount.toString(), change: null, icon: 'MessageSquare', color: 'text-emerald-700 dark:text-emerald-300 bg-emerald-500/15' },
-    { label: isRu ? 'Конверсия' : 'Conversion', value: `${conversion}%`, change: null, icon: 'TrendingUp', color: 'text-amber-700 dark:text-amber-300 bg-amber-500/15' },
+    { label: isRu ? 'Заявки' : 'Leads', value: leadsCount.toString(), change: null, icon: 'MessageSquare', color: 'text-success bg-success/15' },
+    { label: isRu ? 'Конверсия' : 'Conversion', value: `${conversion}%`, change: null, icon: 'TrendingUp', color: 'text-warning bg-warning/15' },
   ] : [];
 
   const periods = [
@@ -116,10 +116,10 @@ export default function Analytics() {
               </div>
             )}
           </div>
-          <div className="flex items-center gap-1.5 bg-secondary border border-border rounded-xl p-1">
+          <div className="flex items-center gap-2 bg-secondary border border-border rounded-xl p-1">
             {periods.map(p => (
               <button key={p.id} onClick={() => setPeriod(p.id)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${period === p.id ? 'bg-card text-foreground shadow-sm border border-border' : 'text-muted-foreground hover:text-foreground'}`}>
+                className={`px-3 py-2 rounded-lg text-xs font-semibold transition-all ${period === p.id ? 'bg-card text-foreground shadow-sm border border-border' : 'text-muted-foreground hover:text-foreground'}`}>
                 {p.label}
               </button>
             ))}
@@ -152,7 +152,7 @@ export default function Analytics() {
               </div>
               <div className="text-2xl font-bold text-foreground mb-1">{stat.value}</div>
               {stat.change !== null && (
-                <div className={`flex items-center gap-1 text-xs font-semibold ${stat.change >= 0 ? 'text-emerald-600' : 'text-destructive'}`}>
+                <div className={`flex items-center gap-1 text-xs font-semibold ${stat.change >= 0 ? 'text-success' : 'text-destructive'}`}>
                   <Icon name={stat.change >= 0 ? 'TrendingUp' : 'TrendingDown'} size={12} />
                   {stat.change >= 0 ? '+' : ''}{stat.change}%
                   <span className="text-muted-foreground font-normal ml-1">{isRu ? 'vs предыдущий период' : 'vs prev period'}</span>
@@ -183,8 +183,8 @@ export default function Analytics() {
                 <div className="flex items-center justify-between mb-5">
                   <h2 className="font-display font-bold text-base">{isRu ? 'Посещаемость' : 'Traffic'}</h2>
                   <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                    <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-primary inline-block" />{isRu ? 'Просмотры' : 'Views'}</span>
-                    <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-violet-400 inline-block" />{isRu ? 'Посетители' : 'Visitors'}</span>
+                    <span className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full bg-primary inline-block" />{isRu ? 'Просмотры' : 'Views'}</span>
+                    <span className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full bg-violet-400 inline-block" />{isRu ? 'Посетители' : 'Visitors'}</span>
                   </div>
                 </div>
                 {data.chart.length === 0 ? (
@@ -198,14 +198,14 @@ export default function Analytics() {
                         <div className="w-full flex items-end gap-0.5" style={{ height: '120px' }}>
                           <div className="flex-1 bg-primary/20 rounded-t hover:bg-primary/40 transition-colors relative group"
                             style={{ height: `${(d.views / maxViews) * 100}%` }}>
-                            <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-foreground text-background text-[10px] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                            <div className="absolute -top-7 left-1/2 -translate-x-1/2 bg-foreground text-background text-2xs px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-raised">
                               {d.views.toLocaleString()}
                             </div>
                           </div>
                           <div className="flex-1 bg-violet-400/30 rounded-t hover:bg-violet-400/50 transition-colors"
                             style={{ height: `${(d.visitors / maxViews) * 100}%` }} />
                         </div>
-                        <span className="text-[10px] text-muted-foreground">{d.day}</span>
+                        <span className="text-2xs text-muted-foreground">{d.day}</span>
                       </div>
                     ))}
                   </div>
@@ -221,7 +221,7 @@ export default function Analytics() {
                   <div className="space-y-3">
                     {data.sources.map((s, i) => (
                       <div key={s.name}>
-                        <div className="flex items-center justify-between text-sm mb-1.5">
+                        <div className="flex items-center justify-between text-sm mb-2">
                           <span className="font-medium">{s.name}</span>
                           <span className="font-bold">{s.value}%</span>
                         </div>
@@ -245,7 +245,7 @@ export default function Analytics() {
                 ) : (
                   <div className="space-y-1">
                     {data.top_pages.map((page, i) => (
-                      <div key={page.path} className="flex items-center gap-3 px-3 py-2.5 rounded-xl hover:bg-secondary/50 transition-colors">
+                      <div key={page.path} className="flex items-center gap-3 px-3 py-3 rounded-xl hover:bg-secondary/50 transition-colors">
                         <span className="text-xs font-bold text-muted-foreground w-5 shrink-0">#{i + 1}</span>
                         <span className="flex-1 text-sm font-mono text-foreground truncate">{page.path}</span>
                         <span className="text-sm font-bold text-foreground shrink-0">{page.views.toLocaleString()}</span>
@@ -268,7 +268,7 @@ export default function Analytics() {
                           <Icon name={DEVICE_ICONS[d.name] || 'Monitor'} size={17} className="text-muted-foreground" />
                         </div>
                         <div className="flex-1">
-                          <div className="flex items-center justify-between mb-1.5">
+                          <div className="flex items-center justify-between mb-2">
                             <span className="text-sm font-semibold capitalize">{d.name}</span>
                             <span className="text-sm font-bold">{d.value}%</span>
                           </div>
@@ -285,7 +285,7 @@ export default function Analytics() {
                   <p className="text-sm font-semibold mb-1">{isRu ? 'Тепловая карта кликов' : 'Click heatmap'}</p>
                   <p className="text-xs text-muted-foreground mb-3">{isRu ? 'Доступно на тарифе Профи' : 'Available on Pro plan'}</p>
                   <Button size="sm" className="rounded-xl h-8 text-xs" asChild>
-                    <Link to="/pricing"><Icon name="Crown" size={13} className="mr-1.5" />{isRu ? 'Улучшить тариф' : 'Upgrade'}</Link>
+                    <Link to="/pricing"><Icon name="Crown" size={13} className="mr-2" />{isRu ? 'Улучшить тариф' : 'Upgrade'}</Link>
                   </Button>
                 </div>
               </div>

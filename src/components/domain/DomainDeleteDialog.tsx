@@ -32,7 +32,7 @@ export default function DomainDeleteDialog({
             {isRu ? 'Отмена' : 'Cancel'}
           </Button>
           <Button variant="destructive" className="flex-1 rounded-xl" disabled={deleting} onClick={onDelete}>
-            {deleting ? <Icon name="Loader" size={14} className="mr-1.5 animate-spin" /> : null}
+            {deleting ? <Icon name="Loader" size={14} className="mr-2 animate-spin" /> : null}
             {isRu ? 'Удалить' : 'Delete'}
           </Button>
         </div>

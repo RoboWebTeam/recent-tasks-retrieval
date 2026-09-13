@@ -55,7 +55,7 @@ export function SectionHeading({
       {eyebrow && (
         <span className="text-xs sm:text-sm font-semibold uppercase tracking-widest text-primary">{eyebrow}</span>
       )}
-      <h2 className={`mt-3 font-display font-bold text-3xl sm:text-4xl md:text-5xl tracking-tight leading-[1.1] text-balance ${gradient ? 'inline-block text-gradient' : ''}`}>
+      <h2 className={`mt-3 font-display font-bold text-3xl sm:text-4xl md:text-5xl tracking-tight leading-none text-balance ${gradient ? 'inline-block text-gradient' : ''}`}>
         {title}{accent ? <> <span className="text-gradient">{accent}</span></> : null}
       </h2>
       {desc && (

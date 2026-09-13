@@ -120,7 +120,7 @@ export default function Pricing() {
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
+      <header className="sticky top-0 z-sticky border-b border-border bg-background/80 backdrop-blur-xl">
         <div className="container flex h-14 sm:h-16 items-center justify-between">
           <Link to="/" className="flex items-center gap-2 font-display font-bold text-lg sm:text-xl text-primary">
             <LogoMark size={32} />
@@ -142,7 +142,7 @@ export default function Pricing() {
         <div className="absolute -top-24 -left-24 h-72 w-72 sm:h-96 sm:w-96 rounded-full bg-primary/10 blur-3xl" />
         <div className="absolute -top-10 right-0 h-56 w-56 sm:h-80 sm:w-80 rounded-full bg-violet-500/10 blur-3xl" />
         <div className="container relative py-10 sm:py-16 md:py-20 text-center">
-          <h1 className="font-display font-bold text-3xl sm:text-5xl tracking-tight mb-4 max-w-3xl mx-auto leading-[1.1]">
+          <h1 className="font-display font-bold text-3xl sm:text-5xl tracking-tight mb-4 max-w-3xl mx-auto leading-none">
             {isRu ? 'Стоимость разработки сайта: тарифы Roboweb' : 'Roboweb pricing'}
           </h1>
           <p className="text-foreground/90 text-lg sm:text-xl max-w-2xl mx-auto mb-3 font-medium">
@@ -169,7 +169,7 @@ export default function Pricing() {
               <div className="flex items-baseline gap-1 mb-1">
                 <span className="text-3xl font-bold text-foreground">{isRu ? 'Бесплатно' : 'Free'}</span>
               </div>
-              <span className="inline-block rounded-full bg-primary/10 text-primary text-xs font-semibold px-2.5 py-1 mb-2">
+              <span className="inline-block rounded-full bg-primary/10 text-primary text-xs font-semibold px-3 py-1 mb-2">
                 {isRu ? '10 запросов разово' : '10 requests once'}
               </span>
               <p className="text-sm text-muted-foreground">{isRu ? 'Попробуйте Roboweb бесплатно' : 'Try Roboweb for free'}</p>
@@ -178,7 +178,7 @@ export default function Pricing() {
             <Button className="w-full h-11 rounded-xl font-semibold mb-6" variant="outline" asChild>
               <Link to="/register">
                 {data.cta}
-                <Icon name="ArrowRight" size={15} className="ml-1.5" />
+                <Icon name="ArrowRight" size={15} className="ml-2" />
               </Link>
             </Button>
 
@@ -187,13 +187,13 @@ export default function Pricing() {
                 ? ['Облачный хостинг', 'До 3 проектов', 'База данных 128 МБ', 'Хранилище 512 МБ', '5 функций', '8 ч вычислений']
                 : ['Cloud hosting', 'Up to 3 projects', '128 MB database', '512 MB storage', '5 functions', '8h compute']
               ).map(f => (
-                <div key={f} className="flex items-start gap-2.5 text-sm">
-                  <Icon name="CheckCircle" size={15} className="shrink-0 mt-0.5 text-emerald-500" />
+                <div key={f} className="flex items-start gap-3 text-sm">
+                  <Icon name="CheckCircle" size={15} className="shrink-0 mt-0.5 text-success" />
                   <span className="text-foreground">{f}</span>
                 </div>
               ))}
               {(isRu ? ['Подключение домена', 'Скачивание кода'] : ['Custom domain', 'Code download']).map(f => (
-                <div key={f} className="flex items-start gap-2.5 text-sm opacity-40">
+                <div key={f} className="flex items-start gap-3 text-sm opacity-40">
                   <Icon name="X" size={15} className="shrink-0 mt-0.5 text-muted-foreground" />
                   <span className="text-muted-foreground line-through">{f}</span>
                 </div>
@@ -220,7 +220,7 @@ export default function Pricing() {
                 <span className="text-lg font-bold text-muted-foreground">₽</span>
                 <span className="text-sm text-muted-foreground">/{isRu ? 'мес' : 'mo'}</span>
               </div>
-              <span className="inline-block rounded-full bg-primary/10 text-primary text-xs font-semibold px-2.5 py-1 mb-2">
+              <span className="inline-block rounded-full bg-primary/10 text-primary text-xs font-semibold px-3 py-1 mb-2">
                 {isRu ? '30 генераций в месяц' : '30 generations/month'}
               </span>
               <p className="text-sm text-muted-foreground">{isRu ? 'Для малого бизнеса и фрилансеров' : 'For small business & freelancers'}</p>
@@ -232,8 +232,8 @@ export default function Pricing() {
               onClick={() => handleSelectPlan('premium', 990, isRu ? 'Премиум' : 'Premium')}
             >
               {payingPlan === 'premium'
-                ? <><Icon name="Loader" size={15} className="mr-1.5 animate-spin" />{isRu ? 'Переходим к оплате…' : 'Redirecting…'}</>
-                : <>{data.ctaPaid}<Icon name="ArrowRight" size={15} className="ml-1.5" /></>}
+                ? <><Icon name="Loader" size={15} className="mr-2 animate-spin" />{isRu ? 'Переходим к оплате…' : 'Redirecting…'}</>
+                : <>{data.ctaPaid}<Icon name="ArrowRight" size={15} className="ml-2" /></>}
             </Button>
 
             <div className="space-y-2.5 flex-1">
@@ -241,7 +241,7 @@ export default function Pricing() {
                 ? ['Свой домен, без бейджа', 'Фуллстек-бэкенд: заявки, каталог, корзина, кабинеты', 'Экспорт кода Next.js + Prisma в GitHub или GitFlic', 'Публикация в GitHub Pages', 'Серверные функции и оформление заказа', 'Приоритетная сборка']
                 : ['Custom domain, no badge', 'Fullstack backend: leads, catalog, cart, accounts', 'Export Next.js + Prisma code to GitHub or GitFlic', 'Publish to GitHub Pages', 'Server functions & checkout', 'Priority build']
               ).map(f => (
-                <div key={f} className="flex items-start gap-2.5 text-sm">
+                <div key={f} className="flex items-start gap-3 text-sm">
                   <Icon name="CheckCircle" size={15} className="shrink-0 mt-0.5 text-primary" />
                   <span className="text-foreground">{f}</span>
                 </div>
@@ -271,15 +271,15 @@ export default function Pricing() {
               <p className="text-sm text-muted-foreground mb-3">{isRu ? 'Для агентств и профессионалов' : 'For agencies & professionals'}</p>
 
               {/* Выбор количества запросов */}
-              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-1.5 block">
+              <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wide mb-2 block">
                 {isRu ? 'Запросов в месяц' : 'Requests per month'}
               </label>
-              <div className="flex flex-wrap gap-1.5 mb-2">
+              <div className="flex flex-wrap gap-2 mb-2">
                 {proPlans.map((p, i) => (
                   <button
                     key={p.plan_code}
                     onClick={() => setProIndex(i)}
-                    className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                    className={`px-3 py-2 rounded-lg text-xs font-semibold transition-all ${
                       proIndex === i ? 'bg-foreground text-background' : 'bg-secondary text-muted-foreground hover:text-foreground'
                     }`}
                   >
@@ -295,8 +295,8 @@ export default function Pricing() {
               onClick={() => handleSelectPlan(selectedPro.plan_code, selectedPro.price, isRu ? 'Профи' : 'Pro')}
             >
               {payingPlan === selectedPro.plan_code
-                ? <><Icon name="Loader" size={15} className="mr-1.5 animate-spin" />{isRu ? 'Переходим к оплате…' : 'Redirecting…'}</>
-                : <>{data.ctaPaid}<Icon name="ArrowRight" size={15} className="ml-1.5" /></>}
+                ? <><Icon name="Loader" size={15} className="mr-2 animate-spin" />{isRu ? 'Переходим к оплате…' : 'Redirecting…'}</>
+                : <>{data.ctaPaid}<Icon name="ArrowRight" size={15} className="ml-2" /></>}
             </Button>
 
             <div className="space-y-2.5 flex-1">
@@ -304,13 +304,13 @@ export default function Pricing() {
                 ? ['Приоритетная поддержка', 'Все возможности Премиум', 'Облачный хостинг']
                 : ['Priority support', 'All Premium features', 'Cloud hosting']
               ).map(f => (
-                <div key={f} className="flex items-start gap-2.5 text-sm">
+                <div key={f} className="flex items-start gap-3 text-sm">
                   <Icon name="CheckCircle" size={15} className="shrink-0 mt-0.5 text-foreground" />
                   <span className="text-foreground">{f}</span>
                 </div>
               ))}
               {(PRO_PLAN_DETAILS[selectedPro.plan_code]?.[isRu ? 'ru' : 'en'] ?? []).map(f => (
-                <div key={f} className="flex items-start gap-2.5 text-sm">
+                <div key={f} className="flex items-start gap-3 text-sm">
                   <Icon name="CheckCircle" size={15} className="shrink-0 mt-0.5 text-foreground" />
                   <span className="text-foreground">{f}</span>
                 </div>
@@ -356,10 +356,10 @@ export default function Pricing() {
                   { label: isRu ? 'Хостинг' : 'Hosting', roboweb: isRu ? 'Включён' : 'Included', agency: isRu ? 'Отдельно' : 'Separate', freelancer: isRu ? 'Отдельно' : 'Separate' },
                 ].map((row, i) => (
                   <tr key={row.label} className={i % 2 === 0 ? 'bg-card' : 'bg-secondary/10'}>
-                    <td className="px-4 sm:px-6 py-3.5 font-semibold text-foreground whitespace-nowrap">{row.label}</td>
-                    <td className="px-4 sm:px-6 py-3.5 text-center font-bold text-primary whitespace-nowrap">{row.roboweb}</td>
-                    <td className="px-4 sm:px-6 py-3.5 text-center text-muted-foreground whitespace-nowrap">{row.agency}</td>
-                    <td className="px-4 sm:px-6 py-3.5 text-center text-muted-foreground whitespace-nowrap">{row.freelancer}</td>
+                    <td className="px-4 sm:px-6 py-4 font-semibold text-foreground whitespace-nowrap">{row.label}</td>
+                    <td className="px-4 sm:px-6 py-4 text-center font-bold text-primary whitespace-nowrap">{row.roboweb}</td>
+                    <td className="px-4 sm:px-6 py-4 text-center text-muted-foreground whitespace-nowrap">{row.agency}</td>
+                    <td className="px-4 sm:px-6 py-4 text-center text-muted-foreground whitespace-nowrap">{row.freelancer}</td>
                   </tr>
                 ))}
               </tbody>
@@ -421,7 +421,7 @@ export default function Pricing() {
             <Button size="lg" className="rounded-full bg-white text-primary hover:bg-white/90 font-semibold px-8 sm:px-10 h-12 sm:h-13 shadow-xl" asChild>
               <Link to="/register">
                 {isRu ? 'Создать проект бесплатно' : 'Create site for free'}
-                <Icon name="ArrowRight" size={18} className="ml-1.5" />
+                <Icon name="ArrowRight" size={18} className="ml-2" />
               </Link>
             </Button>
           </div>

@@ -204,7 +204,7 @@ export function DomainRegistrarGuides({ isRu }: DomainInfoCardsProps) {
           <button
             key={r.name}
             onClick={() => setActive(active === r.name ? null : r.name)}
-            className={`flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-full border transition-all ${
+            className={`flex items-center gap-2 text-xs font-medium px-3 py-2 rounded-full border transition-all ${
               active === r.name
                 ? 'bg-primary text-primary-foreground border-primary'
                 : 'border-border bg-secondary hover:bg-background hover:border-primary/40 text-muted-foreground hover:text-foreground'
@@ -220,8 +220,8 @@ export function DomainRegistrarGuides({ isRu }: DomainInfoCardsProps) {
         <div className="mt-4 rounded-xl bg-secondary/50 p-4">
           <ol className="space-y-2">
             {(isRu ? activeGuide.steps : activeGuide.stepsEn).map((step, i) => (
-              <li key={i} className="flex items-start gap-2.5 text-sm">
-                <span className="grid h-5 w-5 place-items-center rounded-full bg-primary/10 text-primary text-[11px] font-bold shrink-0 mt-0.5">
+              <li key={i} className="flex items-start gap-3 text-sm">
+                <span className="grid h-5 w-5 place-items-center rounded-full bg-primary/10 text-primary text-2xs font-bold shrink-0 mt-0.5">
                   {i + 1}
                 </span>
                 <span className="text-foreground">{step}</span>
@@ -233,7 +233,7 @@ export function DomainRegistrarGuides({ isRu }: DomainInfoCardsProps) {
               href={REGISTRAR_LINKS[activeGuide.name]}
               target="_blank"
               rel="noopener noreferrer"
-              className="inline-flex items-center gap-1.5 mt-3 text-xs font-semibold text-primary hover:underline"
+              className="inline-flex items-center gap-2 mt-3 text-xs font-semibold text-primary hover:underline"
             >
               <Icon name="ExternalLink" size={12} />
               {isRu ? `Официальная поддержка ${activeGuide.name}` : `${activeGuide.name} official support`}

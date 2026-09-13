@@ -95,7 +95,7 @@ export default function OrderStatus() {
 
         {status === 'paid' && (
           <>
-            <div className="grid h-16 w-16 place-items-center rounded-2xl bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 mx-auto mb-4">
+            <div className="grid h-16 w-16 place-items-center rounded-2xl bg-success/15 text-success mx-auto mb-4">
               <Icon name="CheckCircle" size={32} />
             </div>
             <h1 className="font-display font-bold text-2xl mb-2">
@@ -109,7 +109,7 @@ export default function OrderStatus() {
             <Button asChild className="rounded-xl font-semibold">
               <Link to="/dashboard">
                 {isRu ? 'Перейти в кабинет' : 'Go to dashboard'}
-                <Icon name="ArrowRight" size={15} className="ml-1.5" />
+                <Icon name="ArrowRight" size={15} className="ml-2" />
               </Link>
             </Button>
           </>
@@ -117,7 +117,7 @@ export default function OrderStatus() {
 
         {status === 'pending' && (
           <>
-            <div className="grid h-16 w-16 place-items-center rounded-2xl bg-amber-500/15 text-amber-700 dark:text-amber-300 mx-auto mb-4">
+            <div className="grid h-16 w-16 place-items-center rounded-2xl bg-warning/15 text-warning mx-auto mb-4">
               <Icon name="Clock" size={32} />
             </div>
             <h1 className="font-display font-bold text-xl mb-2">

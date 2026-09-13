@@ -91,7 +91,7 @@ export default function Article() {
   return (
     <div className="min-h-screen bg-background">
       {/* Progress bar */}
-      <div className="fixed top-0 left-0 right-0 z-[100] h-1 bg-border">
+      <div className="fixed top-0 left-0 right-0 z-toast h-1 bg-border">
         <div
           className="h-full bg-gradient-to-r from-primary to-violet-500 transition-all duration-100"
           style={{ width: `${readProgress}%` }}
@@ -99,7 +99,7 @@ export default function Article() {
       </div>
 
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
+      <header className="sticky top-0 z-sticky border-b border-border bg-background/80 backdrop-blur-xl">
         <div className="container flex h-16 items-center justify-between gap-4">
           <div className="flex items-center gap-2 min-w-0">
             <Link to="/" className="font-display font-bold text-lg text-primary shrink-0">Roboweb</Link>
@@ -112,7 +112,7 @@ export default function Article() {
             <span className="text-xs text-muted-foreground hidden sm:inline">{readProgress}%</span>
             <button
               onClick={handleShare}
-              className="flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-xl border border-border hover:bg-secondary transition-colors"
+              className="flex items-center gap-2 text-xs font-medium px-3 py-2 rounded-xl border border-border hover:bg-secondary transition-colors"
             >
               <Icon name={copied ? 'Check' : 'Share2'} size={14} />
               <span className="hidden sm:inline">{copied ? tr('articleCopied', lang) : tr('articleShare', lang)}</span>
@@ -135,10 +135,10 @@ export default function Article() {
           >
             {article.category[lang]}
           </Link>
-          <span className="text-sm text-muted-foreground flex items-center gap-1.5">
+          <span className="text-sm text-muted-foreground flex items-center gap-2">
             <Icon name="Calendar" size={14} />{article.date[lang]}
           </span>
-          <span className="text-sm text-muted-foreground flex items-center gap-1.5">
+          <span className="text-sm text-muted-foreground flex items-center gap-2">
             <Icon name="Clock" size={14} />{article.readTime[lang]} {tr('blogReadTime', lang)}
           </span>
         </div>
@@ -201,7 +201,7 @@ export default function Article() {
           <div className="mt-10 grid sm:grid-cols-2 gap-4">
             {prevArticle ? (
               <Link to={`/blog/${prevArticle.slug}`} className="group flex flex-col gap-2 p-4 rounded-2xl border border-border bg-card hover:border-primary/40 hover:shadow-md transition-all">
-                <span className="flex items-center gap-1.5 text-xs text-muted-foreground">
+                <span className="flex items-center gap-2 text-xs text-muted-foreground">
                   <Icon name="ArrowLeft" size={13} /> {lang === 'ru' ? 'Предыдущая' : 'Previous'}
                 </span>
                 <span className="font-display font-bold text-sm leading-snug group-hover:text-primary transition-colors line-clamp-2 break-words">{prevArticle.title[lang]}</span>
@@ -209,7 +209,7 @@ export default function Article() {
             ) : <div />}
             {nextArticle && (
               <Link to={`/blog/${nextArticle.slug}`} className="group flex flex-col gap-2 p-4 rounded-2xl border border-border bg-card hover:border-primary/40 hover:shadow-md transition-all text-right">
-                <span className="flex items-center gap-1.5 text-xs text-muted-foreground justify-end">
+                <span className="flex items-center gap-2 text-xs text-muted-foreground justify-end">
                   {lang === 'ru' ? 'Следующая' : 'Next'} <Icon name="ArrowRight" size={13} />
                 </span>
                 <span className="font-display font-bold text-sm leading-snug group-hover:text-primary transition-colors line-clamp-2 break-words">{nextArticle.title[lang]}</span>
@@ -234,7 +234,7 @@ export default function Article() {
                   </div>
                   <div className="p-4">
                     <span className="text-xs font-semibold text-primary truncate block">{a.category[lang]}</span>
-                    <h3 className="mt-1.5 font-display font-bold text-sm leading-snug group-hover:text-primary transition-colors line-clamp-2 break-words">{a.title[lang]}</h3>
+                    <h3 className="mt-2 font-display font-bold text-sm leading-snug group-hover:text-primary transition-colors line-clamp-2 break-words">{a.title[lang]}</h3>
                     <span className="mt-2 text-xs text-muted-foreground">{a.readTime[lang]} {tr('blogReadTime', lang)}</span>
                   </div>
                 </Link>

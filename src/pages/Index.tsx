@@ -126,7 +126,7 @@ const Index = () => {
     <div className="min-h-screen bg-background text-foreground">
       <a
         href="#main"
-        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-[100] focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:font-semibold focus:text-primary-foreground focus:shadow-lg"
+        className="sr-only focus:not-sr-only focus:fixed focus:top-3 focus:left-3 focus:z-toast focus:rounded-lg focus:bg-primary focus:px-4 focus:py-2 focus:font-semibold focus:text-primary-foreground focus:shadow-lg"
       >
         {lang === 'ru' ? 'К содержимому' : 'Skip to content'}
       </a>
@@ -153,7 +153,7 @@ const Index = () => {
 
       {/* Липкий мобильный CTA */}
       <div
-        className={`fixed inset-x-0 bottom-0 z-40 border-t border-border bg-background/90 px-4 py-3 backdrop-blur-xl transition-transform duration-300 sm:hidden ${showSticky ? 'translate-y-0' : 'translate-y-full'}`}
+        className={`fixed inset-x-0 bottom-0 z-sticky border-t border-border bg-background/90 px-4 py-3 backdrop-blur-xl transition-transform duration-300 sm:hidden ${showSticky ? 'translate-y-0' : 'translate-y-full'}`}
         style={{ paddingBottom: 'calc(0.75rem + env(safe-area-inset-bottom))' }}
       >
         <Link

@@ -73,7 +73,7 @@ export function IndexSectionsBottom({ lang }: Props) {
                   </div>
                   <ul className="mt-5 space-y-2 flex-1">
                     {p.features.map((f) => (
-                      <li key={f} className="flex items-center gap-2.5 text-sm">
+                      <li key={f} className="flex items-center gap-3 text-sm">
                         <Icon name="Check" size={14} className="text-accent shrink-0" />
                         {f}
                       </li>
@@ -96,12 +96,12 @@ export function IndexSectionsBottom({ lang }: Props) {
                   <span className="inline-block mt-2 rounded-full bg-primary/10 text-primary text-xs font-semibold px-3 py-1">
                     {getProRequestsLabel(selectedPro.requests, lang)}
                   </span>
-                  <div className="flex flex-wrap gap-1.5 mt-3">
+                  <div className="flex flex-wrap gap-2 mt-3">
                     {proPlans.map((p, i) => (
                       <button
                         key={p.plan_code}
                         onClick={() => setProIndex(i)}
-                        className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
+                        className={`px-3 py-2 rounded-lg text-xs font-semibold transition-all ${
                           proIndex === i ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground hover:text-foreground'
                         }`}
                       >
@@ -115,13 +115,13 @@ export function IndexSectionsBottom({ lang }: Props) {
                     ? ['Приоритетная поддержка', 'Все возможности Премиум', 'Облачный хостинг']
                     : ['Priority support', 'All Premium features', 'Cloud hosting']
                   ).map((f) => (
-                    <li key={f} className="flex items-center gap-2.5 text-sm">
+                    <li key={f} className="flex items-center gap-3 text-sm">
                       <Icon name="Check" size={14} className="text-accent shrink-0" />
                       {f}
                     </li>
                   ))}
                   {(PRO_PLAN_DETAILS[selectedPro.plan_code]?.[lang] ?? []).map((f) => (
-                    <li key={f} className="flex items-center gap-2.5 text-sm">
+                    <li key={f} className="flex items-center gap-3 text-sm">
                       <Icon name="Check" size={14} className="text-accent shrink-0" />
                       {f}
                     </li>
@@ -151,7 +151,7 @@ export function IndexSectionsBottom({ lang }: Props) {
               { icon: "Database", text: "Data in your PostgreSQL — export at any time" },
               { icon: "RefreshCw", text: "Refund within 7 days under the offer if the paid features weren't used" }
               ]).map(g => (
-                <div key={g.text} className="flex items-start gap-2.5 text-sm">
+                <div key={g.text} className="flex items-start gap-3 text-sm">
                   <Icon name={g.icon} size={17} className="text-primary shrink-0 mt-0.5" />
                   <span className="text-foreground/90 leading-relaxed">{g.text}</span>
                 </div>
@@ -174,7 +174,7 @@ export function IndexSectionsBottom({ lang }: Props) {
               <div className="absolute -top-16 -left-16 h-64 w-64 rounded-full bg-primary/20 blur-3xl breathe" />
               <div className="absolute -bottom-16 -right-16 h-64 w-64 rounded-full bg-primary/10 blur-3xl breathe" />
               <div className="relative">
-                <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 border border-primary/20 text-primary px-4 py-1.5 text-sm font-medium mb-5">
+                <div className="inline-flex items-center gap-2 rounded-full bg-primary/10 border border-primary/20 text-primary px-4 py-2 text-sm font-medium mb-5">
                   <Icon name="Gift" size={15} /> {L.cta3.badge[lang]}
                 </div>
                 <h2 className="font-display font-bold text-3xl sm:text-4xl md:text-5xl tracking-tight">

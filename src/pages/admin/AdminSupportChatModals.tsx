@@ -40,7 +40,7 @@ export function AdminSupportChatModals({
           </DialogHeader>
           <div className="space-y-2 max-h-52 overflow-y-auto">
             {quickReplies.map(r => (
-              <div key={r.id} className="flex items-start gap-2 rounded-xl border border-border p-2.5">
+              <div key={r.id} className="flex items-start gap-2 rounded-xl border border-border p-3">
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold">{r.title}</p>
                   <p className="text-xs text-muted-foreground">{r.text}</p>
@@ -80,7 +80,7 @@ export function AdminSupportChatModals({
           <div className="space-y-3">
             <button
               onClick={() => setSettings(s => ({ ...s, enabled: !s.enabled }))}
-              className={`w-full flex items-center justify-between px-3 py-2.5 rounded-xl border text-sm font-semibold transition-colors ${
+              className={`w-full flex items-center justify-between px-3 py-3 rounded-xl border text-sm font-semibold transition-colors ${
                 settings.enabled ? 'bg-primary/10 border-primary text-primary' : 'border-border text-muted-foreground'
               }`}
             >
@@ -106,7 +106,7 @@ export function AdminSupportChatModals({
                 <Input type="number" min={0} max={23} value={settings.end_hour} onChange={e => setSettings(s => ({ ...s, end_hour: Number(e.target.value) }))} className="h-9 rounded-xl text-sm" />
               </div>
             </div>
-            <p className="text-[11px] text-muted-foreground">Время указывается по Москве (UTC+3). Автоответ отправляется только на первое сообщение нового посетителя.</p>
+            <p className="text-2xs text-muted-foreground">Время указывается по Москве (UTC+3). Автоответ отправляется только на первое сообщение нового посетителя.</p>
             <button
               onClick={onSaveSettings}
               disabled={savingSettings}

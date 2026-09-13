@@ -89,7 +89,7 @@ function PortfolioSection({ lang, portfolio }: { lang: Lang; portfolio: DemoItem
               <button
                 key={cat.id}
                 onClick={() => handleFilter(cat.id)}
-                className={`flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all duration-200 ${
+                className={`flex items-center gap-2 px-4 py-2 rounded-full text-sm font-semibold whitespace-nowrap transition-all duration-200 ${
                   activeFilter === cat.id
                     ? 'bg-gradient-to-r from-primary to-[hsl(250,60%,58%)] text-white shadow-lg shadow-primary/30 scale-105'
                     : 'bg-card border border-border text-muted-foreground hover:text-foreground hover:border-primary/40 hover:-translate-y-0.5'
@@ -97,7 +97,7 @@ function PortfolioSection({ lang, portfolio }: { lang: Lang; portfolio: DemoItem
               >
                 {cat.label}
                 {cat.id !== 'all' && (
-                  <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${activeFilter === cat.id ? 'bg-white/20' : 'bg-secondary'}`}>
+                  <span className={`text-2xs font-bold px-2 py-0.5 rounded-full ${activeFilter === cat.id ? 'bg-white/20' : 'bg-secondary'}`}>
                     {portfolio.filter(p => p.category === cat.id).length}
                   </span>
                 )}
@@ -117,19 +117,19 @@ function PortfolioSection({ lang, portfolio }: { lang: Lang; portfolio: DemoItem
             return (
             <div
               key={p.title}
-              className="group relative flex flex-col rounded-2xl border border-border bg-card p-2.5 transition-all duration-300 lift hover:border-transparent hover:shadow-2xl"
+              className="group relative flex flex-col rounded-2xl border border-border bg-card p-3 transition-all duration-300 lift hover:border-transparent hover:shadow-2xl"
               style={isNew ? { animation: `cardIn 0.4s ease both`, animationDelay: delay } : undefined}
             >
               {/* Цветное свечение под карточкой на ховере — уникальный градиент элемента */}
-              <div className={`pointer-events-none absolute -inset-0.5 -z-10 rounded-[1.1rem] bg-gradient-to-br ${p.color} opacity-0 blur-xl transition-opacity duration-300 group-hover:opacity-15`} />
+              <div className={`pointer-events-none absolute -inset-0.5 z-behind rounded-[1.1rem] bg-gradient-to-br ${p.color} opacity-0 blur-xl transition-opacity duration-300 group-hover:opacity-15`} />
 
               {/* Скриншот в рамке браузера */}
               <div className="relative overflow-hidden rounded-xl border border-border bg-muted shadow-sm">
-                <div className="flex items-center gap-1.5 border-b border-border bg-secondary/70 px-3 py-2">
-                  <span className="h-2 w-2 rounded-full bg-rose-400/80" />
-                  <span className="h-2 w-2 rounded-full bg-amber-400/80" />
-                  <span className="h-2 w-2 rounded-full bg-emerald-400/80" />
-                  <span className="ml-2 flex flex-1 items-center gap-1 truncate rounded-md bg-background/80 px-2 py-0.5 text-[9px] text-muted-foreground">
+                <div className="flex items-center gap-2 border-b border-border bg-secondary/70 px-3 py-2">
+                  <span className="h-2 w-2 rounded-full bg-destructive/80" />
+                  <span className="h-2 w-2 rounded-full bg-warning/80" />
+                  <span className="h-2 w-2 rounded-full bg-success/80" />
+                  <span className="ml-2 flex flex-1 items-center gap-1 truncate rounded-md bg-background/80 px-2 py-0.5 text-3xs text-muted-foreground">
                     <Icon name="Lock" size={8} /> roboweb.dev
                   </span>
                 </div>
@@ -146,7 +146,7 @@ function PortfolioSection({ lang, portfolio }: { lang: Lang; portfolio: DemoItem
                   <div className="absolute inset-0 flex items-end bg-gradient-to-t from-black/75 via-black/15 to-transparent p-3 opacity-0 transition-opacity duration-300 group-hover:opacity-100">
                     <p className="text-xs italic leading-relaxed text-white line-clamp-3">«{p.prompt}»</p>
                   </div>
-                  <span className="absolute right-2 top-2 flex items-center gap-1 rounded-full bg-black/55 px-2.5 py-1 text-[10px] font-semibold text-white backdrop-blur">
+                  <span className="absolute right-2 top-2 flex items-center gap-1 rounded-full bg-black/55 px-3 py-1 text-2xs font-semibold text-white backdrop-blur">
                     <Icon name="Zap" size={10} className="text-[hsl(195,50%,60%)]" />
                     {lang === 'ru' ? 'ИИ за минуты' : 'AI in minutes'}
                   </span>
@@ -154,7 +154,7 @@ function PortfolioSection({ lang, portfolio }: { lang: Lang; portfolio: DemoItem
               </div>
 
               {/* Подпись + кнопка */}
-              <div className="flex flex-1 flex-col px-1.5 pb-1 pt-3">
+              <div className="flex flex-1 flex-col px-2 pb-1 pt-3">
                 <div className="mb-2 flex items-center gap-2">
                   <span className={`h-2.5 w-2.5 shrink-0 rounded-full bg-gradient-to-br ${p.color}`} />
                   <span className="text-xs font-semibold text-muted-foreground">{p.tag}</span>
@@ -164,7 +164,7 @@ function PortfolioSection({ lang, portfolio }: { lang: Lang; portfolio: DemoItem
                 </h3>
                 <button
                   onClick={() => goToPrompt(p.prompt)}
-                  className="group/btn flex w-full items-center justify-center gap-2 rounded-xl bg-primary/10 py-2.5 text-xs font-semibold text-primary transition-all duration-200 hover:bg-primary hover:text-primary-foreground hover:shadow-lg hover:shadow-primary/25"
+                  className="group/btn flex w-full items-center justify-center gap-2 rounded-xl bg-primary/10 py-3 text-xs font-semibold text-primary transition-all duration-200 hover:bg-primary hover:text-primary-foreground hover:shadow-lg hover:shadow-primary/25"
                 >
                   <Icon name="Sparkles" size={13} />
                   {lang === 'ru' ? 'Попробовать промпт' : 'Try this prompt'}
@@ -186,7 +186,7 @@ function PortfolioSection({ lang, portfolio }: { lang: Lang; portfolio: DemoItem
           {hasMore && (
             <button
               onClick={handleShowMore}
-              className="inline-flex items-center gap-2 px-6 py-2.5 rounded-full border border-border bg-card text-sm font-semibold text-muted-foreground hover:text-foreground hover:border-primary/40 transition-all"
+              className="inline-flex items-center gap-2 px-6 py-3 rounded-full border border-border bg-card text-sm font-semibold text-muted-foreground hover:text-foreground hover:border-primary/40 transition-all"
             >
               <Icon name="ChevronDown" size={15} />
               {lang === 'ru' ? 'Показать ещё' : 'Show more'}
@@ -243,7 +243,7 @@ function StylesSection({ lang }: { lang: Lang }) {
               <div className="group rounded-3xl border border-border bg-card p-3 transition-all duration-300 lift hover:border-primary/30 hover:shadow-xl hover:shadow-primary/10">
                 <div className="rounded-2xl overflow-hidden border border-border" style={{ background: s.bg }}>
                   {/* браузер-бар */}
-                  <div className="flex items-center gap-1.5 px-3 py-2" style={{ background: s.dark ? 'rgba(255,255,255,.04)' : 'rgba(0,0,0,.03)', borderBottom: `1px solid ${line(s)}` }}>
+                  <div className="flex items-center gap-2 px-3 py-2" style={{ background: s.dark ? 'rgba(255,255,255,.04)' : 'rgba(0,0,0,.03)', borderBottom: `1px solid ${line(s)}` }}>
                     <span className="h-2 w-2 rounded-full" style={{ background: '#ff5f57' }} />
                     <span className="h-2 w-2 rounded-full" style={{ background: '#febc2e' }} />
                     <span className="h-2 w-2 rounded-full" style={{ background: '#28c840' }} />
@@ -266,7 +266,7 @@ function StylesSection({ lang }: { lang: Lang }) {
                     </div>
                   </div>
                 </div>
-                <div className="flex items-center justify-between px-1.5 pt-3 pb-1">
+                <div className="flex items-center justify-between px-2 pt-3 pb-1">
                   <span className="font-display font-bold text-sm">{s.name}</span>
                   <span className="inline-flex items-center gap-1 text-xs font-semibold text-primary opacity-60 group-hover:opacity-100 transition-opacity">
                     <Icon name="Sparkles" size={13} /> {lang === 'ru' ? 'Применить' : 'Apply'}
@@ -365,7 +365,7 @@ export function IndexSectionsMiddle({ lang }: Props) {
       <section className="py-16 md:py-20 bg-gradient-to-r from-primary to-[hsl(250,58%,56%)]">
         <Reveal>
           <div className="container text-center text-white">
-            <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-1.5 text-sm font-medium mb-5">
+            <div className="inline-flex items-center gap-2 rounded-full bg-white/15 px-4 py-2 text-sm font-medium mb-5">
               <Icon name="Clock" size={15} /> {L.cta2.badge[lang]}
             </div>
             <h2 className="font-display font-bold text-3xl sm:text-4xl md:text-5xl tracking-tight mb-4">

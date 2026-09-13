@@ -48,7 +48,7 @@ export default function BuilderCorePanel({ lang, projectId, onUseFileInChat }: B
           <button
             key={t.id}
             onClick={() => setTab(t.id)}
-            className={`flex items-center gap-1.5 h-8 px-3 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${
+            className={`flex items-center gap-2 h-8 px-3 rounded-lg text-xs font-medium whitespace-nowrap transition-colors ${
               tab === t.id ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground hover:bg-secondary'
             }`}
           >
@@ -61,7 +61,7 @@ export default function BuilderCorePanel({ lang, projectId, onUseFileInChat }: B
       {/* Быстрая вставка изображений в чат — видна на любой вкладке */}
       {onUseFileInChat && images.length > 0 && (
         <div className="flex items-center gap-2 px-3 py-2 border-b border-border bg-secondary/30 shrink-0 overflow-x-auto">
-          <span className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold shrink-0">
+          <span className="text-2xs text-muted-foreground uppercase tracking-widest font-semibold shrink-0">
             {lang === 'ru' ? 'В чат:' : 'To chat:'}
           </span>
           {images.map(img => (

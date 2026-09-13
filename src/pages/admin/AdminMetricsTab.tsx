@@ -103,13 +103,13 @@ export function AdminMetricsTab({ adminKey }: { adminKey: string }) {
                 <tbody>
                   {data.by_model.map(m => (
                     <tr key={m.model} className="border-b border-border last:border-0">
-                      <td className="px-4 py-2.5 font-semibold">{modelLabel(m.model)}</td>
-                      <td className="px-4 py-2.5 text-right tabular-nums">{m.generations}</td>
-                      <td className="px-4 py-2.5 text-right tabular-nums">{m.units}</td>
-                      <td className="px-4 py-2.5 text-right tabular-nums text-muted-foreground">{k(m.in_tokens)} / {k(m.out_tokens)}</td>
-                      <td className="px-4 py-2.5 text-right tabular-nums">{m.cache_hit_pct}%</td>
-                      <td className="px-4 py-2.5 text-right tabular-nums font-semibold">{rub(m.cost_rub)}</td>
-                      <td className="px-4 py-2.5 text-right tabular-nums">{rub(m.cost_per_gen_rub)}</td>
+                      <td className="px-4 py-3 font-semibold">{modelLabel(m.model)}</td>
+                      <td className="px-4 py-3 text-right tabular-nums">{m.generations}</td>
+                      <td className="px-4 py-3 text-right tabular-nums">{m.units}</td>
+                      <td className="px-4 py-3 text-right tabular-nums text-muted-foreground">{k(m.in_tokens)} / {k(m.out_tokens)}</td>
+                      <td className="px-4 py-3 text-right tabular-nums">{m.cache_hit_pct}%</td>
+                      <td className="px-4 py-3 text-right tabular-nums font-semibold">{rub(m.cost_rub)}</td>
+                      <td className="px-4 py-3 text-right tabular-nums">{rub(m.cost_per_gen_rub)}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -121,13 +121,13 @@ export function AdminMetricsTab({ adminKey }: { adminKey: string }) {
           {data.by_day.length > 1 && (
             <div className="rounded-2xl border border-border bg-card p-4">
               <div className="font-semibold text-sm mb-3">Последние 14 дней</div>
-              <div className="flex items-end gap-1.5 h-28">
+              <div className="flex items-end gap-2 h-28">
                 {(() => {
                   const max = Math.max(...data.by_day.map(d => d.generations), 1);
                   return data.by_day.map(d => (
                     <div key={d.day} className="flex-1 flex flex-col items-center gap-1 group" title={`${d.day}: ${d.generations} ген, ${rub(d.cost_rub)}`}>
                       <div className="w-full rounded-t bg-primary/80 group-hover:bg-primary transition-colors" style={{ height: `${Math.max(4, (d.generations / max) * 96)}px` }} />
-                      <span className="text-[9px] text-muted-foreground">{d.day.slice(5)}</span>
+                      <span className="text-3xs text-muted-foreground">{d.day.slice(5)}</span>
                     </div>
                   ));
                 })()}
@@ -139,7 +139,7 @@ export function AdminMetricsTab({ adminKey }: { adminKey: string }) {
 
       {/* Конфиг цен/курса */}
       <div className="rounded-2xl border border-border bg-secondary/30 p-4 text-xs text-muted-foreground">
-        <div className="font-semibold text-foreground mb-1.5">Параметры расчёта (конфиг)</div>
+        <div className="font-semibold text-foreground mb-2">Параметры расчёта (конфиг)</div>
         <div className="flex flex-wrap gap-x-5 gap-y-1">
           <span>Курс: <b className="text-foreground">{cfg.usd_rub} ₽/$</b></span>
           <span>Sonnet 5: ${cfg.sonnet_in}/${cfg.sonnet_out} за 1М</span>

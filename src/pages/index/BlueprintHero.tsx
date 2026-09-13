@@ -20,8 +20,8 @@ export function BlueprintHero({ lang }: { lang: Lang }) {
     <div className="relative animate-scale-in w-full max-w-md mx-auto lg:max-w-none">
       <div className="bp-sheet p-4 sm:p-5">
         {/* Штамп-шапка чертежа */}
-        <div className="relative flex items-center justify-between mb-2 text-[11px] font-mono" style={{ color: ink2 }}>
-          <span className="inline-flex items-center gap-1.5 tracking-wide">
+        <div className="relative flex items-center justify-between mb-2 text-2xs font-mono" style={{ color: ink2 }}>
+          <span className="inline-flex items-center gap-2 tracking-wide">
             <span className="inline-block h-1.5 w-1.5 rounded-full bp-pulse" style={{ background: '#5ee0c8' }} />
             ROBOWEB · {ru ? 'СХЕМА ПРОЕКТА' : 'PROJECT SCHEMATIC'}
           </span>
@@ -123,7 +123,7 @@ export function BlueprintHero({ lang }: { lang: Lang }) {
       </div>
 
       {/* Подпись под чертежом */}
-      <p className="mt-3 text-center text-xs text-muted-foreground inline-flex w-full items-center justify-center gap-1.5">
+      <p className="mt-3 text-center text-xs text-muted-foreground inline-flex w-full items-center justify-center gap-2">
         <span className="inline-block h-1.5 w-1.5 rounded-full" style={{ background: ink }} />
         {ru ? 'Проект собирается на глазах — и код остаётся у вас' : 'The project assembles live — and the code stays yours'}
       </p>

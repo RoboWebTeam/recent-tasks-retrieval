@@ -124,7 +124,7 @@ export function AdminPricingTab({ adminKey }: AdminPricingTabProps) {
               Одна карточка «Профи» на проекте — пользователь выбирает нужное количество запросов, цена подтягивается отсюда
             </p>
           </div>
-          <Button size="sm" className="rounded-xl gap-1.5" disabled={saving} onClick={handleSave}>
+          <Button size="sm" className="rounded-xl gap-2" disabled={saving} onClick={handleSave}>
             {saving ? <Icon name="Loader" size={14} className="animate-spin" /> : <Icon name="Save" size={14} />}
             Сохранить
           </Button>
@@ -136,7 +136,7 @@ export function AdminPricingTab({ adminKey }: AdminPricingTabProps) {
           </div>
         )}
         {saved && (
-          <div className="flex items-center gap-2 bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 rounded-xl px-4 py-3 mb-4 text-sm">
+          <div className="flex items-center gap-2 bg-success/15 text-success rounded-xl px-4 py-3 mb-4 text-sm">
             <Icon name="CheckCircle" size={15} /> Цены сохранены
           </div>
         )}
@@ -182,7 +182,7 @@ export function AdminPricingTab({ adminKey }: AdminPricingTabProps) {
             </p>
           </div>
           {energyLoading ? null : (
-            <Button size="sm" className="rounded-xl gap-1.5" disabled={energySaving} onClick={handleSaveEnergy}>
+            <Button size="sm" className="rounded-xl gap-2" disabled={energySaving} onClick={handleSaveEnergy}>
               {energySaving ? <Icon name="Loader" size={14} className="animate-spin" /> : <Icon name="Save" size={14} />}
               Сохранить
             </Button>
@@ -195,7 +195,7 @@ export function AdminPricingTab({ adminKey }: AdminPricingTabProps) {
           </div>
         )}
         {energySaved && (
-          <div className="flex items-center gap-2 bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 rounded-xl px-4 py-3 mb-4 text-sm">
+          <div className="flex items-center gap-2 bg-success/15 text-success rounded-xl px-4 py-3 mb-4 text-sm">
             <Icon name="CheckCircle" size={15} /> Цены сохранены
           </div>
         )}

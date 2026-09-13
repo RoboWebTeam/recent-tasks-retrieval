@@ -22,7 +22,7 @@ function renderInline(text: string): ReactNode[] {
       nodes.push(<strong key={key++} className="font-semibold text-foreground">{tok.slice(2, -2)}</strong>);
     } else if (tok.startsWith('`')) {
       nodes.push(
-        <code key={key++} className="font-sans text-[14px] bg-secondary/80 border border-border/60 rounded px-1.5 py-[1px] text-foreground">
+        <code key={key++} className="font-sans text-sm bg-secondary/80 border border-border/60 rounded px-2 py-[1px] text-foreground">
           {tok.slice(1, -1)}
         </code>,
       );
@@ -80,18 +80,18 @@ function parseBlocks(src: string): Block[] {
 export default function ChatMarkdown({ text, className = '' }: { text: string; className?: string }) {
   const blocks = parseBlocks(text || '');
   return (
-    <div className={`space-y-2.5 text-[14px] leading-[1.6] text-foreground ${className}`}>
+    <div className={`space-y-2.5 text-sm leading-relaxed text-foreground ${className}`}>
       {blocks.map((b, idx) => {
         if (b.type === 'h') {
-          return <p key={idx} className="text-[14px] font-semibold text-foreground pt-1 first:pt-0">{renderInline(b.text)}</p>;
+          return <p key={idx} className="text-sm font-semibold text-foreground pt-1 first:pt-0">{renderInline(b.text)}</p>;
         }
         if (b.type === 'ul') {
           return (
             <ul key={idx} className="space-y-0.5">
               {b.items.map((it, j) => (
-                <li key={j} className="flex gap-1.5">
-                  <span className="text-primary shrink-0 leading-[1.5]">•</span>
-                  <span className="leading-[1.5]">{renderInline(it)}</span>
+                <li key={j} className="flex gap-2">
+                  <span className="text-primary shrink-0 leading-relaxed">•</span>
+                  <span className="leading-relaxed">{renderInline(it)}</span>
                 </li>
               ))}
             </ul>
@@ -101,9 +101,9 @@ export default function ChatMarkdown({ text, className = '' }: { text: string; c
           return (
             <ol key={idx} className="space-y-0.5">
               {b.items.map((it, j) => (
-                <li key={j} className="flex gap-1.5">
-                  <span className="text-muted-foreground shrink-0 tabular-nums leading-[1.5]">{j + 1}.</span>
-                  <span className="leading-[1.5]">{renderInline(it)}</span>
+                <li key={j} className="flex gap-2">
+                  <span className="text-muted-foreground shrink-0 tabular-nums leading-relaxed">{j + 1}.</span>
+                  <span className="leading-relaxed">{renderInline(it)}</span>
                 </li>
               ))}
             </ol>

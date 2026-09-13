@@ -88,7 +88,7 @@ export default function BuilderCoreFunctions({ lang, projectId }: BuilderCoreFun
                 <div className="flex items-center gap-2">
                   <code className="text-sm font-semibold font-sans truncate">{f.name}</code>
                   {f.reads && f.reads.length > 0 && (
-                    <span className="shrink-0 inline-flex items-center gap-1 rounded-full bg-secondary text-muted-foreground text-[10px] px-1.5 py-0.5">
+                    <span className="shrink-0 inline-flex items-center gap-1 rounded-full bg-secondary text-muted-foreground text-2xs px-2 py-0.5">
                       <Icon name="Database" size={9} /> {f.reads.join(', ')}
                     </span>
                   )}
@@ -105,7 +105,7 @@ export default function BuilderCoreFunctions({ lang, projectId }: BuilderCoreFun
               </button>
             </div>
             {openId === f.id && (
-              <pre className="text-[11px] leading-relaxed bg-secondary/50 border-t border-border p-3 overflow-x-auto"><code>{f.code}</code></pre>
+              <pre className="text-2xs leading-relaxed bg-secondary/50 border-t border-border p-3 overflow-x-auto"><code>{f.code}</code></pre>
             )}
           </div>
         ))}

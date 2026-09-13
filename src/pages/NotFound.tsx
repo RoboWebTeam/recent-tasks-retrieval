@@ -61,7 +61,7 @@ const NotFound = () => {
           <Link
             key={l.to}
             to={l.to}
-            className={`flex items-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold transition-colors ${
+            className={`flex items-center gap-2 rounded-xl px-4 py-3 text-sm font-semibold transition-colors ${
               i === 0
                 ? 'bg-primary text-primary-foreground glow-hover shadow-md shadow-primary/30'
                 : 'border border-border bg-card text-foreground hover:border-primary/40'

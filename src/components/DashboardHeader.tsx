@@ -65,8 +65,8 @@ export default function DashboardHeader({ active, leadsCount }: DashboardHeaderP
   ];
 
   return (
-    <header className="border-b border-border bg-card/95 backdrop-blur-sm sticky top-0 z-30 shadow-sm">
-      <div className="container flex items-center justify-between py-3.5">
+    <header className="border-b border-border bg-card/95 backdrop-blur-sm sticky top-0 z-sticky shadow-sm">
+      <div className="container flex items-center justify-between py-4">
         <Link to="/" className="flex items-center gap-2 font-display font-extrabold text-lg">
           <LogoMark size={32} />
           Roboweb
@@ -77,13 +77,13 @@ export default function DashboardHeader({ active, leadsCount }: DashboardHeaderP
             <Link
               key={id}
               to={href}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium transition-colors relative ${
+              className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-colors relative ${
                 active === id ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
               }`}
             >
               <Icon name={icon} size={15} />{label}
               {id === 'plan' && lowBalance && (
-                <span className={`absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full ${remaining! <= 0 ? 'bg-destructive' : 'bg-amber-500'} ${active === id ? 'ring-2 ring-primary' : ''}`} />
+                <span className={`absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full ${remaining! <= 0 ? 'bg-destructive' : 'bg-warning'} ${active === id ? 'ring-2 ring-primary' : ''}`} />
               )}
             </Link>
           ))}
@@ -91,13 +91,13 @@ export default function DashboardHeader({ active, leadsCount }: DashboardHeaderP
             <Link
               key={id}
               to={href}
-              className={`flex items-center gap-1.5 px-3 py-2 rounded-xl text-sm font-medium transition-colors relative ${
+              className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium transition-colors relative ${
                 active === id ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:bg-secondary hover:text-foreground'
               }`}
             >
               <Icon name={icon} size={15} />{label}
               {count > 0 && (
-                <span className="absolute -top-0.5 -right-0.5 h-4 w-4 bg-primary text-primary-foreground text-[9px] font-bold rounded-full flex items-center justify-center">
+                <span className="absolute -top-0.5 -right-0.5 h-4 w-4 bg-primary text-primary-foreground text-3xs font-bold rounded-full flex items-center justify-center">
                   {count}
                 </span>
               )}
@@ -122,13 +122,13 @@ export default function DashboardHeader({ active, leadsCount }: DashboardHeaderP
           <Link
             key={id}
             to={href}
-            className={`flex flex-col items-center gap-1 py-2.5 px-3 min-w-[64px] text-[11px] font-medium whitespace-nowrap transition-colors shrink-0 relative ${
+            className={`flex flex-col items-center gap-1 py-3 px-3 min-w-[64px] text-2xs font-medium whitespace-nowrap transition-colors shrink-0 relative ${
               active === id ? 'text-primary' : 'text-muted-foreground'
             }`}
           >
             <Icon name={icon} size={18} />
             {id === 'plan' && lowBalance && (
-              <span className={`absolute top-1.5 left-1/2 translate-x-2 -translate-y-0.5 h-2.5 w-2.5 rounded-full ${remaining! <= 0 ? 'bg-destructive' : 'bg-amber-500'}`} />
+              <span className={`absolute top-1.5 left-1/2 translate-x-2 -translate-y-0.5 h-2.5 w-2.5 rounded-full ${remaining! <= 0 ? 'bg-destructive' : 'bg-warning'}`} />
             )}
             {label}
           </Link>
@@ -137,13 +137,13 @@ export default function DashboardHeader({ active, leadsCount }: DashboardHeaderP
           <Link
             key={id}
             to={href}
-            className={`flex flex-col items-center gap-1 py-2.5 px-3 min-w-[64px] text-[11px] font-medium whitespace-nowrap transition-colors shrink-0 relative ${
+            className={`flex flex-col items-center gap-1 py-3 px-3 min-w-[64px] text-2xs font-medium whitespace-nowrap transition-colors shrink-0 relative ${
               active === id ? 'text-primary' : 'text-muted-foreground'
             }`}
           >
             <Icon name={icon} size={18} />
             {count > 0 && (
-              <span className="absolute top-1.5 left-1/2 translate-x-1 -translate-y-0.5 h-3.5 w-3.5 bg-primary text-primary-foreground text-[8px] font-bold rounded-full flex items-center justify-center">
+              <span className="absolute top-1.5 left-1/2 translate-x-1 -translate-y-0.5 h-3.5 w-3.5 bg-primary text-primary-foreground text-3xs font-bold rounded-full flex items-center justify-center">
                 {count}
               </span>
             )}

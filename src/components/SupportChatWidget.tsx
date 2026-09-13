@@ -37,16 +37,16 @@ function MessageBubble({ m }: { m: ChatMessage }) {
   const isVisitor = m.sender === 'visitor';
   return (
     <div className={`flex ${isVisitor ? 'justify-end' : 'justify-start'}`}>
-      <div className={`max-w-[80%] text-sm leading-relaxed px-3.5 py-2.5 ${
+      <div className={`max-w-[80%] text-sm leading-relaxed px-4 py-3 ${
         isVisitor ? 'bg-primary text-white rounded-2xl rounded-br-sm' : 'bg-secondary border border-border text-foreground rounded-2xl rounded-bl-sm'
       }`}>
         {m.file_url && m.file_type === 'image' && (
           <a href={m.file_url} target="_blank" rel="noopener noreferrer">
-            <img src={m.file_url} alt={m.file_name || ''} className="rounded-xl max-w-full max-h-48 mb-1.5 object-cover" />
+            <img src={m.file_url} alt={m.file_name || ''} className="rounded-xl max-w-full max-h-48 mb-2 object-cover" />
           </a>
         )}
         {m.file_url && m.file_type !== 'image' && (
-          <a href={m.file_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 mb-1.5 underline underline-offset-2">
+          <a href={m.file_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 mb-2 underline underline-offset-2">
             <Icon name="Paperclip" size={13} /> {m.file_name}
           </a>
         )}
@@ -170,7 +170,7 @@ export default function SupportChatWidget() {
       {/* Floating button */}
       <button
         onClick={() => setOpen(v => !v)}
-        className="fixed bottom-5 right-5 z-[100] grid h-14 w-14 place-items-center rounded-full bg-primary text-primary-foreground shadow-2xl shadow-primary/30 hover:scale-105 transition-transform"
+        className="fixed bottom-5 right-5 z-sticky grid h-14 w-14 place-items-center rounded-full bg-primary text-primary-foreground shadow-2xl shadow-primary/30 hover:scale-105 transition-transform"
         aria-label="Chat"
       >
         <Icon name={open ? 'X' : 'MessageCircle'} size={24} />
@@ -181,15 +181,15 @@ export default function SupportChatWidget() {
 
       {/* Chat window */}
       {open && (
-        <div className="fixed bottom-24 right-5 z-[100] w-[calc(100vw-2.5rem)] sm:w-96 h-[70vh] sm:h-[520px] max-h-[70vh] bg-card border border-border rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-slide-up">
+        <div className="fixed bottom-24 right-5 z-sticky w-[calc(100vw-2.5rem)] sm:w-96 h-[70vh] sm:h-[520px] max-h-[70vh] bg-card border border-border rounded-2xl shadow-2xl flex flex-col overflow-hidden animate-slide-up">
           {/* Header */}
-          <div className="flex items-center gap-2.5 px-4 py-3 border-b border-border bg-primary text-primary-foreground shrink-0">
+          <div className="flex items-center gap-3 px-4 py-3 border-b border-border bg-primary text-primary-foreground shrink-0">
             <div className="grid h-9 w-9 place-items-center rounded-xl bg-white/15 shrink-0">
               <Icon name="Headphones" size={17} />
             </div>
             <div className="flex-1 min-w-0">
               <p className="text-sm font-bold">Roboweb {isRu ? 'поддержка' : 'support'}</p>
-              <p className="text-[11px] text-white/70">{isRu ? 'Обычно отвечаем быстро' : 'We usually reply fast'}</p>
+              <p className="text-2xs text-white/70">{isRu ? 'Обычно отвечаем быстро' : 'We usually reply fast'}</p>
             </div>
             <button onClick={() => setOpen(false)} className="text-white/70 hover:text-white transition-colors">
               <Icon name="X" size={18} />
@@ -238,9 +238,9 @@ export default function SupportChatWidget() {
           {!showNameForm && (
             <div className="p-3 border-t border-border bg-background shrink-0">
               {attachedFile && (
-                <div className="flex items-center gap-2 mb-2 px-2 py-1.5 bg-secondary border border-border rounded-xl">
+                <div className="flex items-center gap-2 mb-2 px-2 py-2 bg-secondary border border-border rounded-xl">
                   <img src={attachedFile.url} alt="" className="h-8 w-8 rounded-lg object-cover shrink-0" />
-                  <span className="text-[11px] text-muted-foreground flex-1 truncate">{attachedFile.name}</span>
+                  <span className="text-2xs text-muted-foreground flex-1 truncate">{attachedFile.name}</span>
                   <button onClick={() => setAttachedFile(null)} className="text-muted-foreground hover:text-destructive transition-colors">
                     <Icon name="X" size={13} />
                   </button>

@@ -26,7 +26,7 @@ function ProjectsList({ projects }: { projects: UserProject[] }) {
       {projects.map(p => {
         const s = PROJECT_STATUS_LABELS[p.status] ?? PROJECT_STATUS_LABELS.draft;
         return (
-          <div key={p.id} className="flex items-center justify-between gap-3 rounded-xl bg-secondary/50 px-3 py-2.5">
+          <div key={p.id} className="flex items-center justify-between gap-3 rounded-xl bg-secondary/50 px-3 py-3">
             <div className="min-w-0">
               <p className="text-sm font-medium truncate">{p.title || 'Без названия'}</p>
               <p className="text-xs text-muted-foreground">{fmtDate(p.updated_at)}</p>
@@ -56,7 +56,7 @@ function OrdersList({ orders }: { orders: UserOrder[] }) {
       {orders.map(o => {
         const s = ORDER_STATUS_LABELS[o.status] ?? ORDER_STATUS_LABELS.pending;
         return (
-          <div key={o.order_number} className="flex items-center justify-between gap-3 rounded-xl bg-secondary/50 px-3 py-2.5">
+          <div key={o.order_number} className="flex items-center justify-between gap-3 rounded-xl bg-secondary/50 px-3 py-3">
             <div className="min-w-0">
               <p className="text-sm font-medium truncate">
                 {o.order_type === 'energy' ? `Энергия +${o.energy_amount}` : (o.plan || 'Тариф')}
@@ -83,11 +83,11 @@ function DomainsList({ domains }: { domains: UserDomain[] }) {
       {domains.map(d => {
         const s = DOMAIN_STATUS_LABELS[d.status] ?? DOMAIN_STATUS_LABELS.pending;
         return (
-          <div key={d.id} className="flex items-center justify-between gap-3 rounded-xl bg-secondary/50 px-3 py-2.5">
+          <div key={d.id} className="flex items-center justify-between gap-3 rounded-xl bg-secondary/50 px-3 py-3">
             <div className="min-w-0 flex items-center gap-2">
               <span className="text-sm font-medium truncate">{d.domain}</span>
               {d.is_primary && (
-                <span className="text-[10px] font-bold uppercase tracking-wide bg-primary/10 text-primary rounded-full px-1.5 py-0.5 shrink-0">
+                <span className="text-2xs font-bold uppercase tracking-wide bg-primary/10 text-primary rounded-full px-2 py-0.5 shrink-0">
                   Основной
                 </span>
               )}
@@ -109,7 +109,7 @@ function SiteLeadsList({ leads }: { leads: UserSiteLead[] }) {
       {leads.map(l => {
         const s = SITE_LEAD_STATUS[l.status] ?? SITE_LEAD_STATUS.new;
         return (
-          <div key={l.id} className="rounded-xl bg-secondary/50 px-3 py-2.5">
+          <div key={l.id} className="rounded-xl bg-secondary/50 px-3 py-3">
             <div className="flex items-center justify-between gap-3 mb-1">
               <p className="text-sm font-medium truncate">{l.name || 'Без имени'}</p>
               <span className={`text-xs font-medium rounded-full px-2 py-0.5 shrink-0 ${s.color}`}>{s.label}</span>
@@ -120,7 +120,7 @@ function SiteLeadsList({ leads }: { leads: UserSiteLead[] }) {
               {l.email && <a href={`mailto:${l.email}`} onClick={e => e.stopPropagation()} className="hover:text-primary">{l.email}</a>}
               <span className="ml-auto">{fmtDate(l.created_at)}</span>
             </div>
-            {l.message && <p className="text-xs text-foreground mt-1.5">{l.message}</p>}
+            {l.message && <p className="text-xs text-foreground mt-2">{l.message}</p>}
           </div>
         );
       })}
@@ -150,20 +150,20 @@ export function AdminUserDetailsPanel({ details, loading }: AdminUserDetailsPane
     <div className="p-4 space-y-4">
       {/* Quota info */}
       <div className="grid sm:grid-cols-2 gap-3">
-        <div className="rounded-xl bg-secondary/50 px-3 py-2.5">
+        <div className="rounded-xl bg-secondary/50 px-3 py-3">
           <p className="text-xs text-muted-foreground mb-0.5">AI-запросы использовано</p>
           <p className="text-sm font-semibold">{user.requests_used} / {user.requests_limit}</p>
         </div>
-        <div className="rounded-xl bg-secondary/50 px-3 py-2.5">
+        <div className="rounded-xl bg-secondary/50 px-3 py-3">
           <p className="text-xs text-muted-foreground mb-0.5">Баланс энергии</p>
           <p className="text-sm font-semibold flex items-center gap-1">
-            <Icon name="Zap" size={13} className="text-amber-500" /> {user.energy_balance}
+            <Icon name="Zap" size={13} className="text-warning" /> {user.energy_balance}
           </p>
         </div>
         {user.blocked_at && (
-          <div className="rounded-xl bg-rose-500/10 px-3 py-2.5 sm:col-span-2">
-            <p className="text-xs text-rose-700 dark:text-rose-300 mb-0.5">Заблокирован</p>
-            <p className="text-sm font-semibold text-rose-700 dark:text-rose-300">{fmtDate(user.blocked_at)}</p>
+          <div className="rounded-xl bg-destructive/10 px-3 py-3 sm:col-span-2">
+            <p className="text-xs text-destructive mb-0.5">Заблокирован</p>
+            <p className="text-sm font-semibold text-destructive">{fmtDate(user.blocked_at)}</p>
           </div>
         )}
       </div>
@@ -177,7 +177,7 @@ export function AdminUserDetailsPanel({ details, loading }: AdminUserDetailsPane
           ['leads', 'Заявки', 'Inbox', site_leads.length],
         ] as const).map(([id, label, icon, count]) => (
           <button key={id} onClick={() => setDetailsTab(id)}
-            className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${detailsTab === id ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground hover:text-foreground'}`}>
+            className={`flex items-center gap-2 px-3 py-2 rounded-lg text-xs font-semibold transition-colors ${detailsTab === id ? 'bg-primary text-primary-foreground' : 'bg-secondary text-muted-foreground hover:text-foreground'}`}>
             <Icon name={icon} size={13} />
             {label}
             {count > 0 && <span className="opacity-70">({count})</span>}

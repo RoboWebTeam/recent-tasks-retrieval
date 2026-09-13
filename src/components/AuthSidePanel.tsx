@@ -54,42 +54,42 @@ export function AuthSidePanel({ lang, mode }: { lang: Lang; mode: 'login' | 'reg
 
       {/* Сообщение */}
       <div className="relative flex-1 min-h-0 flex flex-col justify-center">
-        <span className="at-in self-start inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3.5 py-1.5 text-xs font-semibold text-primary">
-          <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 at-dot" />
+        <span className="at-in self-start inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-4 py-2 text-xs font-semibold text-primary">
+          <span className="h-1.5 w-1.5 rounded-full bg-success at-dot" />
           {ru ? 'Работает 24/7 · агенты параллельно' : 'Works 24/7 · agents in parallel'}
         </span>
 
-        <h2 className="at-in mt-4 font-display font-bold text-[28px] xl:text-4xl leading-[1.12] whitespace-pre-line" style={{ animationDelay: '.08s' }}>
+        <h2 className="at-in mt-4 font-display font-bold text-2xl xl:text-4xl leading-none whitespace-pre-line" style={{ animationDelay: '.08s' }}>
           {tr(mode === 'login' ? 'loginHeroTitle' : 'registerHeroTitle', lang)}
         </h2>
-        <p className="at-in mt-3 text-muted-foreground text-[15px] leading-relaxed max-w-md" style={{ animationDelay: '.16s' }}>
+        <p className="at-in mt-3 text-muted-foreground text-sm leading-relaxed max-w-md" style={{ animationDelay: '.16s' }}>
           {tr(mode === 'login' ? 'loginHeroDesc' : 'registerHeroDesc', lang)}
         </p>
 
         {/* Живой конвейер агентов */}
-        <div className="at-in mt-5 rounded-2xl border border-border bg-card/70 backdrop-blur p-3.5" style={{ animationDelay: '.24s' }}>
+        <div className="at-in mt-5 rounded-2xl border border-border bg-card/70 backdrop-blur p-4" style={{ animationDelay: '.24s' }}>
           <div className="flex items-center justify-between mb-3">
             <span className="inline-flex items-center gap-2 font-display font-bold text-sm">
               <span className="relative flex h-2.5 w-2.5">
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-70" />
-                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400" />
+                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-70" />
+                <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-success" />
               </span>
               {ru ? 'Конвейер сборки' : 'Build conveyor'}
             </span>
-            <span className="at-beat rounded-full bg-primary/12 border border-primary/25 text-primary text-[11px] font-bold px-2.5 py-0.5">24/7</span>
+            <span className="at-beat rounded-full bg-primary/10 border border-primary/25 text-primary text-2xs font-bold px-3 py-0.5">24/7</span>
           </div>
-          <div className="grid grid-cols-2 gap-2.5">
+          <div className="grid grid-cols-2 gap-3">
             {agents.map((a, i) => (
-              <div key={a.name} className="at-in at-glow rounded-xl border border-primary/15 bg-background/50 p-2.5" style={{ animationDelay: `${0.3 + i * 0.08}s` }}>
+              <div key={a.name} className="at-in at-glow rounded-xl border border-primary/15 bg-background/50 p-3" style={{ animationDelay: `${0.3 + i * 0.08}s` }}>
                 <div className="flex items-center gap-2">
-                  <span className="grid h-7 w-7 place-items-center rounded-lg bg-primary/12 text-primary shrink-0">
+                  <span className="grid h-7 w-7 place-items-center rounded-lg bg-primary/10 text-primary shrink-0">
                     <Icon name={a.icon} size={14} />
                   </span>
                   <div className="min-w-0">
-                    <div className="font-display font-bold text-[12px] leading-tight truncate">{a.name}</div>
-                    <div className="text-[10px] text-muted-foreground truncate">{a.task}</div>
+                    <div className="font-display font-bold text-xs leading-tight truncate">{a.name}</div>
+                    <div className="text-2xs text-muted-foreground truncate">{a.task}</div>
                   </div>
-                  <span className="ml-auto h-1.5 w-1.5 rounded-full bg-emerald-400 at-dot shrink-0" style={{ animationDelay: `${i * 200}ms` }} />
+                  <span className="ml-auto h-1.5 w-1.5 rounded-full bg-success at-dot shrink-0" style={{ animationDelay: `${i * 200}ms` }} />
                 </div>
                 <div className="at-track mt-2" style={{ animationDelay: `${i * 120}ms` }} />
               </div>
@@ -100,7 +100,7 @@ export function AuthSidePanel({ lang, mode }: { lang: Lang; mode: 'login' | 'reg
         {/* Проверяемые аргументы */}
         <div className="mt-5 space-y-2">
           {trust.map((f, i) => (
-            <div key={f.t} className="at-in flex items-start gap-2.5 text-sm text-muted-foreground" style={{ animationDelay: `${0.5 + i * 0.07}s` }}>
+            <div key={f.t} className="at-in flex items-start gap-3 text-sm text-muted-foreground" style={{ animationDelay: `${0.5 + i * 0.07}s` }}>
               <Icon name={f.icon} size={16} className="text-primary shrink-0 mt-0.5" />
               <span className="text-foreground/85">{f.t}</span>
             </div>
@@ -109,7 +109,7 @@ export function AuthSidePanel({ lang, mode }: { lang: Lang; mode: 'login' | 'reg
       </div>
 
       {/* Реквизиты — доверие «на проверяемом» */}
-      <div className="relative shrink-0 text-[11px] text-muted-foreground/80 leading-relaxed">
+      <div className="relative shrink-0 text-2xs text-muted-foreground/80 leading-relaxed">
         © 2026 Roboweb · {ru ? 'ИП Аракелов С. В. · ОГРНИП 324508100357892' : 'Sole proprietor · State ID 324508100357892'}
         {' · '}
         <a href="https://egrul.nalog.ru/" target="_blank" rel="noopener noreferrer" className="text-primary/90 hover:text-primary hover:underline">

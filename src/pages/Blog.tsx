@@ -55,7 +55,7 @@ export default function Blog() {
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
       {/* Header */}
-      <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
+      <header className="sticky top-0 z-sticky border-b border-border bg-background/80 backdrop-blur-xl">
         <div className="container flex h-14 sm:h-16 items-center justify-between">
           <Link to="/" className="flex items-center gap-2 font-display font-bold text-lg sm:text-xl text-primary">
             <LogoMark size={32} />
@@ -76,10 +76,10 @@ export default function Blog() {
             <Icon name="ArrowLeft" size={16} /> {tr('blogBackHome', lang)}
           </Link>
           <div className="max-w-2xl">
-            <span className="inline-flex items-center gap-1.5 text-xs font-semibold uppercase tracking-widest text-primary mb-3">
+            <span className="inline-flex items-center gap-2 text-xs font-semibold uppercase tracking-widest text-primary mb-3">
               <Icon name="Sparkles" size={13} /> {tr('blogLabel', lang)}
             </span>
-            <h1 className="font-display font-bold text-3xl sm:text-5xl md:text-6xl tracking-tight leading-[1.05] break-words">
+            <h1 className="font-display font-bold text-3xl sm:text-5xl md:text-6xl tracking-tight leading-none break-words">
               {tr('blogTitle', lang)}
             </h1>
             <p className="mt-4 text-base sm:text-lg text-muted-foreground max-w-xl">
@@ -96,11 +96,11 @@ export default function Blog() {
             <button
               key={cat}
               onClick={() => setCategory(cat)}
-              className={`shrink-0 px-3.5 py-2 rounded-full text-xs font-semibold transition-all max-w-[180px] truncate ${category === cat ? 'bg-primary text-primary-foreground shadow-sm shadow-primary/30' : 'bg-card border border-border text-muted-foreground hover:text-foreground hover:border-primary/40'}`}
+              className={`shrink-0 px-4 py-2 rounded-full text-xs font-semibold transition-all max-w-[180px] truncate ${category === cat ? 'bg-primary text-primary-foreground shadow-sm shadow-primary/30' : 'bg-card border border-border text-muted-foreground hover:text-foreground hover:border-primary/40'}`}
             >
               {cat}
               {cat !== ALL && (
-                <span className={`ml-1.5 text-[10px] font-bold ${category === cat ? 'opacity-70' : 'opacity-50'}`}>
+                <span className={`ml-2 text-2xs font-bold ${category === cat ? 'opacity-70' : 'opacity-50'}`}>
                   {ARTICLES.filter(a => a.category[lang] === cat).length}
                 </span>
               )}
@@ -138,7 +138,7 @@ export default function Blog() {
                 <div className="relative w-full md:w-1/2 h-56 sm:h-72 md:h-auto overflow-hidden bg-muted shrink-0">
                   <img src={featured.cover} alt={featured.title[lang]} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                   <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-black/0 to-black/0 md:bg-gradient-to-r" />
-                  <span className="absolute top-3 left-3 rounded-full bg-primary px-3 py-1 text-[10px] font-bold text-primary-foreground uppercase tracking-wide">
+                  <span className="absolute top-3 left-3 rounded-full bg-primary px-3 py-1 text-2xs font-bold text-primary-foreground uppercase tracking-wide">
                     {lang === 'ru' ? 'Свежее' : 'Latest'}
                   </span>
                 </div>
@@ -149,14 +149,14 @@ export default function Blog() {
                   </h2>
                   <p className="mt-3 text-sm sm:text-base text-muted-foreground line-clamp-2 sm:line-clamp-3">{featured.description[lang]}</p>
                   <div className="mt-5 flex items-center gap-4">
-                    <span className="text-xs text-muted-foreground flex items-center gap-1.5">
+                    <span className="text-xs text-muted-foreground flex items-center gap-2">
                       <Icon name="Calendar" size={12} />{featured.date[lang]}
                     </span>
-                    <span className="text-xs text-muted-foreground flex items-center gap-1.5">
+                    <span className="text-xs text-muted-foreground flex items-center gap-2">
                       <Icon name="Clock" size={12} />{featured.readTime[lang]} {tr('blogReadTime', lang)}
                     </span>
                   </div>
-                  <span className="mt-5 inline-flex items-center gap-1.5 text-sm font-semibold text-primary group-hover:gap-2.5 transition-all w-fit">
+                  <span className="mt-5 inline-flex items-center gap-2 text-sm font-semibold text-primary group-hover:gap-3 transition-all w-fit">
                     {tr('blogRead', lang)} <Icon name="ArrowRight" size={15} />
                   </span>
                 </div>
@@ -174,7 +174,7 @@ export default function Blog() {
                   <div className="relative h-44 sm:h-48 overflow-hidden bg-muted">
                     <img src={article.cover} alt={article.title[lang]} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                     <div className="absolute inset-0 bg-black/0 group-hover:bg-black/10 transition-colors duration-300" />
-                    <span className="absolute top-3 left-3 rounded-full bg-black/50 backdrop-blur px-2.5 py-1 text-[10px] font-semibold text-white flex items-center gap-1">
+                    <span className="absolute top-3 left-3 rounded-full bg-black/50 backdrop-blur px-3 py-1 text-2xs font-semibold text-white flex items-center gap-1">
                       <Icon name="Clock" size={10} />{article.readTime[lang]} {tr('blogReadTime', lang)}
                     </span>
                   </div>
@@ -185,7 +185,7 @@ export default function Blog() {
                     </h2>
                     <p className="mt-3 text-sm text-muted-foreground line-clamp-2">{article.description[lang]}</p>
                     <div className="mt-5 flex items-center justify-between">
-                      <span className="text-xs text-muted-foreground flex items-center gap-1.5">
+                      <span className="text-xs text-muted-foreground flex items-center gap-2">
                         <Icon name="Calendar" size={12} />{article.date[lang]}
                       </span>
                       <span className="inline-flex items-center gap-1 text-xs font-semibold text-primary group-hover:gap-2 transition-all">

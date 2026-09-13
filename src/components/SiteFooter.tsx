@@ -105,7 +105,7 @@ export function SiteFooter({ lang }: Props) {
             </span>
           </a>
         </div>
-        <p className="text-[11px] sm:text-xs text-muted-foreground/70">
+        <p className="text-2xs sm:text-xs text-muted-foreground/70">
           ИП Аракелов Станислав Владиславович · ОГРНИП 324508100357892 · ИНН 501210007760
           {' · '}
           <a

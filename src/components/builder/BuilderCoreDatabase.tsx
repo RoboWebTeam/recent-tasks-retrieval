@@ -152,7 +152,7 @@ export default function BuilderCoreDatabase({ lang, projectId }: BuilderCoreData
   if (selectedTable) {
     return (
       <div className="p-4">
-        <button onClick={() => setSelectedTable(null)} className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors mb-4">
+        <button onClick={() => setSelectedTable(null)} className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors mb-4">
           <Icon name="ArrowLeft" size={13} /> {isRu ? 'Все таблицы' : 'All tables'}
         </button>
 
@@ -161,7 +161,7 @@ export default function BuilderCoreDatabase({ lang, projectId }: BuilderCoreData
             <Icon name="Table" size={16} className="text-primary" />
             {selectedTable.table_name}
           </h3>
-          <Button size="sm" className="rounded-xl gap-1.5" onClick={openAddRow}>
+          <Button size="sm" className="rounded-xl gap-2" onClick={openAddRow}>
             <Icon name="Plus" size={14} /> {isRu ? 'Добавить запись' : 'Add row'}
           </Button>
         </div>
@@ -226,7 +226,7 @@ export default function BuilderCoreDatabase({ lang, projectId }: BuilderCoreData
                 </div>
               ))}
               <Button className="w-full rounded-xl" disabled={savingRow} onClick={handleSaveRow}>
-                {savingRow ? <Icon name="Loader" size={14} className="mr-1.5 animate-spin" /> : null}
+                {savingRow ? <Icon name="Loader" size={14} className="mr-2 animate-spin" /> : null}
                 {isRu ? 'Сохранить' : 'Save'}
               </Button>
             </div>
@@ -246,7 +246,7 @@ export default function BuilderCoreDatabase({ lang, projectId }: BuilderCoreData
         </div>
         <Dialog open={createOpen} onOpenChange={(v) => { setCreateOpen(v); if (!v) { setCreateError(''); } }}>
           <DialogTrigger asChild>
-            <Button size="sm" className="rounded-xl gap-1.5 shrink-0">
+            <Button size="sm" className="rounded-xl gap-2 shrink-0">
               <Icon name="Plus" size={14} /> {isRu ? 'Таблица' : 'Table'}
             </Button>
           </DialogTrigger>
@@ -260,7 +260,7 @@ export default function BuilderCoreDatabase({ lang, projectId }: BuilderCoreData
                 <Input value={newTableName} onChange={e => setNewTableName(e.target.value)} placeholder="leads" className="h-9 rounded-xl" />
               </div>
               <div>
-                <label className="text-xs font-medium mb-1.5 block">{isRu ? 'Колонки' : 'Columns'}</label>
+                <label className="text-xs font-medium mb-2 block">{isRu ? 'Колонки' : 'Columns'}</label>
                 <div className="space-y-2">
                   {newColumns.map((col, i) => (
                     <div key={i} className="flex gap-2">
@@ -292,10 +292,10 @@ export default function BuilderCoreDatabase({ lang, projectId }: BuilderCoreData
                 </div>
               </div>
               {createError && (
-                <p className="text-sm text-destructive flex items-center gap-1.5"><Icon name="AlertCircle" size={14} /> {createError}</p>
+                <p className="text-sm text-destructive flex items-center gap-2"><Icon name="AlertCircle" size={14} /> {createError}</p>
               )}
               <Button className="w-full rounded-xl" disabled={creating} onClick={handleCreateTable}>
-                {creating ? <Icon name="Loader" size={14} className="mr-1.5 animate-spin" /> : null}
+                {creating ? <Icon name="Loader" size={14} className="mr-2 animate-spin" /> : null}
                 {isRu ? 'Создать' : 'Create'}
               </Button>
             </div>
@@ -307,7 +307,7 @@ export default function BuilderCoreDatabase({ lang, projectId }: BuilderCoreData
         <div className="rounded-2xl border border-dashed border-border p-10 text-center">
           <Icon name="Database" size={28} className="mx-auto mb-3 text-muted-foreground/40" />
           <p className="text-sm text-muted-foreground mb-4">{isRu ? 'Таблиц пока нет' : 'No tables yet'}</p>
-          <Button size="sm" className="rounded-xl gap-1.5" onClick={() => setCreateOpen(true)}>
+          <Button size="sm" className="rounded-xl gap-2" onClick={() => setCreateOpen(true)}>
             <Icon name="Plus" size={14} /> {isRu ? 'Создать таблицу' : 'Create table'}
           </Button>
         </div>
@@ -320,15 +320,15 @@ export default function BuilderCoreDatabase({ lang, projectId }: BuilderCoreData
                   <Icon name="Table" size={16} />
                 </div>
                 <div className="min-w-0">
-                  <div className="flex items-center gap-1.5 min-w-0">
+                  <div className="flex items-center gap-2 min-w-0">
                     <p className="text-sm font-semibold truncate">{t.label || t.table_name}</p>
                     {t.public_write && (
-                      <span className="shrink-0 inline-flex items-center gap-1 rounded-full bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-[10px] font-medium px-1.5 py-0.5">
+                      <span className="shrink-0 inline-flex items-center gap-1 rounded-full bg-success/10 text-success text-2xs font-medium px-2 py-0.5">
                         <Icon name="Inbox" size={10} /> {isRu ? 'Заявки с проекта' : 'Site leads'}
                       </span>
                     )}
                     {t.public_read && (
-                      <span className="shrink-0 inline-flex items-center gap-1 rounded-full bg-primary/10 text-primary text-[10px] font-medium px-1.5 py-0.5">
+                      <span className="shrink-0 inline-flex items-center gap-1 rounded-full bg-primary/10 text-primary text-2xs font-medium px-2 py-0.5">
                         <Icon name="Globe" size={10} /> {isRu ? 'Каталог проекта' : 'Site catalog'}
                       </span>
                     )}

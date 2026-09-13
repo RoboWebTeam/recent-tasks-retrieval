@@ -78,7 +78,7 @@ export default function BuilderCoreUsers({ lang, projectId }: Props) {
               <p className="text-sm font-semibold truncate">{u.name || (isRu ? 'Без имени' : 'No name')}</p>
               <p className="text-xs text-muted-foreground truncate">{u.email}</p>
             </div>
-            <span className="text-[11px] text-muted-foreground shrink-0">{new Date(u.created_at).toLocaleDateString(isRu ? 'ru' : 'en')}</span>
+            <span className="text-2xs text-muted-foreground shrink-0">{new Date(u.created_at).toLocaleDateString(isRu ? 'ru' : 'en')}</span>
             <button onClick={() => remove(u)} className="shrink-0 grid h-8 w-8 place-items-center rounded-lg hover:bg-destructive/10 text-muted-foreground hover:text-destructive transition-colors">
               <Icon name="Trash2" size={14} />
             </button>

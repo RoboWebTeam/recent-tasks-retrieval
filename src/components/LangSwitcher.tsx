@@ -26,7 +26,7 @@ export default function LangSwitcher({ lang, dark = false, onSwitch }: Props) {
           onClick={() => handleClick(l)}
           aria-pressed={lang === l}
           aria-label={l === 'ru' ? 'Переключить на русский' : 'Switch to English'}
-          className={`min-h-[32px] px-2.5 py-1 rounded-md text-xs font-bold uppercase tracking-wide transition-all ${
+          className={`min-h-[32px] px-3 py-1 rounded-md text-xs font-bold uppercase tracking-wide transition-all ${
             lang === l
               ? dark
                 ? 'bg-white text-black'

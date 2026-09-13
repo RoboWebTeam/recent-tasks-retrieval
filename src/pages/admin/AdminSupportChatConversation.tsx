@@ -7,16 +7,16 @@ function MessageBubble({ m }: { m: SupportMessage }) {
   const isAdmin = m.sender === 'admin';
   return (
     <div className={`flex ${isAdmin ? 'justify-end' : 'justify-start'}`}>
-      <div className={`max-w-[75%] text-sm leading-relaxed px-3.5 py-2.5 ${
+      <div className={`max-w-[75%] text-sm leading-relaxed px-4 py-3 ${
         isAdmin ? 'bg-primary text-white rounded-2xl rounded-br-sm' : 'bg-secondary border border-border text-foreground rounded-2xl rounded-bl-sm'
       }`}>
         {m.file_url && m.file_type === 'image' && (
           <a href={m.file_url} target="_blank" rel="noopener noreferrer">
-            <img src={m.file_url} alt={m.file_name || ''} className="rounded-xl max-w-full max-h-48 mb-1.5 object-cover" />
+            <img src={m.file_url} alt={m.file_name || ''} className="rounded-xl max-w-full max-h-48 mb-2 object-cover" />
           </a>
         )}
         {m.file_url && m.file_type !== 'image' && (
-          <a href={m.file_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-1.5 mb-1.5 underline underline-offset-2">
+          <a href={m.file_url} target="_blank" rel="noopener noreferrer" className="flex items-center gap-2 mb-2 underline underline-offset-2">
             <Icon name="Paperclip" size={13} /> {m.file_name}
           </a>
         )}
@@ -74,7 +74,7 @@ export function AdminSupportChatConversation({
             </div>
             <button
               onClick={onToggleStatus}
-              className={`flex items-center gap-1.5 h-8 px-3 rounded-xl text-xs font-semibold transition-colors shrink-0 ${
+              className={`flex items-center gap-2 h-8 px-3 rounded-xl text-xs font-semibold transition-colors shrink-0 ${
                 activeConv?.status === 'closed'
                   ? 'bg-secondary text-muted-foreground hover:text-foreground'
                   : 'border border-border text-muted-foreground hover:text-foreground hover:bg-secondary'
@@ -87,15 +87,15 @@ export function AdminSupportChatConversation({
 
           {/* Проекты и тариф пользователя */}
           {activeConv?.user_id && (userInfo || userProjects.length > 0) && (
-            <div className="px-4 py-2.5 border-b border-border bg-secondary/30 shrink-0">
+            <div className="px-4 py-3 border-b border-border bg-secondary/30 shrink-0">
               <div className="flex items-center gap-2 flex-wrap text-xs">
                 {userInfo && (
-                  <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 text-primary px-2.5 py-1 font-semibold">
+                  <span className="inline-flex items-center gap-1 rounded-full bg-primary/10 text-primary px-3 py-1 font-semibold">
                     <Icon name="CreditCard" size={11} /> {userInfo.plan}
                   </span>
                 )}
                 {userProjects.map(p => (
-                  <span key={p.id} className="inline-flex items-center gap-1 rounded-full border border-border px-2.5 py-1 text-muted-foreground">
+                  <span key={p.id} className="inline-flex items-center gap-1 rounded-full border border-border px-3 py-1 text-muted-foreground">
                     <Icon name="Layers" size={11} /> {p.title}
                   </span>
                 ))}
@@ -121,7 +121,7 @@ export function AdminSupportChatConversation({
           {showQuickReplies && (
             <div className="border-t border-border bg-secondary/50 p-3 max-h-40 overflow-y-auto">
               <div className="flex items-center justify-between mb-2">
-                <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold">Шаблоны ответов</p>
+                <p className="text-2xs text-muted-foreground uppercase tracking-widest font-semibold">Шаблоны ответов</p>
                 <button onClick={onOpenManageReplies} className="text-xs text-primary hover:underline">Управлять</button>
               </div>
               {quickReplies.length === 0 ? (
@@ -130,7 +130,7 @@ export function AdminSupportChatConversation({
                 <div className="space-y-1">
                   {quickReplies.map(r => (
                     <button key={r.id} onClick={() => onSendReply(r.text)}
-                      className="w-full text-left text-xs px-2.5 py-2 rounded-xl bg-card border border-border hover:border-primary/40 transition-all">
+                      className="w-full text-left text-xs px-3 py-2 rounded-xl bg-card border border-border hover:border-primary/40 transition-all">
                       <span className="font-semibold text-foreground">{r.title}</span>
                       <p className="text-muted-foreground truncate mt-0.5">{r.text}</p>
                     </button>

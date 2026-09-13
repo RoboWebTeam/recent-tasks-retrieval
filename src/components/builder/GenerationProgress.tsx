@@ -46,8 +46,8 @@ export default function GenerationProgress({ lang, isEdit, liveStatus }: Props) 
   const label = liveStatus || (lang === 'ru' ? 'Работаю, минуту…' : 'Working on it, one minute…');
 
   return (
-    <div className="flex items-center gap-1.5 py-0.5">
-      <span className="text-muted-foreground text-[14px] transition-opacity duration-300">
+    <div className="flex items-center gap-2 py-0.5">
+      <span className="text-muted-foreground text-sm transition-opacity duration-300">
         {label}
       </span>
       <span className="flex gap-1">

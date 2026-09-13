@@ -98,7 +98,7 @@ export default function ParticlesBg() {
   return (
     <canvas
       ref={canvasRef}
-      className="absolute inset-0 w-full h-full -z-10 pointer-events-none"
+      className="absolute inset-0 w-full h-full z-behind pointer-events-none"
     />
   );
 }

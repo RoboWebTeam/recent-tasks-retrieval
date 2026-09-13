@@ -76,7 +76,7 @@ const Register = () => {
 
   const strength = password.length === 0 ? 0 : password.length < 6 ? 1 : password.length < 10 ? 2 : 3;
   const strengthLabel = ['', tr('passwordWeak', lang), tr('passwordMedium', lang), tr('passwordStrong', lang)][strength];
-  const strengthColor = ['', 'bg-rose-400', 'bg-amber-400', 'bg-emerald-400'][strength];
+  const strengthColor = ['', 'bg-destructive', 'bg-warning', 'bg-success'][strength];
 
   const features = lang === 'ru'
     ? [{ icon: 'Zap', label: 'В 30 раз быстрее' }, { icon: 'Wallet', label: 'Бесплатный старт' }, { icon: 'Globe', label: 'SSL + хостинг' }, { icon: 'HeadphonesIcon', label: 'Поддержка 24/7' }]
@@ -106,7 +106,7 @@ const Register = () => {
                 ? ['Команда агентов 24/7', 'Код в GitHub / GitFlic', 'Первый проект бесплатно']
                 : ['Agent team 24/7', 'Code in GitHub / GitFlic', 'First project free']
               ).map(c => (
-                <span key={c} className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
+                <span key={c} className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-1 text-2xs font-medium text-muted-foreground">
                   <Icon name="Check" size={12} className="text-primary" />{c}
                 </span>
               ))}
@@ -115,7 +115,7 @@ const Register = () => {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="text-sm font-medium mb-1.5 block">{tr('yourName', lang)}</label>
+              <label className="text-sm font-medium mb-2 block">{tr('yourName', lang)}</label>
               <Input
                 type="text"
                 placeholder={tr('namePlaceholder', lang)}
@@ -127,7 +127,7 @@ const Register = () => {
               />
             </div>
             <div>
-              <label className="text-sm font-medium mb-1.5 block">{tr('email', lang)}</label>
+              <label className="text-sm font-medium mb-2 block">{tr('email', lang)}</label>
               <Input
                 type="email"
                 placeholder={tr('emailPlaceholder', lang)}
@@ -138,7 +138,7 @@ const Register = () => {
               />
             </div>
             <div>
-              <label className="text-sm font-medium mb-1.5 block">{tr('password', lang)}</label>
+              <label className="text-sm font-medium mb-2 block">{tr('password', lang)}</label>
               <div className="relative">
                 <Input
                   type={showPass ? 'text' : 'password'}
@@ -163,7 +163,7 @@ const Register = () => {
                       <div key={s} className={`h-1 flex-1 rounded-full transition-all duration-300 ${strength >= s ? strengthColor : 'bg-border'}`} />
                     ))}
                   </div>
-                  <p className={`text-xs font-medium ${strength === 1 ? 'text-rose-500' : strength === 2 ? 'text-amber-500' : 'text-emerald-600'}`}>
+                  <p className={`text-xs font-medium ${strength === 1 ? 'text-destructive' : strength === 2 ? 'text-warning' : 'text-success'}`}>
                     {strengthLabel}
                   </p>
                 </div>
@@ -171,13 +171,13 @@ const Register = () => {
             </div>
 
             {error && (
-              <div className="flex items-start gap-2 text-sm text-destructive bg-destructive/10 rounded-xl px-3 py-2.5">
+              <div className="flex items-start gap-2 text-sm text-destructive bg-destructive/10 rounded-xl px-3 py-3">
                 <Icon name="AlertCircle" size={15} className="shrink-0 mt-0.5" />
                 <span className="break-all">{error}</span>
               </div>
             )}
 
-            <label className="flex items-start gap-2.5 text-xs text-muted-foreground cursor-pointer select-none">
+            <label className="flex items-start gap-3 text-xs text-muted-foreground cursor-pointer select-none">
               <input
                 type="checkbox"
                 checked={agreed}
@@ -201,9 +201,9 @@ const Register = () => {
             <Button type="submit" className="w-full h-11 rounded-xl font-semibold shadow-lg shadow-primary/20 glow-hover" disabled={loading || !agreed}>
               {loading
                 ? <><Icon name="Loader" size={16} className="mr-2 animate-spin" />{tr('creatingAccount', lang)}</>
-                : <><Icon name="Sparkles" size={15} className="mr-1.5" />{tr('createAccount', lang)}</>}
+                : <><Icon name="Sparkles" size={15} className="mr-2" />{tr('createAccount', lang)}</>}
             </Button>
-            <p className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
+            <p className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
               <Icon name="Check" size={13} className="text-primary shrink-0" />
               {lang === 'ru' ? 'Первый проект бесплатно · карта не нужна · код остаётся у вас' : 'First project free · no card · the code stays yours'}
             </p>

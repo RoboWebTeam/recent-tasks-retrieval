@@ -106,8 +106,8 @@ export default function BuilderCoreStorage({ lang, projectId, onUseInChat, onFil
           <h3 className="font-bold text-base">{isRu ? 'Хранилище файлов' : 'File storage'}</h3>
           <p className="text-xs text-muted-foreground mt-0.5">{isRu ? 'Изображения, HTML и ZIP для этого проекта' : 'Images, HTML and ZIP for this project'}</p>
         </div>
-        <div className="flex items-center gap-1.5 shrink-0">
-          <Button size="sm" className="rounded-xl gap-1.5" onClick={handleUploadClick} disabled={uploading}>
+        <div className="flex items-center gap-2 shrink-0">
+          <Button size="sm" className="rounded-xl gap-2" onClick={handleUploadClick} disabled={uploading}>
             {uploading ? <Icon name="Loader" size={14} className="animate-spin" /> : <Icon name="Upload" size={14} />}
             {isRu ? 'Загрузить' : 'Upload'}
           </Button>
@@ -125,7 +125,7 @@ export default function BuilderCoreStorage({ lang, projectId, onUseInChat, onFil
         <div className="rounded-2xl border border-dashed border-border p-10 text-center">
           <Icon name="FolderOpen" size={28} className="mx-auto mb-3 text-muted-foreground/40" />
           <p className="text-sm text-muted-foreground mb-4">{isRu ? 'Файлов пока нет' : 'No files yet'}</p>
-          <Button size="sm" className="rounded-xl gap-1.5" onClick={handleUploadClick}>
+          <Button size="sm" className="rounded-xl gap-2" onClick={handleUploadClick}>
             <Icon name="Upload" size={14} /> {isRu ? 'Загрузить файл' : 'Upload file'}
           </Button>
         </div>
@@ -145,15 +145,15 @@ export default function BuilderCoreStorage({ lang, projectId, onUseInChat, onFil
                   )}
                 </div>
               ) : (
-                <div className={`grid h-9 w-9 place-items-center rounded-xl shrink-0 ${f.file_type === 'zip' ? 'bg-amber-500/15 text-amber-600 dark:text-amber-400' : 'bg-primary/10 text-primary'}`}>
+                <div className={`grid h-9 w-9 place-items-center rounded-xl shrink-0 ${f.file_type === 'zip' ? 'bg-warning/15 text-warning' : 'bg-primary/10 text-primary'}`}>
                   <Icon name={f.file_type === 'zip' ? 'FileArchive' : 'FileCode'} size={16} />
                 </div>
               )}
               <div className="min-w-0 flex-1">
-                <p className="text-sm font-medium truncate flex items-center gap-1.5">
+                <p className="text-sm font-medium truncate flex items-center gap-2">
                   {f.file_name}
                   {isAiImage && (
-                    <span className="shrink-0 text-[9px] font-bold uppercase tracking-wide bg-primary/10 text-primary px-1.5 py-0.5 rounded-full">AI</span>
+                    <span className="shrink-0 text-3xs font-bold uppercase tracking-wide bg-primary/10 text-primary px-2 py-0.5 rounded-full">AI</span>
                   )}
                 </p>
                 <p className="text-xs text-muted-foreground">{formatSize(f.file_size)} · {new Date(f.created_at).toLocaleDateString(isRu ? 'ru-RU' : 'en-US')}</p>

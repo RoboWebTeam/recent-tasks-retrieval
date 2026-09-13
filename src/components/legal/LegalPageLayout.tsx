@@ -18,7 +18,7 @@ export default function LegalPageLayout({ title, updatedAt, children }: LegalPag
 
   return (
     <div className="min-h-screen bg-background overflow-x-hidden">
-      <header className="sticky top-0 z-50 border-b border-border bg-background/80 backdrop-blur-xl">
+      <header className="sticky top-0 z-sticky border-b border-border bg-background/80 backdrop-blur-xl">
         <div className="container flex h-14 sm:h-16 items-center justify-between">
           <Link to="/" className="flex items-center gap-2 font-display font-bold text-lg sm:text-xl text-primary">
             <LogoMark size={32} />

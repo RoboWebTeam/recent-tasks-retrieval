@@ -176,7 +176,7 @@ export default function BuilderDomainModal({ open, onOpenChange, lang, projectId
         <DialogContent className="rounded-3xl max-w-xl p-0 gap-0 overflow-hidden max-h-[85vh] flex flex-col">
           {/* Header */}
           <DialogHeader className="shrink-0 px-4 sm:px-6 pt-5 sm:pt-6 pb-4 border-b border-border">
-            <DialogTitle className="font-bold text-base sm:text-lg flex items-center gap-2.5">
+            <DialogTitle className="font-bold text-base sm:text-lg flex items-center gap-3">
               <span className="grid h-9 w-9 place-items-center rounded-xl bg-primary/10 text-primary shrink-0">
                 <Icon name="Globe" size={18} />
               </span>
@@ -209,20 +209,20 @@ export default function BuilderDomainModal({ open, onOpenChange, lang, projectId
                 </Button>
               </div>
               {newDomainError && (
-                <p className="text-sm text-destructive flex items-center gap-1.5 mt-2">
+                <p className="text-sm text-destructive flex items-center gap-2 mt-2">
                   <Icon name="AlertCircle" size={14} /> {newDomainError}
                 </p>
               )}
             </div>
 
             {/* Компактная строка преимуществ */}
-            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-xl bg-secondary/40 px-3.5 py-2.5">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-2 rounded-xl bg-secondary/40 px-4 py-3">
               {[
                 { icon: 'Shield', label: isRu ? 'SSL бесплатно' : 'Free SSL' },
                 { icon: 'Zap', label: isRu ? 'CDN и кэш' : 'CDN & cache' },
                 { icon: 'Search', label: isRu ? 'Лучше для SEO' : 'Better for SEO' },
               ].map(item => (
-                <span key={item.label} className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+                <span key={item.label} className="flex items-center gap-2 text-xs font-medium text-muted-foreground">
                   <Icon name={item.icon} size={13} className="text-primary" />
                   {item.label}
                 </span>
@@ -277,7 +277,7 @@ export default function BuilderDomainModal({ open, onOpenChange, lang, projectId
             <Link
               to="/settings/domain"
               onClick={() => onOpenChange(false)}
-              className="flex items-center justify-center gap-1.5 text-xs font-medium text-muted-foreground hover:text-primary transition-colors"
+              className="flex items-center justify-center gap-2 text-xs font-medium text-muted-foreground hover:text-primary transition-colors"
             >
               {isRu ? 'Открыть полные настройки доменов' : 'Open full domain settings'}
               <Icon name="ArrowRight" size={12} />

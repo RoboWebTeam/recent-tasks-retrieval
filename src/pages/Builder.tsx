@@ -18,6 +18,7 @@ import BuilderStartScreen from '@/components/builder/BuilderStartScreen';
 import BuilderShowcase from '@/components/builder/BuilderShowcase';
 import { PRODUCT_TYPES, type ProductType } from '@/components/builder/builderTemplates';
 import { trackGoal, GOALS } from '@/lib/analytics';
+import { useModalA11y } from '@/hooks/useModalA11y';
 import { apiUrl } from '@/lib/apiConfig';
 
 const GENERATE_URL = apiUrl('generate-site');
@@ -305,6 +306,8 @@ export default function Builder() {
   const [productType, setProductType] = useState<ProductType | ''>('');
   const [showStyleMenu, setShowStyleMenu] = useState(false);
   const [showProductMenu, setShowProductMenu] = useState(false);
+  // Самодельное окно публикации: клавиатура и возврат фокуса, как у окон на Radix.
+  const publishModalRef = useModalA11y(showPublishModal, () => setShowPublishModal(false));
   const [dismissedStyleHint, setDismissedStyleHint] = useState(false);
   // Выбор AI-модели редактора: 'sonnet' (Claude Sonnet 5, по умолчанию) или 'opus' (Claude Opus 4.8).
   // Сохраняем в localStorage, чтобы выбор запоминался между сессиями.
@@ -1429,7 +1432,7 @@ export default function Builder() {
     <div className={`flex flex-col h-screen bg-background overflow-hidden ${builderTheme === 'dark' ? 'dark' : ''}`}>
 
       {/* TOP BAR — стекло с градиентной волосяной линией, как навигация лендинга */}
-      <header className="relative flex items-center justify-between gap-2 px-3 sm:px-4 h-14 border-b border-border shrink-0 bg-card/85 backdrop-blur-xl z-20">
+      <header className="relative flex items-center justify-between gap-2 px-3 sm:px-4 h-14 border-b border-border shrink-0 bg-card/85 backdrop-blur-xl z-sticky">
         <span
           aria-hidden
           className="pointer-events-none absolute inset-x-0 -bottom-px h-px bg-gradient-to-r from-transparent via-primary/45 to-transparent"
@@ -1449,7 +1452,7 @@ export default function Builder() {
             <span className="text-foreground hidden sm:block">Roboweb</span>
           </Link>
           {projectId && (
-            <span className="hidden sm:flex items-center gap-1.5 text-xs text-muted-foreground bg-secondary rounded-xl px-2.5 py-1.5 border border-border">
+            <span className="hidden sm:flex items-center gap-2 text-xs text-muted-foreground bg-secondary rounded-xl px-3 py-2 border border-border">
               <Icon name="Layers" size={11} />
               #{projectId}
             </span>
@@ -1458,7 +1461,7 @@ export default function Builder() {
             <Link
               to="/dashboard?tab=plan"
               title={lang === 'ru' ? `Осталось ${remaining} запросов. Нажмите, чтобы пополнить энергию` : `${remaining} requests left. Click to top up energy`}
-              className={`hidden sm:flex items-center gap-1 text-xs font-semibold rounded-xl px-2 py-1 shrink-0 whitespace-nowrap transition-colors ${remaining <= 0 ? 'bg-destructive/10 text-destructive' : 'bg-amber-500/10 text-amber-600 dark:text-amber-400 hover:bg-amber-500/20'}`}
+              className={`hidden sm:flex items-center gap-1 text-xs font-semibold rounded-xl px-2 py-1 shrink-0 whitespace-nowrap transition-colors ${remaining <= 0 ? 'bg-destructive/10 text-destructive' : 'bg-warning/10 text-warning hover:bg-warning/20'}`}
             >
               <Icon name="Zap" size={11} className="shrink-0" />
               {remaining}
@@ -1466,7 +1469,7 @@ export default function Builder() {
           )}
         </div>
 
-        <div className="flex items-center gap-1 sm:gap-1.5 shrink-0">
+        <div className="flex items-center gap-1 sm:gap-2 shrink-0">
           {/* Device switcher */}
           <div className="hidden lg:flex items-center gap-0.5 bg-secondary rounded-xl p-1 border border-border">
             {([
@@ -1487,7 +1490,7 @@ export default function Builder() {
             {([['preview', 'Eye', tr('builderPreview', lang)], ['code', 'Code', tr('builderCode', lang)], ['core', 'Database', lang === 'ru' ? 'Ядро' : 'Core']] as const).map(([tab, icon, label]) => (
               <button key={tab} onClick={() => { setRightTab(tab); if (tab === 'code') setCodeEditorValue(html); }}
                 title={label}
-                className={`flex items-center gap-1.5 h-7 px-2 sm:px-2.5 rounded-md text-xs font-medium transition-all ${rightTab === tab ? 'bg-card text-foreground border border-border shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-secondary/70'}`}>
+                className={`flex items-center gap-2 h-7 px-2 sm:px-3 rounded-md text-xs font-medium transition-all ${rightTab === tab ? 'bg-card text-foreground border border-border shadow-sm' : 'text-muted-foreground hover:text-foreground hover:bg-secondary/70'}`}>
                 <Icon name={icon} size={13} />
                 <span className="hidden lg:inline">{label}</span>
               </button>
@@ -1501,26 +1504,26 @@ export default function Builder() {
             <div className="relative">
               <button
                 onClick={() => setShowVersions(v => !v)}
-                className="flex items-center gap-1.5 h-8 px-2.5 rounded-xl text-xs font-medium border border-border bg-secondary hover:bg-secondary/70 hover:text-foreground transition-colors text-muted-foreground"
+                className="flex items-center gap-2 h-8 px-3 rounded-xl text-xs font-medium border border-border bg-secondary hover:bg-secondary/70 hover:text-foreground transition-colors text-muted-foreground"
                 title={lang === 'ru' ? 'История версий' : 'Version history'}
               >
                 <Icon name="History" size={13} />
                 <span className="hidden sm:inline">{versions.length}</span>
               </button>
               {showVersions && (
-                <div className="absolute right-0 top-10 z-50 w-72 max-w-[calc(100vw-2rem)] bg-card border border-border rounded-xl shadow-2xl p-2">
-                  <div className="text-[10px] font-semibold text-muted-foreground uppercase tracking-widest px-2 py-1.5 mb-1">
+                <div className="absolute right-0 top-10 z-dropdown w-72 max-w-[calc(100vw-2rem)] bg-card border border-border rounded-xl shadow-2xl p-2">
+                  <div className="text-2xs font-semibold text-muted-foreground uppercase tracking-widest px-2 py-2 mb-1">
                     {lang === 'ru' ? 'История версий' : 'Version history'}
                   </div>
                   {versions.map((v, i) => (
                     <button key={v.ts} onClick={() => restoreVersion(v)}
-                      className="w-full flex items-start gap-2 px-2.5 py-2 rounded-lg hover:bg-secondary transition-colors text-left group">
+                      className="w-full flex items-start gap-2 px-3 py-2 rounded-lg hover:bg-secondary transition-colors text-left group">
                       <div className="grid h-5 w-5 place-items-center rounded-full bg-primary/10 text-primary shrink-0 mt-0.5 text-xs font-bold">
                         {versions.length - i}
                       </div>
                       <div className="min-w-0 flex-1">
                         <div className="text-xs font-medium text-foreground truncate">{v.label}</div>
-                        <div className="text-[10px] text-muted-foreground mt-0.5">
+                        <div className="text-2xs text-muted-foreground mt-0.5">
                           {new Date(v.ts).toLocaleTimeString(lang === 'ru' ? 'ru' : 'en', { hour: '2-digit', minute: '2-digit' })}
                         </div>
                       </div>
@@ -1561,8 +1564,8 @@ export default function Builder() {
             </button>
             {showActionsMenu && (
               <>
-                <div className="fixed inset-0 z-40" onClick={() => setShowActionsMenu(false)} />
-                <div className="absolute right-0 top-10 z-50 w-60 bg-card border border-border rounded-xl shadow-2xl p-1.5">
+                <div className="fixed inset-0 z-sticky" onClick={() => setShowActionsMenu(false)} />
+                <div className="absolute right-0 top-10 z-dropdown w-60 bg-card border border-border rounded-xl shadow-2xl p-2">
                   {([
                     html ? { key: 'refresh', icon: 'RefreshCw', label: lang === 'ru' ? 'Обновить превью' : 'Refresh preview', onClick: () => setIframeKey(k => k + 1) } : null,
                     html ? { key: 'open', icon: 'ExternalLink', label: lang === 'ru' ? 'Открыть в новой вкладке' : 'Open in new tab', onClick: openInNewTab } : null,
@@ -1573,7 +1576,7 @@ export default function Builder() {
                     { key: 'domain', icon: 'Link', label: lang === 'ru' ? 'Подключить домен' : 'Connect domain', onClick: () => setShowDomainModal(true) },
                   ].filter(Boolean) as { key: string; icon: string; label: string; onClick: () => void; disabled?: boolean; spin?: boolean }[]).map(a => (
                     <button key={a.key} onClick={() => { a.onClick(); if (a.key !== 'store' && a.key !== 'exportcode' && a.key !== 'exportgh') setShowActionsMenu(false); }} disabled={a.disabled}
-                      className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-lg hover:bg-secondary transition-colors text-left text-[13px] font-medium text-foreground disabled:opacity-40 disabled:cursor-not-allowed">
+                      className="w-full flex items-center gap-3 px-3 py-2 rounded-lg hover:bg-secondary transition-colors text-left text-xs font-medium text-foreground disabled:opacity-40 disabled:cursor-not-allowed">
                       <Icon name={a.icon} size={15} className={`text-muted-foreground shrink-0 ${a.spin ? 'animate-spin' : ''}`} />
                       {a.label}
                     </button>
@@ -1583,7 +1586,7 @@ export default function Builder() {
             )}
           </div>
 
-          <Button size="sm" disabled={!html || publishing || !projectId} onClick={publishedSlug ? () => setShowPublishModal(true) : handlePublish} className="h-8 rounded-xl text-xs px-3 gap-1.5 shrink-0 font-semibold glow-hover shadow-md shadow-primary/30 hover:shadow-lg hover:shadow-primary/45 transition-shadow">
+          <Button size="sm" disabled={!html || publishing || !projectId} onClick={publishedSlug ? () => setShowPublishModal(true) : handlePublish} className="h-8 rounded-xl text-xs px-3 gap-2 shrink-0 font-semibold glow-hover shadow-md shadow-primary/30 hover:shadow-lg hover:shadow-primary/45 transition-shadow">
             <Icon name={publishing ? 'Loader' : publishedSlug ? 'CheckCircle' : 'Globe'} size={13} className={publishing ? 'animate-spin' : ''} />
             <span className="hidden md:inline">
               {publishing ? (lang === 'ru' ? 'Публикуем…' : 'Publishing…') : publishedSlug ? (lang === 'ru' ? 'Опубликовано' : 'Published') : tr('builderPublish', lang)}
@@ -1604,7 +1607,7 @@ export default function Builder() {
       <div className="flex flex-1 overflow-hidden relative">
         {/* Прозрачный оверлей поверх iframe во время ресайза чата — без него mousemove/mouseup
             "тонут" внутри iframe (у него свой контекст событий) и перетаскивание залипает. */}
-        {isResizingChat && <div className="fixed inset-0 z-[9999] cursor-col-resize" />}
+        {isResizingChat && <div className="fixed inset-0 z-shield cursor-col-resize" />}
 
         {/* LEFT — CHAT */}
         {sidebarOpen && (
@@ -1614,24 +1617,24 @@ export default function Builder() {
           >
 
             {/* Chat header — амбиентное свечение и подпись как на лендинге */}
-            <div className="relative flex items-center gap-2.5 px-4 py-3 border-b border-border shrink-0 bg-gradient-to-b from-primary/[0.07] to-background overflow-hidden">
+            <div className="relative flex items-center gap-3 px-4 py-3 border-b border-border shrink-0 bg-gradient-to-b from-primary/[0.07] to-background overflow-hidden">
               <span
                 aria-hidden
                 className="pointer-events-none absolute -top-12 left-6 h-24 w-24 rounded-full bg-primary/25 blur-3xl breathe"
               />
               <div className="relative grid h-9 w-9 place-items-center rounded-xl bg-gradient-to-br from-primary to-[hsl(258,76%,64%)] text-primary-foreground shrink-0 shadow-lg shadow-primary/30">
                 <RoboMark size={17} className="text-white [&_path]:fill-current [&_rect]:fill-current" />
-                <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-emerald-500 border-2 border-background at-dot" />
+                <span className="absolute -top-0.5 -right-0.5 h-2.5 w-2.5 rounded-full bg-success border-2 border-background at-dot" />
               </div>
               <div className="relative flex-1 min-w-0">
                 <div className="font-display text-sm font-bold text-foreground">
                   {lang === 'ru' ? 'Команда разработки' : 'Your dev team'}
                 </div>
                 <div className="flex items-center gap-2 mt-0.5">
-                  <span className="text-[11px] text-muted-foreground font-medium">
+                  <span className="text-2xs text-muted-foreground font-medium">
                     {loading
                       ? (lang === 'ru' ? 'работаю над проектом…' : 'working on your site…')
-                      : (<><span className="text-emerald-500">●</span> {lang === 'ru' ? 'на связи, готов помочь' : 'online, ready to help'}</>)}
+                      : (<><span className="text-success">●</span> {lang === 'ru' ? 'на связи, готов помочь' : 'online, ready to help'}</>)}
                   </span>
                 </div>
               </div>
@@ -1656,7 +1659,7 @@ export default function Builder() {
               {messages.length === 0 ? (
                 <div className="pt-2">
                   {showEnergyBonus && (
-                    <div className="flex items-start gap-2.5 bg-primary/10 border border-primary/20 rounded-xl px-3.5 py-3 mb-5 text-left">
+                    <div className="flex items-start gap-3 bg-primary/10 border border-primary/20 rounded-xl px-4 py-3 mb-5 text-left">
                       <Icon name="Gift" size={16} className="text-primary shrink-0 mt-0.5" />
                       <div className="flex-1">
                         <p className="text-sm font-semibold text-foreground">
@@ -1677,7 +1680,7 @@ export default function Builder() {
                   {html ? (
                     // Проект уже есть, а переписки нет (открыт заново после выхода) — предлагать
                     // шаблоны здесь неуместно, поэтому короткое приглашение к доработке.
-                    <div className="text-[14px] leading-[1.6] text-foreground">
+                    <div className="text-sm leading-relaxed text-foreground">
                       <Typewriter text={WELCOME_BACK_MESSAGE(lang)} />
                     </div>
                   ) : (
@@ -1700,7 +1703,7 @@ export default function Builder() {
                   if (m.role === 'user') {
                     return (
                       <div key={i} className="flex justify-start">
-                        <div className="bg-secondary/70 rounded-2xl px-3.5 py-2.5 text-[14px] leading-[1.6] text-foreground max-w-full whitespace-pre-wrap break-words">
+                        <div className="bg-secondary/70 rounded-2xl px-4 py-3 text-sm leading-relaxed text-foreground max-w-full whitespace-pre-wrap break-words">
                           {m.content}
                         </div>
                       </div>
@@ -1714,9 +1717,9 @@ export default function Builder() {
                     return (
                       <div key={i}>
                         <button onClick={() => setMessages(prev => prev.map((x, idx) => idx === i ? { ...x, collapsed: !collapsed } : x))}
-                          className="group flex items-center gap-2 rounded-md px-1.5 py-1 -mx-1.5 hover:bg-secondary/60 transition-colors text-muted-foreground w-full text-left">
+                          className="group flex items-center gap-2 rounded-md px-2 py-1 -mx-2 hover:bg-secondary/60 transition-colors text-muted-foreground w-full text-left">
                           <Icon name={collapsed ? 'ChevronRight' : 'ChevronDown'} fallback="ChevronRight" size={14} className="shrink-0" />
-                          <span className="text-[14px]">{n} {lang === 'ru' ? (n % 10 === 1 && n % 100 !== 11 ? 'шаг сборки' : 'шагов сборки') : 'build steps'}</span>
+                          <span className="text-sm">{n} {lang === 'ru' ? (n % 10 === 1 && n % 100 !== 11 ? 'шаг сборки' : 'шагов сборки') : 'build steps'}</span>
                         </button>
                         {!collapsed && (
                           <div className="mt-0.5 space-y-0.5">
@@ -1751,7 +1754,7 @@ export default function Builder() {
 
                   // План — короткая проза-нарратор
                   if (m.kind === 'plan') {
-                    return <p key={i} className="text-[14px] leading-[1.6] text-foreground animate-fade-in">{m.content}</p>;
+                    return <p key={i} className="text-sm leading-relaxed text-foreground animate-fade-in">{m.content}</p>;
                   }
 
                   // Ассистент в процессе (пустой ответ) — индикатор генерации
@@ -1762,7 +1765,7 @@ export default function Builder() {
                   // Уточняющий вопрос
                   if (m.isQuestion) {
                     return (
-                      <div key={i} className="flex items-start gap-2 bg-secondary/60 border border-border rounded-xl px-3 py-2.5 text-[14px] leading-[1.6] text-foreground">
+                      <div key={i} className="flex items-start gap-2 bg-secondary/60 border border-border rounded-xl px-3 py-3 text-sm leading-relaxed text-foreground">
                         <Icon name="HelpCircle" size={16} className="text-primary shrink-0 mt-0.5" />
                         <span>{m.content}</span>
                       </div>
@@ -1798,7 +1801,7 @@ export default function Builder() {
               {loading && (
                 <div className="flex items-center gap-2 pt-1 text-muted-foreground animate-fade-in">
                   <Icon name="Sparkles" size={12} className="text-primary shrink-0 animate-pulse" />
-                  <span className="text-[14px]">
+                  <span className="text-sm">
                     {lang === 'ru' ? 'Работаю, минуту…' : 'Working on it, one minute…'}
                   </span>
                 </div>
@@ -1809,13 +1812,13 @@ export default function Builder() {
             {/* Quick edits panel */}
             {showQuickEdits && html && (
               <div className="border-t border-border bg-secondary/50 p-3 max-h-[45vh] overflow-y-auto">
-                <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold mb-2">
+                <p className="text-2xs text-muted-foreground uppercase tracking-widest font-semibold mb-2">
                   {lang === 'ru' ? 'Быстрые правки' : 'Quick edits'}
                 </p>
-                <div className="grid grid-cols-2 gap-1.5">
+                <div className="grid grid-cols-2 gap-2">
                   {QUICK_EDITS.map(e => (
                     <button key={e.label} onClick={() => sendMessage(e.prompt)}
-                      className="flex items-center gap-1.5 px-2 sm:px-2.5 py-2 rounded-xl bg-secondary border border-border text-[11px] sm:text-xs text-muted-foreground hover:text-foreground hover:bg-secondary/70 hover:border-border transition-all text-left">
+                      className="flex items-center gap-2 px-2 sm:px-3 py-2 rounded-xl bg-secondary border border-border text-2xs sm:text-xs text-muted-foreground hover:text-foreground hover:bg-secondary/70 hover:border-border transition-all text-left">
                       <Icon name={e.icon} size={12} className="text-primary shrink-0" />
                       {e.label}
                     </button>
@@ -1828,27 +1831,27 @@ export default function Builder() {
             {showSectionLibrary && html && (
               <div className="border-t border-border bg-secondary/50 p-3 max-h-[45vh] overflow-y-auto">
                 {/* Возможности идут первыми: именно они превращают страницу в рабочий продукт */}
-                <p className="text-[10px] text-primary uppercase tracking-widest font-semibold mb-2 flex items-center gap-1.5">
+                <p className="text-2xs text-primary uppercase tracking-widest font-semibold mb-2 flex items-center gap-2">
                   <Icon name="Zap" size={11} />
                   {lang === 'ru' ? 'Добавить возможность' : 'Add capability'}
                 </p>
-                <div className="grid grid-cols-2 gap-1.5">
+                <div className="grid grid-cols-2 gap-2">
                   {SECTION_LIBRARY.filter(e => e.power).map(e => (
                     <button key={e.label} onClick={() => { sendMessage(e.prompt); setShowSectionLibrary(false); }}
-                      className="flex items-center gap-1.5 px-2 sm:px-2.5 py-2 rounded-xl bg-primary/[0.07] border border-primary/25 text-[11px] sm:text-xs font-medium text-foreground hover:bg-primary/15 hover:border-primary/50 transition-all text-left">
+                      className="flex items-center gap-2 px-2 sm:px-3 py-2 rounded-xl bg-primary/[0.07] border border-primary/25 text-2xs sm:text-xs font-medium text-foreground hover:bg-primary/15 hover:border-primary/50 transition-all text-left">
                       <Icon name={e.icon} fallback="Square" size={12} className="text-primary shrink-0" />
                       {e.label}
                     </button>
                   ))}
                 </div>
 
-                <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold mb-2 mt-4">
+                <p className="text-2xs text-muted-foreground uppercase tracking-widest font-semibold mb-2 mt-4">
                   {lang === 'ru' ? 'Добавить секцию' : 'Add section'}
                 </p>
-                <div className="grid grid-cols-2 gap-1.5">
+                <div className="grid grid-cols-2 gap-2">
                   {SECTION_LIBRARY.filter(e => !e.power).map(e => (
                     <button key={e.label} onClick={() => { sendMessage(e.prompt); setShowSectionLibrary(false); }}
-                      className="flex items-center gap-1.5 px-2 sm:px-2.5 py-2 rounded-xl bg-secondary border border-border text-[11px] sm:text-xs text-muted-foreground hover:text-primary hover:border-primary transition-all text-left">
+                      className="flex items-center gap-2 px-2 sm:px-3 py-2 rounded-xl bg-secondary border border-border text-2xs sm:text-xs text-muted-foreground hover:text-primary hover:border-primary transition-all text-left">
                       <Icon name={e.icon} fallback="Square" size={12} className="text-primary shrink-0" />
                       {e.label}
                     </button>
@@ -1859,8 +1862,8 @@ export default function Builder() {
 
             {/* Low balance / quota banner */}
             {remaining !== null && remaining <= LOW_BALANCE_THRESHOLD && (
-              <div className={`mx-3 mt-3 rounded-xl px-3 py-2.5 flex items-start gap-2 text-xs ${
-                remaining <= 0 ? 'bg-destructive/10 text-destructive' : 'bg-amber-500/10 text-amber-700 dark:text-amber-400'
+              <div className={`mx-3 mt-3 rounded-xl px-3 py-3 flex items-start gap-2 text-xs ${
+                remaining <= 0 ? 'bg-destructive/10 text-destructive' : 'bg-warning/10 text-warning'
               }`}>
                 <Icon name={remaining <= 0 ? 'AlertCircle' : 'Zap'} size={14} className="shrink-0 mt-0.5" />
                 <div className="flex-1">
@@ -1881,7 +1884,7 @@ export default function Builder() {
 
             {/* Умное уточнение: предложить выбрать стиль дизайна для нового проекта */}
             {showStyleHint && (
-              <div className="mx-3 mt-3 rounded-xl px-3 py-2.5 bg-secondary border border-border">
+              <div className="mx-3 mt-3 rounded-xl px-3 py-3 bg-secondary border border-border">
                 <div className="flex items-center gap-2 mb-2">
                   <Icon name="Palette" size={14} className="text-primary shrink-0" />
                   <p className="flex-1 text-xs text-foreground font-medium">
@@ -1891,7 +1894,7 @@ export default function Builder() {
                     <Icon name="X" size={13} />
                   </button>
                 </div>
-                <div className="flex flex-wrap gap-1.5">
+                <div className="flex flex-wrap gap-2">
                   {[
                     { id: 'minimal' as const, label: lang === 'ru' ? 'Минимализм' : 'Minimal' },
                     { id: 'premium' as const, label: lang === 'ru' ? 'Премиум' : 'Premium' },
@@ -1900,13 +1903,13 @@ export default function Builder() {
                   ].map(s => (
                     <button key={s.id}
                       onClick={() => { setSiteStyle(s.id); setDismissedStyleHint(true); }}
-                      className="text-xs font-medium px-2.5 py-1.5 rounded-lg bg-background border border-border hover:border-primary hover:text-primary transition-colors">
+                      className="text-xs font-medium px-3 py-2 rounded-lg bg-background border border-border hover:border-primary hover:text-primary transition-colors">
                       {s.label}
                     </button>
                   ))}
                   <button
                     onClick={() => setDismissedStyleHint(true)}
-                    className="text-xs font-medium px-2.5 py-1.5 rounded-lg text-muted-foreground hover:text-foreground transition-colors">
+                    className="text-xs font-medium px-3 py-2 rounded-lg text-muted-foreground hover:text-foreground transition-colors">
                     {lang === 'ru' ? 'Пусть решит ИИ' : 'Let AI decide'}
                   </button>
                 </div>
@@ -1917,12 +1920,12 @@ export default function Builder() {
             <div className="p-3 border-t border-border bg-background">
               {/* Прикреплённое изображение */}
               {attachedImage && (
-                <div className="flex items-center gap-2 mb-2 px-2 py-1.5 bg-secondary border border-border rounded-xl">
+                <div className="flex items-center gap-2 mb-2 px-2 py-2 bg-secondary border border-border rounded-xl">
                   <img src={attachedImage.url} alt="" className="h-8 w-8 rounded-lg object-cover shrink-0" />
-                  <span className="text-[11px] text-muted-foreground flex-1 truncate">
+                  <span className="text-2xs text-muted-foreground flex-1 truncate">
                     {attachedImage.name}
                     {attachedImage.alreadyUploaded && (
-                      <span className="text-primary ml-1.5">· {lang === 'ru' ? 'из хранилища' : 'from storage'}</span>
+                      <span className="text-primary ml-2">· {lang === 'ru' ? 'из хранилища' : 'from storage'}</span>
                     )}
                   </span>
                   <button onClick={() => setAttachedImage(null)} className="text-muted-foreground hover:text-red-400 transition-colors">
@@ -1939,7 +1942,7 @@ export default function Builder() {
                   onKeyDown={handleKeyDown}
                   placeholder={isRecording ? (lang === 'ru' ? '🎙 Говорите…' : '🎙 Speaking…') : tr('builderInputPlaceholder', lang)}
                   rows={1}
-                  className={`w-full bg-transparent text-[14px] resize-none outline-none min-h-[52px] max-h-[220px] px-3.5 pt-3 pb-1.5 leading-[1.6] ${isRecording ? 'text-red-400 placeholder:text-red-400/50' : 'text-foreground placeholder:text-muted-foreground/50'}`}
+                  className={`w-full bg-transparent text-sm resize-none outline-none min-h-[52px] max-h-[220px] px-4 pt-3 pb-2 leading-relaxed ${isRecording ? 'text-red-400 placeholder:text-red-400/50' : 'text-foreground placeholder:text-muted-foreground/50'}`}
                 />
 
                 {/* Toolbar */}
@@ -1983,28 +1986,28 @@ export default function Builder() {
                       внутренние id ('sonnet'/'opus') используются только для роутинга на бэкенде. */}
                   <div className="relative shrink-0">
                     <button onClick={() => setShowModelMenu(v => !v)}
-                      className={`flex items-center gap-1 h-7 px-2 rounded-lg transition-colors text-[11px] font-semibold ${aiModel === 'opus' ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-foreground hover:bg-secondary'}`}
+                      className={`flex items-center gap-1 h-7 px-2 rounded-lg transition-colors text-2xs font-semibold ${aiModel === 'opus' ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-foreground hover:bg-secondary'}`}
                       title={aiModel === 'opus' ? (lang === 'ru' ? 'Режим «Максимум»' : 'Enhanced mode') : (lang === 'ru' ? 'Режим «Стандарт»' : 'Standard mode')}>
                       <Icon name="Cpu" size={13} />
                       <span className="hidden sm:inline">{aiModel === 'opus' ? (lang === 'ru' ? 'Максимум' : 'Enhanced') : (lang === 'ru' ? 'Стандарт' : 'Standard')}</span>
                       <Icon name="ChevronDown" size={11} className="opacity-60" />
                     </button>
                     {showModelMenu && (
-                      <div className="absolute bottom-10 left-0 z-50 w-60 max-w-[calc(100vw-2rem)] bg-secondary border border-border rounded-2xl shadow-2xl p-1.5">
+                      <div className="absolute bottom-10 left-0 z-dropdown w-60 max-w-[calc(100vw-2rem)] bg-secondary border border-border rounded-2xl shadow-2xl p-2">
                         {[
                           { id: 'sonnet' as const, name: lang === 'ru' ? 'Стандарт' : 'Standard', desc: lang === 'ru' ? 'Быстро и универсально' : 'Fast & versatile', cost: lang === 'ru' ? '1 единица / генерация' : '1 unit / generation' },
                           { id: 'opus' as const, name: lang === 'ru' ? 'Максимум' : 'Enhanced', desc: lang === 'ru' ? 'Мощнее для сложных проектов' : 'Stronger for complex projects', cost: lang === 'ru' ? '9 единиц / генерация' : '9 units / generation' },
                         ].map(m => (
                           <button key={m.id}
                             onClick={() => { setAiModel(m.id); try { localStorage.setItem('builder_model', m.id); } catch { /* приватный режим */ } setShowModelMenu(false); }}
-                            className="w-full flex items-start gap-2.5 px-2.5 py-2 rounded-xl hover:bg-secondary/70 transition-colors text-left">
+                            className="w-full flex items-start gap-3 px-3 py-2 rounded-xl hover:bg-secondary/70 transition-colors text-left">
                             <div className={`grid h-6 w-6 place-items-center rounded-lg shrink-0 mt-0.5 ${aiModel === m.id ? 'bg-primary text-primary-foreground' : 'bg-background text-muted-foreground'}`}>
                               <Icon name={aiModel === m.id ? 'Check' : 'Cpu'} size={12} />
                             </div>
                             <div>
                               <div className="text-xs font-medium text-foreground">{m.name}</div>
-                              <div className="text-[10px] text-muted-foreground">{m.desc}</div>
-                              <div className={`text-[10px] font-semibold mt-0.5 ${m.id === 'opus' ? 'text-amber-600' : 'text-emerald-600'}`}>{m.cost}</div>
+                              <div className="text-2xs text-muted-foreground">{m.desc}</div>
+                              <div className={`text-2xs font-semibold mt-0.5 ${m.id === 'opus' ? 'text-warning' : 'text-success'}`}>{m.cost}</div>
                             </div>
                           </button>
                         ))}
@@ -2017,7 +2020,7 @@ export default function Builder() {
                   {!html && (
                     <div className="relative shrink-0">
                       <button onClick={() => setShowProductMenu(v => !v)}
-                        className={`flex items-center gap-1 h-7 px-2 rounded-lg transition-colors text-[11px] font-semibold ${productType ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-foreground hover:bg-secondary'}`}
+                        className={`flex items-center gap-1 h-7 px-2 rounded-lg transition-colors text-2xs font-semibold ${productType ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-foreground hover:bg-secondary'}`}
                         title={lang === 'ru' ? 'Тип проекта' : 'Project type'}>
                         <Icon name={PRODUCT_TYPES.find(p => p.id === productType)?.icon || 'Layers'} fallback="Layers" size={13} />
                         <span className="hidden sm:inline">
@@ -2027,33 +2030,33 @@ export default function Builder() {
                         </span>
                       </button>
                       {showProductMenu && (
-                        <div className="absolute bottom-10 left-0 z-50 w-64 max-w-[calc(100vw-2rem)] bg-secondary border border-border rounded-2xl shadow-2xl p-1.5">
+                        <div className="absolute bottom-10 left-0 z-dropdown w-64 max-w-[calc(100vw-2rem)] bg-secondary border border-border rounded-2xl shadow-2xl p-2">
                           <button
                             onClick={() => { setProductType(''); setShowProductMenu(false); }}
-                            className="w-full flex items-start gap-2.5 px-2.5 py-2 rounded-xl hover:bg-secondary/70 transition-colors text-left">
+                            className="w-full flex items-start gap-3 px-3 py-2 rounded-xl hover:bg-secondary/70 transition-colors text-left">
                             <div className={`grid h-6 w-6 place-items-center rounded-lg shrink-0 mt-0.5 ${!productType ? 'bg-primary text-primary-foreground' : 'bg-background text-muted-foreground'}`}>
                               <Icon name={!productType ? 'Check' : 'Wand2'} fallback="Wand2" size={12} />
                             </div>
                             <div>
                               <div className="text-xs font-medium text-foreground">{lang === 'ru' ? 'Авто (по описанию)' : 'Auto (from your text)'}</div>
-                              <div className="text-[10px] text-muted-foreground">{lang === 'ru' ? 'ИИ поймёт тип сам' : 'AI figures out the type'}</div>
+                              <div className="text-2xs text-muted-foreground">{lang === 'ru' ? 'ИИ поймёт тип сам' : 'AI figures out the type'}</div>
                             </div>
                           </button>
                           {PRODUCT_TYPES.map(p => (
                             <button key={p.id}
                               onClick={() => { setProductType(p.id); setShowProductMenu(false); }}
-                              className="w-full flex items-start gap-2.5 px-2.5 py-2 rounded-xl hover:bg-secondary/70 transition-colors text-left">
+                              className="w-full flex items-start gap-3 px-3 py-2 rounded-xl hover:bg-secondary/70 transition-colors text-left">
                               <div className={`grid h-6 w-6 place-items-center rounded-lg shrink-0 mt-0.5 ${productType === p.id ? 'bg-primary text-primary-foreground' : 'bg-background text-muted-foreground'}`}>
                                 <Icon name={productType === p.id ? 'Check' : p.icon} fallback="Square" size={12} />
                               </div>
                               <div>
                                 <div className="text-xs font-medium text-foreground">{lang === 'ru' ? p.label.ru : p.label.en}</div>
-                                <div className="text-[10px] text-muted-foreground">{lang === 'ru' ? p.hint.ru : p.hint.en}</div>
+                                <div className="text-2xs text-muted-foreground">{lang === 'ru' ? p.hint.ru : p.hint.en}</div>
                               </div>
                             </button>
                           ))}
                           {/* Честно про расход: выбранный тип — это расширенная сборка */}
-                          <p className="px-2.5 pt-1.5 pb-1 text-[10px] text-muted-foreground border-t border-border mt-1">
+                          <p className="px-3 pt-2 pb-1 text-2xs text-muted-foreground border-t border-border mt-1">
                             {lang === 'ru'
                               ? 'Выбранный тип — расширенная сборка: 2 единицы энергии.'
                               : 'A chosen type means an extended build: 2 energy units.'}
@@ -2067,7 +2070,7 @@ export default function Builder() {
                   {!html && (
                     <div className="relative shrink-0">
                       <button onClick={() => setShowStyleMenu(v => !v)}
-                        className={`flex items-center gap-1 h-7 px-2 rounded-lg transition-colors text-[11px] font-semibold ${siteStyle ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-foreground hover:bg-secondary'}`}
+                        className={`flex items-center gap-1 h-7 px-2 rounded-lg transition-colors text-2xs font-semibold ${siteStyle ? 'text-primary bg-primary/10' : 'text-muted-foreground hover:text-foreground hover:bg-secondary'}`}
                         title={lang === 'ru' ? 'Стиль дизайна' : 'Design style'}>
                         <Icon name="Palette" size={13} />
                         <span className="hidden sm:inline">
@@ -2079,7 +2082,7 @@ export default function Builder() {
                         </span>
                       </button>
                       {showStyleMenu && (
-                        <div className="absolute bottom-10 left-0 z-50 w-56 max-w-[calc(100vw-2rem)] bg-secondary border border-border rounded-2xl shadow-2xl p-1.5">
+                        <div className="absolute bottom-10 left-0 z-dropdown w-56 max-w-[calc(100vw-2rem)] bg-secondary border border-border rounded-2xl shadow-2xl p-2">
                           {[
                             { id: '' as const, icon: 'Wand2', label: lang === 'ru' ? 'Авто (под нишу)' : 'Auto', desc: lang === 'ru' ? 'ИИ подберёт стиль сам' : 'AI picks the style' },
                             { id: 'minimal' as const, icon: 'Minus', label: lang === 'ru' ? 'Минимализм' : 'Minimal', desc: lang === 'ru' ? 'Чисто, светло, воздушно' : 'Clean & airy' },
@@ -2089,13 +2092,13 @@ export default function Builder() {
                           ].map(s => (
                             <button key={s.id}
                               onClick={() => { setSiteStyle(s.id); setShowStyleMenu(false); }}
-                              className="w-full flex items-start gap-2.5 px-2.5 py-2 rounded-xl hover:bg-secondary/70 transition-colors text-left">
+                              className="w-full flex items-start gap-3 px-3 py-2 rounded-xl hover:bg-secondary/70 transition-colors text-left">
                               <div className={`grid h-6 w-6 place-items-center rounded-lg shrink-0 mt-0.5 ${siteStyle === s.id ? 'bg-primary text-primary-foreground' : 'bg-background text-muted-foreground'}`}>
                                 <Icon name={siteStyle === s.id ? 'Check' : s.icon} fallback="Palette" size={12} />
                               </div>
                               <div>
                                 <div className="text-xs font-medium text-foreground">{s.label}</div>
-                                <div className="text-[10px] text-muted-foreground">{s.desc}</div>
+                                <div className="text-2xs text-muted-foreground">{s.desc}</div>
                               </div>
                             </button>
                           ))}
@@ -2112,8 +2115,8 @@ export default function Builder() {
                       <Icon name="Puzzle" size={14} />
                     </button>
                     {showExtensions && (
-                      <div className="absolute bottom-10 left-0 z-50 w-60 bg-secondary border border-border rounded-2xl shadow-2xl p-3">
-                        <p className="text-[10px] text-muted-foreground uppercase tracking-widest font-semibold mb-2">{lang === 'ru' ? 'Расширения' : 'Extensions'}</p>
+                      <div className="absolute bottom-10 left-0 z-dropdown w-60 bg-secondary border border-border rounded-2xl shadow-2xl p-3">
+                        <p className="text-2xs text-muted-foreground uppercase tracking-widest font-semibold mb-2">{lang === 'ru' ? 'Расширения' : 'Extensions'}</p>
                         {[
                           { icon: 'ShoppingCart', label: lang === 'ru' ? 'Интернет-магазин' : 'E-commerce', desc: lang === 'ru' ? 'Каталог, корзина, оплата' : 'Catalog, cart, checkout' },
                           { icon: 'MessageSquare', label: lang === 'ru' ? 'Онлайн-чат' : 'Live chat', desc: lang === 'ru' ? 'Виджет чата на проекте' : 'Chat widget on site' },
@@ -2123,13 +2126,13 @@ export default function Builder() {
                         ].map(ext => (
                           <button key={ext.label}
                             onClick={() => { sendMessage(`Добавь расширение: ${ext.label}`); setShowExtensions(false); }}
-                            className="w-full flex items-center gap-2.5 px-2.5 py-2 rounded-xl hover:bg-secondary/70 transition-colors text-left group">
+                            className="w-full flex items-center gap-3 px-3 py-2 rounded-xl hover:bg-secondary/70 transition-colors text-left group">
                             <div className="grid h-7 w-7 place-items-center rounded-lg bg-primary/10 text-primary shrink-0">
                               <Icon name={ext.icon} size={13} />
                             </div>
                             <div>
                               <div className="text-xs font-medium text-foreground group-hover:text-foreground">{ext.label}</div>
-                              <div className="text-[10px] text-muted-foreground">{ext.desc}</div>
+                              <div className="text-2xs text-muted-foreground">{ext.desc}</div>
                             </div>
                           </button>
                         ))}
@@ -2139,7 +2142,7 @@ export default function Builder() {
 
                   <div className="flex-1" />
 
-                  {input.length > 0 && <span className="text-[10px] text-muted-foreground/70 mr-1">{input.length}</span>}
+                  {input.length > 0 && <span className="text-2xs text-muted-foreground/70 mr-1">{input.length}</span>}
 
                   {/* Голосовой ввод */}
                   <button onClick={toggleRecording}
@@ -2158,14 +2161,14 @@ export default function Builder() {
                 </div>
               </div>
 
-              <p className="text-[10px] text-muted-foreground/70 mt-1.5 px-1">{tr('builderInputHint', lang)}</p>
+              <p className="text-2xs text-muted-foreground/70 mt-2 px-1">{tr('builderInputHint', lang)}</p>
             </div>
 
             {/* Overlay закрывает расширения */}
-            {showExtensions && <div className="fixed inset-0 z-40" onClick={() => setShowExtensions(false)} />}
-            {showStyleMenu && <div className="fixed inset-0 z-40" onClick={() => setShowStyleMenu(false)} />}
-            {showProductMenu && <div className="fixed inset-0 z-40" onClick={() => setShowProductMenu(false)} />}
-            {showModelMenu && <div className="fixed inset-0 z-40" onClick={() => setShowModelMenu(false)} />}
+            {showExtensions && <div className="fixed inset-0 z-sticky" onClick={() => setShowExtensions(false)} />}
+            {showStyleMenu && <div className="fixed inset-0 z-sticky" onClick={() => setShowStyleMenu(false)} />}
+            {showProductMenu && <div className="fixed inset-0 z-sticky" onClick={() => setShowProductMenu(false)} />}
+            {showModelMenu && <div className="fixed inset-0 z-sticky" onClick={() => setShowModelMenu(false)} />}
           </div>
         )}
 
@@ -2206,8 +2209,8 @@ export default function Builder() {
                 <>
                   {/* Подсказка в режиме редактирования */}
                   {editMode && (
-                    <div className="w-full flex items-center justify-between gap-2 px-4 py-1.5 bg-primary/5 border-b border-primary/20 text-[11px] text-primary shrink-0">
-                      <span className="flex items-center gap-1.5">
+                    <div className="w-full flex items-center justify-between gap-2 px-4 py-2 bg-primary/5 border-b border-primary/20 text-2xs text-primary shrink-0">
+                      <span className="flex items-center gap-2">
                         <Icon name="MousePointer" size={11} />
                         {lang === 'ru' ? 'Кликните на любой текст для редактирования' : 'Click any text to edit'}
                       </span>
@@ -2253,11 +2256,11 @@ export default function Builder() {
                       {/* Popover редактирования текста */}
                       {editPopover && (
                         <div
-                          className="absolute z-50 bg-card border border-border rounded-2xl shadow-2xl p-3 w-64 max-w-[calc(100vw-2rem)]"
+                          className="absolute z-dropdown bg-card border border-border rounded-2xl shadow-2xl p-3 w-64 max-w-[calc(100vw-2rem)]"
                           style={{ left: Math.max(8, Math.min(editPopover.x - 128, 9999)), top: Math.min(editPopover.y + 8, 9999) }}
                         >
                           <div className="flex items-center justify-between mb-2">
-                            <span className="text-xs font-semibold text-foreground flex items-center gap-1.5">
+                            <span className="text-xs font-semibold text-foreground flex items-center gap-2">
                               <Icon name="Type" size={12} />
                               {lang === 'ru' ? 'Текст' : 'Text'}
                             </span>
@@ -2277,7 +2280,7 @@ export default function Builder() {
                             }}
                           />
                           <div className="flex gap-2 mt-2">
-                            <button onClick={applyTextEdit} className="flex-1 flex items-center justify-center gap-1.5 text-xs font-semibold py-1.5 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
+                            <button onClick={applyTextEdit} className="flex-1 flex items-center justify-center gap-2 text-xs font-semibold py-2 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 transition-colors">
                               <Icon name="Check" size={12} />
                               {lang === 'ru' ? 'Сохранить' : 'Save'}
                             </button>
@@ -2295,8 +2298,8 @@ export default function Builder() {
                     {propsPanel && editMode && (
                       <div className="w-full sm:w-56 max-h-[45vh] sm:max-h-none shrink-0 border-t sm:border-t-0 sm:border-l border-border bg-card overflow-y-auto flex flex-col">
                         {/* Заголовок */}
-                        <div className="flex items-center justify-between px-3 py-2.5 border-b border-border shrink-0 bg-background">
-                          <span className="text-xs font-semibold flex items-center gap-1.5">
+                        <div className="flex items-center justify-between px-3 py-3 border-b border-border shrink-0 bg-background">
+                          <span className="text-xs font-semibold flex items-center gap-2">
                             <Icon name="Sliders" size={12} className="text-primary" />
                             <span className="font-mono text-primary">&lt;{propsPanel.tag}&gt;</span>
                           </span>
@@ -2308,7 +2311,7 @@ export default function Builder() {
                         <div className="p-3 space-y-4 text-xs">
                           {/* Цвет текста */}
                           <div>
-                            <p className="text-muted-foreground uppercase tracking-widest text-[10px] font-semibold mb-2">
+                            <p className="text-muted-foreground uppercase tracking-widest text-2xs font-semibold mb-2">
                               {lang === 'ru' ? 'Текст' : 'Text'}
                             </p>
                             <div className="flex items-center gap-2">
@@ -2317,13 +2320,13 @@ export default function Builder() {
                                 onChange={e => applyStyle('color', e.target.value)}
                                 className="h-7 w-7 rounded-lg border border-border cursor-pointer bg-secondary shrink-0"
                               />
-                              <span className="font-mono text-[11px] text-muted-foreground">{propsPanel.color}</span>
+                              <span className="font-mono text-2xs text-muted-foreground">{propsPanel.color}</span>
                             </div>
                           </div>
 
                           {/* Фон */}
                           <div>
-                            <p className="text-muted-foreground uppercase tracking-widest text-[10px] font-semibold mb-2">
+                            <p className="text-muted-foreground uppercase tracking-widest text-2xs font-semibold mb-2">
                               {lang === 'ru' ? 'Фон' : 'Background'}
                             </p>
                             <div className="flex items-center gap-2">
@@ -2332,13 +2335,13 @@ export default function Builder() {
                                 onChange={e => applyStyle('backgroundColor', e.target.value)}
                                 className="h-7 w-7 rounded-lg border border-border cursor-pointer bg-secondary shrink-0"
                               />
-                              <span className="font-mono text-[11px] text-muted-foreground truncate">{propsPanel.backgroundColor}</span>
+                              <span className="font-mono text-2xs text-muted-foreground truncate">{propsPanel.backgroundColor}</span>
                             </div>
                           </div>
 
                           {/* Размер шрифта */}
                           <div>
-                            <p className="text-muted-foreground uppercase tracking-widest text-[10px] font-semibold mb-2">
+                            <p className="text-muted-foreground uppercase tracking-widest text-2xs font-semibold mb-2">
                               {lang === 'ru' ? 'Размер шрифта' : 'Font size'}
                             </p>
                             <div className="flex items-center gap-2">
@@ -2347,19 +2350,19 @@ export default function Builder() {
                                 onChange={e => applyStyle('fontSize', e.target.value + 'px')}
                                 className="flex-1 accent-primary"
                               />
-                              <span className="font-mono text-[11px] w-10 text-right shrink-0 text-muted-foreground">{propsPanel.fontSize}</span>
+                              <span className="font-mono text-2xs w-10 text-right shrink-0 text-muted-foreground">{propsPanel.fontSize}</span>
                             </div>
                           </div>
 
                           {/* Жирность */}
                           <div>
-                            <p className="text-muted-foreground uppercase tracking-widest text-[10px] font-semibold mb-2">
+                            <p className="text-muted-foreground uppercase tracking-widest text-2xs font-semibold mb-2">
                               {lang === 'ru' ? 'Жирность' : 'Font weight'}
                             </p>
                             <div className="flex gap-1 flex-wrap">
                               {[['400', lang === 'ru' ? 'Норм' : 'Normal'], ['600', lang === 'ru' ? 'Полужирный' : 'Semi'], ['700', lang === 'ru' ? 'Жирный' : 'Bold'], ['900', lang === 'ru' ? 'Чёрный' : 'Black']].map(([w, label]) => (
                                 <button key={w} onClick={() => applyStyle('fontWeight', w)}
-                                  className={`px-2 py-1 rounded-lg text-[10px] font-medium border transition-all ${propsPanel.fontWeight === w ? 'bg-primary text-primary-foreground border-primary' : 'border-border bg-secondary text-muted-foreground hover:text-foreground hover:bg-secondary/70'}`}>
+                                  className={`px-2 py-1 rounded-lg text-2xs font-medium border transition-all ${propsPanel.fontWeight === w ? 'bg-primary text-primary-foreground border-primary' : 'border-border bg-secondary text-muted-foreground hover:text-foreground hover:bg-secondary/70'}`}>
                                   {label}
                                 </button>
                               ))}
@@ -2368,13 +2371,13 @@ export default function Builder() {
 
                           {/* Выравнивание */}
                           <div>
-                            <p className="text-muted-foreground uppercase tracking-widest text-[10px] font-semibold mb-2">
+                            <p className="text-muted-foreground uppercase tracking-widest text-2xs font-semibold mb-2">
                               {lang === 'ru' ? 'Выравнивание' : 'Align'}
                             </p>
                             <div className="flex gap-1">
                               {[['left', 'AlignLeft'], ['center', 'AlignCenter'], ['right', 'AlignRight']].map(([align, icon]) => (
                                 <button key={align} onClick={() => applyStyle('textAlign', align)}
-                                  className={`flex-1 flex items-center justify-center py-1.5 rounded-lg border transition-all ${propsPanel.textAlign === align ? 'bg-primary text-primary-foreground border-primary' : 'border-border bg-secondary text-muted-foreground hover:text-foreground hover:bg-secondary/70'}`}>
+                                  className={`flex-1 flex items-center justify-center py-2 rounded-lg border transition-all ${propsPanel.textAlign === align ? 'bg-primary text-primary-foreground border-primary' : 'border-border bg-secondary text-muted-foreground hover:text-foreground hover:bg-secondary/70'}`}>
                                   <Icon name={icon} size={13} />
                                 </button>
                               ))}
@@ -2383,7 +2386,7 @@ export default function Builder() {
 
                           {/* Скругление */}
                           <div>
-                            <p className="text-muted-foreground uppercase tracking-widest text-[10px] font-semibold mb-2">
+                            <p className="text-muted-foreground uppercase tracking-widest text-2xs font-semibold mb-2">
                               {lang === 'ru' ? 'Скругление' : 'Border radius'}
                             </p>
                             <div className="flex items-center gap-2">
@@ -2392,13 +2395,13 @@ export default function Builder() {
                                 onChange={e => applyStyle('borderRadius', e.target.value + 'px')}
                                 className="flex-1 accent-primary"
                               />
-                              <span className="font-mono text-[11px] w-10 text-right shrink-0 text-muted-foreground">{propsPanel.borderRadius}</span>
+                              <span className="font-mono text-2xs w-10 text-right shrink-0 text-muted-foreground">{propsPanel.borderRadius}</span>
                             </div>
                           </div>
 
                           {/* Прозрачность */}
                           <div>
-                            <p className="text-muted-foreground uppercase tracking-widest text-[10px] font-semibold mb-2">
+                            <p className="text-muted-foreground uppercase tracking-widest text-2xs font-semibold mb-2">
                               {lang === 'ru' ? 'Прозрачность' : 'Opacity'}
                             </p>
                             <div className="flex items-center gap-2">
@@ -2407,24 +2410,24 @@ export default function Builder() {
                                 onChange={e => applyStyle('opacity', e.target.value)}
                                 className="flex-1 accent-primary"
                               />
-                              <span className="font-mono text-[11px] w-10 text-right shrink-0 text-muted-foreground">{Math.round(parseFloat(propsPanel.opacity) * 100)}%</span>
+                              <span className="font-mono text-2xs w-10 text-right shrink-0 text-muted-foreground">{Math.round(parseFloat(propsPanel.opacity) * 100)}%</span>
                             </div>
                           </div>
 
                           {/* Отступы */}
                           <div>
-                            <p className="text-muted-foreground uppercase tracking-widest text-[10px] font-semibold mb-2">
+                            <p className="text-muted-foreground uppercase tracking-widest text-2xs font-semibold mb-2">
                               {lang === 'ru' ? 'Отступы (padding)' : 'Padding'}
                             </p>
-                            <div className="grid grid-cols-2 gap-1.5">
+                            <div className="grid grid-cols-2 gap-2">
                               {([['paddingTop', '↑'], ['paddingBottom', '↓'], ['paddingLeft', '←'], ['paddingRight', '→']] as const).map(([prop, arrow]) => (
-                                <div key={prop} className="flex items-center gap-1.5">
+                                <div key={prop} className="flex items-center gap-2">
                                   <span className="text-muted-foreground w-4 text-center">{arrow}</span>
                                   <input
                                     type="number" min="0" max="200"
                                     value={parseInt((propsPanel as Record<string, string>)[prop]) || 0}
                                     onChange={e => applyStyle(prop, e.target.value + 'px')}
-                                    className="w-full text-[11px] border border-border rounded-lg px-1.5 py-1 bg-secondary text-muted-foreground outline-none focus:border-primary/50 font-mono"
+                                    className="w-full text-2xs border border-border rounded-lg px-2 py-1 bg-secondary text-muted-foreground outline-none focus:border-primary/50 font-mono"
                                   />
                                 </div>
                               ))}
@@ -2471,7 +2474,7 @@ export default function Builder() {
           ) : (
             <div className="flex-1 flex flex-col overflow-hidden">
               {/* Code editor toolbar */}
-              <div className="flex items-center justify-between px-4 py-2.5 border-b border-border bg-card shrink-0">
+              <div className="flex items-center justify-between px-4 py-3 border-b border-border bg-card shrink-0">
                 <div className="flex items-center gap-2 text-xs text-muted-foreground">
                   <Icon name="FileCode" size={13} />
                   <span className="font-mono font-medium text-muted-foreground">index.html</span>
@@ -2481,8 +2484,8 @@ export default function Builder() {
                     </span>
                   )}
                   {codeEditorValue !== html && (
-                    <span className="text-amber-600 dark:text-amber-400 font-semibold flex items-center gap-1">
-                      <span className="h-1.5 w-1.5 rounded-full bg-amber-600 dark:bg-amber-400 inline-block" />
+                    <span className="text-warning font-semibold flex items-center gap-1">
+                      <span className="h-1.5 w-1.5 rounded-full bg-warning dark:bg-warning inline-block" />
                       {lang === 'ru' ? 'Не сохранено' : 'Unsaved'}
                     </span>
                   )}
@@ -2501,7 +2504,7 @@ export default function Builder() {
                         setCodeApplied(true);
                         setTimeout(() => setCodeApplied(false), 2000);
                       }}
-                      className="flex items-center gap-1.5 text-xs font-semibold px-3 py-1.5 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+                      className="flex items-center gap-2 text-xs font-semibold px-3 py-2 rounded-lg bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
                     >
                       <Icon name={codeApplied ? 'Check' : 'Play'} size={13} />
                       {codeApplied
@@ -2513,7 +2516,7 @@ export default function Builder() {
                   {codeEditorValue !== html && (
                     <button
                       onClick={() => setCodeEditorValue(html)}
-                      className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors"
+                      className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors"
                     >
                       <Icon name="RotateCcw" size={13} />
                       {lang === 'ru' ? 'Сбросить' : 'Reset'}
@@ -2523,13 +2526,13 @@ export default function Builder() {
                     <>
                       <div className="w-px h-4 bg-border" />
                       <button onClick={handleCopyCode}
-                        className={`flex items-center gap-1.5 text-xs transition-colors ${copied ? 'text-emerald-600 dark:text-emerald-400' : 'text-muted-foreground hover:text-foreground'}`}>
+                        className={`flex items-center gap-2 text-xs transition-colors ${copied ? 'text-success' : 'text-muted-foreground hover:text-foreground'}`}>
                         <Icon name={copied ? 'Check' : 'Copy'} size={13} />
                         {copied ? (lang === 'ru' ? 'Скопировано!' : 'Copied!') : tr('builderCopy', lang)}
                       </button>
                       <div className="w-px h-4 bg-border" />
                       <button onClick={handleDownload}
-                        className="flex items-center gap-1.5 text-xs text-muted-foreground hover:text-foreground transition-colors">
+                        className="flex items-center gap-2 text-xs text-muted-foreground hover:text-foreground transition-colors">
                         <Icon name="Download" size={13} />
                         {tr('builderDownload', lang)}
                       </button>
@@ -2583,7 +2586,7 @@ export default function Builder() {
               </div>
 
               {/* Подсказка */}
-              <div className="px-4 py-1.5 bg-[#1e1e1e] border-t border-white/10 text-[10px] text-white/40 flex items-center gap-3 shrink-0">
+              <div className="px-4 py-2 bg-[#1e1e1e] border-t border-white/10 text-2xs text-white/40 flex items-center gap-3 shrink-0">
                 <span>Tab → отступ</span>
                 <span>·</span>
                 <span>{lang === 'ru' ? 'Ctrl+Enter → применить' : 'Ctrl+Enter → apply'}</span>
@@ -2594,13 +2597,21 @@ export default function Builder() {
       </div>
 
       {/* Overlay to close dropdowns */}
-      {showVersions && <div className="fixed inset-0 z-40" onClick={() => setShowVersions(false)} />}
+      {showVersions && <div className="fixed inset-0 z-sticky" onClick={() => setShowVersions(false)} />}
 
       {/* Publish success modal */}
       {showPublishModal && publishedSlug && (
-        <div className="fixed inset-0 z-[60] bg-black/50 flex items-center justify-center p-4" onClick={() => setShowPublishModal(false)}>
+        <div
+          ref={publishModalRef}
+          role="dialog"
+          aria-modal="true"
+          aria-label={lang === 'ru' ? 'Проект опубликован' : 'Project published'}
+          tabIndex={-1}
+          className="fixed inset-0 z-overlay bg-black/50 flex items-center justify-center p-4 outline-none"
+          onClick={() => setShowPublishModal(false)}
+        >
           <div className="bg-card rounded-2xl shadow-2xl p-6 max-w-md w-full" onClick={e => e.stopPropagation()}>
-            <div className="grid h-12 w-12 place-items-center rounded-2xl bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 mx-auto mb-4">
+            <div className="grid h-12 w-12 place-items-center rounded-2xl bg-success/15 text-success mx-auto mb-4">
               <Icon name="CheckCircle" size={24} />
             </div>
             <h3 className="font-bold text-lg text-center mb-1">
@@ -2609,7 +2620,7 @@ export default function Builder() {
             <p className="text-sm text-muted-foreground text-center mb-4">
               {lang === 'ru' ? 'Ваш проект доступен по ссылке:' : 'Your site is available at:'}
             </p>
-            <div className="flex items-center gap-2 bg-secondary rounded-xl px-3 py-2.5 mb-4">
+            <div className="flex items-center gap-2 bg-secondary rounded-xl px-3 py-3 mb-4">
               <Icon name="Link" size={14} className="text-muted-foreground shrink-0" />
               <span className="text-xs font-mono truncate flex-1">{window.location.origin}/site/{publishedSlug}</span>
               <button
@@ -2625,7 +2636,7 @@ export default function Builder() {
               </Button>
               <Button asChild className="flex-1 rounded-xl">
                 <a href={`/site/${publishedSlug}`} target="_blank" rel="noopener noreferrer">
-                  <Icon name="ExternalLink" size={14} className="mr-1.5" />
+                  <Icon name="ExternalLink" size={14} className="mr-2" />
                   {lang === 'ru' ? 'Открыть' : 'Open'}
                 </a>
               </Button>
@@ -2636,7 +2647,7 @@ export default function Builder() {
 
       {/* Publish error toast */}
       {publishError && (
-        <div className="fixed bottom-4 left-4 right-4 sm:left-auto z-[60] bg-destructive text-destructive-foreground rounded-xl px-4 py-3 shadow-xl flex items-center gap-2 text-sm sm:max-w-sm">
+        <div className="fixed bottom-4 left-4 right-4 sm:left-auto z-toast bg-destructive text-destructive-foreground rounded-xl px-4 py-3 shadow-xl flex items-center gap-2 text-sm sm:max-w-sm">
           <Icon name="AlertCircle" size={15} className="shrink-0" />
           <span className="flex-1">{publishError}</span>
           <button onClick={() => setPublishError('')}><Icon name="X" size={14} /></button>

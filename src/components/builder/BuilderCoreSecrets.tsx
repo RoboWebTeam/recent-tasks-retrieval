@@ -85,7 +85,7 @@ export default function BuilderCoreSecrets({ lang, projectId }: BuilderCoreSecre
         </div>
         <Dialog open={addOpen} onOpenChange={(v) => { setAddOpen(v); if (!v) setError(''); }}>
           <DialogTrigger asChild>
-            <Button size="sm" className="rounded-xl gap-1.5 shrink-0">
+            <Button size="sm" className="rounded-xl gap-2 shrink-0">
               <Icon name="Plus" size={14} /> {isRu ? 'Секрет' : 'Secret'}
             </Button>
           </DialogTrigger>
@@ -102,9 +102,9 @@ export default function BuilderCoreSecrets({ lang, projectId }: BuilderCoreSecre
                 <label className="text-xs font-medium mb-1 block">{isRu ? 'Значение' : 'Value'}</label>
                 <Input value={keyValue} onChange={e => setKeyValue(e.target.value)} type="password" className="h-9 rounded-xl" />
               </div>
-              {error && <p className="text-sm text-destructive flex items-center gap-1.5"><Icon name="AlertCircle" size={14} /> {error}</p>}
+              {error && <p className="text-sm text-destructive flex items-center gap-2"><Icon name="AlertCircle" size={14} /> {error}</p>}
               <Button className="w-full rounded-xl" disabled={saving} onClick={handleAdd}>
-                {saving ? <Icon name="Loader" size={14} className="mr-1.5 animate-spin" /> : null}
+                {saving ? <Icon name="Loader" size={14} className="mr-2 animate-spin" /> : null}
                 {isRu ? 'Сохранить' : 'Save'}
               </Button>
             </div>
@@ -116,7 +116,7 @@ export default function BuilderCoreSecrets({ lang, projectId }: BuilderCoreSecre
         <div className="rounded-2xl border border-dashed border-border p-10 text-center">
           <Icon name="KeyRound" size={28} className="mx-auto mb-3 text-muted-foreground/40" />
           <p className="text-sm text-muted-foreground mb-4">{isRu ? 'Секретов пока нет' : 'No secrets yet'}</p>
-          <Button size="sm" className="rounded-xl gap-1.5" onClick={() => setAddOpen(true)}>
+          <Button size="sm" className="rounded-xl gap-2" onClick={() => setAddOpen(true)}>
             <Icon name="Plus" size={14} /> {isRu ? 'Добавить секрет' : 'Add secret'}
           </Button>
         </div>
@@ -125,7 +125,7 @@ export default function BuilderCoreSecrets({ lang, projectId }: BuilderCoreSecre
           {secrets.map(s => (
             <div key={s.id} className="flex items-center justify-between gap-3 rounded-xl border border-border bg-card p-3">
               <div className="flex items-center gap-3 min-w-0">
-                <div className="grid h-9 w-9 place-items-center rounded-xl bg-amber-500/15 text-amber-600 dark:text-amber-400 shrink-0">
+                <div className="grid h-9 w-9 place-items-center rounded-xl bg-warning/15 text-warning shrink-0">
                   <Icon name="KeyRound" size={16} />
                 </div>
                 <div className="min-w-0">

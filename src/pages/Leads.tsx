@@ -22,7 +22,7 @@ interface Lead {
 
 const STATUS_CONFIG = {
   new:       { label: { ru: 'Новая',      en: 'New' },       color: 'bg-primary/10 text-primary',            dot: 'bg-primary' },
-  processed: { label: { ru: 'Обработана', en: 'Processed' }, color: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300',        dot: 'bg-emerald-500' },
+  processed: { label: { ru: 'Обработана', en: 'Processed' }, color: 'bg-success/15 text-success',        dot: 'bg-success' },
   rejected:  { label: { ru: 'Отклонена',  en: 'Rejected' },  color: 'bg-secondary text-muted-foreground',    dot: 'bg-muted-foreground' },
 };
 
@@ -149,12 +149,12 @@ export default function Leads() {
           <div className="flex items-center gap-2">
             <button onClick={exportCsv} disabled={filtered.length === 0}
               title={isRu ? 'Выгрузить в CSV (Excel)' : 'Export to CSV (Excel)'}
-              className="flex items-center gap-1.5 h-9 px-3 rounded-xl border border-border bg-secondary text-sm text-muted-foreground hover:text-foreground hover:bg-background transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
+              className="flex items-center gap-2 h-9 px-3 rounded-xl border border-border bg-secondary text-sm text-muted-foreground hover:text-foreground hover:bg-background transition-colors disabled:opacity-40 disabled:cursor-not-allowed">
               <Icon name="Download" size={14} />
               {isRu ? 'Выгрузить' : 'Export'}
             </button>
             <button onClick={fetchLeads} disabled={loading}
-              className="flex items-center gap-1.5 h-9 px-3 rounded-xl border border-border bg-secondary text-sm text-muted-foreground hover:text-foreground hover:bg-background transition-colors">
+              className="flex items-center gap-2 h-9 px-3 rounded-xl border border-border bg-secondary text-sm text-muted-foreground hover:text-foreground hover:bg-background transition-colors">
               <Icon name={loading ? 'Loader' : 'RefreshCw'} size={14} className={loading ? 'animate-spin' : ''} />
               {isRu ? 'Обновить' : 'Refresh'}
             </button>
@@ -166,7 +166,7 @@ export default function Leads() {
           {[
             { label: isRu ? 'Всего' : 'Total', value: totalCount, icon: 'Inbox', color: 'text-foreground bg-secondary' },
             { label: isRu ? 'Новые' : 'New', value: newCount, icon: 'Bell', color: 'text-primary bg-primary/10' },
-            { label: isRu ? 'Конверсия' : 'Conv.', value: '—', icon: 'TrendingUp', color: 'text-emerald-700 dark:text-emerald-300 bg-emerald-500/15' },
+            { label: isRu ? 'Конверсия' : 'Conv.', value: '—', icon: 'TrendingUp', color: 'text-success bg-success/15' },
           ].map(stat => (
             <div key={stat.label} className="bg-card border border-border rounded-2xl p-4 flex items-center gap-3">
               <div className={`grid h-9 w-9 place-items-center rounded-xl shrink-0 ${stat.color}`}>
@@ -190,9 +190,9 @@ export default function Leads() {
         <div className="flex items-center gap-2 mb-4 overflow-x-auto pb-1">
           {filterTabs.map(f => (
             <button key={f.id} onClick={() => setFilter(f.id)}
-              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${filter === f.id ? 'bg-primary text-primary-foreground shadow-sm' : 'bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-secondary'}`}>
+              className={`flex items-center gap-2 px-3 py-2 rounded-xl text-sm font-medium whitespace-nowrap transition-all ${filter === f.id ? 'bg-primary text-primary-foreground shadow-sm' : 'bg-card border border-border text-muted-foreground hover:text-foreground hover:bg-secondary'}`}>
               {f.label}
-              <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded-full ${filter === f.id ? 'bg-white/20' : 'bg-secondary'}`}>{f.count}</span>
+              <span className={`text-2xs font-bold px-2 py-0.5 rounded-full ${filter === f.id ? 'bg-white/20' : 'bg-secondary'}`}>{f.count}</span>
             </button>
           ))}
         </div>
@@ -235,17 +235,17 @@ export default function Leads() {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 mb-1 flex-wrap">
                         <span className="font-semibold text-sm text-foreground">{lead.name || '—'}</span>
-                        <span className={`inline-flex items-center gap-1 text-[10px] font-bold px-2 py-0.5 rounded-full ${s.color}`}>
+                        <span className={`inline-flex items-center gap-1 text-2xs font-bold px-2 py-0.5 rounded-full ${s.color}`}>
                           <span className={`h-1.5 w-1.5 rounded-full ${s.dot}`} />
                           {s.label[lang as 'ru' | 'en']}
                         </span>
                       </div>
-                      {lead.message && <p className="text-xs text-muted-foreground line-clamp-1 mb-1.5">{lead.message}</p>}
+                      {lead.message && <p className="text-xs text-muted-foreground line-clamp-1 mb-2">{lead.message}</p>}
                       <div className="flex items-center gap-3 flex-wrap">
-                        <span className="text-[10px] text-muted-foreground flex items-center gap-1">
+                        <span className="text-2xs text-muted-foreground flex items-center gap-1">
                           <Icon name="Globe" size={10} /> {lead.site}
                         </span>
-                        <span className="text-[10px] text-muted-foreground">
+                        <span className="text-2xs text-muted-foreground">
                           {new Date(lead.date).toLocaleString(isRu ? 'ru-RU' : 'en-US', { day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' })}
                         </span>
                       </div>
@@ -278,21 +278,21 @@ export default function Leads() {
 
                 <div className="space-y-3 border-t border-border pt-4">
                   {selected.phone && (
-                    <div className="flex items-center gap-2.5">
+                    <div className="flex items-center gap-3">
                       <div className="grid h-8 w-8 place-items-center rounded-xl bg-secondary shrink-0"><Icon name="Phone" size={13} className="text-muted-foreground" /></div>
-                      <div><p className="text-[10px] text-muted-foreground">{isRu ? 'Телефон' : 'Phone'}</p><a href={`tel:${selected.phone}`} className="text-sm font-semibold text-primary hover:underline">{selected.phone}</a></div>
+                      <div><p className="text-2xs text-muted-foreground">{isRu ? 'Телефон' : 'Phone'}</p><a href={`tel:${selected.phone}`} className="text-sm font-semibold text-primary hover:underline">{selected.phone}</a></div>
                     </div>
                   )}
                   {selected.email && (
-                    <div className="flex items-center gap-2.5">
+                    <div className="flex items-center gap-3">
                       <div className="grid h-8 w-8 place-items-center rounded-xl bg-secondary shrink-0"><Icon name="Mail" size={13} className="text-muted-foreground" /></div>
-                      <div><p className="text-[10px] text-muted-foreground">Email</p><a href={`mailto:${selected.email}`} className="text-sm font-semibold text-primary hover:underline truncate block max-w-[170px]">{selected.email}</a></div>
+                      <div><p className="text-2xs text-muted-foreground">Email</p><a href={`mailto:${selected.email}`} className="text-sm font-semibold text-primary hover:underline truncate block max-w-[170px]">{selected.email}</a></div>
                     </div>
                   )}
                   {selected.message && (
-                    <div className="flex items-start gap-2.5">
+                    <div className="flex items-start gap-3">
                       <div className="grid h-8 w-8 place-items-center rounded-xl bg-secondary shrink-0 mt-0.5"><Icon name="MessageSquare" size={13} className="text-muted-foreground" /></div>
-                      <div><p className="text-[10px] text-muted-foreground mb-1">{isRu ? 'Сообщение' : 'Message'}</p><p className="text-sm leading-relaxed">{selected.message}</p></div>
+                      <div><p className="text-2xs text-muted-foreground mb-1">{isRu ? 'Сообщение' : 'Message'}</p><p className="text-sm leading-relaxed">{selected.message}</p></div>
                     </div>
                   )}
                 </div>
@@ -314,12 +314,12 @@ export default function Leads() {
 
                 <div className="flex gap-2 pt-1">
                   {selected.phone && (
-                    <Button size="sm" className="flex-1 rounded-xl h-9 text-xs gap-1.5" asChild>
+                    <Button size="sm" className="flex-1 rounded-xl h-9 text-xs gap-2" asChild>
                       <a href={`tel:${selected.phone}`}><Icon name="Phone" size={12} />{isRu ? 'Позвонить' : 'Call'}</a>
                     </Button>
                   )}
                   {selected.email && (
-                    <Button size="sm" variant="outline" className="flex-1 rounded-xl h-9 text-xs gap-1.5" asChild>
+                    <Button size="sm" variant="outline" className="flex-1 rounded-xl h-9 text-xs gap-2" asChild>
                       <a href={`mailto:${selected.email}`}><Icon name="Mail" size={12} />Email</a>
                     </Button>
                   )}

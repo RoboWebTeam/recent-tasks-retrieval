@@ -153,11 +153,11 @@ export function UsersTab({
                   const isExpanded = expandedUserId === user.id;
                   return (
                     <Fragment key={user.id}>
-                    <tr onClick={() => onToggleExpand(user.id)} className={`border-b border-border last:border-0 transition-colors cursor-pointer ${user.blocked ? 'bg-rose-500/10' : 'hover:bg-secondary/30'} ${isExpanded ? 'bg-secondary/40' : ''}`}>
+                    <tr onClick={() => onToggleExpand(user.id)} className={`border-b border-border last:border-0 transition-colors cursor-pointer ${user.blocked ? 'bg-destructive/10' : 'hover:bg-secondary/30'} ${isExpanded ? 'bg-secondary/40' : ''}`}>
                       <td className="px-4 py-3 text-muted-foreground font-mono text-xs">{i + 1}</td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-3">
-                          <div className={`grid h-8 w-8 place-items-center rounded-xl font-bold text-xs shrink-0 ${user.blocked ? 'bg-rose-500/15 text-rose-700 dark:text-rose-300' : 'bg-primary text-primary-foreground'}`}>
+                          <div className={`grid h-8 w-8 place-items-center rounded-xl font-bold text-xs shrink-0 ${user.blocked ? 'bg-destructive/15 text-destructive' : 'bg-primary text-primary-foreground'}`}>
                             {user.blocked ? <Icon name="Ban" size={14} /> : (initials || '?')}
                           </div>
                           <div>
@@ -167,13 +167,13 @@ export function UsersTab({
                         </div>
                       </td>
                       <td className="px-4 py-3 hidden sm:table-cell">
-                        <div className="flex items-center gap-1.5">
-                          <span className={`inline-flex items-center rounded-full px-2.5 py-1 text-xs font-semibold ${plan.color}`}>{plan.label}</span>
+                        <div className="flex items-center gap-2">
+                          <span className={`inline-flex items-center rounded-full px-3 py-1 text-xs font-semibold ${plan.color}`}>{plan.label}</span>
                           <div className="relative group">
                             <button className="grid h-5 w-5 place-items-center rounded text-muted-foreground hover:text-primary hover:bg-primary/10 transition-colors" title="Изменить тариф">
                               <Icon name={planChanging === user.id ? 'Loader' : 'ChevronDown'} size={11} className={planChanging === user.id ? 'animate-spin' : ''} />
                             </button>
-                            <div className="absolute left-0 top-6 z-20 hidden group-hover:flex flex-col bg-card border border-border rounded-xl shadow-xl overflow-hidden min-w-[130px]">
+                            <div className="absolute left-0 top-6 z-dropdown hidden group-hover:flex flex-col bg-card border border-border rounded-xl shadow-xl overflow-hidden min-w-[130px]">
                               {(['free', 'premium', 'pro_60', 'pro_80', 'pro_200', 'pro_400', 'pro_800'] as const).map(p => (
                                 <button key={p} onClick={() => manageUser(user.id, 'change_plan', p)}
                                   className={`px-3 py-2 text-xs font-semibold text-left hover:bg-secondary transition-colors whitespace-nowrap ${user.plan === p ? 'text-primary' : 'text-foreground'}`}>
@@ -190,8 +190,8 @@ export function UsersTab({
                       <td className="px-4 py-3 text-muted-foreground hidden lg:table-cell">{new Date(user.created_at).toLocaleDateString('ru-RU')}</td>
                       <td className="px-4 py-3 hidden sm:table-cell">
                         {user.blocked
-                          ? <span className="inline-flex items-center gap-1 text-xs font-semibold text-rose-700 dark:text-rose-300 bg-rose-500/15 rounded-full px-2.5 py-1"><Icon name="Ban" size={11} /> Заблокирован</span>
-                          : <span className="inline-flex items-center gap-1 text-xs font-semibold text-emerald-700 dark:text-emerald-300 bg-emerald-500/15 rounded-full px-2.5 py-1"><Icon name="CheckCircle" size={11} /> Активен</span>}
+                          ? <span className="inline-flex items-center gap-1 text-xs font-semibold text-destructive bg-destructive/15 rounded-full px-3 py-1"><Icon name="Ban" size={11} /> Заблокирован</span>
+                          : <span className="inline-flex items-center gap-1 text-xs font-semibold text-success bg-success/15 rounded-full px-3 py-1"><Icon name="CheckCircle" size={11} /> Активен</span>}
                       </td>
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-1 justify-end">
@@ -200,14 +200,14 @@ export function UsersTab({
                             <Icon name="Copy" size={13} />
                           </button>
                           <button onClick={() => manageUser(user.id, user.blocked ? 'unblock' : 'block')} disabled={isLoad}
-                            className={`grid h-7 w-7 place-items-center rounded-lg hover:bg-secondary transition-colors ${user.blocked ? 'text-emerald-600 hover:text-emerald-700' : 'text-amber-500 hover:text-amber-600'}`}
+                            className={`grid h-7 w-7 place-items-center rounded-lg hover:bg-secondary transition-colors ${user.blocked ? 'text-success hover:text-success' : 'text-warning hover:text-warning'}`}
                             title={user.blocked ? 'Разблокировать' : 'Заблокировать'}>
                             <Icon name={isLoad ? 'Loader' : user.blocked ? 'Unlock' : 'Lock'} size={13} className={isLoad ? 'animate-spin' : ''} />
                           </button>
                           {isConf ? (
                             <div className="flex items-center gap-1" title="Удаление безвозвратно: пользователь, его проекты и все данные будут удалены навсегда">
                               <button onClick={() => manageUser(user.id, 'delete')} disabled={isLoad}
-                                className="h-7 px-2.5 rounded-lg bg-destructive text-destructive-foreground text-xs font-semibold hover:bg-destructive/90 transition-colors whitespace-nowrap">
+                                className="h-7 px-3 rounded-lg bg-destructive text-destructive-foreground text-xs font-semibold hover:bg-destructive/90 transition-colors whitespace-nowrap">
                                 {isLoad ? '…' : 'Удалить навсегда'}
                               </button>
                               <button onClick={() => setConfirmDelete(null)}

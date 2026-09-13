@@ -28,7 +28,7 @@ export default function BuilderShowcase({
 
       <div className="relative mx-auto w-full max-w-5xl px-6 py-10">
         <div className="text-center">
-          <span className="inline-flex items-center gap-1.5 rounded-full border border-primary/25 bg-primary/10 px-3 py-1 text-[11px] font-semibold text-primary">
+          <span className="inline-flex items-center gap-2 rounded-full border border-primary/25 bg-primary/10 px-3 py-1 text-2xs font-semibold text-primary">
             <Icon name="Sparkles" size={11} />
             {ru ? 'Что умеет ваша команда' : 'What your team can build'}
           </span>
@@ -43,7 +43,7 @@ export default function BuilderShowcase({
         </div>
 
         {/* Фильтр по классу продукта */}
-        <div className="mt-6 flex flex-wrap items-center justify-center gap-1.5">
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-2">
           {([
             { id: 'all' as const, label: ru ? 'Все' : 'All' },
             ...PRODUCT_TYPES.map(p => ({ id: p.id, label: ru ? p.label.ru : p.label.en })),
@@ -52,7 +52,7 @@ export default function BuilderShowcase({
               key={id}
               type="button"
               onClick={() => setFilter(id)}
-              className={`rounded-full px-3.5 py-1.5 text-xs font-semibold transition-colors ${
+              className={`rounded-full px-4 py-2 text-xs font-semibold transition-colors ${
                 filter === id
                   ? 'bg-primary text-primary-foreground shadow-sm shadow-primary/30'
                   : 'border border-border bg-card/60 text-muted-foreground hover:border-primary/40 hover:text-foreground'
@@ -84,19 +84,19 @@ export default function BuilderShowcase({
                 />
                 {/* Затемнение снизу — чтобы подпись «Собрать такой» читалась на любой картинке */}
                 <span className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-0 transition-opacity duration-300 group-hover:opacity-100" />
-                <span className="pointer-events-none absolute inset-x-0 bottom-0 flex translate-y-2 items-center justify-center gap-1.5 pb-3 text-xs font-semibold text-white opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
+                <span className="pointer-events-none absolute inset-x-0 bottom-0 flex translate-y-2 items-center justify-center gap-2 pb-3 text-xs font-semibold text-white opacity-0 transition-all duration-300 group-hover:translate-y-0 group-hover:opacity-100">
                   <Icon name="Sparkles" size={12} />
                   {ru ? 'Собрать такой' : 'Build this'}
                 </span>
               </span>
-              <span className="block p-3.5">
-                <span className="flex items-center gap-1.5 text-[10.5px] font-semibold uppercase tracking-wider text-primary">
+              <span className="block p-4">
+                <span className="flex items-center gap-2 text-2xs font-semibold uppercase tracking-wider text-primary">
                   <Icon name={t.icon} fallback="Square" size={11} />
                   {ru
                     ? PRODUCT_TYPES.find(p => p.id === t.type)!.label.ru
                     : PRODUCT_TYPES.find(p => p.id === t.type)!.label.en}
                 </span>
-                <span className="font-display mt-1 block truncate text-[15px] font-bold text-foreground">
+                <span className="font-display mt-1 block truncate text-sm font-bold text-foreground">
                   {ru ? t.title.ru : t.title.en}
                 </span>
                 <span className="mt-0.5 block truncate text-xs text-muted-foreground">

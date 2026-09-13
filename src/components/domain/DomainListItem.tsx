@@ -58,20 +58,20 @@ export default function DomainListItem({
         onClick={() => { setSelected(isOpen ? null : d); setDnsResult(null); }}
         className="w-full flex items-center gap-3 p-4 text-left hover:bg-secondary/40 transition-colors"
       >
-        <div className={`grid h-10 w-10 place-items-center rounded-xl shrink-0 ${d.status === 'active' ? 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300' : 'bg-amber-500/15 text-amber-700 dark:text-amber-300'}`}>
+        <div className={`grid h-10 w-10 place-items-center rounded-xl shrink-0 ${d.status === 'active' ? 'bg-success/15 text-success' : 'bg-warning/15 text-warning'}`}>
           <Icon name={d.status === 'active' ? 'CheckCircle' : 'Clock'} size={18} />
         </div>
         <div className="min-w-0 flex-1">
           <div className="flex items-center gap-2 flex-wrap">
             <span className="font-semibold text-sm truncate">{d.domain}</span>
             {d.is_primary && (
-              <span className="text-[10px] font-bold uppercase tracking-wide bg-primary/10 text-primary rounded-full px-2 py-0.5">
+              <span className="text-2xs font-bold uppercase tracking-wide bg-primary/10 text-primary rounded-full px-2 py-0.5">
                 {isRu ? 'Основной' : 'Primary'}
               </span>
             )}
           </div>
           <div className="flex items-center gap-3 mt-0.5 flex-wrap">
-            <span className={`text-xs font-medium ${d.status === 'active' ? 'text-emerald-600' : 'text-amber-600'}`}>
+            <span className={`text-xs font-medium ${d.status === 'active' ? 'text-success' : 'text-warning'}`}>
               {d.status === 'active' ? (isRu ? 'Подключён' : 'Connected') : (isRu ? 'Ожидает DNS' : 'Awaiting DNS')}
             </span>
             <span className="text-xs text-muted-foreground flex items-center gap-1">
@@ -99,7 +99,7 @@ export default function DomainListItem({
             <div className="space-y-2">
               {dnsRows.map(row => (
                 <div key={row.key} className="bg-secondary/50 rounded-xl p-3">
-                  <p className="text-[11px] text-muted-foreground mb-2">{row.desc}</p>
+                  <p className="text-2xs text-muted-foreground mb-2">{row.desc}</p>
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                     {[
                       { label: isRu ? 'Тип' : 'Type', value: row.type },
@@ -108,7 +108,7 @@ export default function DomainListItem({
                       { label: 'TTL', value: row.ttl },
                     ].map(cell => (
                       <div key={cell.label} className="bg-card rounded-lg p-2">
-                        <p className="text-[9px] text-muted-foreground uppercase mb-0.5">{cell.label}</p>
+                        <p className="text-3xs text-muted-foreground uppercase mb-0.5">{cell.label}</p>
                         <div className="flex items-center justify-between gap-1">
                           <p className="text-xs font-mono font-semibold truncate">{cell.value}</p>
                           {(cell.label === (isRu ? 'Значение' : 'Value')) && (
@@ -129,8 +129,8 @@ export default function DomainListItem({
           <div className="flex items-center gap-2">
             <Button size="sm" variant="outline" className="rounded-xl" disabled={verifying} onClick={() => onVerify(d)}>
               {verifying
-                ? <Icon name="Loader" size={13} className="mr-1.5 animate-spin" />
-                : <Icon name="Search" size={13} className="mr-1.5" />}
+                ? <Icon name="Loader" size={13} className="mr-2 animate-spin" />
+                : <Icon name="Search" size={13} className="mr-2" />}
               {isRu ? 'Проверить DNS' : 'Check DNS'}
             </Button>
             {d.status === 'pending' && (
@@ -141,17 +141,17 @@ export default function DomainListItem({
           </div>
 
           {dnsResult && (
-            <div className={`rounded-xl p-3 text-xs space-y-1.5 ${dnsResult.verified ? 'bg-emerald-50 text-emerald-800' : 'bg-amber-50 text-amber-800'}`}>
-              <div className="flex items-center gap-1.5">
+            <div className={`rounded-xl p-3 text-xs space-y-1.5 ${dnsResult.verified ? 'bg-success text-success' : 'bg-warning text-warning'}`}>
+              <div className="flex items-center gap-2">
                 <Icon name={dnsResult.a_record.ok ? 'CheckCircle' : 'XCircle'} size={13} />
                 A-запись: {dnsResult.a_record.ok ? (isRu ? 'найдена' : 'found') : (isRu ? 'не найдена' : 'not found')}
               </div>
-              <div className="flex items-center gap-1.5">
+              <div className="flex items-center gap-2">
                 <Icon name={dnsResult.cname_record.ok ? 'CheckCircle' : 'XCircle'} size={13} />
                 CNAME: {dnsResult.cname_record.ok ? (isRu ? 'найдена' : 'found') : (isRu ? 'не найдена' : 'not found')}
               </div>
               {dnsResult.registrar && (
-                <div className="flex items-center gap-1.5 pt-1">
+                <div className="flex items-center gap-2 pt-1">
                   <Icon name="Building2" size={13} />
                   {isRu ? `Регистратор: ${dnsResult.registrar}` : `Registrar: ${dnsResult.registrar}`}
                   {registrarLink && (
@@ -167,7 +167,7 @@ export default function DomainListItem({
           {/* SSL status */}
           {d.status === 'active' && (
             <div className="flex items-center gap-3 bg-secondary/50 rounded-xl p-3">
-              <div className="grid h-8 w-8 place-items-center rounded-lg bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 shrink-0">
+              <div className="grid h-8 w-8 place-items-center rounded-lg bg-success/15 text-success shrink-0">
                 <Icon name="Lock" size={14} />
               </div>
               <div className="text-xs">
@@ -184,7 +184,7 @@ export default function DomainListItem({
 
           {/* Project assignment */}
           <div>
-            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">
+            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 block">
               {isRu ? 'Привязан к проекту' : 'Assigned project'}
             </label>
             <Select
@@ -206,7 +206,7 @@ export default function DomainListItem({
 
           {/* Redirect mode */}
           <div>
-            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-1.5 block">
+            <label className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2 block">
               {isRu ? 'Редирект' : 'Redirect'}
             </label>
             <div className="flex flex-wrap gap-2">
@@ -219,7 +219,7 @@ export default function DomainListItem({
                   key={opt.id}
                   disabled={savingRedirect}
                   onClick={() => onSetRedirect(d, opt.id)}
-                  className={`text-xs font-medium rounded-full px-3 py-1.5 border transition-colors ${
+                  className={`text-xs font-medium rounded-full px-3 py-2 border transition-colors ${
                     d.redirect_mode === opt.id
                       ? 'bg-primary text-primary-foreground border-primary'
                       : 'bg-secondary text-muted-foreground border-border hover:text-foreground'
@@ -235,20 +235,20 @@ export default function DomainListItem({
           <div className="flex items-center gap-2 pt-2 border-t border-border">
             {!d.is_primary && (
               <Button size="sm" variant="outline" className="rounded-xl" onClick={() => onSetPrimary(d)}>
-                <Icon name="Star" size={13} className="mr-1.5" />
+                <Icon name="Star" size={13} className="mr-2" />
                 {isRu ? 'Сделать основным' : 'Set as primary'}
               </Button>
             )}
             {d.status === 'active' && (
               <Button size="sm" variant="outline" className="rounded-xl" asChild>
                 <a href={`https://${d.domain}`} target="_blank" rel="noopener noreferrer">
-                  <Icon name="ExternalLink" size={13} className="mr-1.5" />
+                  <Icon name="ExternalLink" size={13} className="mr-2" />
                   {isRu ? 'Открыть' : 'Open'}
                 </a>
               </Button>
             )}
             <Button size="sm" variant="outline" className="rounded-xl text-destructive hover:text-destructive border-destructive/20 hover:bg-destructive/5 ml-auto" onClick={() => onDeleteRequest(d)}>
-              <Icon name="Trash2" size={13} className="mr-1.5" />
+              <Icon name="Trash2" size={13} className="mr-2" />
               {isRu ? 'Удалить' : 'Delete'}
             </Button>
           </div>

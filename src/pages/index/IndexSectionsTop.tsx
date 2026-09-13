@@ -43,7 +43,7 @@ export function IndexSectionsTop({ lang }: Props) {
               <Reveal key={d.tag} delay={i * 80}>
                 <div className={`group relative h-full rounded-3xl border p-6 md:p-8 transition-all duration-300 lift hover:shadow-xl ${d.hot ? 'border-primary/40 bg-primary/[0.04] hover:shadow-primary/15' : 'border-border bg-card hover:border-primary/30 hover:shadow-primary/10'}`}>
                   {d.hot && (
-                    <span className="absolute top-5 right-5 text-[11px] font-bold uppercase tracking-wide text-primary bg-primary/10 rounded-full px-2.5 py-1">
+                    <span className="absolute top-5 right-5 text-2xs font-bold uppercase tracking-wide text-primary bg-primary/10 rounded-full px-3 py-1">
                       {lang === 'ru' ? 'рекомендуем' : 'top pick'}
                     </span>
                   )}
@@ -51,9 +51,9 @@ export function IndexSectionsTop({ lang }: Props) {
                     <Icon name={d.icon} size={22} />
                   </span>
                   <p className="mt-5 text-xs font-semibold uppercase tracking-widest text-primary">{d.tag}</p>
-                  <h3 className="mt-1.5 font-display font-bold text-xl md:text-2xl">{d.title}</h3>
+                  <h3 className="mt-2 font-display font-bold text-xl md:text-2xl">{d.title}</h3>
                   <p className="mt-3 text-muted-foreground text-sm md:text-base">{d.text}</p>
-                  <a href="/register" className="mt-5 inline-flex items-center gap-1.5 font-semibold text-primary group/link">
+                  <a href="/register" className="mt-5 inline-flex items-center gap-2 font-semibold text-primary group/link">
                     {d.cta}
                     <Icon name="ArrowRight" size={16} className="transition-transform group-hover/link:translate-x-1" />
                   </a>
@@ -137,9 +137,9 @@ export function IndexSectionsTop({ lang }: Props) {
                     <Icon name={col.icon} size={20} />
                   </span>
                   <h3 className="mt-4 font-display font-bold text-lg">{col.title}</h3>
-                  <div className="mt-3 flex flex-wrap gap-1.5">
+                  <div className="mt-3 flex flex-wrap gap-2">
                     {col.items.map(t => (
-                      <span key={t} className="inline-flex items-center rounded-lg bg-secondary border border-border px-2.5 py-1 text-xs font-medium text-foreground/80">
+                      <span key={t} className="inline-flex items-center rounded-lg bg-secondary border border-border px-3 py-1 text-xs font-medium text-foreground/80">
                         {t}
                       </span>
                     ))}
@@ -188,7 +188,7 @@ export function IndexSectionsTop({ lang }: Props) {
                     <Icon name={t.icon} size={22} className="text-primary" />
                   </div>
                   <div className="font-display font-bold text-lg sm:text-xl text-foreground tracking-tight">{t.value}</div>
-                  <div className="text-xs sm:text-sm text-muted-foreground mt-1.5 leading-relaxed">{t.label}</div>
+                  <div className="text-xs sm:text-sm text-muted-foreground mt-2 leading-relaxed">{t.label}</div>
                 </div>
               </Reveal>
             ))}
@@ -217,7 +217,7 @@ export function IndexSectionsTop({ lang }: Props) {
                   <tr className="border-b border-border bg-secondary/50">
                     <th className="text-left p-4 md:p-5 font-display font-bold text-base">{lang === 'ru' ? 'Критерий' : 'Criteria'}</th>
                     <th className="p-4 md:p-5 font-display font-bold text-base">
-                      <span className="inline-flex items-center gap-1.5 text-primary">
+                      <span className="inline-flex items-center gap-2 text-primary">
                         <RoboMark size={16} /> Roboweb
                       </span>
                     </th>
@@ -230,7 +230,7 @@ export function IndexSectionsTop({ lang }: Props) {
                     <tr key={row.label} className={`border-b border-border last:border-0 ${i % 2 === 0 ? 'bg-card' : 'bg-secondary/20'}`}>
                       <td className="p-4 md:p-5 font-medium text-muted-foreground">{row.label}</td>
                       <td className="p-4 md:p-5 text-center">
-                        <span className="inline-flex items-center gap-1.5 font-semibold text-primary bg-primary/10 rounded-full px-3 py-1 text-xs">
+                        <span className="inline-flex items-center gap-2 font-semibold text-primary bg-primary/10 rounded-full px-3 py-1 text-xs">
                           <Icon name="CheckCircle" size={13} />{row.roboweb}
                         </span>
                       </td>
@@ -279,7 +279,7 @@ export function IndexSectionsTop({ lang }: Props) {
                   <h3 className="mt-3 md:mt-4 font-display font-bold text-lg md:text-xl">{s.title}</h3>
                   <p className="mt-2 text-muted-foreground text-sm md:text-base">{s.text}</p>
                   {i < STEPS.length - 1 && (
-                    <div className="absolute -right-3 top-1/2 -translate-y-1/2 hidden md:block z-10">
+                    <div className="absolute -right-3 top-1/2 -translate-y-1/2 hidden md:block z-raised">
                       <Icon name="ChevronRight" size={20} className="text-white/30" />
                     </div>
                   )}

@@ -68,8 +68,8 @@ export default function DashboardProfileTab({
       <h1 className="font-display font-bold text-xl sm:text-2xl mb-6">{tr('profile', lang)}</h1>
 
       {lowBalance && (
-        <div className={`rounded-2xl px-4 py-3 mb-4 flex items-start gap-2.5 text-sm ${
-          remaining! <= 0 ? 'bg-destructive/10 text-destructive' : 'bg-amber-500/15 text-amber-700 dark:text-amber-300'
+        <div className={`rounded-2xl px-4 py-3 mb-4 flex items-start gap-3 text-sm ${
+          remaining! <= 0 ? 'bg-destructive/10 text-destructive' : 'bg-warning/15 text-warning'
         }`}>
           <Icon name={remaining! <= 0 ? 'AlertCircle' : 'Zap'} size={16} className="shrink-0 mt-0.5" />
           <div className="flex-1">
@@ -96,7 +96,7 @@ export default function DashboardProfileTab({
           <div className="min-w-0">
             <div className="font-display font-bold text-base sm:text-lg truncate">{user.name}</div>
             <div className="text-muted-foreground text-xs sm:text-sm truncate">{user.email}</div>
-            <span className={`inline-block mt-1 rounded-full px-2.5 py-0.5 text-xs font-bold ${plan.color}`}>
+            <span className={`inline-block mt-1 rounded-full px-3 py-0.5 text-xs font-bold ${plan.color}`}>
               {plan.label}
             </span>
           </div>
@@ -156,19 +156,19 @@ export default function DashboardProfileTab({
             className="h-10 rounded-xl"
           />
           {pwError && (
-            <div className="flex items-start gap-2 text-sm text-destructive bg-destructive/10 rounded-xl px-3 py-2.5">
+            <div className="flex items-start gap-2 text-sm text-destructive bg-destructive/10 rounded-xl px-3 py-3">
               <Icon name="AlertCircle" size={15} className="shrink-0 mt-0.5" />
               <span>{pwError}</span>
             </div>
           )}
           {pwSaved && (
-            <div className="flex items-center gap-2 text-sm text-emerald-700 dark:text-emerald-300 bg-emerald-500/15 rounded-xl px-3 py-2.5">
+            <div className="flex items-center gap-2 text-sm text-success bg-success/15 rounded-xl px-3 py-3">
               <Icon name="CheckCircle" size={15} />
               <span>{lang === 'ru' ? 'Пароль изменён' : 'Password changed'}</span>
             </div>
           )}
           <Button type="submit" variant="outline" size="sm" className="rounded-xl" disabled={pwSaving}>
-            {pwSaving ? <Icon name="Loader" size={14} className="mr-1.5 animate-spin" /> : null}
+            {pwSaving ? <Icon name="Loader" size={14} className="mr-2 animate-spin" /> : null}
             {lang === 'ru' ? 'Изменить пароль' : 'Change password'}
           </Button>
         </form>
@@ -195,7 +195,7 @@ export default function DashboardProfileTab({
               disabled={disconnectingGithub}
               onClick={handleDisconnectGithub}
             >
-              {disconnectingGithub ? <Icon name="Loader" size={14} className="mr-1.5 animate-spin" /> : null}
+              {disconnectingGithub ? <Icon name="Loader" size={14} className="mr-2 animate-spin" /> : null}
               {lang === 'ru' ? 'Отключить' : 'Disconnect'}
             </Button>
           </div>
@@ -204,7 +204,7 @@ export default function DashboardProfileTab({
             <p className="text-sm text-muted-foreground">
               {lang === 'ru' ? 'Аккаунт не подключён' : 'Account not connected'}
             </p>
-            <Button variant="outline" size="sm" className="rounded-xl gap-1.5 shrink-0 w-full xs:w-auto" asChild>
+            <Button variant="outline" size="sm" className="rounded-xl gap-2 shrink-0 w-full xs:w-auto" asChild>
               <a href={`https://github.com/login/oauth/authorize?client_id=Ov23linVfsQ0G4M2cWrd&scope=public_repo&state=connect&redirect_uri=${encodeURIComponent(window.location.origin + '/auth/github/callback')}`}>
                 <Icon name="Github" size={14} />
                 {lang === 'ru' ? 'Подключить' : 'Connect'}
@@ -240,7 +240,7 @@ export default function DashboardProfileTab({
                 </div>
                 <div className="text-right shrink-0">
                   <p className="text-sm font-semibold">{o.amount.toLocaleString()} ₽</p>
-                  <span className={`text-xs font-medium ${o.status === 'paid' ? 'text-emerald-600' : o.status === 'canceled' ? 'text-destructive' : 'text-amber-600'}`}>
+                  <span className={`text-xs font-medium ${o.status === 'paid' ? 'text-success' : o.status === 'canceled' ? 'text-destructive' : 'text-warning'}`}>
                     {o.status === 'paid' ? (lang === 'ru' ? 'Оплачено' : 'Paid') : o.status === 'canceled' ? (lang === 'ru' ? 'Отменено' : 'Canceled') : (lang === 'ru' ? 'В обработке' : 'Pending')}
                   </span>
                 </div>
@@ -288,7 +288,7 @@ export default function DashboardProfileTab({
             className="h-10 rounded-xl"
           />
           {deleteError && (
-            <div className="flex items-start gap-2 text-sm text-destructive bg-destructive/10 rounded-xl px-3 py-2.5">
+            <div className="flex items-start gap-2 text-sm text-destructive bg-destructive/10 rounded-xl px-3 py-3">
               <Icon name="AlertCircle" size={15} className="shrink-0 mt-0.5" />
               <span>{deleteError}</span>
             </div>
@@ -299,7 +299,7 @@ export default function DashboardProfileTab({
             disabled={deleting || !deletePassword}
             onClick={handleDeleteAccount}
           >
-            {deleting ? <Icon name="Loader" size={14} className="mr-1.5 animate-spin" /> : null}
+            {deleting ? <Icon name="Loader" size={14} className="mr-2 animate-spin" /> : null}
             {lang === 'ru' ? 'Удалить безвозвратно' : 'Delete permanently'}
           </Button>
         </DialogContent>

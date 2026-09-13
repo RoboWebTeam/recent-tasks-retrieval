@@ -31,7 +31,7 @@ export function IndexNav({ lang, menuOpen, setMenuOpen, onLangSwitch }: IndexNav
   const handleLogout = () => { clearSession(); navigate(0); };
 
   return (
-    <header className="fixed top-0 inset-x-0 z-50 bg-background/80 backdrop-blur-xl border-b border-border/50">
+    <header className="fixed top-0 inset-x-0 z-sticky bg-background/80 backdrop-blur-xl border-b border-border/50">
       <nav className="container flex items-center justify-between py-3 md:py-4">
         <a href="/" className="flex items-center gap-2 font-display font-extrabold text-lg md:text-xl">
           <LogoMark size={36} pulse />
@@ -55,7 +55,7 @@ export function IndexNav({ lang, menuOpen, setMenuOpen, onLangSwitch }: IndexNav
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
-                <div className="px-2 py-1.5">
+                <div className="px-2 py-2">
                   <p className="text-sm font-semibold truncate">{user?.name}</p>
                   <p className="text-xs text-muted-foreground truncate">{user?.email}</p>
                 </div>
@@ -167,9 +167,9 @@ export function IndexHero({ lang, typedText, chatStep, isTyping, progress, chatS
 
   return (
     <section ref={secRef} onMouseMove={handleParallax} onMouseLeave={resetParallax} className="hero-ambient relative overflow-hidden pt-28 sm:pt-32 lg:pt-36 pb-16 md:pb-24" style={{clipPath: 'inset(0)'}}>
-      <div className="aurora absolute inset-0 -z-10" />
+      <div className="aurora absolute inset-0 z-behind" />
       <ParticlesBg />
-      <div className="absolute inset-0 -z-10 bg-gradient-to-b from-background/40 via-background/60 to-background" />
+      <div className="absolute inset-0 z-behind bg-gradient-to-b from-background/40 via-background/60 to-background" />
       {/* Floating orbs */}
       <div className="absolute top-20 -left-24 h-56 w-56 md:h-80 md:w-80 rounded-full bg-primary/20 blur-3xl animate-glow" style={{transform:'translate3d(calc(var(--px,0) * 34px), calc(var(--py,0) * 34px), 0)', transition:'transform 0.4s ease-out'}} />
       <div className="absolute top-40 -right-24 h-56 w-56 md:h-80 md:w-80 rounded-full bg-accent/25 blur-3xl animate-glow" style={{animationDelay:'1.5s', transform:'translate3d(calc(var(--px,0) * -28px), calc(var(--py,0) * -28px), 0)', transition:'transform 0.4s ease-out'}} />
@@ -177,7 +177,7 @@ export function IndexHero({ lang, typedText, chatStep, isTyping, progress, chatS
 
       <div className="container grid lg:grid-cols-2 gap-10 lg:gap-12 items-center">
         <div className="animate-fade-in text-center lg:text-left" style={{transform:'translate3d(calc(var(--px,0) * -14px), calc(var(--py,0) * -9px), 0)', transition:'transform 0.4s ease-out'}}>
-          <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-1.5 text-xs sm:text-sm font-medium text-primary">
+          <span className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/5 px-4 py-2 text-xs sm:text-sm font-medium text-primary">
             <span className="h-1.5 w-1.5 rounded-full bg-primary animate-pulse" />
             {L.hero.badge[lang]}
           </span>
@@ -185,7 +185,7 @@ export function IndexHero({ lang, typedText, chatStep, isTyping, progress, chatS
               то есть поисковику и экранному диктору доставалось наполовину набранное слово с
               курсором, а после пререндера такой обрывок ещё и застывал бы в статике. Теперь в
               заголовке есть постоянная формулировка, а анимация осталась украшением поверх неё. */}
-          <h1 className="mt-5 font-display font-bold leading-[1.02] text-4xl sm:text-6xl md:text-7xl xl:text-7xl 2xl:text-8xl tracking-tight break-words hyphens-auto">
+          <h1 className="mt-5 font-display font-bold leading-none text-4xl sm:text-6xl md:text-7xl xl:text-7xl 2xl:text-8xl tracking-tight break-words hyphens-auto">
             <span className="sr-only">
               {lang === 'ru'
                 ? 'Ваша ИИ-команда разработки: фуллстек-проект за минуты, код — в ваш GitHub'
@@ -214,7 +214,7 @@ export function IndexHero({ lang, typedText, chatStep, isTyping, progress, chatS
               <Icon name="Play" size={16} className="mr-1" /> {L.hero.demo[lang]}
             </Button>
           </div>
-          <p className="mt-4 flex items-center gap-1.5 text-xs sm:text-sm text-muted-foreground justify-center lg:justify-start">
+          <p className="mt-4 flex items-center gap-2 text-xs sm:text-sm text-muted-foreground justify-center lg:justify-start">
             <Icon name="Check" size={15} className="text-primary shrink-0" />
             {lang === 'ru' ? 'Бесплатный старт · карта не нужна · код остаётся у вас' : 'Free to start · no card · the code stays yours'}
           </p>

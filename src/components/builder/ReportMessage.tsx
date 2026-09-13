@@ -46,7 +46,7 @@ export default function ReportMessage({
 
   return (
     <div className="space-y-3 animate-fade-in">
-      <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 text-[14px] font-medium">
+      <div className="flex items-center gap-2 text-success text-sm font-medium">
         <Icon name="CheckCircle" size={14} /> {tr('builderReady', lang)}
       </div>
 

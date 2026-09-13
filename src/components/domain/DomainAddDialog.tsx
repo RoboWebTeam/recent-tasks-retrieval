@@ -54,14 +54,14 @@ export default function DomainAddDialog({
               />
             </div>
             {newDomainError && (
-              <p className="text-sm text-destructive flex items-center gap-1.5">
+              <p className="text-sm text-destructive flex items-center gap-2">
                 <Icon name="AlertCircle" size={14} /> {newDomainError}
               </p>
             )}
             <Button onClick={onAddDomain} disabled={adding || !newDomain.trim()} className="w-full h-11 rounded-xl font-semibold">
               {adding
-                ? <><Icon name="Loader" size={15} className="mr-1.5 animate-spin" />{isRu ? 'Добавляем…' : 'Adding…'}</>
-                : <>{isRu ? 'Добавить' : 'Add'}<Icon name="ArrowRight" size={15} className="ml-1.5" /></>}
+                ? <><Icon name="Loader" size={15} className="mr-2 animate-spin" />{isRu ? 'Добавляем…' : 'Adding…'}</>
+                : <>{isRu ? 'Добавить' : 'Add'}<Icon name="ArrowRight" size={15} className="ml-2" /></>}
             </Button>
           </div>
         </DialogContent>

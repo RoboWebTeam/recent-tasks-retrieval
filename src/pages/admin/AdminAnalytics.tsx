@@ -22,7 +22,7 @@ export function AdminAnalytics({
       <div className="flex items-center gap-2">
         {(['7d', '30d'] as const).map(p => (
           <button key={p} onClick={() => setAnalyticsPeriod(p)}
-            className={`px-4 py-1.5 rounded-xl text-sm font-semibold transition-all ${analyticsPeriod === p ? 'bg-primary text-primary-foreground' : 'bg-card border border-border text-muted-foreground hover:text-foreground'}`}>
+            className={`px-4 py-2 rounded-xl text-sm font-semibold transition-all ${analyticsPeriod === p ? 'bg-primary text-primary-foreground' : 'bg-card border border-border text-muted-foreground hover:text-foreground'}`}>
             {p === '7d' ? '7 дней' : '30 дней'}
           </button>
         ))}
@@ -44,8 +44,8 @@ export function AdminAnalytics({
             {[
               { label: 'Просмотров', value: analyticsData.total_views.toLocaleString(), color: 'text-primary' },
               { label: 'Посетителей', value: analyticsData.total_visitors.toLocaleString(), color: 'text-violet-500' },
-              { label: 'Изменение', value: `${analyticsData.views_change >= 0 ? '+' : ''}${analyticsData.views_change}%`, color: analyticsData.views_change >= 0 ? 'text-emerald-500' : 'text-destructive' },
-              { label: 'Заявок с проектов', value: (siteLeadCounts.new || 0) + (siteLeadCounts.processed || 0) + (siteLeadCounts.rejected || 0), color: 'text-amber-500' },
+              { label: 'Изменение', value: `${analyticsData.views_change >= 0 ? '+' : ''}${analyticsData.views_change}%`, color: analyticsData.views_change >= 0 ? 'text-success' : 'text-destructive' },
+              { label: 'Заявок с проектов', value: (siteLeadCounts.new || 0) + (siteLeadCounts.processed || 0) + (siteLeadCounts.rejected || 0), color: 'text-warning' },
             ].map(s => (
               <div key={s.label} className="rounded-2xl border border-border bg-card p-4">
                 <p className={`text-xs font-semibold uppercase tracking-wide mb-1 ${s.color}`}>{s.label}</p>
@@ -60,8 +60,8 @@ export function AdminAnalytics({
               <div className="flex items-center justify-between mb-5">
                 <h2 className="font-display font-bold text-base">Посещаемость</h2>
                 <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                  <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-primary inline-block" /> Просмотры</span>
-                  <span className="flex items-center gap-1.5"><span className="h-2.5 w-2.5 rounded-full bg-violet-400 inline-block" /> Посетители</span>
+                  <span className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full bg-primary inline-block" /> Просмотры</span>
+                  <span className="flex items-center gap-2"><span className="h-2.5 w-2.5 rounded-full bg-violet-400 inline-block" /> Посетители</span>
                 </div>
               </div>
               {analyticsData.chart.length === 0 ? (
@@ -73,14 +73,14 @@ export function AdminAnalytics({
                       <div className="w-full flex items-end gap-0.5" style={{ height: '120px' }}>
                         <div className="flex-1 bg-primary/20 hover:bg-primary/40 rounded-t transition-colors relative group"
                           style={{ height: `${(d.views / maxViews) * 100}%` }}>
-                          <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-card border border-border text-foreground text-[10px] px-1.5 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                          <div className="absolute -top-6 left-1/2 -translate-x-1/2 bg-card border border-border text-foreground text-2xs px-2 py-0.5 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-raised">
                             {d.views.toLocaleString()}
                           </div>
                         </div>
                         <div className="flex-1 bg-violet-400/30 hover:bg-violet-400/50 rounded-t transition-colors"
                           style={{ height: `${(d.visitors / maxViews) * 100}%` }} />
                       </div>
-                      <span className="text-[10px] text-muted-foreground">{d.day}</span>
+                      <span className="text-2xs text-muted-foreground">{d.day}</span>
                     </div>
                   ))}
                 </div>
@@ -95,7 +95,7 @@ export function AdminAnalytics({
                 <div className="space-y-3">
                   {analyticsData.sources.map((s, i) => (
                     <div key={s.name}>
-                      <div className="flex items-center justify-between text-sm mb-1.5">
+                      <div className="flex items-center justify-between text-sm mb-2">
                         <span className="text-foreground font-medium">{s.name}</span>
                         <span className="font-bold">{s.value}%</span>
                       </div>
@@ -112,7 +112,7 @@ export function AdminAnalytics({
           {/* Top sites table */}
           {analyticsData.top_sites.length > 0 && (
             <div className="bg-card border border-border rounded-2xl overflow-hidden">
-              <div className="px-5 py-3.5 border-b border-border bg-secondary/30">
+              <div className="px-5 py-4 border-b border-border bg-secondary/30">
                 <h2 className="font-display font-bold text-sm">Топ проектов</h2>
               </div>
               <div className="overflow-x-auto">
@@ -141,7 +141,7 @@ export function AdminAnalytics({
                         <td className="px-5 py-3 text-right font-semibold">{site.views.toLocaleString()}</td>
                         <td className="px-5 py-3 text-right text-muted-foreground hidden sm:table-cell">{site.visitors.toLocaleString()}</td>
                         <td className="px-5 py-3 text-right hidden md:table-cell">
-                          <span className="inline-flex items-center gap-1 text-emerald-600 font-semibold">
+                          <span className="inline-flex items-center gap-1 text-success font-semibold">
                             <Icon name="TrendingUp" size={11} /> {site.leads}
                           </span>
                         </td>

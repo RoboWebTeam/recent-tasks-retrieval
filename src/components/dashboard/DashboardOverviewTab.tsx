@@ -91,10 +91,10 @@ export function DashboardOverviewTab({ lang }: { lang: Lang }) {
             {ru ? 'Что ваши проекты принесли за период' : 'What your projects delivered in the period'}
           </p>
         </div>
-        <div className="flex gap-1.5 rounded-xl border border-border bg-card p-1">
+        <div className="flex gap-2 rounded-xl border border-border bg-card p-1">
           {[7, 30, 90].map(d => (
             <button key={d} onClick={() => setDays(d)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors ${
+              className={`px-3 py-2 rounded-lg text-xs font-semibold transition-colors ${
                 days === d ? 'bg-primary text-primary-foreground' : 'text-muted-foreground hover:text-foreground'
               }`}>
               {d} {ru ? 'дн' : 'd'}
@@ -117,17 +117,17 @@ export function DashboardOverviewTab({ lang }: { lang: Lang }) {
                 {typeof k.value === 'number' ? k.value.toLocaleString() : k.value}
               </span>
               {k.badge && (
-                <span className="mb-1 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold px-2 py-0.5">
+                <span className="mb-1 rounded-full bg-success/15 text-success text-2xs font-bold px-2 py-0.5">
                   {k.badge}
                 </span>
               )}
               {typeof k.change === 'number' && k.change !== 0 && (
-                <span className={`mb-1 text-[11px] font-bold ${k.change > 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-500'}`}>
+                <span className={`mb-1 text-2xs font-bold ${k.change > 0 ? 'text-success' : 'text-destructive'}`}>
                   {k.change > 0 ? '▲' : '▼'} {Math.abs(k.change)}%
                 </span>
               )}
             </div>
-            {k.hint && <div className="text-[11px] text-muted-foreground mt-0.5">{k.hint}</div>}
+            {k.hint && <div className="text-2xs text-muted-foreground mt-0.5">{k.hint}</div>}
           </div>
         ))}
       </div>
@@ -143,7 +143,7 @@ export function DashboardOverviewTab({ lang }: { lang: Lang }) {
               ? 'Опубликуйте проект и подключите домен — здесь появятся посетители, заявки и конверсия по каждому проекту.'
               : 'Publish a project and connect a domain — visitors, leads and conversion per project will appear here.'}
           </p>
-          <Link to="/builder" className="mt-5 inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground font-semibold px-6 py-2.5 text-sm glow-hover">
+          <Link to="/builder" className="mt-5 inline-flex items-center gap-2 rounded-full bg-primary text-primary-foreground font-semibold px-6 py-3 text-sm glow-hover">
             <Icon name="Sparkles" size={15} /> {ru ? 'Собрать проект' : 'Build a project'}
           </Link>
         </div>
@@ -153,18 +153,18 @@ export function DashboardOverviewTab({ lang }: { lang: Lang }) {
           <div className="rounded-2xl border border-border bg-card p-4 sm:p-5">
             <div className="flex items-baseline justify-between mb-4">
               <h3 className="font-display font-bold text-sm">{ru ? 'Динамика посещений' : 'Traffic dynamics'}</h3>
-              <span className="text-[11px] text-muted-foreground">{ru ? `последние ${days} дней` : `last ${days} days`}</span>
+              <span className="text-2xs text-muted-foreground">{ru ? `последние ${days} дней` : `last ${days} days`}</span>
             </div>
-            <div className="flex items-end gap-1.5 h-32">
+            <div className="flex items-end gap-2 h-32">
               {data!.chart.map((d, i) => (
-                <div key={d.day + i} className="flex-1 flex flex-col items-center gap-1.5 group">
+                <div key={d.day + i} className="flex-1 flex flex-col items-center gap-2 group">
                   <div className="w-full rounded-t-md bg-gradient-to-t from-primary/50 to-primary mc-bar relative"
                     style={{ height: `${Math.max((d.views / maxViews) * 100, 3)}%`, animationDelay: `${i * 50}ms` }}>
-                    <span className="absolute -top-6 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity rounded-md bg-foreground text-background text-[10px] font-bold px-1.5 py-0.5 whitespace-nowrap">
+                    <span className="absolute -top-6 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity rounded-md bg-foreground text-background text-2xs font-bold px-2 py-0.5 whitespace-nowrap">
                       {d.views}
                     </span>
                   </div>
-                  <span className="text-[9px] text-muted-foreground">{d.day}</span>
+                  <span className="text-3xs text-muted-foreground">{d.day}</span>
                 </div>
               ))}
             </div>
@@ -182,7 +182,7 @@ export function DashboardOverviewTab({ lang }: { lang: Lang }) {
                       <div className="flex items-center gap-3 flex-wrap">
                         <span className="font-display font-bold text-sm truncate max-w-[220px]">{p.name}</span>
                         {p.new_leads > 0 && (
-                          <span className="rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold px-2 py-0.5">
+                          <span className="rounded-full bg-success/15 text-success text-2xs font-bold px-2 py-0.5">
                             {p.new_leads} {ru ? 'новых заявок' : 'new leads'}
                           </span>
                         )}
@@ -196,7 +196,7 @@ export function DashboardOverviewTab({ lang }: { lang: Lang }) {
                         <div className="h-full rounded-full bg-gradient-to-r from-primary to-[hsl(258,76%,64%)] transition-all duration-700"
                           style={{ width: `${Math.max(share, 2)}%` }} />
                       </div>
-                      <div className="mt-2 flex gap-3 text-[11px]">
+                      <div className="mt-2 flex gap-3 text-2xs">
                         <Link to={`/analytics?site=${encodeURIComponent(p.url || '')}`} className="text-primary font-semibold hover:underline">
                           {ru ? 'Аналитика' : 'Analytics'}
                         </Link>
@@ -227,16 +227,16 @@ export function DashboardOverviewTab({ lang }: { lang: Lang }) {
               </div>
               <div className="space-y-2">
                 {leads.slice(0, 5).map(l => (
-                  <div key={l.id} className="flex items-center gap-3 rounded-xl border border-border bg-background/50 p-2.5">
+                  <div key={l.id} className="flex items-center gap-3 rounded-xl border border-border bg-background/50 p-3">
                     <span className="grid h-8 w-8 place-items-center rounded-lg bg-primary/10 text-primary shrink-0 text-xs font-bold">
                       {(l.name || '—').slice(0, 1).toUpperCase()}
                     </span>
                     <div className="min-w-0 flex-1">
                       <div className="text-sm font-semibold truncate">{l.name || (ru ? 'Без имени' : 'No name')}</div>
-                      <div className="text-[11px] text-muted-foreground truncate">{l.phone || l.email || l.message}</div>
+                      <div className="text-2xs text-muted-foreground truncate">{l.phone || l.email || l.message}</div>
                     </div>
                     {l.status === 'new' && (
-                      <span className="rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold px-2 py-0.5 shrink-0">
+                      <span className="rounded-full bg-success/15 text-success text-2xs font-bold px-2 py-0.5 shrink-0">
                         {ru ? 'новая' : 'new'}
                       </span>
                     )}

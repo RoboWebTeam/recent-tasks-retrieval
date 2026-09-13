@@ -55,8 +55,8 @@ export default function DashboardPlanTab({
       <h1 className="font-display font-bold text-xl sm:text-2xl mb-6">{lang === 'ru' ? 'Тарифный план' : 'Pricing Plan'}</h1>
 
       {lowBalance && (
-        <div className={`rounded-2xl px-4 py-3 mb-4 flex items-start gap-2.5 text-sm ${
-          remaining! <= 0 ? 'bg-destructive/10 text-destructive' : 'bg-amber-500/15 text-amber-700 dark:text-amber-300'
+        <div className={`rounded-2xl px-4 py-3 mb-4 flex items-start gap-3 text-sm ${
+          remaining! <= 0 ? 'bg-destructive/10 text-destructive' : 'bg-warning/15 text-warning'
         }`}>
           <Icon name={remaining! <= 0 ? 'AlertCircle' : 'Zap'} size={16} className="shrink-0 mt-0.5" />
           <div>
@@ -91,7 +91,7 @@ export default function DashboardPlanTab({
       <div className="rounded-2xl border border-border bg-card p-4 sm:p-6 mb-6">
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
           <div className="flex items-center gap-2">
-            <div className="grid h-9 w-9 place-items-center rounded-xl bg-amber-500/15 text-amber-700 dark:text-amber-300">
+            <div className="grid h-9 w-9 place-items-center rounded-xl bg-warning/15 text-warning">
               <Icon name="Zap" size={16} />
             </div>
             <div>
@@ -109,9 +109,9 @@ export default function DashboardPlanTab({
         </p>
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
           {energyPackages.map(pkg => (
-            <div key={pkg.code} className="rounded-xl border border-border p-2.5 sm:p-4 flex flex-col items-center text-center gap-1.5 sm:gap-2">
+            <div key={pkg.code} className="rounded-xl border border-border p-3 sm:p-4 flex flex-col items-center text-center gap-2 sm:gap-2">
               <div className="font-display font-bold text-lg sm:text-xl">{pkg.requests}</div>
-              <p className="text-[11px] sm:text-xs text-muted-foreground">{lang === 'ru' ? 'запросов' : 'requests'}</p>
+              <p className="text-2xs sm:text-xs text-muted-foreground">{lang === 'ru' ? 'запросов' : 'requests'}</p>
               <p className="text-xs sm:text-sm font-semibold">{pkg.price.toLocaleString()} ₽</p>
               <Button
                 size="sm"
@@ -138,14 +138,14 @@ export default function DashboardPlanTab({
           { id: 'premium', name: tr('planPremium', lang), price: '990 ₽/мес', requests: `30 ${tr('requestsMonthly', lang)}`, features: lang === 'ru' ? ['Свой домен + экспорт кода в GitHub', 'Фуллстек-бэкенд: формы, каталог, корзина', 'До 3 проектов', 'БД 128 МБ'] : ['Custom domain + code export to GitHub', 'Fullstack backend: forms, catalog, cart', 'Up to 3 projects', '128 MB DB'], current: user?.plan === 'premium', hot: true },
         ].map(p => (
           <div key={p.id} className={`rounded-2xl border p-5 ${p.current ? 'border-primary bg-primary/5' : 'border-border bg-card'}`}>
-            {p.hot && <span className="inline-block bg-primary text-primary-foreground text-xs font-bold rounded-full px-2.5 py-0.5 mb-2">{lang === 'ru' ? 'Популярный' : 'Popular'}</span>}
+            {p.hot && <span className="inline-block bg-primary text-primary-foreground text-xs font-bold rounded-full px-3 py-0.5 mb-2">{lang === 'ru' ? 'Популярный' : 'Popular'}</span>}
             <h3 className="font-display font-bold text-lg">{p.name}</h3>
             <div className="font-display font-bold text-2xl my-2">{p.price}</div>
             <p className="text-xs text-primary font-semibold mb-3">{p.requests}</p>
             <ul className="space-y-1.5 mb-4">
               {p.features.map(f => (
                 <li key={f} className="flex items-center gap-2 text-sm">
-                  <Icon name="Check" size={13} className="text-emerald-500 shrink-0" />{f}
+                  <Icon name="Check" size={13} className="text-success shrink-0" />{f}
                 </li>
               ))}
             </ul>
@@ -166,12 +166,12 @@ export default function DashboardPlanTab({
           <h3 className="font-display font-bold text-lg">{tr('planPro', lang)}</h3>
           <div className="font-display font-bold text-2xl my-2">{selectedPro.price.toLocaleString()} ₽/{lang === 'ru' ? 'мес' : 'mo'}</div>
           <p className="text-xs text-primary font-semibold mb-2">{getProRequestsLabel(selectedPro.requests, lang)}</p>
-          <div className="flex flex-wrap gap-1.5 mb-3">
+          <div className="flex flex-wrap gap-2 mb-3">
             {proPlans.map((p, i) => (
               <button
                 key={p.plan_code}
                 onClick={() => setProIndex(i)}
-                className={`px-2.5 py-1 rounded-lg text-xs font-semibold transition-all ${
+                className={`px-3 py-1 rounded-lg text-xs font-semibold transition-all ${
                   proIndex === i ? 'bg-foreground text-background' : 'bg-secondary text-muted-foreground hover:text-foreground'
                 }`}
               >
@@ -182,12 +182,12 @@ export default function DashboardPlanTab({
           <ul className="space-y-1.5 mb-4">
             {(lang === 'ru' ? ['Приоритетная поддержка'] : ['Priority support']).map(f => (
               <li key={f} className="flex items-center gap-2 text-sm">
-                <Icon name="Check" size={13} className="text-emerald-500 shrink-0" />{f}
+                <Icon name="Check" size={13} className="text-success shrink-0" />{f}
               </li>
             ))}
             {(PRO_PLAN_DETAILS[selectedPro.plan_code]?.[lang] ?? []).map(f => (
               <li key={f} className="flex items-center gap-2 text-sm">
-                <Icon name="Check" size={13} className="text-emerald-500 shrink-0" />{f}
+                <Icon name="Check" size={13} className="text-success shrink-0" />{f}
               </li>
             ))}
           </ul>

@@ -30,16 +30,16 @@ export function LogTab({ activityLogs, activityLoading, logActionFilter, setLogA
   return (
     <div>
       <div className="flex flex-wrap items-center gap-2 mb-4">
-        <div className="flex gap-1.5 overflow-x-auto pb-1">
+        <div className="flex gap-2 overflow-x-auto pb-1">
           {[['', 'Все'], ['register', 'Регистрации'], ['generate_site', 'Генерации'], ['create_project', 'Проекты'], ['change_plan', 'Тарифы'], ['block_user', 'Блокировки']].map(([val, label]) => (
             <button key={val} onClick={() => { setLogActionFilter(val); fetchLog(adminKey, val); }}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${logActionFilter === val ? 'bg-primary text-primary-foreground' : 'bg-card border border-border text-muted-foreground hover:text-foreground'}`}>
+              className={`px-3 py-2 rounded-xl text-xs font-semibold whitespace-nowrap transition-all ${logActionFilter === val ? 'bg-primary text-primary-foreground' : 'bg-card border border-border text-muted-foreground hover:text-foreground'}`}>
               {label}
             </button>
           ))}
         </div>
         <button onClick={() => fetchLog(adminKey, logActionFilter)} disabled={activityLoading}
-          className="ml-auto flex items-center gap-1.5 h-8 px-3 rounded-xl border border-border bg-secondary text-xs text-muted-foreground hover:text-foreground transition-colors">
+          className="ml-auto flex items-center gap-2 h-8 px-3 rounded-xl border border-border bg-secondary text-xs text-muted-foreground hover:text-foreground transition-colors">
           <Icon name={activityLoading ? 'Loader' : 'RefreshCw'} size={13} className={activityLoading ? 'animate-spin' : ''} />
           Обновить
         </button>
@@ -72,7 +72,7 @@ export function LogTab({ activityLogs, activityLoading, logActionFilter, setLogA
                   return (
                     <tr key={log.id} className="border-b border-border last:border-0 hover:bg-secondary/30 transition-colors">
                       <td className="px-4 py-3">
-                        <span className={`inline-flex items-center gap-1.5 text-xs font-semibold px-2.5 py-1 rounded-full ${cfg.color}`}>
+                        <span className={`inline-flex items-center gap-2 text-xs font-semibold px-3 py-1 rounded-full ${cfg.color}`}>
                           <Icon name={cfg.icon} size={11} />
                           {cfg.label}
                         </span>
@@ -81,7 +81,7 @@ export function LogTab({ activityLogs, activityLoading, logActionFilter, setLogA
                         {log.user_id ? (
                           <div>
                             <p className="font-medium text-foreground text-xs">{log.user_name}</p>
-                            <p className="text-muted-foreground text-[10px]">{log.user_email}</p>
+                            <p className="text-muted-foreground text-2xs">{log.user_email}</p>
                           </div>
                         ) : <span className="text-muted-foreground text-xs">—</span>}
                       </td>
@@ -137,12 +137,12 @@ export function NotificationsTab({ notifications, notifsLoading, unreadCount, ma
         <div className="flex gap-2">
           {unreadCount > 0 && (
             <button onClick={markAllRead}
-              className="flex items-center gap-1.5 h-8 px-3 rounded-xl border border-border bg-secondary text-xs text-muted-foreground hover:text-foreground transition-colors">
+              className="flex items-center gap-2 h-8 px-3 rounded-xl border border-border bg-secondary text-xs text-muted-foreground hover:text-foreground transition-colors">
               <Icon name="CheckCheck" size={13} /> Прочитать все
             </button>
           )}
           <button onClick={() => fetchNotifications(adminKey)} disabled={notifsLoading}
-            className="flex items-center gap-1.5 h-8 px-3 rounded-xl border border-border bg-secondary text-xs text-muted-foreground hover:text-foreground transition-colors">
+            className="flex items-center gap-2 h-8 px-3 rounded-xl border border-border bg-secondary text-xs text-muted-foreground hover:text-foreground transition-colors">
             <Icon name={notifsLoading ? 'Loader' : 'RefreshCw'} size={13} className={notifsLoading ? 'animate-spin' : ''} />
             Обновить
           </button>
@@ -177,17 +177,17 @@ export function NotificationsTab({ notifications, notifsLoading, unreadCount, ma
                 <div className="flex-1 min-w-0">
                   <div className="flex items-start justify-between gap-2">
                     <div>
-                      <p className={`text-[10px] font-bold uppercase tracking-wide ${isNew ? 'text-primary' : 'text-muted-foreground'}`}>{typeLabel}</p>
+                      <p className={`text-2xs font-bold uppercase tracking-wide ${isNew ? 'text-primary' : 'text-muted-foreground'}`}>{typeLabel}</p>
                       <p className={`text-sm font-semibold ${isNew ? 'text-foreground' : 'text-muted-foreground'}`}>{n.title}</p>
                     </div>
-                    {isNew && <span className="h-2 w-2 rounded-full bg-primary shrink-0 mt-1.5" />}
+                    {isNew && <span className="h-2 w-2 rounded-full bg-primary shrink-0 mt-2" />}
                   </div>
                   {meta && Object.keys(meta).length > 0 && (
                     <p className="text-xs text-muted-foreground mt-1">
                       {Object.entries(meta).filter(([k]) => k !== 'user_id').slice(0, 3).map(([k, v]) => `${META_FIELD_LABELS[k] || k}: ${v}`).join(' · ')}
                     </p>
                   )}
-                  <p className="text-[10px] text-muted-foreground mt-1.5">
+                  <p className="text-2xs text-muted-foreground mt-2">
                     {new Date(n.created_at).toLocaleString('ru-RU', { day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' })}
                   </p>
                 </div>

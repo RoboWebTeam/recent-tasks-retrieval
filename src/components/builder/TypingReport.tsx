@@ -117,7 +117,7 @@ export default function TypingReport(props: Props) {
   // ФАЗА 0 — ждём ответов
   if (phase === 0) {
     return (
-      <div className="flex items-center gap-2 text-muted-foreground text-[14px] font-medium py-0.5">
+      <div className="flex items-center gap-2 text-muted-foreground text-sm font-medium py-0.5">
         <span>{lang === 'ru' ? 'Жду ответов' : 'Waiting for response'}</span>
         <span className="flex gap-1">
           {[0, 1, 2].map(j => (
@@ -130,13 +130,13 @@ export default function TypingReport(props: Props) {
 
   return (
     <div className="space-y-3">
-      <div className="flex items-center gap-2 text-emerald-600 dark:text-emerald-400 text-[14px] font-medium">
+      <div className="flex items-center gap-2 text-success text-sm font-medium">
         <Icon name="CheckCircle" size={14} /> {tr('builderReady', lang)}
       </div>
 
       {/* ФАЗА 1 — какой файл читается/создаётся. В стрим-режиме уже есть карточка файла — не дублируем. */}
       {!hideSteps && (
-        <div className="flex items-center gap-2 text-[14px] font-semibold text-muted-foreground bg-secondary/60 border border-border rounded-lg px-2.5 py-1.5 w-fit">
+        <div className="flex items-center gap-2 text-sm font-semibold text-muted-foreground bg-secondary/60 border border-border rounded-lg px-3 py-2 w-fit">
           <Icon name={isEdit ? 'FilePenLine' : 'FilePlus2'} fallback="FileCode" size={14} className="text-primary shrink-0" />
           <span className="font-mono">index.html</span>
           <span className="text-muted-foreground/70">
@@ -158,7 +158,7 @@ export default function TypingReport(props: Props) {
 
       {/* Вступление (в лайв-режиме скрыто — см. shownIntro) */}
       {phase >= 2 && shownIntro && stage >= introStage && (
-        <p className="text-foreground text-[14px] leading-[1.6]">
+        <p className="text-foreground text-sm leading-relaxed">
           <TypingLine text={shownIntro} animate={detailsAnimate && stage === introStage} onDone={next} onTick={onTick} />
         </p>
       )}
@@ -166,14 +166,14 @@ export default function TypingReport(props: Props) {
       {/* Шаги — по одному (в стрим-режиме shownSteps пуст, т.к. шаги уже показаны вживую) */}
       {phase >= 2 && shownSteps.length > 0 && stage > stepStages[0] - 1 && (
         <div className="space-y-1.5">
-          <p className="text-[14px] text-foreground font-medium">
+          <p className="text-sm text-foreground font-medium">
             {lang === 'ru' ? 'Что я сделал' : 'What I did'}
           </p>
           <div className="space-y-1.5">
             {shownSteps.map((step, i) => (
               stage >= stepStages[i] && (
-                <div key={i} className="flex items-start gap-2 text-[14px] text-foreground leading-[1.6]">
-                  <span className="grid place-items-center h-4 w-4 rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5">
+                <div key={i} className="flex items-start gap-2 text-sm text-foreground leading-relaxed">
+                  <span className="grid place-items-center h-4 w-4 rounded-full bg-success/15 text-success shrink-0 mt-0.5">
                     <Icon name="Check" size={10} />
                   </span>
                   <TypingLine text={step} animate={detailsAnimate && stage === stepStages[i]} onDone={next} onTick={onTick} />
@@ -186,14 +186,14 @@ export default function TypingReport(props: Props) {
 
       {/* Итог */}
       {phase >= 2 && summary && stage >= summaryStage && (
-        <p className="text-foreground text-[14px] leading-[1.6]">
+        <p className="text-foreground text-sm leading-relaxed">
           <TypingLine text={summary} animate={detailsAnimate && stage === summaryStage} onDone={next} onTick={onTick} />
         </p>
       )}
 
       {/* Финальный этап */}
       {phase >= 2 && stage >= finalStage && !shownIntro && !summary && shownSteps.length === 0 && (
-        <p className="text-muted-foreground text-[14px]">{tr('builderReadyDesc', lang)}</p>
+        <p className="text-muted-foreground text-sm">{tr('builderReadyDesc', lang)}</p>
       )}
 
       {/* Индикатор «печатает», пока не дошли до финала (только на фазе подробного описания) */}
@@ -209,18 +209,18 @@ export default function TypingReport(props: Props) {
           Появляются после того, как отчёт допечатан. */}
       {phase >= 2 && stage >= finalStage && suggestions.length > 0 && (
         <div className="pt-1 animate-fade-in">
-          <p className="text-[14px] text-muted-foreground font-medium mb-2 flex items-center gap-1.5">
+          <p className="text-sm text-muted-foreground font-medium mb-2 flex items-center gap-2">
             <Icon name="Sparkles" size={13} className="text-primary" />
             {lang === 'ru' ? 'Что дальше' : 'What’s next'}
           </p>
-          <div className="flex flex-wrap gap-1.5">
+          <div className="flex flex-wrap gap-2">
             {suggestions.slice(0, 4).map((s, i) => (
               <button
                 key={i}
                 onClick={() => onSuggestion?.(s.prompt)}
                 disabled={suggestionsDisabled}
                 title={s.prompt}
-                className="group flex items-center gap-1.5 rounded-full border border-border bg-card hover:border-primary/50 hover:bg-primary/5 disabled:opacity-50 disabled:cursor-not-allowed transition-all px-3 py-1.5 text-[14px] font-medium text-foreground"
+                className="group flex items-center gap-2 rounded-full border border-border bg-card hover:border-primary/50 hover:bg-primary/5 disabled:opacity-50 disabled:cursor-not-allowed transition-all px-3 py-2 text-sm font-medium text-foreground"
               >
                 <Icon name={s.icon} fallback="Sparkles" size={13} className="text-primary shrink-0" />
                 <span className="truncate max-w-[180px]">{s.label}</span>

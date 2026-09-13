@@ -90,19 +90,19 @@ export function ProjectPassportDialog({
           <div className="flex items-baseline justify-between mb-2">
             <h4 className="font-display font-bold text-sm">{ru ? 'Результат за 30 дней' : 'Results in 30 days'}</h4>
             {stat && stat.new_leads > 0 && (
-              <span className="rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold px-2 py-0.5">
+              <span className="rounded-full bg-success/15 text-success text-2xs font-bold px-2 py-0.5">
                 +{stat.new_leads} {ru ? 'новых заявок' : 'new leads'}
               </span>
             )}
           </div>
           <div className="grid grid-cols-4 gap-2">
             {metrics.map(m => (
-              <div key={m.label} className="rounded-xl border border-border bg-background/50 p-2.5 text-center">
+              <div key={m.label} className="rounded-xl border border-border bg-background/50 p-3 text-center">
                 <Icon name={m.icon} size={14} className={`mx-auto ${m.accent ? 'text-primary' : 'text-muted-foreground'}`} />
                 <div className="font-display font-bold text-base mt-1 tabular-nums">
                   {typeof m.value === 'number' ? m.value.toLocaleString() : m.value}
                 </div>
-                <div className="text-[10px] text-muted-foreground leading-tight">{m.label}</div>
+                <div className="text-2xs text-muted-foreground leading-tight">{m.label}</div>
               </div>
             ))}
           </div>
@@ -110,7 +110,7 @@ export function ProjectPassportDialog({
 
         {/* История работы */}
         <div className="mt-5">
-          <h4 className="font-display font-bold text-sm mb-2.5">{ru ? 'История работы' : 'Work history'}</h4>
+          <h4 className="font-display font-bold text-sm mb-3">{ru ? 'История работы' : 'Work history'}</h4>
           <div className="space-y-0">
             {milestones.map((m, i) => (
               <div key={m.title} className="flex gap-3">
@@ -124,7 +124,7 @@ export function ProjectPassportDialog({
                 </div>
                 <div className="pb-3 min-w-0">
                   <div className={`text-sm font-semibold ${m.done ? '' : 'text-muted-foreground'}`}>{m.title}</div>
-                  <div className="text-[11px] text-muted-foreground">{m.sub}</div>
+                  <div className="text-2xs text-muted-foreground">{m.sub}</div>
                 </div>
               </div>
             ))}
@@ -132,7 +132,7 @@ export function ProjectPassportDialog({
         </div>
 
         {/* Технический паспорт */}
-        <div className="mt-2 rounded-2xl border border-border bg-background/50 p-3.5">
+        <div className="mt-2 rounded-2xl border border-border bg-background/50 p-4">
           <h4 className="font-display font-bold text-sm mb-2">{ru ? 'Технические данные' : 'Technical details'}</h4>
           <dl className="space-y-1.5 text-xs">
             <div className="flex justify-between gap-3">
@@ -159,24 +159,24 @@ export function ProjectPassportDialog({
         {/* Действия */}
         <div className="mt-4 grid grid-cols-2 gap-2">
           <Link to={`/analytics?site=${encodeURIComponent(project.url || '')}`}
-            className="flex items-center justify-center gap-1.5 rounded-xl border border-border bg-secondary px-3 py-2.5 text-xs font-semibold hover:bg-background transition-colors">
+            className="flex items-center justify-center gap-2 rounded-xl border border-border bg-secondary px-3 py-3 text-xs font-semibold hover:bg-background transition-colors">
             <Icon name="BarChart2" size={14} /> {ru ? 'Аналитика' : 'Analytics'}
           </Link>
           <Link to={`/leads?site=${encodeURIComponent(project.url || '')}`}
-            className="flex items-center justify-center gap-1.5 rounded-xl border border-border bg-secondary px-3 py-2.5 text-xs font-semibold hover:bg-background transition-colors">
+            className="flex items-center justify-center gap-2 rounded-xl border border-border bg-secondary px-3 py-3 text-xs font-semibold hover:bg-background transition-colors">
             <Icon name="Inbox" size={14} /> {ru ? 'Заявки' : 'Leads'}
           </Link>
           <Link to={`/builder?project=${project.id}`}
-            className="flex items-center justify-center gap-1.5 rounded-xl bg-primary text-primary-foreground px-3 py-2.5 text-xs font-semibold glow-hover">
+            className="flex items-center justify-center gap-2 rounded-xl bg-primary text-primary-foreground px-3 py-3 text-xs font-semibold glow-hover">
             <Icon name="Sparkles" size={14} /> {ru ? 'Открыть редактор' : 'Open editor'}
           </Link>
           {isPublished && project.slug ? (
             <a href={`/site/${project.slug}`} target="_blank" rel="noopener noreferrer"
-              className="flex items-center justify-center gap-1.5 rounded-xl border border-border bg-secondary px-3 py-2.5 text-xs font-semibold hover:bg-background transition-colors">
+              className="flex items-center justify-center gap-2 rounded-xl border border-border bg-secondary px-3 py-3 text-xs font-semibold hover:bg-background transition-colors">
               <Icon name="ExternalLink" size={14} /> {ru ? 'Открыть проект' : 'Open project'}
             </a>
           ) : (
-            <span className="flex items-center justify-center gap-1.5 rounded-xl border border-dashed border-border px-3 py-2.5 text-xs font-semibold text-muted-foreground">
+            <span className="flex items-center justify-center gap-2 rounded-xl border border-dashed border-border px-3 py-3 text-xs font-semibold text-muted-foreground">
               {ru ? 'Не опубликован' : 'Not published'}
             </span>
           )}

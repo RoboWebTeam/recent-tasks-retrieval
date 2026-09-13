@@ -81,9 +81,9 @@ export default function DashboardProjectsTab({
     },
     published: {
       gradient: 'from-emerald-400 via-green-400 to-teal-500',
-      iconBg: 'bg-emerald-500',
-      badge: 'bg-emerald-500/15 text-emerald-700 dark:text-emerald-300',
-      ring: 'hover:border-emerald-300 hover:shadow-emerald-500/10',
+      iconBg: 'bg-success',
+      badge: 'bg-success/15 text-success',
+      ring: 'hover:border-success/30 hover:shadow-success/30/10',
     },
   };
 
@@ -106,7 +106,7 @@ export default function DashboardProjectsTab({
             </DialogHeader>
             <form onSubmit={handleCreateProject} className="space-y-4 mt-2">
               <div>
-                <label className="text-sm font-medium mb-1.5 block">{tr('projectName', lang)}</label>
+                <label className="text-sm font-medium mb-2 block">{tr('projectName', lang)}</label>
                 <Input
                   placeholder={tr('projectNamePlaceholder', lang)}
                   value={newTitle}
@@ -117,7 +117,7 @@ export default function DashboardProjectsTab({
                 />
               </div>
               <div>
-                <label className="text-sm font-medium mb-1.5 block">{tr('description', lang)} <span className="text-muted-foreground font-normal">({tr('optional', lang)})</span></label>
+                <label className="text-sm font-medium mb-2 block">{tr('description', lang)} <span className="text-muted-foreground font-normal">({tr('optional', lang)})</span></label>
                 <Input
                   placeholder={tr('descriptionPlaceholder', lang)}
                   value={newDesc}
@@ -126,13 +126,13 @@ export default function DashboardProjectsTab({
                 />
               </div>
               {createError && (
-                <div className="flex items-start gap-2 text-sm text-destructive bg-destructive/10 rounded-xl px-3 py-2.5">
+                <div className="flex items-start gap-2 text-sm text-destructive bg-destructive/10 rounded-xl px-3 py-3">
                   <Icon name="AlertCircle" size={15} className="shrink-0 mt-0.5" />
                   <span>{createError}</span>
                 </div>
               )}
               <Button type="submit" className="w-full rounded-xl font-semibold" disabled={creating}>
-                {creating ? <><Icon name="Loader" size={15} className="mr-2 animate-spin" />{tr('creating', lang)}</> : <><Icon name="Sparkles" size={15} className="mr-1.5" />{tr('createAndOpen', lang)}</>}
+                {creating ? <><Icon name="Loader" size={15} className="mr-2 animate-spin" />{tr('creating', lang)}</> : <><Icon name="Sparkles" size={15} className="mr-2" />{tr('createAndOpen', lang)}</>}
               </Button>
             </form>
           </DialogContent>
@@ -180,7 +180,7 @@ export default function DashboardProjectsTab({
                     </div>
                   </div>
                   {/* Статус-бейдж поверх шапки */}
-                  <span className="absolute top-4 right-4 inline-flex items-center gap-1.5 rounded-full bg-white/90 backdrop-blur px-2.5 py-1 text-xs font-bold text-foreground shadow-sm">
+                  <span className="absolute top-4 right-4 inline-flex items-center gap-2 rounded-full bg-white/90 backdrop-blur px-3 py-1 text-xs font-bold text-foreground shadow-sm">
                     <Icon name={s.icon} size={11} className={p.status === 'building' ? 'animate-spin' : ''} />
                     {s.label}
                   </span>
@@ -196,7 +196,7 @@ export default function DashboardProjectsTab({
                 </div>
 
                 <div className="flex flex-col flex-1 px-5 pt-4 pb-4">
-                  <div className="flex items-center gap-2 mb-1.5">
+                  <div className="flex items-center gap-2 mb-2">
                     <h3 className="font-display font-bold text-base line-clamp-1 flex-1">{p.title}</h3>
                     {(p.chat_count ?? 0) > 0 && (
                       <span
@@ -219,7 +219,7 @@ export default function DashboardProjectsTab({
                       href={`/site/${p.slug}`}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 mb-3 rounded-lg bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 px-2.5 py-1.5 text-xs font-semibold hover:bg-emerald-500/25 transition-colors w-fit"
+                      className="inline-flex items-center gap-2 mb-3 rounded-lg bg-success/15 text-success px-3 py-2 text-xs font-semibold hover:bg-success/25 transition-colors w-fit"
                     >
                       <Icon name="ExternalLink" size={12} />
                       {lang === 'ru' ? 'Открыть проект' : 'Open site'}
@@ -232,9 +232,9 @@ export default function DashboardProjectsTab({
                     if (!st) return null;
                     const empty = st.views === 0 && st.leads === 0;
                     return (
-                      <div className="mb-3 rounded-xl border border-border bg-background/50 p-2.5">
+                      <div className="mb-3 rounded-xl border border-border bg-background/50 p-3">
                         {empty ? (
-                          <p className="text-[11px] text-muted-foreground">
+                          <p className="text-2xs text-muted-foreground">
                             {lang === 'ru' ? 'Пока нет посещений — опубликуйте проект' : 'No visits yet — publish the project'}
                           </p>
                         ) : (
@@ -251,12 +251,12 @@ export default function DashboardProjectsTab({
                                 <Icon name="Eye" size={12} />{st.views}
                               </span>
                               {st.new_leads > 0 && (
-                                <span className="ml-auto rounded-full bg-emerald-500/15 text-emerald-600 dark:text-emerald-400 text-[10px] font-bold px-2 py-0.5">
+                                <span className="ml-auto rounded-full bg-success/15 text-success text-2xs font-bold px-2 py-0.5">
                                   +{st.new_leads} {lang === 'ru' ? 'новых' : 'new'}
                                 </span>
                               )}
                             </div>
-                            <div className="mt-2 flex gap-3 text-[11px]">
+                            <div className="mt-2 flex gap-3 text-2xs">
                               <Link to={`/analytics?site=${encodeURIComponent(p.url || '')}`} className="text-primary font-semibold hover:underline">
                                 {lang === 'ru' ? 'Аналитика' : 'Analytics'}
                               </Link>
@@ -280,7 +280,7 @@ export default function DashboardProjectsTab({
                     </span>
                     <Link
                       to={`/builder?project=${p.id}`}
-                      className={`inline-flex items-center gap-1 rounded-xl text-white px-3 py-1.5 text-xs font-bold shadow-sm hover:opacity-90 transition-opacity ${t.iconBg}`}
+                      className={`inline-flex items-center gap-1 rounded-xl text-white px-3 py-2 text-xs font-bold shadow-sm hover:opacity-90 transition-opacity ${t.iconBg}`}
                     >
                       <Icon name="Sparkles" size={12} /> {tr('openInEditor', lang)}
                     </Link>
@@ -327,7 +327,7 @@ export default function DashboardProjectsTab({
               className="flex-1 rounded-xl font-semibold bg-destructive text-white hover:bg-destructive/90"
               onClick={() => { if (deleteId !== null) handleDeleteProject(deleteId); setDeleteId(null); }}
             >
-              <Icon name="Trash2" size={15} className="mr-1.5" />
+              <Icon name="Trash2" size={15} className="mr-2" />
               {lang === 'ru' ? 'Удалить' : 'Delete'}
             </Button>
           </div>

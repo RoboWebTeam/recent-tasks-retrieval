@@ -43,11 +43,11 @@ export function AgentTeamSection({ lang }: { lang: Lang }) {
             <div>
               <span className="inline-flex items-center gap-2 text-xs sm:text-sm font-semibold uppercase tracking-widest text-primary">
                 <span className="at-beat inline-flex h-5 w-5 items-center justify-center rounded-full bg-primary/15">
-                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 at-dot" />
+                  <span className="h-1.5 w-1.5 rounded-full bg-success at-dot" />
                 </span>
                 {ru ? 'Ваша ИИ-команда' : 'Your AI team'}
               </span>
-              <h2 className="mt-3 font-display font-bold text-3xl sm:text-4xl md:text-5xl tracking-tight leading-[1.08]">
+              <h2 className="mt-3 font-display font-bold text-3xl sm:text-4xl md:text-5xl tracking-tight leading-none">
                 {ru
                   ? <>Команда разработки, которая <span className="text-gradient">не спит и не устаёт</span></>
                   : <>A dev team that <span className="text-gradient">never sleeps or tires</span></>}
@@ -57,7 +57,7 @@ export function AgentTeamSection({ lang }: { lang: Lang }) {
                   ? 'Пока конкуренты неделями ищут разработчиков, ваша ИИ-команда собирает продукт прямо сейчас. Несколько агентов работают одновременно, как конвейер: аналитик, дизайнер, фронтенд, бэкенд, база и публикация — параллельно. Она не ест, не спит, не берёт отпуск и не срывает сроки.'
                   : 'While competitors spend weeks hiring developers, your AI team is building the product right now. Several agents work in parallel, like a conveyor: analyst, designer, frontend, backend, database and deploy — all at once. It doesn\'t eat, sleep, take vacations or miss deadlines.'}
               </p>
-              <div className="mt-7 flex flex-col gap-2.5">
+              <div className="mt-7 flex flex-col gap-3">
                 {metrics.map(m => (
                   <div key={m.t} className="inline-flex items-center gap-3 text-sm sm:text-base font-medium text-foreground/90">
                     <span className="grid h-8 w-8 place-items-center rounded-xl bg-primary/10 text-primary shrink-0">
@@ -80,14 +80,14 @@ export function AgentTeamSection({ lang }: { lang: Lang }) {
             <div className="relative rounded-3xl border border-border bg-card p-5 sm:p-6 shadow-2xl shadow-primary/5">
               {/* Шапка */}
               <div className="flex items-center justify-between mb-4">
-                <div className="flex items-center gap-2.5">
+                <div className="flex items-center gap-3">
                   <span className="relative flex h-2.5 w-2.5">
-                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-70" />
-                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-400" />
+                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-success opacity-70" />
+                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-success" />
                   </span>
                   <span className="font-display font-bold text-sm sm:text-base">{ru ? 'Конвейер сборки' : 'Build conveyor'}</span>
                 </div>
-                <span className="at-beat inline-flex items-center gap-1.5 rounded-full bg-primary/12 border border-primary/25 text-primary text-xs font-bold px-3 py-1">
+                <span className="at-beat inline-flex items-center gap-2 rounded-full bg-primary/10 border border-primary/25 text-primary text-xs font-bold px-3 py-1">
                   <Icon name="Clock" size={12} /> 24/7
                 </span>
               </div>
@@ -95,17 +95,17 @@ export function AgentTeamSection({ lang }: { lang: Lang }) {
               {/* Сетка агентов — работают параллельно */}
               <div className="grid grid-cols-2 gap-3">
                 {agents.map((a, i) => (
-                  <div key={a.name} className="at-in at-glow rounded-2xl border border-primary/15 bg-background/40 p-3.5"
+                  <div key={a.name} className="at-in at-glow rounded-2xl border border-primary/15 bg-background/40 p-4"
                     style={{ animationDelay: `${i * 90}ms` }}>
-                    <div className="flex items-center gap-2.5">
-                      <span className="grid h-9 w-9 place-items-center rounded-xl bg-primary/12 text-primary shrink-0">
+                    <div className="flex items-center gap-3">
+                      <span className="grid h-9 w-9 place-items-center rounded-xl bg-primary/10 text-primary shrink-0">
                         <Icon name={a.icon} size={17} />
                       </span>
                       <div className="min-w-0">
-                        <div className="font-display font-bold text-[13px] leading-tight truncate">{a.name}</div>
-                        <div className="text-[11px] text-muted-foreground truncate">{a.task}</div>
+                        <div className="font-display font-bold text-xs leading-tight truncate">{a.name}</div>
+                        <div className="text-2xs text-muted-foreground truncate">{a.task}</div>
                       </div>
-                      <span className="ml-auto h-2 w-2 rounded-full bg-emerald-400 at-dot shrink-0"
+                      <span className="ml-auto h-2 w-2 rounded-full bg-success at-dot shrink-0"
                         style={{ animationDelay: `${i * 200}ms` }} />
                     </div>
                     {/* индетерминантный «рабочий» прогресс */}
@@ -115,15 +115,15 @@ export function AgentTeamSection({ lang }: { lang: Lang }) {
               </div>
 
               {/* Итог конвейера */}
-              <div className="mt-4 flex items-center gap-3 rounded-2xl border border-primary/25 bg-primary/[0.06] p-3.5">
+              <div className="mt-4 flex items-center gap-3 rounded-2xl border border-primary/25 bg-primary/[0.06] p-4">
                 <span className="grid h-9 w-9 place-items-center rounded-xl bg-primary text-primary-foreground shrink-0 shadow-lg shadow-primary/30">
                   <Icon name="Check" size={18} />
                 </span>
                 <div>
                   <div className="font-display font-bold text-sm">{ru ? 'Готовый проект' : 'Finished project'}</div>
-                  <div className="text-[11px] text-muted-foreground">Next.js + Prisma · {ru ? 'код в GitHub / GitFlic' : 'code in GitHub / GitFlic'}</div>
+                  <div className="text-2xs text-muted-foreground">Next.js + Prisma · {ru ? 'код в GitHub / GitFlic' : 'code in GitHub / GitFlic'}</div>
                 </div>
-                <span className="ml-auto text-xs font-bold text-emerald-500 dark:text-emerald-400">{ru ? 'за минуты' : 'in minutes'}</span>
+                <span className="ml-auto text-xs font-bold text-success">{ru ? 'за минуты' : 'in minutes'}</span>
               </div>
             </div>
           </Reveal>

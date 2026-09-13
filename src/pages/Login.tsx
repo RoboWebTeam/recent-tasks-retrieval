@@ -81,7 +81,7 @@ const Login = () => {
                 ? ['Код в GitHub / GitFlic', 'Данные в вашей PostgreSQL', 'Работает 24/7']
                 : ['Code in GitHub / GitFlic', 'Data in your PostgreSQL', 'Works 24/7']
               ).map(c => (
-                <span key={c} className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-card px-2.5 py-1 text-[11px] font-medium text-muted-foreground">
+                <span key={c} className="inline-flex items-center gap-2 rounded-lg border border-border bg-card px-3 py-1 text-2xs font-medium text-muted-foreground">
                   <Icon name="Check" size={12} className="text-primary" />{c}
                 </span>
               ))}
@@ -90,7 +90,7 @@ const Login = () => {
 
           <form onSubmit={handleSubmit} className="space-y-4">
             <div>
-              <label className="text-sm font-medium mb-1.5 block">{tr('email', lang)}</label>
+              <label className="text-sm font-medium mb-2 block">{tr('email', lang)}</label>
               <Input
                 type="email"
                 placeholder={tr('emailPlaceholder', lang)}
@@ -102,7 +102,7 @@ const Login = () => {
               />
             </div>
             <div>
-              <label className="text-sm font-medium mb-1.5 block">{tr('password', lang)}</label>
+              <label className="text-sm font-medium mb-2 block">{tr('password', lang)}</label>
               <div className="relative">
                 <Input
                   type={showPass ? 'text' : 'password'}
@@ -123,7 +123,7 @@ const Login = () => {
             </div>
 
             {error && (
-              <div className="flex items-start gap-2 text-sm text-destructive bg-destructive/10 rounded-xl px-3 py-2.5">
+              <div className="flex items-start gap-2 text-sm text-destructive bg-destructive/10 rounded-xl px-3 py-3">
                 <Icon name="AlertCircle" size={15} className="shrink-0 mt-0.5" />
                 <span className="break-all">{error}</span>
               </div>
@@ -134,7 +134,7 @@ const Login = () => {
                 ? <><Icon name="Loader" size={16} className="mr-2 animate-spin" />{tr('signingIn', lang)}</>
                 : tr('signIn', lang)}
             </Button>
-            <p className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground">
+            <p className="flex items-center justify-center gap-2 text-xs text-muted-foreground">
               <Icon name="ShieldCheck" size={13} className="text-primary shrink-0" />
               {lang === 'ru' ? 'Защищённое соединение · ваши данные и код остаются вашими' : 'Secure connection · your data and code stay yours'}
             </p>
