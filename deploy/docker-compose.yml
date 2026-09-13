@@ -1,3 +1,9 @@
+# ВНИМАНИЕ. Этот файл описывает ОБЩИЙ nginx: тот же контейнер обслуживает не только
+# roboweb.dev, но и соседние продукты — BanRadar, BlockGuard, «Обменку», Twin и панель
+# состояния (их vhost-конфиги подключены томами ниже, плюс две внешние сети).
+# Версия из репозитория отставала от боевой на эти подключения: перезапись файла при
+# выкатке сняла бы четыре живых продукта с эфира. Правки вносить только сюда и сверять
+# с сервером перед деплоем.
 # Полный стек проекта одной командой: PostgreSQL + backend (все Cloud Functions) + nginx с фронтендом.
 #
 # Использование (из корня проекта):
@@ -71,6 +77,15 @@ services:
     volumes:
       - certbot_certs:/etc/letsencrypt:ro
       - certbot_webroot:/var/www/certbot
+      - ./banradar.conf:/etc/nginx/conf.d/banradar.conf:ro
+      - ./blockguard.conf:/etc/nginx/conf.d/blockguard.conf:ro
+      - ./obmenka.conf:/etc/nginx/conf.d/obmenka.conf:ro
+      - ./twin.conf:/etc/nginx/conf.d/twin.conf:ro
+      - ./status.conf:/etc/nginx/conf.d/status.conf:ro
+    networks:
+      - default
+      - banradar_net
+      - twin_default
 
   # Автопродление сертификата (каждые 12ч проверяет и продлевает через webroot-челлендж).
   certbot:
@@ -88,3 +103,10 @@ volumes:
   roboweb_pgdata:
   certbot_certs:
   certbot_webroot:
+
+networks:
+  default:
+  banradar_net:
+    external: true
+  twin_default:
+    external: true
