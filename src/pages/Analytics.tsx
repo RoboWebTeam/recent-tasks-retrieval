@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { PageTitle } from '@/components/ui/primitives';
 import { useSearchParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
@@ -100,7 +101,7 @@ export default function Analytics() {
       <main className="container py-8 max-w-6xl">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="font-display font-bold text-2xl sm:text-3xl">{isRu ? 'Аналитика' : 'Analytics'}</h1>
+            <PageTitle>{isRu ? 'Аналитика' : 'Analytics'}</PageTitle>
             <p className="text-sm text-muted-foreground mt-0.5">
               {siteFilter
                 ? (isRu ? 'Статистика одного проекта' : 'Statistics for a single project')

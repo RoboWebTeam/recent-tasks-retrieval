@@ -1,4 +1,5 @@
 import { Link } from 'react-router-dom';
+import { Eyebrow, SectionTitle, SectionLead } from '@/components/ui/primitives';
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
@@ -39,13 +40,13 @@ export function IndexSectionsBottom({ lang }: Props) {
         <div className="container relative">
           <Reveal>
             <div className="text-center max-w-2xl mx-auto px-2">
-              <span className="text-xs sm:text-sm font-semibold uppercase tracking-widest text-primary">{L.pricing.label[lang]}</span>
-              <h2 className="mt-3 font-display font-bold text-3xl sm:text-4xl md:text-5xl tracking-tight">
+              <Eyebrow>{L.pricing.label[lang]}</Eyebrow>
+              <SectionTitle>
                 {L.pricing.title[lang]}
-              </h2>
-              <p className="mt-4 text-muted-foreground text-base sm:text-lg">
+              </SectionTitle>
+              <SectionLead>
                 {L.pricing.desc[lang]}
-              </p>
+              </SectionLead>
             </div>
           </Reveal>
           <div className="mt-10 md:mt-14 grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 max-w-5xl mx-auto">
@@ -200,10 +201,10 @@ export function IndexSectionsBottom({ lang }: Props) {
         <div className="container max-w-3xl">
           <Reveal>
             <div className="text-center px-2">
-              <span className="text-xs sm:text-sm font-semibold uppercase tracking-widest text-primary">FAQ</span>
-              <h2 className="mt-3 font-display font-bold text-3xl sm:text-4xl md:text-5xl tracking-tight">
+              <Eyebrow>FAQ</Eyebrow>
+              <SectionTitle>
                 {L.faq.title[lang]}
-              </h2>
+              </SectionTitle>
             </div>
           </Reveal>
           <Reveal>
@@ -256,10 +257,10 @@ export function IndexSectionsBottom({ lang }: Props) {
           <Reveal>
             <div className="flex items-end justify-between mb-10 md:mb-14 gap-4">
               <div>
-                <span className="text-xs sm:text-sm font-semibold uppercase tracking-widest text-primary">{lang === 'ru' ? 'Блог' : 'Blog'}</span>
-                <h2 className="mt-3 font-display font-bold text-3xl sm:text-4xl md:text-5xl tracking-tight">
+                <Eyebrow>{lang === 'ru' ? 'Блог' : 'Blog'}</Eyebrow>
+                <SectionTitle>
                   {lang === 'ru' ? 'Всё об ИИ‑разработке' : 'All about AI development'}
-                </h2>
+                </SectionTitle>
               </div>
               <Link to="/blog" className="hidden sm:inline-flex items-center gap-2 text-sm font-semibold text-primary hover:underline shrink-0">
                 {lang === 'ru' ? 'Все статьи' : 'All articles'} <Icon name="ArrowRight" size={16} />

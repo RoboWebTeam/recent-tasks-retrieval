@@ -1,4 +1,5 @@
 import { Fragment } from 'react';
+import { Th } from '@/components/ui/primitives';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
@@ -41,7 +42,7 @@ export function LeadsTab({ filteredLeads, search, setSearch, exportCSV }: LeadsT
               <thead className="bg-secondary/50 border-b border-border">
                 <tr>
                   <th className="text-left px-4 py-3 font-semibold text-muted-foreground w-12">#</th>
-                  <th className="text-left px-4 py-3 font-semibold text-muted-foreground">E-mail</th>
+                  <Th>E-mail</Th>
                   <th className="text-left px-4 py-3 font-semibold text-muted-foreground hidden sm:table-cell">Дата</th>
                   <th className="w-10 px-4 py-3" />
                 </tr>
@@ -135,7 +136,7 @@ export function UsersTab({
               <thead className="bg-secondary/50 border-b border-border">
                 <tr>
                   <th className="text-left px-4 py-3 font-semibold text-muted-foreground w-12">#</th>
-                  <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Пользователь</th>
+                  <Th>Пользователь</Th>
                   <th className="text-left px-4 py-3 font-semibold text-muted-foreground hidden sm:table-cell">Тариф</th>
                   <th className="text-left px-4 py-3 font-semibold text-muted-foreground hidden md:table-cell">Проекты</th>
                   <th className="text-left px-4 py-3 font-semibold text-muted-foreground hidden lg:table-cell">Дата</th>

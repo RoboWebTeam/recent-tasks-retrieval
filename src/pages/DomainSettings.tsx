@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { EmptyState, FeatureIcon } from '@/components/ui/primitives';
 import Icon from '@/components/ui/icon';
 import { Button } from '@/components/ui/button';
 import { getLang } from '@/lib/i18n';
@@ -188,15 +189,10 @@ export default function DomainSettings() {
 
         {/* Domains list */}
         {loading ? (
-          <div className="flex items-center justify-center py-16 text-muted-foreground gap-2">
-            <Icon name="Loader" size={20} className="animate-spin" />
-            {isRu ? 'Загрузка…' : 'Loading…'}
-          </div>
+          <EmptyState loading>{isRu ? 'Загрузка…' : 'Loading…'}</EmptyState>
         ) : domains.length === 0 ? (
           <div className="rounded-2xl border border-dashed border-border p-12 text-center">
-            <div className="grid h-14 w-14 place-items-center rounded-2xl bg-primary/10 text-primary mx-auto mb-4">
-              <Icon name="Globe" size={28} />
-            </div>
+            <FeatureIcon name="Globe" />
             <h3 className="font-display font-bold text-lg mb-2">{isRu ? 'Нет подключённых доменов' : 'No domains connected'}</h3>
             <p className="text-muted-foreground text-sm mb-6 max-w-xs mx-auto">
               {isRu ? 'Добавьте свой домен, чтобы проект открывался по нему' : 'Add your domain so your site opens under it'}

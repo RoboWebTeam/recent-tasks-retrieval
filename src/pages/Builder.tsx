@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, type CSSProperties } from 'react';
+import { FieldLabel, Skeleton } from '@/components/ui/primitives';
 import { RoboMark } from '@/components/Logo';
 import { useNavigate, useSearchParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -2311,9 +2312,9 @@ export default function Builder() {
                         <div className="p-3 space-y-4 text-xs">
                           {/* Цвет текста */}
                           <div>
-                            <p className="text-muted-foreground uppercase tracking-widest text-2xs font-semibold mb-2">
+                            <FieldLabel>
                               {lang === 'ru' ? 'Текст' : 'Text'}
-                            </p>
+                            </FieldLabel>
                             <div className="flex items-center gap-2">
                               <input type="color"
                                 value={propsPanel.color === 'transparent' ? '#000000' : propsPanel.color}
@@ -2326,9 +2327,9 @@ export default function Builder() {
 
                           {/* Фон */}
                           <div>
-                            <p className="text-muted-foreground uppercase tracking-widest text-2xs font-semibold mb-2">
+                            <FieldLabel>
                               {lang === 'ru' ? 'Фон' : 'Background'}
-                            </p>
+                            </FieldLabel>
                             <div className="flex items-center gap-2">
                               <input type="color"
                                 value={propsPanel.backgroundColor === 'transparent' ? '#ffffff' : propsPanel.backgroundColor}
@@ -2341,9 +2342,9 @@ export default function Builder() {
 
                           {/* Размер шрифта */}
                           <div>
-                            <p className="text-muted-foreground uppercase tracking-widest text-2xs font-semibold mb-2">
+                            <FieldLabel>
                               {lang === 'ru' ? 'Размер шрифта' : 'Font size'}
-                            </p>
+                            </FieldLabel>
                             <div className="flex items-center gap-2">
                               <input type="range" min="8" max="96" step="1"
                                 value={parseInt(propsPanel.fontSize) || 16}
@@ -2356,9 +2357,9 @@ export default function Builder() {
 
                           {/* Жирность */}
                           <div>
-                            <p className="text-muted-foreground uppercase tracking-widest text-2xs font-semibold mb-2">
+                            <FieldLabel>
                               {lang === 'ru' ? 'Жирность' : 'Font weight'}
-                            </p>
+                            </FieldLabel>
                             <div className="flex gap-1 flex-wrap">
                               {[['400', lang === 'ru' ? 'Норм' : 'Normal'], ['600', lang === 'ru' ? 'Полужирный' : 'Semi'], ['700', lang === 'ru' ? 'Жирный' : 'Bold'], ['900', lang === 'ru' ? 'Чёрный' : 'Black']].map(([w, label]) => (
                                 <button key={w} onClick={() => applyStyle('fontWeight', w)}
@@ -2371,9 +2372,9 @@ export default function Builder() {
 
                           {/* Выравнивание */}
                           <div>
-                            <p className="text-muted-foreground uppercase tracking-widest text-2xs font-semibold mb-2">
+                            <FieldLabel>
                               {lang === 'ru' ? 'Выравнивание' : 'Align'}
-                            </p>
+                            </FieldLabel>
                             <div className="flex gap-1">
                               {[['left', 'AlignLeft'], ['center', 'AlignCenter'], ['right', 'AlignRight']].map(([align, icon]) => (
                                 <button key={align} onClick={() => applyStyle('textAlign', align)}
@@ -2386,9 +2387,9 @@ export default function Builder() {
 
                           {/* Скругление */}
                           <div>
-                            <p className="text-muted-foreground uppercase tracking-widest text-2xs font-semibold mb-2">
+                            <FieldLabel>
                               {lang === 'ru' ? 'Скругление' : 'Border radius'}
-                            </p>
+                            </FieldLabel>
                             <div className="flex items-center gap-2">
                               <input type="range" min="0" max="48" step="1"
                                 value={parseInt(propsPanel.borderRadius) || 0}
@@ -2401,9 +2402,9 @@ export default function Builder() {
 
                           {/* Прозрачность */}
                           <div>
-                            <p className="text-muted-foreground uppercase tracking-widest text-2xs font-semibold mb-2">
+                            <FieldLabel>
                               {lang === 'ru' ? 'Прозрачность' : 'Opacity'}
-                            </p>
+                            </FieldLabel>
                             <div className="flex items-center gap-2">
                               <input type="range" min="0" max="1" step="0.05"
                                 value={parseFloat(propsPanel.opacity) || 1}
@@ -2416,9 +2417,9 @@ export default function Builder() {
 
                           {/* Отступы */}
                           <div>
-                            <p className="text-muted-foreground uppercase tracking-widest text-2xs font-semibold mb-2">
+                            <FieldLabel>
                               {lang === 'ru' ? 'Отступы (padding)' : 'Padding'}
-                            </p>
+                            </FieldLabel>
                             <div className="grid grid-cols-2 gap-2">
                               {([['paddingTop', '↑'], ['paddingBottom', '↓'], ['paddingLeft', '←'], ['paddingRight', '→']] as const).map(([prop, arrow]) => (
                                 <div key={prop} className="flex items-center gap-2">
@@ -2460,12 +2461,12 @@ export default function Builder() {
                   <h3 className="relative font-display font-bold text-foreground text-lg mb-2">{lang === 'ru' ? 'Собираю ваш проект…' : 'Building your site…'}</h3>
                   <p className="relative text-muted-foreground text-sm max-w-xs leading-relaxed">{lang === 'ru' ? 'Готовый проект появится здесь через несколько секунд — ход сборки виден в чате слева.' : 'Your finished site appears here shortly — follow the build in the chat on the left.'}</p>
                   <div className="relative w-full max-w-sm mt-8 space-y-3">
-                    <div className="h-8 w-2/3 mx-auto rounded-lg bg-secondary animate-pulse" />
-                    <div className="h-24 rounded-2xl bg-secondary animate-pulse" />
+                    <Skeleton className="h-8 w-2/3 mx-auto rounded-lg" />
+                    <Skeleton className="h-24 rounded-2xl" />
                     <div className="grid grid-cols-3 gap-3">
-                      <div className="h-16 rounded-xl bg-secondary animate-pulse" />
-                      <div className="h-16 rounded-xl bg-secondary animate-pulse" />
-                      <div className="h-16 rounded-xl bg-secondary animate-pulse" />
+                      <Skeleton className="h-16 rounded-xl" />
+                      <Skeleton className="h-16 rounded-xl" />
+                      <Skeleton className="h-16 rounded-xl" />
                     </div>
                   </div>
                 </div>

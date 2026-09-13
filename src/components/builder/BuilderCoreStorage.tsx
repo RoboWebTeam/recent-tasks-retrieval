@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
+import { EmptyState } from '@/components/ui/primitives';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
 import { type Lang } from '@/lib/i18n';
@@ -92,10 +93,7 @@ export default function BuilderCoreStorage({ lang, projectId, onUseInChat, onFil
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-16 text-muted-foreground gap-2">
-        <Icon name="Loader" size={18} className="animate-spin" />
-        {isRu ? 'Загрузка…' : 'Loading…'}
-      </div>
+      <EmptyState loading>{isRu ? 'Загрузка…' : 'Loading…'}</EmptyState>
     );
   }
 

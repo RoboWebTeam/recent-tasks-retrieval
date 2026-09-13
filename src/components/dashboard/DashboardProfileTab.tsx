@@ -1,4 +1,5 @@
 import { Button } from '@/components/ui/button';
+import { ErrorNote } from '@/components/ui/primitives';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
 import {
@@ -156,10 +157,7 @@ export default function DashboardProfileTab({
             className="h-10 rounded-xl"
           />
           {pwError && (
-            <div className="flex items-start gap-2 text-sm text-destructive bg-destructive/10 rounded-xl px-3 py-3">
-              <Icon name="AlertCircle" size={15} className="shrink-0 mt-0.5" />
-              <span>{pwError}</span>
-            </div>
+            <ErrorNote>{pwError}</ErrorNote>
           )}
           {pwSaved && (
             <div className="flex items-center gap-2 text-sm text-success bg-success/15 rounded-xl px-3 py-3">
@@ -288,10 +286,7 @@ export default function DashboardProfileTab({
             className="h-10 rounded-xl"
           />
           {deleteError && (
-            <div className="flex items-start gap-2 text-sm text-destructive bg-destructive/10 rounded-xl px-3 py-3">
-              <Icon name="AlertCircle" size={15} className="shrink-0 mt-0.5" />
-              <span>{deleteError}</span>
-            </div>
+            <ErrorNote>{deleteError}</ErrorNote>
           )}
           <Button
             variant="destructive"

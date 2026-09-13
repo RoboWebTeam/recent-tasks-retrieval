@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { ErrorNote, FeatureIcon } from '@/components/ui/primitives';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -126,10 +127,7 @@ export default function DashboardProjectsTab({
                 />
               </div>
               {createError && (
-                <div className="flex items-start gap-2 text-sm text-destructive bg-destructive/10 rounded-xl px-3 py-3">
-                  <Icon name="AlertCircle" size={15} className="shrink-0 mt-0.5" />
-                  <span>{createError}</span>
-                </div>
+                <ErrorNote>{createError}</ErrorNote>
               )}
               <Button type="submit" className="w-full rounded-xl font-semibold" disabled={creating}>
                 {creating ? <><Icon name="Loader" size={15} className="mr-2 animate-spin" />{tr('creating', lang)}</> : <><Icon name="Sparkles" size={15} className="mr-2" />{tr('createAndOpen', lang)}</>}
@@ -141,9 +139,7 @@ export default function DashboardProjectsTab({
 
       {projects.length === 0 ? (
         <div className="rounded-2xl border border-dashed border-border p-12 text-center">
-          <div className="grid h-14 w-14 place-items-center rounded-2xl bg-primary/10 text-primary mx-auto mb-4">
-            <Icon name="Sparkles" size={28} />
-          </div>
+          <FeatureIcon name="Sparkles" />
           <h3 className="font-display font-bold text-lg mb-2">{tr('noProjects', lang)}</h3>
           <p className="text-muted-foreground text-sm mb-6 max-w-xs mx-auto">
             {tr('noProjectsDesc', lang)}

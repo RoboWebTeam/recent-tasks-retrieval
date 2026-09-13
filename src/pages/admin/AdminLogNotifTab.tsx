@@ -1,4 +1,5 @@
 import Icon from '@/components/ui/icon';
+import { Th } from '@/components/ui/primitives';
 import { type LogEntry, type Notification, ACTION_LABELS, NOTIF_ICONS } from './adminTypes';
 
 // Понятные подписи для типов уведомлений и их полей меты
@@ -60,10 +61,10 @@ export function LogTab({ activityLogs, activityLoading, logActionFilter, setLogA
             <table className="w-full text-sm">
               <thead className="bg-secondary/50 border-b border-border">
                 <tr>
-                  <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Действие</th>
+                  <Th>Действие</Th>
                   <th className="text-left px-4 py-3 font-semibold text-muted-foreground hidden sm:table-cell">Пользователь</th>
                   <th className="text-left px-4 py-3 font-semibold text-muted-foreground hidden md:table-cell">Детали</th>
-                  <th className="text-left px-4 py-3 font-semibold text-muted-foreground">Дата</th>
+                  <Th>Дата</Th>
                 </tr>
               </thead>
               <tbody>

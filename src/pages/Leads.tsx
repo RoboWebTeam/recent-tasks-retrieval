@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { PageTitle } from '@/components/ui/primitives';
 import { useSearchParams, Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
@@ -130,7 +131,7 @@ export default function Leads() {
       <main className="container py-8 max-w-5xl">
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
           <div>
-            <h1 className="font-display font-bold text-2xl sm:text-3xl">{isRu ? 'Заявки с проектов' : 'Site leads'}</h1>
+            <PageTitle>{isRu ? 'Заявки с проектов' : 'Site leads'}</PageTitle>
             <p className="text-sm text-muted-foreground mt-0.5">
               {siteFilter
                 ? (isRu ? 'Заявки одного проекта' : 'Leads from a single project')

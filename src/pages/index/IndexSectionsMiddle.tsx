@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Eyebrow, SectionTitle, SectionLead } from '@/components/ui/primitives';
 import { useNavigate } from 'react-router-dom';
 import { type Lang } from '@/lib/i18n';
 import { Button } from '@/components/ui/button';
@@ -72,13 +73,13 @@ function PortfolioSection({ lang, portfolio }: { lang: Lang; portfolio: DemoItem
       <div className="container">
         <Reveal>
           <div className="text-center max-w-2xl mx-auto px-2 mb-6">
-            <span className="text-xs sm:text-sm font-semibold uppercase tracking-widest text-primary">{L.portfolio.label[lang]}</span>
-            <h2 className="mt-3 inline-block font-display font-bold text-3xl sm:text-4xl md:text-5xl tracking-tight text-gradient">
+            <Eyebrow>{L.portfolio.label[lang]}</Eyebrow>
+            <SectionTitle className="inline-block text-gradient">
               {L.portfolio.title[lang]}
-            </h2>
-            <p className="mt-4 text-muted-foreground text-base sm:text-lg">
+            </SectionTitle>
+            <SectionLead>
               {L.portfolio.desc[lang]}
-            </p>
+            </SectionLead>
           </div>
         </Reveal>
 
@@ -226,15 +227,15 @@ function StylesSection({ lang }: { lang: Lang }) {
       <div className="container">
         <Reveal>
           <div className="text-center max-w-2xl mx-auto px-2 mb-10 md:mb-14">
-            <span className="text-xs sm:text-sm font-semibold uppercase tracking-widest text-primary">{lang === 'ru' ? 'Дизайн' : 'Design'}</span>
-            <h2 className="mt-3 font-display font-bold text-3xl sm:text-4xl md:text-5xl tracking-tight">
+            <Eyebrow>{lang === 'ru' ? 'Дизайн' : 'Design'}</Eyebrow>
+            <SectionTitle>
               {lang === 'ru' ? 'Один проект — любой стиль' : 'One project — any style'}
-            </h2>
-            <p className="mt-4 text-muted-foreground text-base sm:text-lg">
+            </SectionTitle>
+            <SectionLead>
               {lang === 'ru'
                 ? 'Не нравится оформление? Скажите словами — и ИИ переоденет тот же продукт в другой дизайн: строгий, тёмный, яркий, корпоративный. Данные и логика остаются — меняется только внешний вид.'
                 : 'Don\'t like the look? Just say so — the AI restyles the same product: minimal, dark, bold, corporate. The data and logic stay — only the appearance changes.'}
-            </p>
+            </SectionLead>
           </div>
         </Reveal>
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
@@ -325,13 +326,13 @@ export function IndexSectionsMiddle({ lang }: Props) {
         <div className="container">
           <Reveal>
             <div className="text-center max-w-2xl mx-auto px-2 mb-10 md:mb-14">
-              <span className="text-xs sm:text-sm font-semibold uppercase tracking-widest text-primary">{lang === 'ru' ? "Почему нам можно доверить проект" : "Why you can trust us with your project"}</span>
-              <h2 className="mt-3 font-display font-bold text-3xl sm:text-4xl md:text-5xl tracking-tight">
+              <Eyebrow>{lang === 'ru' ? "Почему нам можно доверить проект" : "Why you can trust us with your project"}</Eyebrow>
+              <SectionTitle>
                 {lang === 'ru' ? "Доверие — на проверяемых фактах, а не на отзывах" : "Trust built on verifiable facts, not testimonials"}
-              </h2>
-              <p className="mt-4 text-muted-foreground text-base sm:text-lg">
+              </SectionTitle>
+              <SectionLead>
                 {lang === 'ru' ? "Мы новый продукт и говорим это прямо: у нас пока нет тысяч клиентов, и мы не станем их выдумывать. Вместо чужих логотипов и звёзд — то, что вы проверите сами: ваш код, ваш стек, ваши данные, публичная оферта и зарегистрированное юрлицо. Уйти можно в один клик, поэтому нам выгодно удерживать вас результатом, а не блокировкой." : "We're a new product and we say it plainly: we don't have thousands of clients yet, and we won't invent them. Instead of borrowed logos and star ratings, here's what you can verify yourself: your code, your stack, your data, a public offer and a registered company. You can leave in one click — so we're incentivized to keep you with results, not lock-in."}
-              </p>
+              </SectionLead>
             </div>
           </Reveal>
           <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">

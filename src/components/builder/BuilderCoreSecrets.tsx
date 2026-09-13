@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { EmptyState } from '@/components/ui/primitives';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import Icon from '@/components/ui/icon';
@@ -69,10 +70,7 @@ export default function BuilderCoreSecrets({ lang, projectId }: BuilderCoreSecre
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-16 text-muted-foreground gap-2">
-        <Icon name="Loader" size={18} className="animate-spin" />
-        {isRu ? 'Загрузка…' : 'Loading…'}
-      </div>
+      <EmptyState loading>{isRu ? 'Загрузка…' : 'Loading…'}</EmptyState>
     );
   }
 

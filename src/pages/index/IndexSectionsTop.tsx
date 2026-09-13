@@ -1,4 +1,5 @@
 import { type Lang } from '@/lib/i18n';
+import { Eyebrow, SectionTitle, SectionLead } from '@/components/ui/primitives';
 import { RoboMark } from '@/components/Logo';
 import { Button } from '@/components/ui/button';
 import Icon from '@/components/ui/icon';
@@ -29,13 +30,13 @@ export function IndexSectionsTop({ lang }: Props) {
         <div className="container">
           <Reveal>
             <div className="text-center max-w-2xl mx-auto px-2">
-              <span className="text-xs sm:text-sm font-semibold uppercase tracking-widest text-primary">{lang === 'ru' ? 'Кому это' : 'Who it\'s for'}</span>
-              <h2 className="mt-3 font-display font-bold text-3xl sm:text-4xl md:text-5xl tracking-tight">
+              <Eyebrow>{lang === 'ru' ? 'Кому это' : 'Who it\'s for'}</Eyebrow>
+              <SectionTitle>
                 {lang === 'ru' ? 'Три способа использовать RoboWeb' : 'Three ways to use RoboWeb'}
-              </h2>
-              <p className="mt-4 text-muted-foreground text-base sm:text-lg">
+              </SectionTitle>
+              <SectionLead>
                 {lang === 'ru' ? 'Не просто «сделай проект». Выберите свой сценарий.' : 'Not just "make a site". Pick your path.'}
-              </p>
+              </SectionLead>
             </div>
           </Reveal>
           <div className="mt-10 md:mt-14 grid md:grid-cols-3 gap-4 md:gap-6">
@@ -69,13 +70,13 @@ export function IndexSectionsTop({ lang }: Props) {
         <div className="container">
           <Reveal>
             <div className="text-center max-w-2xl mx-auto px-2">
-              <span className="text-xs sm:text-sm font-semibold uppercase tracking-widest text-primary">{L.nav.features[lang]}</span>
-              <h2 className="mt-3 font-display font-bold text-3xl sm:text-4xl md:text-5xl tracking-tight">
+              <Eyebrow>{L.nav.features[lang]}</Eyebrow>
+              <SectionTitle>
                 {L.features.title[lang]}
-              </h2>
-              <p className="mt-4 text-muted-foreground text-base sm:text-lg">
+              </SectionTitle>
+              <SectionLead>
                 {L.features.desc[lang]}
-              </p>
+              </SectionLead>
             </div>
           </Reveal>
           <div className="mt-10 md:mt-14 grid sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6">
@@ -108,15 +109,15 @@ export function IndexSectionsTop({ lang }: Props) {
         <div className="container">
           <Reveal>
             <div className="text-center max-w-2xl mx-auto px-2 mb-10 md:mb-14">
-              <span className="text-xs sm:text-sm font-semibold uppercase tracking-widest text-primary">{lang === 'ru' ? 'Технологии' : 'Tech stack'}</span>
-              <h2 className="mt-3 font-display font-bold text-3xl sm:text-4xl md:text-5xl tracking-tight">
+              <Eyebrow>{lang === 'ru' ? 'Технологии' : 'Tech stack'}</Eyebrow>
+              <SectionTitle>
                 {lang === 'ru' ? 'Собираем на современном стеке' : 'Built on a modern stack'}
-              </h2>
-              <p className="mt-4 text-muted-foreground text-base sm:text-lg">
+              </SectionTitle>
+              <SectionLead>
                 {lang === 'ru'
                   ? 'От витрины до сложной серверной логики — ИИ пишет на индустриальном стеке, который поддержит любой разработчик. Никакого проприетарного формата.'
                   : 'From storefront to complex server logic — the AI writes in an industry-standard stack any developer can maintain. No proprietary format.'}
-              </p>
+              </SectionLead>
             </div>
           </Reveal>
           <div className="grid sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
@@ -201,13 +202,13 @@ export function IndexSectionsTop({ lang }: Props) {
         <div className="container">
           <Reveal>
             <div className="text-center max-w-2xl mx-auto px-2 mb-10 md:mb-14">
-              <span className="text-xs sm:text-sm font-semibold uppercase tracking-widest text-primary">{L.compare.label[lang]}</span>
-              <h2 className="mt-3 font-display font-bold text-3xl sm:text-4xl md:text-5xl tracking-tight">
+              <Eyebrow>{L.compare.label[lang]}</Eyebrow>
+              <SectionTitle>
                 {L.compare.title[lang]}
-              </h2>
-              <p className="mt-4 text-muted-foreground text-base sm:text-lg">
+              </SectionTitle>
+              <SectionLead>
                 {L.compare.desc[lang]}
-              </p>
+              </SectionLead>
             </div>
           </Reveal>
           <Reveal>
@@ -265,10 +266,10 @@ export function IndexSectionsTop({ lang }: Props) {
         <div className="container relative">
           <Reveal>
             <div className="text-center max-w-2xl mx-auto px-2">
-              <span className="text-xs sm:text-sm font-semibold uppercase tracking-widest text-primary">{L.process.label[lang]}</span>
-              <h2 className="mt-3 font-display font-bold text-3xl sm:text-4xl md:text-5xl tracking-tight">
+              <Eyebrow>{L.process.label[lang]}</Eyebrow>
+              <SectionTitle>
                 {L.process.title[lang]}
-              </h2>
+              </SectionTitle>
             </div>
           </Reveal>
           <div className="mt-10 md:mt-14 grid sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">

@@ -1,4 +1,5 @@
 import { useState, useEffect} from 'react';
+import { ErrorNote, PageTitle } from '@/components/ui/primitives';
 import { LogoMark } from '@/components/Logo';
 import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
@@ -71,9 +72,9 @@ const Login = () => {
               </Link>
               <div className="flex items-center gap-2"><ThemeToggle /><LangSwitcher lang={lang} /></div>
             </div>
-            <h1 className="font-display font-bold text-2xl sm:text-3xl">
+            <PageTitle>
               {lang === 'ru' ? 'Войти в аккаунт' : 'Sign in to account'}
-            </h1>
+            </PageTitle>
             <p className="text-muted-foreground mt-2">{tr('enterAccount', lang)}</p>
             {/* Мобильная версия: коротко о ценности (панель слева скрыта) */}
             <div className="lg:hidden mt-4 flex flex-wrap gap-2">
@@ -123,10 +124,7 @@ const Login = () => {
             </div>
 
             {error && (
-              <div className="flex items-start gap-2 text-sm text-destructive bg-destructive/10 rounded-xl px-3 py-3">
-                <Icon name="AlertCircle" size={15} className="shrink-0 mt-0.5" />
-                <span className="break-all">{error}</span>
-              </div>
+              <ErrorNote>{error}</ErrorNote>
             )}
 
             <Button type="submit" className="w-full h-11 rounded-xl font-semibold glow-hover" disabled={loading}>

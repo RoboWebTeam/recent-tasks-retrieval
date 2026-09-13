@@ -1,4 +1,5 @@
 import { useState, useEffect, useCallback } from 'react';
+import { EmptyState, FeatureIcon } from '@/components/ui/primitives';
 import Icon from '@/components/ui/icon';
 import { type Lang } from '@/lib/i18n';
 import { getSession, apiGetSiteUsers, apiDeleteSiteUser, type SiteUser } from '@/lib/auth';
@@ -36,9 +37,7 @@ export default function BuilderCoreUsers({ lang, projectId }: Props) {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center py-16 text-muted-foreground gap-2">
-        <Icon name="Loader" size={18} className="animate-spin" /> {isRu ? 'Загрузка…' : 'Loading…'}
-      </div>
+      <EmptyState loading>{isRu ? 'Загрузка…' : 'Loading…'}</EmptyState>
     );
   }
 
@@ -46,9 +45,7 @@ export default function BuilderCoreUsers({ lang, projectId }: Props) {
     return (
       <div className="p-4">
         <div className="rounded-2xl border border-dashed border-border p-10 text-center max-w-md mx-auto">
-          <div className="grid h-14 w-14 place-items-center rounded-2xl bg-primary/10 text-primary mx-auto mb-4">
-            <Icon name="Users" size={26} />
-          </div>
+          <FeatureIcon name="Users" />
           <h3 className="font-bold text-lg mb-2">{isRu ? 'Пользователей проекта пока нет' : 'No site users yet'}</h3>
           <p className="text-sm text-muted-foreground leading-relaxed">
             {isRu
