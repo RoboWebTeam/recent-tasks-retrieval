@@ -173,15 +173,6 @@ export async function apiLogin(email: string, password: string) {
   return data;
 }
 
-export async function apiGithubOAuth(code: string) {
-  const { res, data } = await apiFetch(AUTH_URL, {
-    method: 'POST',
-    body: JSON.stringify({ action: 'github_oauth', code }),
-  });
-  if (!res.ok) throw new Error((data as {error?: string}).error || 'Ошибка авторизации через GitHub');
-  return data;
-}
-
 /** Привязывает GitHub-аккаунт к уже авторизованному пользователю (не создаёт новую сессию). */
 export async function apiGithubConnect(sessionId: string, code: string) {
   const { res, data } = await apiFetch(AUTH_URL, {

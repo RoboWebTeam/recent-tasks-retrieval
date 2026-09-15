@@ -1,8 +1,7 @@
 import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { apiGithubOAuth, apiGithubConnect, getSession, getStoredUser, setSession, storeUser } from '@/lib/auth';
+import { apiGithubConnect, getSession, getStoredUser, storeUser } from '@/lib/auth';
 import Icon from '@/components/ui/icon';
-import { trackGoal, GOALS } from '@/lib/analytics';
 
 export default function GithubCallback() {
   const navigate = useNavigate();
@@ -39,18 +38,10 @@ export default function GithubCallback() {
       return;
     }
 
-    // Обычный вход/регистрация через GitHub
-    apiGithubOAuth(code)
-      .then((data: Record<string, unknown>) => {
-        setSession(data.session_id as string);
-        storeUser(data.user as Parameters<typeof storeUser>[0]);
-        trackGoal(GOALS.OAUTH_GITHUB_SUCCESS);
-        if (data.is_new_user) localStorage.setItem('show_energy_bonus', '1');
-        navigate('/dashboard');
-      })
-      .catch((err: Error) => {
-        setError(err.message);
-      });
+    // Вход через GitHub отключён (199-ФЗ: запрет авторизации через иностранные сервисы).
+    // Сюда можно попасть только по старой ссылке или из закладки — показываем внятную причину
+    // и путь дальше, а не бесконечный спиннер. Привязка для экспорта кода (выше) работает.
+    setError('Вход через GitHub больше недоступен. Войдите по почте или через Яндекс ID.');
   }, [navigate]);
 
   if (error) {
@@ -74,7 +65,7 @@ export default function GithubCallback() {
     <div className="min-h-screen flex flex-col items-center justify-center gap-4 bg-background">
       <Icon name="Loader" size={32} className="animate-spin text-primary" />
       <p className="text-muted-foreground">
-        {isConnectMode ? 'Подключаем GitHub-аккаунт...' : 'Выполняем вход через GitHub...'}
+        Подключаем GitHub-аккаунт...
       </p>
     </div>
   );

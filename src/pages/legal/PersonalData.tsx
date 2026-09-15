@@ -32,7 +32,8 @@ export default function PersonalData() {
           <li>full name;</li>
           <li>email address;</li>
           <li>phone number (if provided during payment);</li>
-          <li>data received from third-party authorization services (GitHub, Yandex ID): name, email, unique account identifiers, OAuth access tokens;</li>
+          <li>data received from the third-party authorization service Yandex ID: name, email, unique account identifier, OAuth access token;</li>
+          <li>when you connect GitHub to export project code: your GitHub login and OAuth access token (GitHub is not used to sign in);</li>
           <li>payment data processed through YooKassa (payment amount, plan, transaction status);</li>
           <li>technical data: IP address, browser and device information, cookies and usage statistics.</li>
         </ul>
@@ -95,8 +96,10 @@ export default function PersonalData() {
         <li>фамилия, имя;</li>
         <li>адрес электронной почты;</li>
         <li>номер телефона (при указании во время оплаты);</li>
-        <li>данные, полученные от сторонних сервисов авторизации (GitHub, Яндекс ID): имя, email,
-          уникальные идентификаторы аккаунта, токены доступа OAuth;</li>
+        <li>данные, полученные от стороннего сервиса авторизации Яндекс ID: имя, email, уникальный идентификатор
+          учётной записи, токен доступа OAuth;</li>
+        <li>при подключении GitHub для выгрузки кода проекта — логин GitHub и токен доступа OAuth
+          (для входа на сайт GitHub не используется);</li>
         <li>данные об оплате, обрабатываемые через ЮKassa (сумма платежа, тариф, статус транзакции);</li>
         <li>технические данные: IP-адрес, информация о браузере и устройстве, cookies и статистика использования.</li>
       </ul>

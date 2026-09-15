@@ -35,7 +35,7 @@ export default function Privacy() {
         </ul>
         <p>1.2. When signing in via third-party services, we receive:</p>
         <ul>
-          <li><strong>GitHub</strong> — email, name/username, GitHub login, OAuth access token (used to publish sites to your GitHub repository);</li>
+          <li><strong>GitHub</strong> — only if you connect it to export code: GitHub login and OAuth access token (used to publish projects to your GitHub repository). GitHub is not used to sign in;</li>
           <li><strong>Yandex ID</strong> — email and name from your Yandex profile;</li>
           <li><strong>Telegram</strong> — Telegram ID and name provided by the Telegram Login Widget.</li>
         </ul>
@@ -130,7 +130,7 @@ export default function Privacy() {
       </ul>
       <p>1.2. При входе через сторонние сервисы мы получаем:</p>
       <ul>
-        <li><strong>GitHub</strong> — email, имя/логин, GitHub-логин, токен доступа OAuth (используется для публикации проектов в ваш репозиторий GitHub);</li>
+        <li><strong>GitHub</strong> — только при подключении для выгрузки кода: логин GitHub и токен доступа OAuth (используется для публикации проектов в ваш репозиторий GitHub). Для входа на сайт GitHub не используется;</li>
         <li><strong>Яндекс ID</strong> — email и имя из вашего профиля Яндекс;</li>
         <li><strong>Telegram</strong> — Telegram ID и имя, передаваемые виджетом входа Telegram.</li>
       </ul>
