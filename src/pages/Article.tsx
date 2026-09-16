@@ -6,6 +6,16 @@ import Icon from '@/components/ui/icon';
 import { setSeo, setArticleJsonLd } from '@/lib/seo';
 import { getLang, tr } from '@/lib/i18n';
 import { SiteFooter } from '@/components/SiteFooter';
+import ArticleBody from '@/components/blog/ArticleBody';
+
+/** «June 10, 2026» → «2026-06-10». В разметку статьи уходила русская строка «10 июня 2026»,
+ *  а datePublished и article:published_time поиск понимает только в ISO-формате. */
+const MONTHS = ['january', 'february', 'march', 'april', 'may', 'june', 'july', 'august', 'september', 'october', 'november', 'december'];
+const isoDate = (en: string) => {
+  const m = /^([A-Za-z]+)\s+(\d{1,2}),\s*(\d{4})$/.exec(en.trim());
+  const month = m ? MONTHS.indexOf(m[1].toLowerCase()) + 1 : 0;
+  return m && month ? `${m[3]}-${String(month).padStart(2, '0')}-${m[2].padStart(2, '0')}` : en;
+};
 
 export default function Article() {
   const lang = getLang();
@@ -36,10 +46,10 @@ export default function Article() {
       image: article.cover,
       url: `/blog/${article.slug}`,
       type: 'article',
-      publishedTime: article.date[lang],
+      publishedTime: isoDate(article.date.en),
       keywords: `${article.category[lang]}, AI websites, Roboweb, ${article.title[lang].toLowerCase()}`,
     });
-    setArticleJsonLd({ title: article.title[lang], description: article.description[lang], date: article.date[lang], cover: article.cover, slug: article.slug });
+    setArticleJsonLd({ title: article.title[lang], description: article.description[lang], date: isoDate(article.date.en), cover: article.cover, slug: article.slug });
   }, [slug, article]);
 
   if (!article) return null;
@@ -61,32 +71,9 @@ export default function Article() {
     }
   };
 
-  const renderInline = (text: string, key: number) => {
-    const parts: React.ReactNode[] = [];
-    const re = /\*\*(.+?)\*\*|\*(.+?)\*/g;
-    let last = 0;
-    let m: RegExpExecArray | null;
-    while ((m = re.exec(text)) !== null) {
-      if (m.index > last) parts.push(text.slice(last, m.index));
-      if (m[1] !== undefined) parts.push(<strong key={`b${m.index}`}>{m[1]}</strong>);
-      else if (m[2] !== undefined) parts.push(<em key={`i${m.index}`}>{m[2]}</em>);
-      last = m.index + m[0].length;
-    }
-    if (last < text.length) parts.push(text.slice(last));
-    return <p key={key} className="mt-4 text-muted-foreground leading-relaxed break-words">{parts}</p>;
-  };
-
-  const renderContent = (content: string) => {
-    return content.split('\n').map((line, i) => {
-      if (line.startsWith('## ')) return <h2 key={i} className="mt-10 mb-4 font-display font-bold text-xl sm:text-2xl md:text-3xl tracking-tight break-words">{line.replace('## ', '')}</h2>;
-      if (line.startsWith('### ')) return <h3 key={i} className="mt-7 mb-3 font-display font-bold text-lg sm:text-xl break-words">{line.replace('### ', '')}</h3>;
-      if (line.startsWith('**') && line.endsWith('**')) return <p key={i} className="mt-4 font-semibold text-foreground">{line.replace(/\*\*/g, '')}</p>;
-      if (line.startsWith('- ')) return <li key={i} className="ml-5 mt-1 list-disc text-muted-foreground break-words">{line.replace('- ', '')}</li>;
-      if (line.startsWith('| ') || line.startsWith('|---')) return null;
-      if (line.trim() === '') return <div key={i} className="h-2" />;
-      return renderInline(line, i);
-    });
-  };
+  // Первые статьи начинаются с «## Заголовок» — повтор H1 сразу под ним. Для поиска это второй
+  // заголовок с тем же текстом, для читателя — дубль; убираем только точное совпадение.
+  const body = article.content[lang].replace(/^\s*## (.+)\n+/, (m, h: string) => (h.trim() === article.title[lang].trim() ? '' : m));
 
   return (
     <div className="min-h-screen bg-background">
@@ -159,7 +146,7 @@ export default function Article() {
 
         {/* Content */}
         <article className="prose-custom">
-          {renderContent(article.content[lang])}
+          <ArticleBody content={body} />
         </article>
 
         {/* Share bottom */}

@@ -14,74 +14,74 @@ export interface ArticlePreview {
 
 export const BLOG_PREVIEW: ArticlePreview[] = [
   {
-    "slug": "pochemu-ai-luchshe-frilanserov",
-    "cover": "https://s3-nl.hostkey.com/robo/demo/119fb9a0-189b-42d4-b25a-50d014970fd6.jpg",
-    "category": {
-      "ru": "Бизнес и ROI",
-      "en": "Business & ROI"
-    },
-    "title": {
-      "ru": "ИИ-команда против фрилансеров: экономика для бизнеса",
-      "en": "AI Team vs Freelancers: The Business Case for Owners"
-    },
-    "description": {
-      "ru": "Разбираем, почему ИИ-команда RoboWeb обходится бизнесу дешевле и быстрее фрилансеров, а код остаётся вашим активом.",
-      "en": "Why an AI team ships faster and cheaper than freelancers, with fixed pricing and code that stays your own asset."
-    },
-    "date": {
-      "ru": "10 июня 2026",
-      "en": "June 10, 2026"
-    },
-    "readTime": {
-      "ru": "5 мин",
-      "en": "5 min"
-    }
-  },
-  {
-    "slug": "kak-sozdat-sajt-za-5-minut",
-    "cover": "https://s3-nl.hostkey.com/robo/demo/08ca2384-7d8f-4aec-826e-e0d57ef5fc9e.jpg",
+    "slug": "kak-opisat-produkt-dlya-ii-komandy",
+    "cover": "https://roboweb.dev/demo/ai-landing.jpg",
     "category": {
       "ru": "Запуск продукта",
       "en": "Product launch"
     },
     "title": {
-      "ru": "От идеи до рабочего продукта за день: пошагово",
-      "en": "From Idea to a Working Product in a Day: Step by Step"
+      "ru": "Как описать продукт для ИИ-команды: бриф из пяти блоков",
+      "en": "How to Brief an AI Dev Team: Five Parts of a Good Product Description"
     },
     "description": {
-      "ru": "Пошаговый разбор, как за день запустить продукт с бэкендом и базой, опубликовать его и забрать код в свой репозиторий.",
-      "en": "A step-by-step look at launching a product with a backend and database in a day, publishing it, and owning the code."
+      "ru": "Бриф для ИИ-команды из пяти блоков: задача, пользователи, действия, данные и тип продукта. Слабая и сильная формулировка и что проверить в первом превью.",
+      "en": "A five-part brief for an AI dev team: goal, users, actions, data and product type. Includes a weak vs strong example and a first-preview checklist."
     },
     "date": {
-      "ru": "12 июня 2026",
-      "en": "June 12, 2026"
+      "ru": "16 сентября 2026",
+      "en": "September 16, 2026"
     },
     "readTime": {
-      "ru": "4 мин",
-      "en": "4 min"
+      "ru": "7 мин",
+      "en": "7 min"
     }
   },
   {
-    "slug": "preimushchestva-ai-sajtov",
-    "cover": "https://s3-nl.hostkey.com/robo/demo/9cc14c55-085e-48e2-9ae1-6623505e8aa2.jpg",
+    "slug": "zapret-vhoda-cherez-inostrannye-servisy-199-fz",
+    "cover": "https://s3-nl.hostkey.com/robo/demo/119fb9a0-189b-42d4-b25a-50d014970fd6.jpg",
+    "category": {
+      "ru": "Право и требования",
+      "en": "Law & compliance"
+    },
+    "title": {
+      "ru": "Запрет входа через Google и Telegram: что меняет 199-ФЗ",
+      "en": "Russia Bans Sign-In via Foreign Services: What Law 199-FZ Changes"
+    },
+    "description": {
+      "ru": "С 7 июля 2026 года по 199-ФЗ штрафуют за доступ после авторизации через иностранные сервисы. Разрешённые способы входа, штрафы и самоаудит проекта.",
+      "en": "Since July 7, 2026, Russia's Law 199-FZ fines granting access after sign-in via foreign services. Allowed methods, fines and a quick self-audit."
+    },
+    "date": {
+      "ru": "16 сентября 2026",
+      "en": "September 16, 2026"
+    },
+    "readTime": {
+      "ru": "7 мин",
+      "en": "6 min"
+    }
+  },
+  {
+    "slug": "iz-chego-skladyvaetsya-stoimost-razrabotki",
+    "cover": "https://roboweb.dev/demo/fintech.jpg",
     "category": {
       "ru": "Бизнес и ROI",
       "en": "Business & ROI"
     },
     "title": {
-      "ru": "7 деловых выгод фуллстек-продукта на ИИ",
-      "en": "7 Business Wins of an AI-Built Full-Stack Product"
+      "ru": "Из чего складывается стоимость разработки веб-продукта",
+      "en": "What Really Drives the Cost of Building a Web Product"
     },
     "description": {
-      "ru": "Скорость запуска, экономика без штата разработчиков, владение кодом как активом и контроль над данными — разбираем по пунктам.",
-      "en": "Launch speed, no dev payroll, code you own as an asset, and full control over your data — broken down point by point."
+      "ru": "Из каких работ состоит цена веб-продукта, что сильнее всего её двигает, какие расходы не видны в смете и как ИИ-сборка меняет структуру затрат.",
+      "en": "The work behind a web product's price, the decisions that move it most, costs a quote leaves out, and how AI-assisted building changes the math."
     },
     "date": {
-      "ru": "14 июня 2026",
-      "en": "June 14, 2026"
+      "ru": "16 сентября 2026",
+      "en": "September 16, 2026"
     },
     "readTime": {
-      "ru": "6 мин",
+      "ru": "7 мин",
       "en": "6 min"
     }
   }

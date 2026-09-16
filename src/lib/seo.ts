@@ -41,7 +41,13 @@ export function setSeo({ title, description, image, url, type = 'website', publi
   setOg('type', type);
   setOg('site_name', 'Roboweb');
   setOg('locale', 'ru_RU');
-  if (publishedTime) setOg('article:published_time', publishedTime);
+  // Свойство статьи живёт в своём пространстве имён: setOg добавлял префикс и получалось
+  // «og:article:published_time», которое никто не читает.
+  if (publishedTime) {
+    let el = document.querySelector<HTMLMetaElement>('meta[property="article:published_time"]');
+    if (!el) { el = document.createElement('meta'); el.setAttribute('property', 'article:published_time'); document.head.appendChild(el); }
+    el.content = publishedTime;
+  }
 
   setTwitter('title', fullTitle);
   setTwitter('description', description);
