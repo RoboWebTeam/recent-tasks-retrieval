@@ -1,6 +1,7 @@
 import { apiUrl } from './apiConfig';
 
 export const AUTH_URL = apiUrl('auth');
+export const PASSWORD_RESET_URL = apiUrl('password-reset');
 export const PROJECTS_URL = apiUrl('user-projects');
 export const FILES_URL = apiUrl('site-files');
 export const PUBLIC_SITE_URL = apiUrl('public-site');
@@ -171,6 +172,39 @@ export async function apiLogin(email: string, password: string) {
   });
   if (!res.ok) throw new Error((data as {error?: string}).error || 'Ошибка входа');
   return data;
+}
+
+// ── Сброс забытого пароля. Почта на VPS не ходит (см. backend/send-email) — вместо
+// ссылки в письме это запрос-подтверждение: владелец получает карточку в Telegram
+// и одобряет одной кнопкой, страница пользователя узнаёт об этом через поллинг. ──
+export interface PasswordResetStatus {
+  status: 'pending' | 'approved' | 'rejected' | 'expired' | 'used';
+}
+
+export async function apiRequestPasswordReset(email: string): Promise<{ id: string; poll: string }> {
+  const { res, data } = await apiFetch(PASSWORD_RESET_URL, {
+    method: 'POST',
+    body: JSON.stringify({ action: 'request', email }),
+  });
+  if (!res.ok) throw new Error((data as { error?: string }).error || 'Ошибка отправки заявки');
+  return data as { id: string; poll: string };
+}
+
+export async function apiPasswordResetStatus(id: string, poll: string): Promise<PasswordResetStatus> {
+  const { res, data } = await apiFetch(PASSWORD_RESET_URL, {
+    method: 'POST',
+    body: JSON.stringify({ action: 'status', id, poll }),
+  });
+  if (!res.ok) throw new Error((data as { error?: string }).error || 'Ошибка проверки статуса');
+  return data as unknown as PasswordResetStatus;
+}
+
+export async function apiConfirmPasswordReset(id: string, poll: string, password: string): Promise<void> {
+  const { res, data } = await apiFetch(PASSWORD_RESET_URL, {
+    method: 'POST',
+    body: JSON.stringify({ action: 'confirm', id, poll, password }),
+  });
+  if (!res.ok) throw new Error((data as { error?: string }).error || 'Ошибка сохранения пароля');
 }
 
 /** Привязывает GitHub-аккаунт к уже авторизованному пользователю (не создаёт новую сессию). */
